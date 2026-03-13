@@ -1,1 +1,61 @@
 @import "tailwindcss";
+
+:root {
+  --bg: #fff;
+  --text: #000;
+  --border: #ccc;
+  --gold: #ffbd58;
+}
+
+.header {
+  font-family: "Love Ya Like A Sister", cursive;
+  font-weight: 50;
+  font-style: normal;
+  font-size: 3em;
+  color: var(--gold);
+  width: fit-content;
+  text-align: center;
+  /* border-bottom: 1px solid var(--gold); */
+  line-height: 1;
+  /* border-bottom: 2px solid transparent;
+  border-image: repeating-linear-gradient(90deg,
+      var(--gold) 0,
+      var(--gold) 2px,
+      transparent 4px,
+      transparent 12px) 1; */
+  margin: 8px auto 32px;
+
+  /* background-image: url('./assets/img/darkFern.jpg');
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--gold);
+  border-radius: 8px; */
+
+  /* outline-color: var(--gold);
+  outline-style: solid;
+  outline-width: 1px;
+  outline-offset: -4px; */
+
+  padding: 16px;
+
+  &:before,
+  &:after {
+    /* content: "⊿⫍⫶"; */
+    content: "✧ ✦";
+    font-size: 0.4em;
+    padding: 2px 16px;
+  }
+
+  &:after {
+    display: inline-block;
+    transform: rotateY(180deg);
+  }
+}
+
+.sidebar {
+  border-right: 1px solid var(--gold);
+}
+
+.button {
+  border: 1px solid var(--gold);
+}

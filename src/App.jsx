@@ -9,7 +9,7 @@ function App() {
   return (
     <div id='app' className='flex h-screen'>
       <Sidebar className={'w-64 shrink-0'} />
-      <div className='flex-1 overflow-auto p-4'>
+      <div className='flex-1 overflow-auto' style={{background: '#694159'}}>
         <Routes>
           <Route path='/' element={<Main />} />
           <Route path='/project' element={<IndexProject />} />

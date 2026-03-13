@@ -5,7 +5,7 @@ import flowers1 from '../assets/img/flowers1.jpg'
 
 export default function Sidebar({ className }) {
     return (
-        <div className={`${className} flex flex-col gap-2 p-4`}
+        <div className={`${className} sidebar flex flex-col gap-2 p-4`}
             style={{
                 background: `
                 linear-gradient(299deg,rgba(42, 123, 155, 1) 0%, 
