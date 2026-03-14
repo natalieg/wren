@@ -1,7 +1,7 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
 import SidebarButton from '../components/elements/SidebarButton'
 import flowers1 from '../assets/img/flowers1.jpg'
+import mandala from '../assets/img/mandala1.png'
 
 export default function Sidebar({ className }) {
     return (
@@ -17,6 +17,11 @@ export default function Sidebar({ className }) {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             }}>
+            {/* <img src={bird3} alt="Bird" className="w-full mb-4 rounded-sm" /> */}
+            <div className="w-full h-60 overflow-hidden mb-4 rounded-md border-border border">
+                <img src={mandala} alt="Mandala"
+                    className="w-[200%] max-w-none -translate-x-[40%] translate-y-[-40%]" />
+            </div>
             <SidebarButton to="/">Home</SidebarButton>
             <SidebarButton to="/project">Projects</SidebarButton>
         </div>
