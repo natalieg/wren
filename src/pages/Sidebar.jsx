@@ -18,9 +18,17 @@ export default function Sidebar({ className }) {
                 backgroundPosition: 'center',
             }}>
             {/* <img src={bird3} alt="Bird" className="w-full mb-4 rounded-sm" /> */}
-            <div className="w-full h-60 overflow-hidden mb-4 rounded-md border-border border">
-                <img src={mandala} alt="Mandala"
-                    className="w-[200%] max-w-none -translate-x-[40%] translate-y-[-40%]" />
+            <div className="w-full h-30 overflow-hidden mb-4">
+                {/* <img src={mandala} alt="Mandala"
+                    className="w-[200%] max-w-none -translate-x-[40%] translate-y-[-40%]" /> */}
+                <div className='flex items-center justify-center h-full space-x-2 glow'>
+                    <span className='text-2xl transform -translate-y-1 -ml-4'>✨</span>
+                    <p className="text-center text-gold"
+                        style={{ fontFamily: 'Cinzel', fontSize: '1.5rem' }}>
+                        Wren
+
+                    </p>
+                </div>
             </div>
             <SidebarButton to="/">Home</SidebarButton>
             <SidebarButton to="/project">Projects</SidebarButton>

@@ -6,6 +6,51 @@ import ProjectPanel from './ProjectPanel'
 export default function IndexProject() {
     const [gridView, setGridView] = useState(true)
 
+    const dummyProjects = [
+        {
+            id: 1,
+            title: 'Project Alpha',
+            icon: '⩙',
+            goaltype: 'Number',
+            goalMetric: 'Pages',
+            hourPerUnity: 0.5,
+            goal: 1000,
+            progress: 750,
+            deadline: true,
+            deadlineDate: '20.08.2026',
+            weeklyCommitment: 10,
+            status: 3,
+        },
+        {
+            id: 2,
+            title: 'Project Beta',
+            icon: '⩥',
+            goaltype: 'Number',
+            goalMetric: 'Pages',
+            hourPerUnity: 0.5,
+            goal: 500,
+            progress: 150,
+            deadline: true,
+            deadlineDate: '15.09.2026',
+            weeklyCommitment: 5,
+            status: 1,
+        },
+        {
+            id: 3,
+            title: 'Project Gamma',
+            icon: '⩦',
+            goaltype: 'Number',
+            goalMetric: 'Pages',
+            hourPerUnity: 0.5,
+            goal: 840,
+            progress: 750,
+            deadline: true,
+            deadlineDate: '15.09.2026',
+            weeklyCommitment: 5,
+            status: 2,
+        }
+    ]
+
     return (
         <DocWrapper
             className="relative"
@@ -26,9 +71,9 @@ export default function IndexProject() {
             </div>
             <div id='projectPanelList'
                 className={`${gridView ? 'grid grid-cols-2' : 'flex flex-col'} gap-4`}>
-                <ProjectPanel />
-                <ProjectPanel />
-                <ProjectPanel />
+                {dummyProjects.map(project => (
+                    <ProjectPanel key={project.id} project={project} gridView={gridView} />
+                ))}
             </div>
         </DocWrapper>
     )

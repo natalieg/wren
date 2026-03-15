@@ -6,7 +6,7 @@ export default function Panel({ className, style, children }) {
             panel
             backdrop-blur-sm 
             shadow-lg 
-            rounded-sm p-4
+            rounded-sm p-2
         `}
             style={style}>
             {children}

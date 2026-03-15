@@ -10,7 +10,7 @@
   --color-border: #84622d;
   --titleFont: 'Cinzel Decorative', serif;
   --color-main1: rgba(113, 77, 91);
-  --drop-shadow-glow-gold: 0 0 6px var(--color-gold);
+  --drop-shadow-glow-gold: 0 0 2px var(--color-gold);
 }
 
 .header {
@@ -65,4 +65,9 @@
   &:hover {
     box-shadow: var(--drop-shadow-glow-gold);
   }
+}
+
+.glow {
+  color: var(--color-gold);
+  text-shadow: 0 0 8px var(--color-gold);
 }
