@@ -1,10 +1,15 @@
 import React from 'react'
 import Panel from '../../components/elements/Panel'
 import PropTypes from 'prop-types'
-import galaxybar1 from '../../assets/img/galaxybar1.png'
 import galaxybar2 from '../../assets/img/galaxybar2.png'
 import Progressbar from '../../assets/Progressbar'
 import Thinborder from '../../assets/Thinborder'
+import { computeGoal, computeProgress, flattenGoals } from '../../utils/projectUtils'
+import TitleWithIcon from '../../components/elements/TitleWithIcon'
+
+/**
+ * Two layouts for grid and list view 
+ */
 
 function ProjectCardGrid({ project }) {
     return (
@@ -21,24 +26,39 @@ function ProjectCardGrid({ project }) {
 }
 
 function ProjectCardList({ project }) {
+    const rows = flattenGoals(project)
+
     return (
         <Panel>
-            <div className="flex items-center gap-4">
-                <span className='glow flex items-center justify-center w-8 transform -translate-y-0.5'
-                    style={{ fontSize: '1.5rem' }}>
-                    {project.icon}
-                </span>
-                <span className="w-80 text-gold"
-                    style={{ fontFamily: 'Cinzel', fontSize: '1.3rem', lineHeight: '0' }}>
-                    {project.title}
-                </span>
-                {/* <Thinborder position="right" className="h-5" /> */}
-                <span className='text-gold glow'>⁛</span>
-                <div className='min-w-80'>
-                    <Progressbar percentage={(project.progress / project.goal) * 100}
-                        backgroundImage={galaxybar2} height="h-8"
-                        status={project.status} />
-                </div>
+            <div className="grid gap-y-2" style={{ gridTemplateColumns: '1fr auto' }}>
+                {rows.map((item, i) => {
+                    const percentage = computeGoal(item) > 0 ? (computeProgress(item) / computeGoal(item)) * 100 : 0
+                    return (
+                        <React.Fragment key={i}>
+                            <div className=""
+                                style={{ paddingLeft: `${item.depth * 1.5}rem` }}>
+                                <TitleWithIcon item={item} index={i} />
+                                {/* Goal and Progress */}
+                                <div className={`-mt-2 pl-7`}>
+                                    <span className='text-gold/60 text-sm'>
+                                        {computeProgress(item)}/{computeGoal(item)} {item.goalMetric}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className='flex items-center gap-2 pl-4'>
+                                <span className='text-gold glow'>⁛</span>
+                                <div className='w-80'>
+                                    <Progressbar
+                                        percentage={percentage}
+                                        backgroundImage={galaxybar2}
+                                        height={item.depth === 0 ? 'h-8' : 'h-6'}
+                                        fontSize={item.depth === 0 ? '1rem' : '0.75rem'}
+                                        status={item.status} />
+                                </div>
+                            </div>
+                        </React.Fragment>
+                    )
+                })}
             </div>
         </Panel>
     )
