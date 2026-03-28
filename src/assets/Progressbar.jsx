@@ -12,7 +12,7 @@ export default function Progressbar({ percentage, backgroundImage, className, he
 
     return (
         <div id='progressBar'
-            className={`relative ${height} overflow-hidden border-gold/40 border rounded-sm ${className}`}>
+            className={`relative ${height} overflow-hidden border-gold/60 border rounded-sm ${className}`}>
             <div className='absolute inset-0 flex items-center justify-end text-gold/90 z-10 pr-2' style={{ fontSize }}>
                 {parseInt(percentage)}%
             </div>

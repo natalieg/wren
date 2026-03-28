@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import DocWrapper from '../../components/DocWrapper'
 import dark1 from '../../assets/img/dark1.jpg'
 import ProjectPanel from './ProjectPanel'
+import { dummyProjects } from '../../utils/dummyData'
+import Panel from '../../components/elements/Panel'
 
 export default function IndexProject() {
     const [gridView, setGridView] = useState(() => {
@@ -17,102 +19,7 @@ export default function IndexProject() {
         })
     }
 
-    const ACCUMULATED = 'accumulated'
-    const NUMBER = 'number'
-
-    const dummyProjects = [
-        {
-            id: 1,
-            title: 'Project Alpha',
-            icon: '⩙',
-            goaltype: ACCUMULATED,
-            goalMetric: 'Pages',
-            hourPerUnity: 0.5,
-            progressType: ACCUMULATED,
-            // progress: 750,
-            deadline: true,
-            deadlineDate: '20.08.2026',
-            weeklyCommitment: 10,
-            status: 3,
-            subProjects: [
-                {
-                    id: 11,
-                    title: 'Subproject Alpha-1',
-                    icon: '⩙',
-                    goaltype: ACCUMULATED,
-                    goalMetric: 'Pages',
-                    hourPerUnity: 0.5,
-                    goal: 500,
-                    progressType: ACCUMULATED,
-                    progress: 100,
-                    deadline: true,
-                    deadlineDate: '15.05.2026',
-                    weeklyCommitment: 5,
-                    status: 2,
-                    subProjects: [
-                        {
-                            id: 111,
-                            title: 'Subproject Alpha-1-1',  
-                            icon: '⩙',
-                            goaltype: NUMBER,
-                            goalMetric: 'Pages',
-                            hourPerUnity: 0.5,
-                            goal: 200,
-                            progressType: NUMBER,
-                            progress: 50,
-                            deadline: true,
-                            deadlineDate: '01.05.2026',
-                            weeklyCommitment: 2,
-                            status: 1,
-                        },
-                    ]
-                },
-                {
-                    id: 12,
-                    title: 'Subproject Alpha-2',
-                    icon: '⩙',
-                    goaltype: NUMBER,
-                    goalMetric: 'Pages',
-                    hourPerUnity: 0.5,
-                    goal: 500,
-                    progressType: NUMBER,
-                    progress: 400,
-                    deadline: true,
-                    deadlineDate: '20.08.2026',
-                    weeklyCommitment: 5,
-                    status: 2,
-                },
-            ]
-        },
-        {
-            id: 2,
-            title: 'Project Beta',
-            icon: '⩥',
-            goaltype: 'Number',
-            goalMetric: 'Pages',
-            hourPerUnity: 0.5,
-            goal: 500,
-            progress: 150,
-            deadline: true,
-            deadlineDate: '15.09.2026',
-            weeklyCommitment: 5,
-            status: 1,
-        },
-        {
-            id: 3,
-            title: 'Project Gamma',
-            icon: '⩦',
-            goaltype: 'Number',
-            goalMetric: 'Pages',
-            hourPerUnity: 0.5,
-            goal: 840,
-            progress: 750,
-            deadline: true,
-            deadlineDate: '15.09.2026',
-            weeklyCommitment: 5,
-            status: 2,
-        }
-    ]
+    const totalHours = dummyProjects.reduce((sum, p) => sum + (p.weeklyCommitment || 0), 0)
 
     return (
         <DocWrapper
@@ -123,7 +30,7 @@ export default function IndexProject() {
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
             }}>
-            <p className="header">Project View</p>
+            {/* button view switch */}
             <div className="absolute top-4 right-4">
                 <button id='switchViewBtn'
                     className='text-2xl text-gold w-12 cursor-pointer 
@@ -132,10 +39,20 @@ export default function IndexProject() {
                     {gridView ? '⁝' : '⁜'}
                 </button>
             </div>
+            <p className="header">Project View</p>
+            <Panel className={'-mt-8 mb-4 flex flex-col items-center gap-1'}>
+                <p className="text-gold/80 text-sm">
+                    <span className='glow font-bold'>{dummyProjects.length}</span> Projects
+                    <span className='mx-2'>◈</span>
+                    <span className='glow font-bold'>{totalHours}</span> hours per week
+                </p>
+                <p className='text-gold/60 text-xs'>Est. <span className='font-bold text-gold/40 text-shadow-xs text-shadow-amber-300'>{totalHours / 5}</span> hours per workday</p>
+            </Panel>
             <div id='projectPanelList'
                 className={`${gridView ? 'grid grid-cols-2' : 'flex flex-col'} gap-4`}>
                 {dummyProjects.map(project => (
-                    <ProjectPanel key={project.id} project={project} gridView={gridView} />
+                    <ProjectPanel key={project.id} project={project} gridView={gridView}
+                        totalHours={totalHours} />
                 ))}
             </div>
         </DocWrapper>
