@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tagesliste</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f2eff8;
+  --paper: #faf8fd;
+  --ink: #1e1a2e;
+  --mid: #5a5070;
+  --muted: #9890b0;
+  --line: #e2dced;
+  --line2: #ede8f5;
+
+  --accent: #7c5cbf;
+  --accent-light: #e8e0f8;
+  --accent-mid: #c4b0e8;
+
+  --c-arbeit: #4a6aad;  --cb-arbeit: #eaeff8;
+  --c-sport:  #3a8a5a;  --cb-sport:  #e8f5ee;
+  --c-kunst:  #a04a80;  --cb-kunst:  #f8e8f4;
+  --c-lernen: #7a5a30;  --cb-lernen: #f8f2e8;
+  --c-haushalt:#4a7a6a; --cb-haushalt:#eaf5f2;
+  --c-sonstiges:#6a50a0;--cb-sonstiges:#f0ecf8;
+
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  font-family: 'Geist', system-ui, sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 0;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at 20% 10%, rgba(180,150,240,.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 90%, rgba(140,100,220,.08) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.wrap { max-width: 680px; margin: 0 auto; padding: 2rem 1.5rem 4rem; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+.date-line { font-family:'Geist Mono',monospace; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:.3rem; }
+.page-title { font-family:'Instrument Serif',serif; font-size:2.4rem; font-weight:400; color:var(--ink); line-height:1; letter-spacing:-.01em; margin-bottom:1.6rem; }
+.page-title em { font-style:italic; color:var(--accent); }
+
+/* ── XP SECTION ── */
+.xp-section {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem .85rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 1px 4px rgba(120,90,200,.06);
+}
+.xp-top { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:.65rem; }
+.xp-level { font-family:'Geist Mono',monospace; font-size:.65rem; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); font-weight:500; }
+.xp-pts { font-family:'Instrument Serif',serif; font-size:1.5rem; color:var(--ink); line-height:1; }
+.xp-pts span { font-size:.82rem; color:var(--muted); font-family:'Geist',sans-serif; }
+.bar-track { height:7px; background:var(--line); border-radius:99px; overflow:hidden; margin-bottom:.55rem; }
+.bar-fill { height:100%; background:linear-gradient(90deg, var(--accent) 0%, #a87fe0 100%); border-radius:99px; transition:width .6s cubic-bezier(.34,1.56,.64,1); }
+.xp-bottom { display:flex; align-items:center; justify-content:space-between; }
+.emoji-shelf { display:flex; gap:4px; flex-wrap:wrap; min-height:20px; }
+.emoji-item { font-size:1.05rem; animation:popIn .3s cubic-bezier(.34,1.56,.64,1); }
+@keyframes popIn { from{transform:scale(0) rotate(-20deg);opacity:0} to{transform:scale(1) rotate(0);opacity:1} }
+.today-xp { font-family:'Geist Mono',monospace; font-size:.68rem; color:var(--muted); white-space:nowrap; }
+.today-xp strong { color:var(--accent); }
+
+/* ── CONTROLS ROW ── */
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+.ctrl-label { font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+
+.time-input {
+  font-family:'Geist Mono',monospace; font-size:.88rem;
+  background:var(--paper); border:1px solid var(--line);
+  border-radius:6px; color:var(--ink);
+  padding:.3rem .6rem; outline:none; width:108px;
+  transition:border-color .15s;
+}
+.time-input:focus { border-color:var(--accent); }
+
+.now-btn {
+  font-family:'Geist',sans-serif; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase;
+  padding:.3rem .65rem; border:1px solid var(--accent-mid);
+  border-radius:6px; background:var(--accent-light);
+  color:var(--accent); cursor:pointer; transition:all .12s; white-space:nowrap;
+}
+.now-btn:hover { background:var(--accent); color:white; }
+
+.ctrl-sep { color:var(--line); font-size:1rem; }
+
+.buf-input {
+  font-family:'Geist Mono',monospace; font-size:.82rem;
+  background:var(--paper); border:1px solid var(--line);
+  border-radius:6px; color:var(--ink);
+  padding:.3rem .5rem; outline:none; width:54px; text-align:center;
+  transition:border-color .15s;
+}
+.buf-input:focus { border-color:var(--accent); }
+
+/* ── TASK LIST ── */
+.task-list { display:flex; flex-direction:column; gap:.45rem; margin-bottom:.9rem; }
+
+.task-row {
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:border-color .15s, background .15s;
+  box-shadow:0 1px 3px rgba(120,90,200,.05);
+}
+.task-row.done { background:#f5f2fd; border-color:#d4cae8; opacity:.72; }
+.task-row.done .task-name { text-decoration:line-through; color:var(--muted); }
+.task-row.done .task-time-block { opacity:.55; }
+.task-row.is-late { border-left:3px solid #e8a040; }
+
+.task-main { display:flex; align-items:center; gap:.6rem; padding:.6rem .85rem; }
+
+.cat-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+.task-check {
+  width:20px; height:20px; flex-shrink:0; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.8rem; background:none; border:none; padding:0;
+  color:var(--line); transition:color .12s;
+}
+.task-check:hover { color:var(--accent); }
+.task-row.done .task-check { color:var(--accent); }
+
+.task-info { flex:1; min-width:0; }
+.task-name { font-size:.88rem; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.3; }
+.task-cat-label { font-size:.6rem; letter-spacing:.07em; text-transform:uppercase; margin-top:.05rem; }
+
+.task-time-block { display:flex; align-items:center; gap:.35rem; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+.task-time-display { font-family:'Geist Mono',monospace; font-size:.7rem; color:var(--muted); white-space:nowrap; }
+.task-done-time { font-family:'Geist Mono',monospace; font-size:.68rem; color:var(--accent); white-space:nowrap; }
+
+.task-dur-input {
+  font-family:'Geist Mono',monospace; font-size:.72rem;
+  background:var(--line2); border:1px solid var(--line);
+  border-radius:4px; color:var(--mid);
+  padding:.14rem .32rem; width:44px; text-align:center; outline:none;
+  transition:border-color .15s;
+}
+.task-dur-input:focus { border-color:var(--accent); }
+
+.pts-badge { font-family:'Geist Mono',monospace; font-size:.6rem; color:var(--accent); background:var(--accent-light); padding:.1rem .38rem; border-radius:99px; white-space:nowrap; flex-shrink:0; }
+
+/* action buttons */
+.task-actions { display:flex; gap:2px; flex-shrink:0; }
+.task-act-btn {
+  background:none; border:none; cursor:pointer;
+  color:transparent; font-size:.72rem; padding:.18rem .28rem;
+  line-height:1; transition:color .12s; border-radius:3px;
+}
+.task-row:hover .task-act-btn { color:var(--muted); }
+.task-act-btn:hover { background:var(--line2); color:var(--ink) !important; }
+.task-act-btn.del:hover { color:var(--c-sonstiges) !important; background:#f0ecf8; }
+
+/* ── ADD FORM ── */
+.add-task-form {
+  background:var(--paper);
+  border:1px dashed var(--accent-mid);
+  border-radius:var(--radius);
+  padding:.65rem .85rem;
+  display:flex; gap:.45rem; align-items:center; flex-wrap:wrap;
+}
+.add-name-input {
+  font-family:'Geist',sans-serif; font-size:.86rem;
+  background:transparent; border:none; color:var(--ink); outline:none;
+  flex:1; min-width:120px;
+}
+.add-name-input::placeholder { color:var(--muted); }
+.add-dur-input {
+  font-family:'Geist Mono',monospace; font-size:.78rem;
+  background:var(--line2); border:1px solid var(--line);
+  border-radius:5px; color:var(--mid);
+  padding:.22rem .45rem; width:52px; text-align:center; outline:none;
+  transition:border-color .15s;
+}
+.add-dur-input:focus { border-color:var(--accent); }
+.add-unit { font-size:.7rem; color:var(--muted); }
+.cat-select {
+  font-family:'Geist',sans-serif; font-size:.75rem;
+  background:var(--line2); border:1px solid var(--line);
+  border-radius:5px; color:var(--mid);
+  padding:.22rem .4rem; outline:none; cursor:pointer;
+  transition:border-color .15s;
+}
+.cat-select:focus { border-color:var(--accent); }
+.add-btn {
+  font-family:'Geist',sans-serif; font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+  padding:.28rem .8rem; border:1px solid var(--accent);
+  border-radius:5px; background:var(--accent); color:white;
+  cursor:pointer; transition:all .12s; white-space:nowrap;
+}
+.add-btn:hover { background:#6348a8; }
+
+/* ── BOTTOM ── */
+.bottom-row { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:.9rem; border-top:1px solid var(--line); }
+.total-time { font-family:'Geist Mono',monospace; font-size:.7rem; color:var(--muted); }
+.reset-btn { font-family:'Geist',sans-serif; font-size:.67rem; letter-spacing:.07em; text-transform:uppercase; padding:.27rem .72rem; border:1px solid var(--line); border-radius:5px; background:transparent; color:var(--muted); cursor:pointer; transition:all .12s; }
+.reset-btn:hover { color:#b04040; border-color:#b04040; }
+
+/* ── TOAST ── */
+.toast { position:fixed; top:1.4rem; left:50%; transform:translateX(-50%) translateY(-1.8rem); background:var(--ink); color:#faf8fd; font-size:.82rem; padding:.55rem 1.3rem; border-radius:99px; opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; z-index:100; white-space:nowrap; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* empty state */
+.empty-hint { text-align:center; padding:1.4rem; color:var(--muted); font-style:italic; font-size:.86rem; }
+
+@keyframes completePop { 0%{transform:scale(1)} 40%{transform:scale(1.02)} 100%{transform:scale(1)} }
+.task-row.just-done { animation:completePop .28s ease; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="date-line" id="dateLine"></div>
+  <h1 class="page-title">Heute <em>schaffen</em></h1>
+
+  <!-- XP -->
+  <div class="xp-section">
+    <div class="xp-top">
+      <span class="xp-level" id="levelLabel">Level 1 · Anfänger</span>
+      <span class="xp-pts"><span id="totalPts">0</span> <span>XP gesamt</span></span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="xpBar" style="width:0%"></div></div>
+    <div class="xp-bottom">
+      <div class="emoji-shelf" id="emojiShelf"></div>
+      <span class="today-xp" id="todayXpLabel">Heute: <strong>0 XP</strong></span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls-row">
+    <span class="ctrl-label">Start</span>
+    <input type="time" class="time-input" id="startTime" value="09:00">
+    <button class="now-btn" id="nowBtn">Jetzt</button>
+    <span class="ctrl-sep">·</span>
+    <span class="ctrl-label">Puffer</span>
+    <input type="number" class="buf-input" id="bufferMin" value="0" min="0" max="60" step="5">
+    <span class="ctrl-label">min</span>
+    <span class="ctrl-sep">·</span>
+    <button class="now-btn" id="resumeBtn" title="Setzt den nächsten offenen Task auf jetzt" style="white-space:nowrap">▶ Jetzt weitermachen</button>
+  </div>
+
+  <!-- TASKS -->
+  <div class="task-list" id="taskList"></div>
+
+  <!-- ADD -->
+  <div class="add-task-form">
+    <input class="add-name-input" type="text" id="addName" placeholder="Task hinzufügen…">
+    <input class="add-dur-input" type="number" id="addDur" value="40" min="5" max="480" step="5">
+    <span class="add-unit">min</span>
+    <select class="cat-select" id="addCat">
+      <option value="arbeit">💼 Arbeit</option>
+      <option value="sport">🏃 Sport</option>
+      <option value="kunst">🎨 Kunst</option>
+      <option value="lernen">📚 Lernen</option>
+      <option value="haushalt">🏠 Haushalt</option>
+      <option value="sonstiges">✨ Sonstiges</option>
+    </select>
+    <button class="add-btn" id="addBtn">+ Task</button>
+  </div>
+
+  <div class="bottom-row">
+    <span class="total-time" id="totalTime"></span>
+    <button class="reset-btn" id="resetBtn">Tag zurücksetzen</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SK = 'dayplanner_v2';
+
+const CATS = {
+  arbeit:    { label:'💼 Arbeit',    color:'#4a6aad', pts:12 },
+  sport:     { label:'🏃 Sport',     color:'#3a8a5a', pts:15 },
+  kunst:     { label:'🎨 Kunst',     color:'#a04a80', pts:10 },
+  lernen:    { label:'📚 Lernen',    color:'#7a5a30', pts:12 },
+  haushalt:  { label:'🏠 Haushalt',  color:'#4a7a6a', pts: 6 },
+  sonstiges: { label:'✨ Sonstiges', color:'#6a50a0', pts: 8 },
+};
+
+const CAT_EMOJIS = {
+  arbeit:    ['💼','📊','✅','🖥️','📝','⚡'],
+  sport:     ['🏃','💪','🔥','⚡','🥊','🌿'],
+  kunst:     ['🎨','✏️','🌸','🖌️','🦋','💜'],
+  lernen:    ['📚','🧠','💡','🔭','📖','🌟'],
+  haushalt:  ['🏠','🧹','🌿','☕','🛋️','✨'],
+  sonstiges: ['✨','🌟','🎯','💫','🎉','🪄'],
+};
+
+const LEVELS = [
+  {name:'Anfänger',    min:0},
+  {name:'Am Laufen',   min:50},
+  {name:'Im Flow',     min:150},
+  {name:'Produktiv',   min:300},
+  {name:'Im Rausch',   min:500},
+  {name:'Unaufhaltbar',min:800},
+  {name:'Legendär',    min:1200},
+];
+
+let S = {
+  tasks: [],       // {id, name, cat, dur, done, doneAt (ISO)}
+  startTime: '09:00',
+  bufferMin: 0,
+  totalXp: 0,
+  todayXp: 0,
+  emojis: [],
+  lastDate: '',
+};
+let nextId = 1;
+
+// ── PERSIST ──
+function save() {
+  localStorage.setItem(SK, JSON.stringify(S));
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SK) || 'null');
+    if (!d) return;
+    S = { ...S, ...d };
+    S.tasks = (d.tasks || []);
+    S.emojis = d.emojis || [];
+    nextId = Math.max(1, ...S.tasks.map(t => t.id + 1), 1);
+  } catch(e) {}
+}
+function checkDailyReset() {
+  const today = new Date().toISOString().slice(0,10);
+  if (S.lastDate !== today) {
+    S.tasks = []; S.todayXp = 0; S.emojis = []; S.lastDate = today;
+    save();
+  }
+}
+
+// ── TIME UTILS ──
+function timeToMins(t) { const [h,m] = t.split(':').map(Number); return h*60+m; }
+function minsToTime(m) { const h=Math.floor(m/60)%24, mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+function fmtDur(m) { if(m<60)return m+' min'; const h=Math.floor(m/60),mm=m%60; return mm?`${h}h ${mm}m`:`${h}h`; }
+function nowTime() { const n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
+
+// ── SCHEDULE ──
+// Key insight: if a task is done, the NEXT task starts from max(planned, actual done time).
+// This way if you finish early, remaining tasks shift forward (earlier),
+// and if you finish late, they shift back.
+function computeSchedule() {
+  let cursor = timeToMins(S.startTime);
+  const buf = S.bufferMin || 0;
+
+  return S.tasks.map((task, idx) => {
+    const plannedStart = cursor;
+    if (task.done && task.doneAt) {
+      // actual completion time drives next task
+      const actualDone = timeToMins(task.doneAt);
+      cursor = actualDone + buf;
+    } else if (!task.done) {
+      cursor += task.dur + buf;
+    }
+    return {
+      start: plannedStart,
+      end: task.done && task.doneAt
+        ? timeToMins(task.doneAt)
+        : plannedStart + task.dur,
+    };
+  });
+}
+
+// ── XP ──
+function ptsForTask(task) {
+  const base = (CATS[task.cat] || CATS.sonstiges).pts;
+  return base + Math.floor(task.dur / 30);
+}
+function getLevel(xp) {
+  let l = 0;
+  for (let i = LEVELS.length-1; i >= 0; i--) { if (xp >= LEVELS[i].min) { l=i; break; } }
+  return l;
+}
+function getLevelProgress(xp) {
+  const l = getLevel(xp);
+  const curr = LEVELS[l].min;
+  const next = LEVELS[l+1] ? LEVELS[l+1].min : curr+200;
+  return { pct: Math.min(100, ((xp-curr)/(next-curr))*100), l };
+}
+function pickEmoji(cat) {
+  const pool = CAT_EMOJIS[cat] || CAT_EMOJIS.sonstiges;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+// ── RENDER ──
+function render() {
+  // date
+  const d = new Date();
+  const days=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  const months=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  document.getElementById('dateLine').textContent = `${days[d.getDay()]} · ${d.getDate()}. ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+  // xp bar
+  const { pct, l } = getLevelProgress(S.totalXp);
+  document.getElementById('xpBar').style.width = pct + '%';
+  document.getElementById('totalPts').textContent = S.totalXp;
+  document.getElementById('levelLabel').textContent = `Level ${l+1} · ${LEVELS[l].name}`;
+  document.getElementById('todayXpLabel').innerHTML = `Heute: <strong>${S.todayXp} XP</strong>`;
+  document.getElementById('emojiShelf').innerHTML = S.emojis.map(e=>`<span class="emoji-item">${e}</span>`).join('');
+
+  // tasks
+  renderTasks();
+}
+
+function renderTasks() {
+  const list = document.getElementById('taskList');
+  list.innerHTML = '';
+  if (!S.tasks.length) {
+    list.innerHTML = '<div class="empty-hint">Noch keine Tasks — füg einen hinzu! 👆</div>';
+    document.getElementById('totalTime').textContent = '';
+    return;
+  }
+
+  const sched = computeSchedule();
+  const nowMins = timeToMins(nowTime());
+
+  S.tasks.forEach((task, idx) => {
+    const cat = CATS[task.cat] || CATS.sonstiges;
+    const s = sched[idx];
+    const pts = ptsForTask(task);
+    const isLate = !task.done && s.start < nowMins;
+
+    const row = document.createElement('div');
+    row.className = 'task-row' + (task.done ? ' done' : '') + (isLate ? ' is-late' : '');
+    row.dataset.id = task.id;
+
+    // time display
+    let timeHtml = '';
+    if (task.done && task.doneAt) {
+      timeHtml = `<span class="task-done-time">✓ ${task.doneAt}</span>`;
+    } else {
+      timeHtml = `<span class="task-time-display">${minsToTime(s.start)} – ${minsToTime(s.end)}</span>`;
+    }
+
+    const isDup = task.cat === 'arbeit';
+
+    row.innerHTML = `
+      <div class="task-main">
+        <div class="cat-dot" style="background:${cat.color}"></div>
+        <button class="task-check" data-id="${task.id}">${task.done ? '✓' : '○'}</button>
+        <div class="task-info">
+          <div class="task-name">${task.name}</div>
+          <div class="task-cat-label" style="color:${cat.color}">${cat.label}</div>
+        </div>
+        <div class="task-time-block">
+          ${timeHtml}
+          <input class="task-dur-input" type="number" min="5" max="480" step="5"
+            value="${task.dur}" data-id="${task.id}">
+          <span style="font-size:.6rem;color:var(--muted)">m</span>
+          <span class="pts-badge">+${pts} XP</span>
+        </div>
+        <div class="task-actions">
+          ${isDup ? `<button class="task-act-btn dup" data-id="${task.id}" title="Duplizieren">⧉</button>` : ''}
+          <button class="task-act-btn del" data-id="${task.id}" title="Löschen">✕</button>
+        </div>
+      </div>
+    `;
+
+    // events
+    row.querySelector('.task-check').addEventListener('click', () => toggleDone(task.id));
+    row.querySelector('.task-dur-input').addEventListener('change', e => {
+      const t = S.tasks.find(x => x.id === task.id);
+      if (t) { t.dur = Math.max(5, parseInt(e.target.value)||30); save(); render(); }
+    });
+    row.querySelector('.task-dur-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.target.blur(); }
+    });
+    row.querySelector('.task-act-btn.del')?.addEventListener('click', () => {
+      S.tasks = S.tasks.filter(x => x.id !== task.id); save(); render();
+    });
+    row.querySelector('.task-act-btn.dup')?.addEventListener('click', () => duplicateTask(task.id));
+
+    list.appendChild(row);
+  });
+
+  // bottom summary
+  const remaining = S.tasks.filter(t => !t.done).reduce((s,t) => s+t.dur, 0);
+  const doneCount = S.tasks.filter(t => t.done).length;
+  document.getElementById('totalTime').textContent =
+    `${fmtDur(remaining)} verbleibend · ${doneCount}/${S.tasks.length} erledigt`;
+}
+
+// ── ACTIONS ──
+function toggleDone(id) {
+  const idx = S.tasks.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  const task = S.tasks[idx];
+
+  if (task.done) {
+    // undo: move back before all done tasks (to front of done section)
+    const pts = ptsForTask(task);
+    task.done = false; task.doneAt = null;
+    S.totalXp = Math.max(0, S.totalXp - pts);
+    S.todayXp = Math.max(0, S.todayXp - pts);
+    const pool = CAT_EMOJIS[task.cat] || [];
+    for (let i = S.emojis.length-1; i >= 0; i--) {
+      if (pool.includes(S.emojis[i])) { S.emojis.splice(i,1); break; }
+    }
+    // move back to before the first done task
+    S.tasks.splice(idx, 1);
+    const firstDoneIdx = S.tasks.findIndex(t => t.done);
+    if (firstDoneIdx === -1) S.tasks.push(task);
+    else S.tasks.splice(firstDoneIdx, 0, task);
+    save(); render(); return;
+  }
+
+  const prevLevel = getLevel(S.totalXp);
+  const pts = ptsForTask(task);
+  task.done = true;
+  task.doneAt = nowTime();
+  S.totalXp += pts;
+  S.todayXp += pts;
+  S.emojis.push(pickEmoji(task.cat));
+
+  // move to end of done tasks (after last done, before first undone)
+  S.tasks.splice(idx, 1);
+  const lastDoneIdx = S.tasks.reduce((last, t, i) => t.done ? i : last, -1);
+  S.tasks.splice(lastDoneIdx + 1, 0, task);
+  save();
+
+  const newLevel = getLevel(S.totalXp);
+  showToast(newLevel > prevLevel
+    ? `🎉 Level Up! ${LEVELS[newLevel].name}`
+    : `+${pts} XP · ${S.emojis[S.emojis.length-1]}`
+  );
+  render();
+}
+
+function addTask() {
+  const name = document.getElementById('addName').value.trim();
+  if (!name) { document.getElementById('addName').focus(); return; }
+  const dur = Math.max(5, parseInt(document.getElementById('addDur').value) || 40);
+  const cat = document.getElementById('addCat').value;
+  S.tasks.push({ id: nextId++, name, cat, dur, done: false, doneAt: null });
+  document.getElementById('addName').value = '';
+  save(); render();
+  document.getElementById('addName').focus();
+}
+
+function duplicateTask(id) {
+  const src = S.tasks.find(t => t.id === id);
+  if (!src) return;
+  // find highest number suffix for this base name
+  const base = src.name.replace(/\s+\d+$/, '').trim();
+  let maxN = 0;
+  S.tasks.forEach(t => {
+    const m = t.name.match(new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\s+(\\d+)$`));
+    if (m) maxN = Math.max(maxN, parseInt(m[1]));
+  });
+  // also check if original has no number (treat as 1)
+  if (maxN === 0) {
+    const hasNum = src.name.match(/\s+\d+$/);
+    maxN = hasNum ? parseInt(hasNum[0]) : 1;
+  }
+  const newName = `${base} ${maxN + 1}`;
+  const insertIdx = S.tasks.findIndex(t => t.id === id) + 1;
+  S.tasks.splice(insertIdx, 0, { id: nextId++, name: newName, cat: src.cat, dur: src.dur, done: false, doneAt: null });
+  save(); render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── CONTROLS ──
+document.getElementById('addBtn').addEventListener('click', addTask);
+document.getElementById('addName').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
+document.getElementById('addDur').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
+
+document.getElementById('nowBtn').addEventListener('click', () => {
+  S.startTime = nowTime();
+  document.getElementById('startTime').value = S.startTime;
+  save(); render();
+});
+document.getElementById('startTime').addEventListener('change', e => {
+  S.startTime = e.target.value; save(); render();
+});
+document.getElementById('bufferMin').addEventListener('change', e => {
+  S.bufferMin = Math.max(0, parseInt(e.target.value)||0); save(); render();
+});
+document.getElementById('bufferMin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.target.blur(); render(); }
+});
+document.getElementById('resumeBtn').addEventListener('click', () => {
+  // Find the first undone task. We set startTime so that task begins now.
+  // Done tasks before it already have real doneAt times, so we work backwards:
+  // new startTime = now - (sum of done tasks' actual durations + buffers before first undone)
+  const buf = S.bufferMin || 0;
+  const nowMins = timeToMins(nowTime());
+  const firstUndoneIdx = S.tasks.findIndex(t => !t.done);
+
+  if (firstUndoneIdx === -1) { showToast('Alle Tasks erledigt! 🎉'); return; }
+
+  // We want: startTime + cumulative_done_time = nowMins
+  // cumulative = sum of actual done durations + buffers
+  let cumulativeMins = 0;
+  for (let i = 0; i < firstUndoneIdx; i++) {
+    const t = S.tasks[i];
+    if (t.done && t.doneAt) {
+      // use actual duration relative to prev task — tricky, so just use planned dur
+      cumulativeMins += t.dur + buf;
+    }
+  }
+  const newStartMins = nowMins - cumulativeMins;
+  S.startTime = minsToTime(Math.max(0, newStartMins));
+  document.getElementById('startTime').value = S.startTime;
+  save(); render();
+  showToast('⏱ Ab jetzt neu berechnet');
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm('Tag zurücksetzen? Tasks und heutige XP werden gelöscht.')) return;
+  S.tasks=[]; S.todayXp=0; S.emojis=[]; save(); render();
+});
+
+// ── INIT ──
+load();
+checkDailyReset();
+document.getElementById('startTime').value = S.startTime;
+document.getElementById('bufferMin').value = S.bufferMin || 0;
+render();
+</script>
+</body>
+</html>

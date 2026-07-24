@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goals</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Karla:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0d0d0f;
+  --surface: #131316;
+  --surface2: #18181c;
+  --border: #222228;
+  --border2: #2e2e38;
+  --text: #e8e6f0;
+  --muted: #6a6878;
+  --muted2: #3a3848;
+  --green: #4ec994;
+  --green-dim: #1a3328;
+  --yellow: #e8b84a;
+  --yellow-dim: #2e2410;
+  --red: #e86060;
+  --red-dim: #2e1414;
+  --blue: #6090e8;
+  --purple: #9060e8;
+  --radius: 12px;
+  --radius-sm: 6px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Karla', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: .5;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 2.5rem 2rem 1.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+
+h1 em { font-style: italic; color: var(--green); }
+
+.header-sub {
+  font-size: .72rem;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-top: .3rem;
+}
+
+.add-goal-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .5rem 1.2rem;
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.add-goal-btn:hover { color: var(--text); border-color: var(--text); }
+
+/* ── ADD FORM MODAL ── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-backdrop.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 1.8rem 2rem;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.modal h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.form-field label {
+  font-size: .75rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.form-field input,
+.form-field select {
+  font-family: 'Karla', sans-serif;
+  font-size: .95rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: .5rem .75rem;
+  outline: none;
+  transition: border-color .15s;
+}
+.form-field input:focus,
+.form-field select:focus { border-color: var(--border2); }
+.form-field input::placeholder { color: var(--muted2); }
+.form-field select option { background: var(--surface2); }
+
+.form-row { display: flex; gap: .6rem; }
+.form-row .form-field { flex: 1; }
+
+/* fix: Zielwert + Stand stacked on narrow */
+.form-col { display: flex; flex-direction: column; gap: .6rem; }
+
+.modal-actions {
+  display: flex;
+  gap: .5rem;
+  justify-content: flex-end;
+}
+
+.btn-cancel {
+  font-family: 'Karla', sans-serif;
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.btn-cancel:hover { color: var(--text); }
+
+.btn-create {
+  font-family: 'Karla', sans-serif;
+  font-size: .75rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .5rem 1.2rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--green);
+  color: #0a1a12;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-create:hover { background: #6adfaa; }
+
+/* ── GRID ── */
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+  padding: 0 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── GOAL CARD ── */
+.goal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .2s;
+}
+
+.goal-card.status-green { border-color: #1e4a36; }
+.goal-card.status-yellow { border-color: #3a2e10; }
+.goal-card.status-red { border-color: #3a1414; }
+.goal-card.status-paused {
+  border-color: #2a2838;
+  opacity: .65;
+}
+.status-paused .card-stripe  { background: #4a4860; }
+.status-paused .card-pace    { background: #1e1c2e; color: #6a68a0; }
+.status-paused .prog-bar-fill { background: #4a4860; }
+.status-paused .days-left    { color: #6a68a0; }
+
+.pause-btn {
+  font-size: .72rem;
+  color: var(--muted2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .12s;
+  padding: .2rem;
+  flex-shrink: 0;
+}
+.pause-btn:hover { color: #9090c0; }
+.goal-card.status-paused .pause-btn { color: #6a68a0; }
+
+.paused-badge {
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6a68a0;
+  background: #1e1c2e;
+  padding: .15rem .5rem;
+  border-radius: 99px;
+  margin-left: auto;
+}
+
+/* status stripe */
+.card-stripe {
+  height: 3px;
+  background: var(--muted2);
+  transition: background .3s;
+}
+.status-green .card-stripe  { background: var(--green); }
+.status-yellow .card-stripe { background: var(--yellow); }
+.status-red .card-stripe    { background: var(--red); }
+.status-done .card-stripe   { background: var(--green); }
+
+/* card body */
+.card-body { padding: 1.2rem 1.3rem 1rem; flex: 1; display: flex; flex-direction: column; gap: .8rem; }
+
+/* title row */
+.card-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.2;
+  flex: 1;
+}
+
+.card-menu-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  transition: color .12s;
+  flex-shrink: 0;
+}
+.card-menu-btn:hover { color: var(--text); }
+
+/* mode switch (Ist / +Delta) */
+.mode-switch {
+  display: flex;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.mode-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .28rem .6rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .12s;
+}
+.mode-btn.active { background: var(--border2); color: var(--text); }
+.mode-btn + .mode-btn { border-left: 1px solid var(--border2); }
+
+/* dates */
+.card-dates {
+  font-size: .8rem;
+  color: var(--muted);
+  letter-spacing: .05em;
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+}
+
+.date-sep { color: var(--muted2); }
+
+.card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.2;
+  flex: 1;
+}
+
+.days-left {
+  margin-left: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: .78rem;
+}
+.status-green  .days-left { color: var(--green); }
+.status-yellow .days-left { color: var(--yellow); }
+.status-red    .days-left { color: var(--red); }
+
+/* progress numbers */
+.card-progress {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+}
+
+.prog-current {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.6rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1;
+}
+
+.prog-total {
+  font-size: .95rem;
+  color: var(--muted);
+}
+
+.prog-unit {
+  font-size: .85rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+/* progress bar */
+.prog-bar-wrap {
+  background: var(--border);
+  border-radius: 99px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.prog-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: var(--muted2);
+  transition: width .4s ease, background .3s;
+}
+.status-green  .prog-bar-fill { background: var(--green); }
+.status-yellow .prog-bar-fill { background: var(--yellow); }
+.status-red    .prog-bar-fill { background: var(--red); }
+
+/* pace */
+.card-pace {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem .7rem;
+  border-radius: var(--radius-sm);
+  font-size: .88rem;
+  transition: background .2s;
+}
+.status-green  .card-pace { background: var(--green-dim);  color: var(--green); }
+.status-yellow .card-pace { background: var(--yellow-dim); color: var(--yellow); }
+.status-red    .card-pace { background: var(--red-dim);    color: var(--red); }
+.status-done   .card-pace { background: var(--green-dim);  color: var(--green); }
+
+.pace-icon { font-size: .9rem; flex-shrink: 0; }
+.pace-text { flex: 1; line-height: 1.35; }
+.pace-text strong { font-weight: 600; }
+
+/* card footer */
+.card-footer {
+  padding: .6rem 1.3rem .9rem;
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  border-top: 1px solid var(--border);
+}
+
+.update-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .78rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .38rem .9rem;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .12s;
+  flex-shrink: 0;
+}
+.update-btn:hover { color: var(--text); border-color: var(--text); }
+
+.update-input {
+  font-family: 'DM Mono', monospace;
+  font-size: .92rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: .3rem .6rem;
+  outline: none;
+  width: 90px;
+  transition: border-color .15s;
+  display: none;
+}
+.update-input.open { display: block; }
+.update-input:focus { border-color: var(--border2); }
+
+.update-save {
+  font-family: 'Karla', sans-serif;
+  font-size: .78rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .38rem .75rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--green);
+  color: #0a1a12;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .12s;
+  display: none;
+  flex-shrink: 0;
+}
+.update-save.open { display: block; }
+.update-save:hover { background: #6adfaa; }
+
+.toggle-chart-btn {
+  margin-left: auto;
+  font-size: .76rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .12s;
+}
+.toggle-chart-btn:hover { color: var(--text); }
+
+.delete-btn {
+  font-size: .72rem;
+  color: var(--muted2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .12s;
+  padding: .2rem;
+}
+.delete-btn:hover { color: var(--red); }
+
+/* ── CHART ── */
+.card-chart {
+  display: none;
+  padding: .6rem 1.3rem 1rem;
+  border-top: 1px solid var(--border);
+}
+.card-chart.open { display: block; }
+
+.chart-svg-wrap {
+  position: relative;
+  width: 100%;
+  height: 80px;
+}
+
+.chart-svg-wrap svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: .3rem;
+}
+
+.chart-label {
+  font-family: 'DM Mono', monospace;
+  font-size: .55rem;
+  color: var(--muted2);
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 5rem 1rem;
+  color: var(--muted);
+}
+
+.empty-state p {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 1.3rem;
+  margin-bottom: .6rem;
+}
+
+.empty-state span { font-size: .78rem; opacity: .6; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>meine <em>Ziele</em></h1>
+    <div class="header-sub">Deadline · Pace · Progress</div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.2rem">
+    <div style="display:flex;gap:.5rem">
+      <button class="add-goal-btn" id="importBtn">↑ Import</button>
+      <button class="add-goal-btn" id="exportBtn">↓ Export</button>
+    </div>
+    <span id="lastExportLabel" style="font-size:.62rem;color:#4a4840;letter-spacing:.05em"></span>
+  </div>
+  <button class="add-goal-btn" id="openModal">+ Neues Ziel</button>
+  <input type="file" id="importFile" accept=".json" style="display:none">
+</header>
+
+<div style="padding:.6rem 2rem;display:flex;gap:.4rem;align-items:center;position:relative;z-index:1;flex-wrap:wrap;">
+  <button class="add-goal-btn filter-active" id="filterActive" style="font-size:.68rem;padding:.3rem .8rem;">Aktiv</button>
+  <button class="add-goal-btn" id="filterDone" style="font-size:.68rem;padding:.3rem .8rem;">✓ Erledigt</button>
+  <button class="add-goal-btn" id="filterPaused" style="font-size:.68rem;padding:.3rem .8rem;">⏸ Pausiert</button>
+  <button class="add-goal-btn" id="filterAll" style="font-size:.68rem;padding:.3rem .8rem;">Alle</button>
+  <select id="goalSort" style="margin-left:auto;font-family:'Karla',sans-serif;font-size:.72rem;background:transparent;border:1px solid #2e2e38;border-radius:6px;color:#6a6878;padding:.3rem .6rem;outline:none;cursor:pointer;">
+    <option value="default">Reihenfolge</option>
+    <option value="urgency">🔥 Brenzlichkeit</option>
+    <option value="pct-asc">% aufsteigend</option>
+    <option value="pct-desc">% absteigend</option>
+    <option value="deadline">Deadline</option>
+  </select>
+  <button id="toggleAllCharts" style="font-family:'Karla',sans-serif;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .8rem;border:1px solid #2e2e38;border-radius:99px;background:transparent;color:#6a6878;cursor:pointer;transition:all .15s;">▼ Verläufe</button>
+</div>
+
+<div class="goals-grid" id="goalsGrid"></div>
+
+<!-- EDIT MODAL -->
+<div class="modal-backdrop" id="editModalBackdrop">
+  <div class="modal">
+    <h2>Ziel bearbeiten</h2>
+    <div class="form-field">
+      <label>Titel</label>
+      <input type="text" id="editTitle">
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Startdatum</label>
+        <input type="date" id="editStart">
+      </div>
+      <div class="form-field">
+        <label>Deadline</label>
+        <input type="date" id="editEnd">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Aktueller Stand</label>
+        <input type="number" id="editCurrent">
+      </div>
+      <div class="form-field">
+        <label>Zielwert</label>
+        <input type="number" id="editTarget">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="editCancel">Abbrechen</button>
+      <button class="btn-create" id="editSave">Speichern</button>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h2>Neues Ziel</h2>
+    <div class="form-field">
+      <label>Titel</label>
+      <input type="text" id="mTitle" placeholder="z.B. Silver Reread…">
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Startdatum</label>
+        <input type="date" id="mStart">
+      </div>
+      <div class="form-field">
+        <label>Deadline</label>
+        <input type="date" id="mEnd">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Typ</label>
+        <select id="mType">
+          <option value="number">Zahl / Einheit</option>
+          <option value="percent">Prozent (0–100%)</option>
+          <option value="curriculum">Curriculum</option>
+        </select>
+      </div>
+      <div class="form-field" id="mUnitField">
+        <label>Einheit</label>
+        <input type="text" id="mUnit" placeholder="Seiten, Videos…">
+      </div>
+    </div>
+    <div class="form-row" id="mCurriculumRow" style="display:none">
+      <div class="form-field">
+        <label>Curriculum-Datei</label>
+        <input type="text" id="mCurriculumFile" placeholder="proko-curriculum.html">
+      </div>
+    </div>
+    <div class="form-row" id="mNumberRow">
+      <div class="form-field">
+        <label>Aktueller Stand</label>
+        <input type="number" id="mCurrent" min="0" placeholder="0">
+      </div>
+      <div class="form-field">
+        <label>Zielwert</label>
+        <input type="number" id="mTarget" min="1" placeholder="z.B. 126">
+      </div>
+    </div>
+      <button class="btn-cancel" id="closeModal">Abbrechen</button>
+      <button class="btn-create" id="createGoal">Erstellen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'goals_v1';
+
+let goals = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(goals)); }
+
+function nextId() { return Date.now(); }
+
+function today() {
+  const d = new Date(); d.setHours(0,0,0,0); return d;
+}
+
+function parseDate(str) {
+  const d = new Date(str + 'T00:00:00'); return d;
+}
+
+function fmtDate(str) {
+  return parseDate(str).toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+}
+
+function daysLeft(endStr) {
+  const end = parseDate(endStr);
+  const diff = Math.ceil((end - today()) / 86400000);
+  return diff;
+}
+
+function totalDays(startStr, endStr) {
+  return Math.max(1, Math.ceil((parseDate(endStr) - parseDate(startStr)) / 86400000));
+}
+
+function elapsedDays(startStr) {
+  return Math.max(0, Math.ceil((today() - parseDate(startStr)) / 86400000));
+}
+
+// ── PACE CALCULATION ──
+function isDescending(goal) {
+  // descending = current starts higher than target (e.g. weight loss)
+  if (goal.history && goal.history.length > 0) return goal.history[0].value > goal.target;
+  return goal.current > goal.target;
+}
+
+function calcPace(goal) {
+  if (goal.type === 'curriculum') {
+    const fileKey = (goal.curriculumFile || 'proko-curriculum').replace('.html','').split('/').pop();
+    const summary = JSON.parse(localStorage.getItem('curriculum_summary_' + fileKey) || 'null');
+    if (summary) { goal.current = summary.done; goal.target = summary.total; }
+  }
+
+  const desc = isDescending(goal);
+  const remaining = desc ? goal.current - goal.target : goal.target - goal.current;
+  const done = remaining <= 0 && goal.target > 0;
+  if (done)        return { status: 'done',   text: 'Ziel erreicht! 🎉', perDay: 0, direction: desc ? '↓' : '↑' };
+  if (goal.paused) return { status: 'paused', text: 'Pausiert', icon: '⏸', perDay: 0, direction: desc ? '↓' : '↑' };
+  const dl = daysLeft(goal.end);
+  if (dl <= 0)     return { status: 'red', text: 'Deadline überschritten', perDay: 0, direction: desc ? '↓' : '↑' };
+
+  const perDay = remaining / dl;
+  const totalD = totalDays(goal.start, goal.end);
+  const elapsed = elapsedDays(goal.start);
+
+  // expected progress by now
+  const startVal = (goal.history && goal.history.length > 0) ? goal.history[0].value : (desc ? goal.current : 0);
+  const expectedVal = desc
+    ? startVal - (elapsed / totalD) * (startVal - goal.target)
+    : (elapsed / totalD) * goal.target;
+  const ahead = desc ? expectedVal - goal.current : goal.current - expectedVal;
+
+  const unit = goal.type === 'percent' ? '%' : (goal.unit || 'Einheiten');
+  const unitSingular = unit.replace(/en$/, '').replace(/s$/, '');
+  const perDayStr = perDay < 1
+    ? `alle ${Math.round(1/perDay)} Tage 1 ${unitSingular}`
+    : `${perDay.toFixed(1)} ${unit}/Tag`;
+
+  const directionIcon = desc ? '↓' : '↑';
+  let status, icon, text;
+  if (ahead >= 0) {
+    status = 'green'; icon = directionIcon;
+    text = `<strong>${perDayStr}</strong> — du liegst vorne`;
+  } else if (ahead >= -(desc ? (startVal - goal.target) : goal.target) * 0.1) {
+    status = 'yellow'; icon = '→';
+    text = `<strong>${perDayStr}</strong> — leicht hinterher`;
+  } else {
+    status = 'red'; icon = desc ? '↑' : '↓';
+    text = `<strong>${perDayStr}</strong> — aufholen nötig`;
+  }
+
+  return { status, icon, text, perDay, direction: directionIcon };
+}
+
+// ── CHART ──
+function renderChart(goal, container) {
+  const history = goal.history || [];
+  const totalD  = totalDays(goal.start, goal.end);
+  const w = 300, h = 70;
+  const desc = isDescending(goal);
+
+  // start value = first history entry or current
+  const startVal = history.length > 0 ? history[0].value : goal.current;
+
+  // soll line: ascending = 0→target, descending = startVal→target
+  const sollPoints = desc
+    ? [[0, startVal], [totalD, goal.target]]
+    : [[0, 0], [totalD, goal.target]];
+
+  // ist points from history + current
+  const allHist = [...history, { date: new Date().toISOString().slice(0,10), value: goal.current }];
+  const istPoints = allHist.map(h => {
+    const d = Math.max(0, Math.ceil((parseDate(h.date) - parseDate(goal.start)) / 86400000));
+    return [d, h.value];
+  });
+
+  const allVals = [...sollPoints, ...istPoints].map(p => p[1]);
+  const minVal = Math.min(...allVals);
+  const maxVal = Math.max(...allVals);
+  const range  = Math.max(maxVal - minVal, 1);
+
+  const xS = d => (d / totalD) * w;
+  const yS = v => h - ((v - minVal) / range) * h;
+
+  const toPath = pts => pts.map((p,i) => `${i===0?'M':'L'}${xS(p[0]).toFixed(1)},${yS(p[1]).toFixed(1)}`).join(' ');
+
+  const statusColors = { green: '#4ec994', yellow: '#e8b84a', red: '#e86060', done: '#4ec994' };
+  const pace = calcPace(goal);
+  const color = statusColors[pace.status] || '#6a6878';
+
+  container.innerHTML = `
+    <div class="chart-svg-wrap">
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+        <path d="${toPath(sollPoints)}" fill="none" stroke="#3a3848" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="${toPath(istPoints)}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        ${istPoints.map(p => `<circle cx="${xS(p[0]).toFixed(1)}" cy="${yS(p[1]).toFixed(1)}" r="2.5" fill="${color}"/>`).join('')}
+      </svg>
+    </div>
+    <div class="chart-labels">
+      <span class="chart-label">${fmtDate(goal.start)}</span>
+      <span class="chart-label" style="color:#3a3848">— Soll</span>
+      <span class="chart-label">${fmtDate(goal.end)}</span>
+    </div>
+  `;
+}
+
+// ── RENDER CARDS ──
+let activeGoalFilter = 'active';
+let activeGoalSort = 'default';
+
+function sortGoals(list) {
+  const arr = [...list];
+  if (activeGoalSort === 'deadline') {
+    return arr.sort((a, b) => new Date(a.end) - new Date(b.end));
+  }
+  if (activeGoalSort === 'pct-asc') {
+    return arr.sort((a, b) => (a.current / a.target) - (b.current / b.target));
+  }
+  if (activeGoalSort === 'pct-desc') {
+    return arr.sort((a, b) => (b.current / b.target) - (a.current / a.target));
+  }
+  if (activeGoalSort === 'urgency') {
+    // urgency score: how far behind relative to time elapsed
+    // higher = more behind = more urgent
+    function urgencyScore(g) {
+      const pace = calcPace(g);
+      if (pace.status === 'done') return -999;
+      if (pace.status === 'paused') return -998;
+      const dl = daysLeft(g.end);
+      if (dl <= 0) return 999; // overdue = most urgent
+      const totalD = totalDays(g.start, g.end);
+      const elapsed = elapsedDays(g.start);
+      const expectedPct = elapsed / totalD;
+      const actualPct = g.current / g.target;
+      const remaining = 1 - actualPct;
+      const timeLeft = 1 - (elapsed / totalD);
+      // urgency = how much more pace you need vs ideal pace
+      return timeLeft > 0 ? (remaining / timeLeft) - 1 : 999;
+    }
+    return arr.sort((a, b) => urgencyScore(b) - urgencyScore(a));
+  }
+  return arr; // default order
+}
+
+function render() {
+  const grid = document.getElementById('goalsGrid');
+  grid.innerHTML = '';
+
+  // update filter button styles
+  ['filterActive','filterDone','filterPaused','filterAll'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.opacity = '.5';
+  });
+  const activeFilterId = { active:'filterActive', done:'filterDone', paused:'filterPaused', all:'filterAll' }[activeGoalFilter];
+  const activeBtn = document.getElementById(activeFilterId);
+  if (activeBtn) activeBtn.style.opacity = '1';
+
+  let filtered = goals;
+  if (activeGoalFilter === 'active')  filtered = goals.filter(g => !g.paused && calcPace(g).status !== 'done');
+  if (activeGoalFilter === 'done')    filtered = goals.filter(g => calcPace(g).status === 'done');
+  if (activeGoalFilter === 'paused')  filtered = goals.filter(g => g.paused);
+
+  filtered = sortGoals(filtered);
+
+  if (!filtered.length) {
+    const msg = activeGoalFilter === 'done' ? 'Noch keine erledigten Ziele — weiter so!' :
+                activeGoalFilter === 'paused' ? 'Keine pausierten Ziele.' :
+                'Keine aktiven Ziele.';
+    grid.innerHTML = `<div class="empty-state"><p>${msg}</p></div>`;
+    return;
+  }
+
+  filtered.forEach(goal => {
+    const pace = calcPace(goal);
+    const pct  = goal.target > 0 ? Math.min(100, Math.round(goal.current / goal.target * 100)) : 0;
+    const dl   = daysLeft(goal.end);
+    const unit = goal.type === 'percent' ? '%' : goal.type === 'curriculum' ? 'Videos' : (goal.unit || '');
+
+    // curriculum: read croquis from summary too
+    let croquisLine = '';
+    if (goal.type === 'curriculum') {
+      const fileKey = (goal.curriculumFile || 'proko-curriculum').replace('.html','').split('/').pop();
+      const summary = JSON.parse(localStorage.getItem('curriculum_summary_' + fileKey) || 'null');
+      if (summary) croquisLine = `<div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">${summary.croquisDone}/${summary.croquisTotal} Extra</div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = `goal-card status-${pace.status}`;
+    card.dataset.id = goal.id;
+
+    const daysLeftStr = pace.status === 'done' ? 'fertig ✓' :
+      pace.status === 'paused' ? '⏸ pausiert' :
+      dl < 0 ? `${Math.abs(dl)}d über Deadline` :
+      dl === 0 ? 'heute!' : `${dl}d übrig`;
+
+    card.innerHTML = `
+      <div class="card-stripe"></div>
+      <div class="card-body">
+        <div class="card-title-row">
+          <div class="card-title">${goal.title}</div>
+          <span style="font-size:.75rem;opacity:.5;flex-shrink:0;margin-left:.4rem;" title="${isDescending(goal) ? 'Abnahme-Ziel' : 'Zuwachs-Ziel'}">${isDescending(goal) ? '↓' : '↑'}</span>
+          <button class="card-edit-btn" title="Bearbeiten" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:.1rem .3rem;flex-shrink:0;transition:color .12s;">✎</button>
+        </div>
+        <div class="card-dates">
+          <span>${fmtDate(goal.start)}</span>
+          <span class="date-sep">→</span>
+          <span>${fmtDate(goal.end)}</span>
+          <span class="days-left">${daysLeftStr}</span>
+        </div>
+        <div class="card-progress">
+          <span class="prog-current">${goal.type === 'percent' ? pct : goal.current}</span>
+          <span class="prog-total">/ ${goal.target}</span>
+          <span class="prog-unit">${unit}</span>
+        </div>
+        ${croquisLine}
+        <div class="prog-bar-wrap">
+          <div class="prog-bar-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="card-pace">
+          <span class="pace-icon">${pace.icon || '✓'}</span>
+          <span class="pace-text">${pace.text}</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        ${goal.type === 'curriculum'
+          ? `<a href="${goal.curriculumFile || 'proko-curriculum.html'}" target="_blank" style="font-family:'Karla',sans-serif;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;padding:.38rem .9rem;border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--muted);text-decoration:none;transition:all .12s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--text)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border2)'">↗ Curriculum öffnen</a>`
+          : `<button class="update-btn">Update</button>
+        <div class="mode-switch" style="display:none">
+          <button class="mode-btn active" data-mode="abs">Ist</button>
+          <button class="mode-btn" data-mode="delta">+ Delta</button>
+        </div>
+        <input class="update-input" type="number" min="0" placeholder="${goal.current}">`
+        }
+        ${goal.type !== 'curriculum' ? `<button class="update-save">✓</button>` : ''}
+        <button class="toggle-chart-btn">Verlauf</button>
+        <button class="pause-btn" title="${goal.paused ? 'Fortsetzen' : 'Pausieren'}">${goal.paused ? '▶' : '⏸'}</button>
+        <button class="delete-btn" title="Ziel löschen">✕</button>
+      </div>
+      <div class="card-chart" id="chart-${goal.id}"></div>
+    `;
+
+    // edit button
+    card.querySelector('.card-edit-btn').addEventListener('click', () => {
+      showEditModal(goal);
+    });
+    card.querySelector('.card-edit-btn').addEventListener('mouseover', e => e.target.style.color = 'var(--text)');
+    card.querySelector('.card-edit-btn').addEventListener('mouseout',  e => e.target.style.color = 'var(--muted)');
+    if (goal.type !== 'curriculum') {
+    const updateBtn  = card.querySelector('.update-btn');
+    const updateInp  = card.querySelector('.update-input');
+    const updateSave = card.querySelector('.update-save');
+    const modeSwitch = card.querySelector('.mode-switch');
+    const modeBtns   = card.querySelectorAll('.mode-btn');
+    const modeKey = 'goal_mode_' + goal.id;
+    let inputMode = localStorage.getItem(modeKey) || 'abs';
+
+    // set initial active state from saved mode
+    modeBtns.forEach(b => b.classList.toggle('active', b.dataset.mode === inputMode));
+
+    updateBtn.addEventListener('click', () => {
+      const isOpen = updateInp.classList.contains('open');
+      updateInp.classList.toggle('open');
+      updateSave.classList.toggle('open');
+      modeSwitch.style.display = isOpen ? 'none' : 'flex';
+      if (!isOpen) { updateInp.value = ''; updateInp.placeholder = inputMode === 'delta' ? '+0' : String(goal.current); updateInp.focus(); }
+    });
+
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        inputMode = btn.dataset.mode;
+        localStorage.setItem(modeKey, inputMode);
+        updateInp.placeholder = inputMode === 'delta' ? '+0' : String(goal.current);
+        updateInp.value = '';
+        updateInp.focus();
+      });
+    });
+
+    updateSave.addEventListener('click', () => {
+      const val = parseFloat(updateInp.value);
+      if (isNaN(val)) return;
+      const g = goals.find(x => x.id === goal.id);
+      const desc = isDescending(g);
+      if (inputMode === 'delta') {
+        g.current = desc
+          ? Math.max(g.current - val, g.target)
+          : Math.min(g.current + val, g.target);
+      } else {
+        g.current = val;
+      }
+      if (!g.history) g.history = [];
+      g.history.push({ date: new Date().toISOString().slice(0,10), value: g.current });
+      save(); render();
+    });
+
+    updateInp.addEventListener('keydown', e => { if (e.key === 'Enter') updateSave.click(); });
+    } // end non-curriculum guard
+
+    // chart toggle
+    const chartEl = card.querySelector(`#chart-${goal.id}`);
+    const chartBtn = card.querySelector('.toggle-chart-btn');
+    chartBtn.addEventListener('click', () => {
+      chartEl.classList.toggle('open');
+      if (chartEl.classList.contains('open')) renderChart(goal, chartEl);
+    });
+
+    // pause
+    card.querySelector('.pause-btn').addEventListener('click', () => {
+      const g = goals.find(x => x.id === goal.id);
+      g.paused = !g.paused;
+      save(); render();
+    });
+
+    // delete
+    card.querySelector('.delete-btn').addEventListener('click', () => {
+      if (!confirm(`"${goal.title}" wirklich löschen?`)) return;
+      goals = goals.filter(x => x.id !== goal.id);
+      save(); render();
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+// ── FILTERS ──
+document.getElementById('filterActive').addEventListener('click',  () => { activeGoalFilter = 'active';  render(); });
+document.getElementById('filterDone').addEventListener('click',    () => { activeGoalFilter = 'done';    render(); });
+document.getElementById('filterPaused').addEventListener('click',  () => { activeGoalFilter = 'paused';  render(); });
+document.getElementById('filterAll').addEventListener('click',     () => { activeGoalFilter = 'all';     render(); });
+
+document.getElementById('goalSort').addEventListener('change', e => { activeGoalSort = e.target.value; render(); });
+
+// ── TOGGLE ALL CHARTS ──
+let allChartsOpen = false;
+document.getElementById('toggleAllCharts').addEventListener('click', () => {
+  allChartsOpen = !allChartsOpen;
+  document.querySelectorAll('.card-chart').forEach(el => {
+    if (allChartsOpen) {
+      el.classList.add('open');
+      // find goal id and render
+      const id = parseInt(el.id.replace('chart-', ''));
+      const g = goals.find(x => x.id === id);
+      if (g) renderChart(g, el);
+    } else {
+      el.classList.remove('open');
+    }
+  });
+  document.getElementById('toggleAllCharts').textContent = allChartsOpen ? '▲ Verläufe' : '▼ Verläufe';
+});
+
+// ── EDIT MODAL ──
+const editModal = document.getElementById('editModalBackdrop');
+let editingGoalId = null;
+
+function showEditModal(goal) {
+  editingGoalId = goal.id;
+  document.getElementById('editTitle').value   = goal.title || '';
+  document.getElementById('editStart').value   = goal.start || '';
+  document.getElementById('editEnd').value     = goal.end || '';
+  document.getElementById('editTarget').value  = goal.target || '';
+  document.getElementById('editCurrent').value = goal.current || '';
+  // hide target/current for curriculum
+  const isCurr = goal.type === 'curriculum';
+  document.getElementById('editTarget').closest('.form-field').style.display  = isCurr ? 'none' : '';
+  document.getElementById('editCurrent').closest('.form-field').style.display = isCurr ? 'none' : '';
+  editModal.classList.add('open');
+}
+
+document.getElementById('editCancel').addEventListener('click', () => editModal.classList.remove('open'));
+editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.remove('open'); });
+
+document.getElementById('editSave').addEventListener('click', () => {
+  const g = goals.find(x => x.id === editingGoalId);
+  if (!g) return;
+  const title   = document.getElementById('editTitle').value.trim();
+  const start   = document.getElementById('editStart').value;
+  const end     = document.getElementById('editEnd').value;
+  const target  = parseFloat(document.getElementById('editTarget').value);
+  const current = parseFloat(document.getElementById('editCurrent').value);
+  if (title)  g.title = title;
+  if (start)  g.start = start;
+  if (end)    g.end   = end;
+  if (!isNaN(target))  g.target  = target;
+  if (!isNaN(current)) g.current = current;
+  save(); render();
+  editModal.classList.remove('open');
+});
+
+// ── MODAL ──
+const modal    = document.getElementById('modalBackdrop');
+const mType    = document.getElementById('mType');
+const mUnitF   = document.getElementById('mUnitField');
+
+document.getElementById('openModal').addEventListener('click', () => {
+  // prefill today and a week from now
+  const t = new Date();
+  document.getElementById('mStart').value = t.toISOString().slice(0,10);
+  t.setDate(t.getDate() + 30);
+  document.getElementById('mEnd').value = t.toISOString().slice(0,10);
+  modal.classList.add('open');
+});
+
+document.getElementById('closeModal').addEventListener('click', () => modal.classList.remove('open'));
+modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+
+mType.addEventListener('change', () => {
+  const isCurriculum = mType.value === 'curriculum';
+  const isPercent    = mType.value === 'percent';
+  mUnitF.style.display          = (isCurriculum || isPercent) ? 'none' : '';
+  document.getElementById('mCurriculumRow').style.display = isCurriculum ? '' : 'none';
+  document.getElementById('mNumberRow').style.display     = isCurriculum ? 'none' : '';
+  if (isPercent) {
+    document.getElementById('mTarget').value = 100;
+    document.getElementById('mUnit').value = '%';
+  }
+});
+
+document.getElementById('createGoal').addEventListener('click', () => {
+  const title = document.getElementById('mTitle').value.trim();
+  const start = document.getElementById('mStart').value;
+  const end   = document.getElementById('mEnd').value;
+  const type  = mType.value;
+  if (!title || !start || !end) return;
+
+  if (type === 'curriculum') {
+    const file = document.getElementById('mCurriculumFile').value.trim() || 'proko-curriculum.html';
+    goals.push({ id: nextId(), title, start, end, type, curriculumFile: file, current: 0, target: 0, history: [] });
+  } else {
+    const unit    = type === 'percent' ? '%' : document.getElementById('mUnit').value.trim();
+    const target  = parseFloat(document.getElementById('mTarget').value) || 100;
+    const current = parseFloat(document.getElementById('mCurrent').value) || 0;
+    goals.push({ id: nextId(), title, start, end, type, unit, target, current, history: current > 0 ? [{ date: start, value: current }] : [] });
+  }
+
+  save();
+  modal.classList.remove('open');
+  ['mTitle','mUnit','mTarget','mCurrent','mCurriculumFile'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  render();
+});
+
+// ── EXPORT / IMPORT ──
+const EXPORT_KEY_GOALS = 'goals_last_export';
+
+function updateExportLabel() {
+  const ts = localStorage.getItem(EXPORT_KEY_GOALS);
+  const el = document.getElementById('lastExportLabel');
+  if (!ts) { el.textContent = 'Noch kein Export'; return; }
+  const d = new Date(ts);
+  const days = Math.floor((Date.now() - d) / 86400000);
+  const str = days === 0 ? 'heute' : days === 1 ? 'gestern' : `vor ${days} Tagen`;
+  el.textContent = `Letzter Export: ${str}`;
+  el.style.color = days > 60 ? '#8b4a2f' : '#4a4840';
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(goals, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `goals-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem(EXPORT_KEY_GOALS, new Date().toISOString());
+  updateExportLabel();
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!Array.isArray(imported)) throw new Error('Kein gültiges Format');
+      if (!confirm(`${imported.length} Ziele importieren? Bestehende Daten werden überschrieben.`)) return;
+      goals = imported;
+      save();
+      render();
+    } catch {
+      alert('Import fehlgeschlagen — ist das eine gültige Goals-Backup-Datei?');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+// ── INIT ──
+updateExportLabel();
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DoThisInstead</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #1a1628;
+  --surface: #231e35;
+  --surface2: #2d2745;
+  --border: #3d3560;
+  --border2: #4e4875;
+  --text: #ede8f8;
+  --mid: #b0a8d0;
+  --muted: #7068a0;
+  --line: #342e52;
+
+  /* category colors */
+  --gaming: #e05c8a;     --gaming-bg: rgba(224,92,138,.13);
+  --yt: #e08a3a;         --yt-bg: rgba(224,138,58,.13);
+  --adult: #8a5ce0;      --adult-bg: rgba(138,92,224,.13);
+
+  /* alternative pool colors */
+  --daily: #5cb8e0;      --daily-bg: rgba(92,184,224,.15);
+  --weekly: #7ae05c;     --weekly-bg: rgba(122,224,92,.15);
+  --once: #e0d45c;       --once-bg: rgba(224,212,92,.15);
+  --impulse: #e05ce0;    --impulse-bg: rgba(224,92,224,.15);
+
+  --success: #5ce0a0;
+  --warn: #e0b45c;
+
+  --r: 16px;
+  --rs: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100vh; }
+body {
+  background: var(--bg);
+  font-family: 'Quicksand', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 600px 400px at 5% 5%, rgba(224,92,138,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 600px 500px at 95% 10%, rgba(138,92,224,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 700px 500px at 50% 100%, rgba(92,184,224,.05) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+.wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.2rem 5rem; position: relative; z-index: 1; }
+
+/* ── HEADER ── */
+.header { text-align: center; margin-bottom: 1.6rem; }
+.header-title { font-family: 'Fredoka', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text); }
+.header-title span { color: var(--gaming); }
+.header-sub { font-size: .8rem; color: var(--muted); margin-top: .3rem; }
+
+/* day counter */
+.day-counter { display: flex; justify-content: center; gap: 5px; margin: .8rem 0 .4rem; flex-wrap: wrap; }
+.day-pip {
+  width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fredoka', sans-serif; font-size: .78rem; font-weight: 600;
+  color: var(--muted); cursor: default; position: relative; transition: all .15s;
+  background: var(--surface);
+}
+.day-pip.today { border-color: var(--daily); color: var(--daily); }
+.day-pip.clean { background: var(--success); border-color: var(--success); color: #0e2a1e; }
+.day-pip.slip { background: var(--gaming-bg); border-color: var(--gaming); color: var(--gaming); }
+.day-pip.partial { background: var(--warn); border-color: var(--warn); color: #2a1e0e; }
+.day-pip .pip-label { font-size: .48rem; position: absolute; bottom: -14px; color: var(--muted); white-space: nowrap; }
+
+/* ── NAV ── */
+.nav { display: flex; gap: .45rem; justify-content: center; margin: 1.4rem 0 1.4rem; flex-wrap: wrap; }
+.nav-btn {
+  font-family: 'Quicksand', sans-serif; font-size: .8rem; font-weight: 700;
+  padding: .45rem 1.1rem; border-radius: 99px; border: 2px solid var(--border2);
+  background: var(--surface); color: var(--mid); cursor: pointer; transition: all .12s;
+}
+.nav-btn:hover { border-color: var(--daily); color: var(--text); }
+.nav-btn.active { background: var(--daily); border-color: var(--daily); color: var(--bg); }
+
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 1.1rem 1.2rem; margin-bottom: 1rem;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.card-title { font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: .7rem; display: flex; align-items: center; gap: .5rem; }
+.section-label { font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; display: block; }
+
+/* ── CATEGORY BADGES ── */
+.cat-row { display: flex; gap: .6rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.cat-badge {
+  display: flex; align-items: center; gap: .5rem; padding: .55rem .9rem;
+  border-radius: var(--rs); border: 2px solid var(--cat-color, var(--border2));
+  background: var(--cat-bg, var(--surface2)); cursor: pointer; transition: all .12s; flex: 1; min-width: 140px;
+}
+.cat-badge:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.cat-badge .cat-name { font-family: 'Fredoka', sans-serif; font-size: .92rem; font-weight: 600; color: var(--text); }
+.cat-badge .cat-count { font-size: .72rem; color: var(--mid); margin-left: auto; }
+.cat-badge .cat-streak { font-size: .7rem; font-weight: 700; }
+
+/* ── PICKER ── */
+.picker-card { background: var(--surface); border: 2px solid var(--border); border-radius: var(--r); padding: 1.4rem; text-align: center; margin-bottom: 1rem; }
+.picker-card.has-pick { border-color: var(--daily); }
+.picker-result {
+  font-family: 'Fredoka', sans-serif; font-size: 1.6rem; font-weight: 600; color: var(--text);
+  margin: .8rem 0 .4rem; min-height: 44px;
+}
+.picker-meta { font-size: .72rem; color: var(--muted); margin-bottom: 1rem; }
+.pool-count { font-size: .78rem; color: var(--mid); margin-bottom: .8rem; }
+.pool-count strong { color: var(--daily); }
+
+.picker-btns { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; }
+.pbtn {
+  font-family: 'Quicksand', sans-serif; font-size: .78rem; font-weight: 700;
+  padding: .45rem .95rem; border-radius: 99px; border: none; cursor: pointer; transition: all .12s;
+}
+.pbtn-spin { background: var(--daily); color: var(--bg); font-size: .85rem; padding: .5rem 1.3rem; }
+.pbtn-spin:hover { background: #7ad0f8; }
+.pbtn-done { background: var(--success); color: var(--bg); }
+.pbtn-done:hover { filter: brightness(1.1); }
+.pbtn-other { background: var(--surface2); color: var(--mid); border: 1px solid var(--border2); }
+.pbtn-other:hover { color: var(--text); border-color: var(--mid); }
+.pbtn-later { background: var(--once-bg); color: var(--once); border: 1px solid var(--once); }
+.pbtn-already { background: var(--weekly-bg); color: var(--weekly); border: 1px solid var(--weekly); }
+
+/* pool type chips */
+.pool-type-chip { display: inline-block; font-size: .6rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; padding: .1rem .4rem; border-radius: 99px; margin-left: .4rem; }
+.chip-daily   { background: var(--daily-bg);   color: var(--daily); }
+.chip-weekly  { background: var(--weekly-bg);  color: var(--weekly); }
+.chip-once    { background: var(--once-bg);    color: var(--once); }
+.chip-impulse { background: var(--impulse-bg); color: var(--impulse); }
+
+/* ── SLIP BUTTON ── */
+.slip-section { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.slip-btn {
+  font-family: 'Quicksand', sans-serif; font-size: .75rem; font-weight: 700;
+  padding: .38rem .85rem; border-radius: 99px; cursor: pointer; transition: all .12s;
+  border: 1.5px solid;
+}
+.slip-gaming { color: var(--gaming); border-color: var(--gaming); background: var(--gaming-bg); }
+.slip-gaming:hover { background: var(--gaming); color: white; }
+.slip-yt     { color: var(--yt);     border-color: var(--yt);     background: var(--yt-bg); }
+.slip-yt:hover { background: var(--yt); color: white; }
+.slip-adult  { color: var(--adult);  border-color: var(--adult);  background: var(--adult-bg); }
+.slip-adult:hover { background: var(--adult); color: white; }
+
+/* ── DAILY LOG ── */
+.log-entry { display: flex; align-items: flex-start; gap: .6rem; padding: .5rem 0; border-bottom: 1px solid var(--line); }
+.log-entry:last-child { border-bottom: none; }
+.log-time { font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--muted); flex-shrink: 0; width: 38px; }
+.log-text { font-size: .82rem; color: var(--text); flex: 1; line-height: 1.4; }
+.log-slip { color: var(--gaming); }
+.log-slip.yt { color: var(--yt); }
+.log-slip.adult { color: var(--adult); }
+.log-tag { font-size: .6rem; padding: .08rem .35rem; border-radius: 99px; margin-right: .3rem; font-weight: 700; }
+
+/* ── EVAL CARD ── */
+.eval-card { background: var(--surface2); border: 2px solid var(--border2); border-radius: var(--r); padding: 1.2rem 1.3rem; margin-bottom: 1rem; }
+.eval-card.due { border-color: var(--warn); background: rgba(224,180,92,.06); }
+.eval-question { font-family: 'Fredoka', sans-serif; font-size: 1rem; color: var(--text); margin-bottom: .8rem; }
+.eval-btns { display: flex; gap: .5rem; flex-wrap: wrap; }
+.eval-btn {
+  font-family: 'Quicksand', sans-serif; font-size: .78rem; font-weight: 700;
+  padding: .38rem .9rem; border-radius: 99px; border: none; cursor: pointer; transition: all .12s;
+}
+.eval-yes { background: var(--success); color: var(--bg); }
+.eval-no  { background: var(--gaming-bg); color: var(--gaming); border: 1.5px solid var(--gaming); }
+.eval-extend { background: var(--surface); color: var(--mid); border: 1.5px solid var(--border2); }
+.eval-result { font-size: .8rem; color: var(--mid); margin-top: .6rem; font-style: italic; }
+
+/* ── ALTERNATIVES MANAGER ── */
+.alt-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: 1rem; }
+.alt-row {
+  display: flex; align-items: center; gap: .6rem; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: var(--rs); padding: .5rem .7rem;
+}
+.alt-row.done-today { opacity: .5; }
+.alt-icon { font-size: 1rem; flex-shrink: 0; }
+.alt-name { flex: 1; font-size: .86rem; color: var(--text); font-weight: 500; }
+.alt-type-badge { font-size: .6rem; padding: .08rem .38rem; border-radius: 99px; font-weight: 700; flex-shrink: 0; cursor: pointer; transition: opacity .12s; }
+.alt-type-badge:hover { opacity: .75; }
+.alt-check-btn { font-size:.72rem; font-weight:700; background:var(--success); color:var(--bg); border:none; border-radius:99px; padding:.15rem .5rem; cursor:pointer; opacity:0; transition:opacity .12s; flex-shrink:0; }
+.alt-row:hover .alt-check-btn { opacity:1; }
+.alt-archive-btn { font-size:.75rem; background:none; border:none; cursor:pointer; opacity:0; transition:opacity .12s; flex-shrink:0; }
+.alt-row:hover .alt-archive-btn { opacity:.6; }
+.alt-archive-btn:hover { opacity:1 !important; }
+.alt-del { background: none; border: none; cursor: pointer; color: transparent; font-size: .75rem; padding: .15rem .2rem; transition: color .12s; }
+.alt-row:hover .alt-del { color: var(--muted); }
+.alt-del:hover { color: var(--gaming) !important; }
+
+.add-alt-form { display: flex; gap: .45rem; align-items: center; flex-wrap: wrap; background: var(--surface2); border: 1px dashed var(--border2); border-radius: var(--rs); padding: .6rem .8rem; }
+.add-alt-input { font-family: 'Quicksand', sans-serif; font-size: .85rem; background: transparent; border: none; color: var(--text); outline: none; flex: 1; min-width: 120px; }
+.add-alt-input::placeholder { color: var(--muted); }
+.type-select { font-family: 'Quicksand', sans-serif; font-size: .76rem; background: var(--surface); border: 1px solid var(--border2); color: var(--text); padding: .25rem .4rem; border-radius: 6px; outline: none; cursor: pointer; }
+.add-btn { font-family: 'Quicksand', sans-serif; font-size: .75rem; font-weight: 700; padding: .3rem .75rem; border: none; border-radius: 8px; background: var(--daily); color: var(--bg); cursor: pointer; }
+
+/* ── QUEST BANNER ── */
+.quest-banner {
+  background: linear-gradient(135deg, var(--surface2) 0%, #1e1838 100%);
+  border: 2px solid var(--daily);
+  border-radius: var(--r);
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  cursor: pointer; transition: all .15s;
+  box-shadow: 0 4px 24px rgba(92,184,224,.15);
+}
+.quest-banner:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(92,184,224,.22); }
+.quest-left { flex: 1; }
+.quest-count {
+  font-family: 'Fredoka', sans-serif; font-size: 2rem; font-weight: 700;
+  color: var(--daily); line-height: 1;
+}
+.quest-label { font-size: .85rem; color: var(--mid); margin-top: .2rem; }
+.quest-cta {
+  font-family: 'Fredoka', sans-serif; font-size: 1rem; font-weight: 600;
+  color: var(--text); background: var(--daily); padding: .55rem 1.2rem;
+  border-radius: 99px; border: none; cursor: pointer; white-space: nowrap;
+  transition: all .12s;
+}
+.quest-cta:hover { background: #7ad0f8; }
+.quest-done-today { font-size: .75rem; color: var(--success); margin-top: .35rem; }
+
+/* ── COLLAPSED SLIP ── */
+.slip-collapsed-trigger {
+  display: block; width: 100%; text-align: center; font-size: .72rem;
+  color: var(--muted); background: none; border: none; cursor: pointer;
+  padding: .5rem; transition: color .12s; letter-spacing: .04em;
+}
+.slip-collapsed-trigger:hover { color: var(--mid); }
+.slip-expanded { display: none; padding: .8rem 0 .3rem; }
+.slip-expanded.open { display: block; }
+
+/* ── HASHTAG TRIGGERS ── */
+.hashtag-row { display: flex; gap: .4rem; flex-wrap: wrap; margin: .6rem 0 .4rem; }
+.hashtag {
+  font-size: .72rem; font-weight: 700; padding: .2rem .55rem; border-radius: 99px;
+  border: 1.5px solid var(--border2); background: var(--surface2); color: var(--muted);
+  cursor: pointer; transition: all .12s; font-family: 'DM Mono', monospace;
+}
+.hashtag:hover { border-color: var(--daily); color: var(--daily); }
+.hashtag.selected { background: var(--daily); border-color: var(--daily); color: var(--bg); }
+.hashtag-custom-add { font-size: .7rem; color: var(--muted); background: none; border: 1.5px dashed var(--border2); border-radius: 99px; padding: .2rem .55rem; cursor: pointer; font-family: 'Quicksand', sans-serif; }
+.hashtag-custom-add:hover { border-color: var(--mid); color: var(--mid); }
+
+/* ── INLINE PICKER ON TODAY ── */
+.today-picker-inline { background: var(--surface); border: 2px solid var(--daily); border-radius: var(--r); padding: 1.1rem 1.2rem; margin-bottom: 1rem; box-shadow: 0 0 0 3px rgba(92,184,224,.15), 0 4px 20px rgba(92,184,224,.12); }
+.quest-banner.has-active-pick { border-color: var(--border2); box-shadow: none; opacity: .7; }
+.quest-banner.has-active-pick:hover { transform: none; box-shadow: none; }
+.today-picker-result { font-family: 'Fredoka', sans-serif; font-size: 1.4rem; font-weight: 600; color: var(--text); margin: .5rem 0 .3rem; min-height: 38px; }
+.today-picker-btns { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .7rem; }
+.notes-area { font-family: 'Quicksand', sans-serif; font-size: .85rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .7rem .9rem; border-radius: var(--rs); resize: none; outline: none; width: 100%; height: 120px; line-height: 1.6; transition: border-color .15s; }
+.notes-area:focus { border-color: var(--muted); }
+.notes-area::placeholder { color: var(--muted); font-style: italic; }
+
+/* ── OVERVIEW ── */
+.overview-row { display: flex; flex-direction: column; gap: .7rem; }
+.ov-day { display: flex; gap: .6rem; align-items: flex-start; padding: .8rem 1rem; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--rs); }
+.ov-day.ov-clean { border-color: var(--success); }
+.ov-day.ov-slip  { border-color: var(--gaming); }
+.ov-day-num { font-family: 'Fredoka', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--mid); width: 28px; flex-shrink: 0; line-height: 1; }
+.ov-day-date { font-size: .65rem; color: var(--muted); }
+.ov-day-info { flex: 1; }
+.ov-day-alts { font-size: .8rem; color: var(--text); }
+.ov-day-alts .alt-item { display: inline-block; background: var(--surface); border-radius: 5px; padding: .05rem .35rem; margin: .15rem .1rem; font-size: .72rem; color: var(--mid); }
+.ov-slip-tag { font-size: .7rem; font-weight: 700; color: var(--gaming); margin-top: .2rem; }
+
+/* ── TOAST ── */
+.toast { position: fixed; top: 1.4rem; left: 50%; transform: translateX(-50%) translateY(-2rem); background: var(--text); color: var(--bg); font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: .82rem; padding: .55rem 1.3rem; border-radius: 99px; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; z-index: 100; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── MODAL ── */
+.modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+.modal-backdrop.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r); padding: 1.6rem; width: 100%; max-width: 400px; margin: 1rem; }
+.modal h3 { font-family: 'Fredoka', sans-serif; font-size: 1.2rem; color: var(--text); margin-bottom: .6rem; }
+.modal p { font-size: .85rem; color: var(--mid); margin-bottom: 1rem; line-height: 1.5; }
+.modal-btns { display: flex; gap: .5rem; flex-wrap: wrap; }
+.modal-input { font-family: 'Quicksand', sans-serif; font-size: .85rem; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: .45rem .7rem; border-radius: 8px; outline: none; width: 100%; margin-bottom: .8rem; transition: border-color .15s; }
+.modal-input:focus { border-color: var(--daily); }
+.mbtn { font-family: 'Quicksand', sans-serif; font-size: .8rem; font-weight: 700; padding: .42rem 1rem; border-radius: 99px; border: none; cursor: pointer; }
+.mbtn-confirm { background: var(--daily); color: var(--bg); }
+.mbtn-cancel  { background: var(--surface2); color: var(--mid); border: 1px solid var(--border2); }
+.mbtn-slip { background: var(--gaming-bg); color: var(--gaming); border: 1.5px solid var(--gaming); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-title">Do<span>This</span>Instead</div>
+    <div class="header-sub">14 Tage · Gaming · YouTube · Adult — drei Pausen, eine Alternative</div>
+  </div>
+
+  <!-- DAY PIPS -->
+  <div class="day-counter" id="dayPips"></div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn active" data-view="today">Heute</button>
+    <button class="nav-btn" data-view="picker">🎲 Picker</button>
+    <button class="nav-btn" data-view="alts">Alternativen</button>
+    <button class="nav-btn" data-view="eval">Evaluation</button>
+    <button class="nav-btn" data-view="overview">Verlauf</button>
+    <button class="nav-btn" id="resetChallengeBtn" style="border-color:var(--gaming);color:var(--gaming)">↺ Neu starten</button>
+  </div>
+
+  <!-- TODAY VIEW -->
+  <div class="view active" id="view-today">
+
+    <!-- Quest banner — main CTA -->
+    <div class="quest-banner" id="questBanner">
+      <div class="quest-left">
+        <div class="quest-count" id="questCount">—</div>
+        <div class="quest-label">Quests warten auf dich ✨</div>
+        <div class="quest-done-today" id="questDoneToday"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.6rem;flex-shrink:0">
+        <button class="quest-cta" id="questSpinBtn">🎲 Quest ziehen!</button>
+        <label id="focusLeastLabel" style="display:flex;align-items:center;gap:.35rem;font-size:.68rem;color:var(--mid);cursor:pointer;white-space:nowrap;background:var(--surface2);border:1px solid var(--border2);border-radius:99px;padding:.22rem .65rem;transition:all .15s">
+          <input type="checkbox" id="focusLeastDone" style="display:none">
+          <span id="focusLeastIcon" style="font-size:.75rem">🎯</span>
+          <span id="focusLeastText">seltenste zuerst</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Inline picker result (shown after spin) -->
+    <div class="today-picker-inline" id="todayPickerInline" style="display:none">
+      <span class="section-label">Deine Quest</span>
+      <div class="today-picker-result" id="todayPickerResult"></div>
+      <div class="today-picker-btns">
+        <button class="pbtn pbtn-done"    id="todayPickDone">✓ Hab's gemacht</button>
+        <button class="pbtn pbtn-other"   id="todayPickOther">🔀 Andere Quest</button>
+        <button class="pbtn pbtn-later"   id="todayPickLater">↩ Später</button>
+        <button class="pbtn pbtn-already" id="todayPickAlready">✓ Schon heute gemacht</button>
+      </div>
+    </div>
+
+    <!-- Cat status row -->
+    <div class="cat-row" id="catStatusRow"></div>
+
+    <!-- Log -->
+    <div class="card">
+      <div class="card-title">📋 Heutiges Log</div>
+      <div id="todayLogList"><div style="color:var(--muted);font-style:italic;font-size:.85rem">Noch nichts heute — zieh deine erste Quest! 🌱</div></div>
+    </div>
+
+    <!-- Collapsed slip section -->
+    <button class="slip-collapsed-trigger" id="slipTrigger">· · · ehrlich sein · · ·</button>
+    <div class="slip-expanded" id="slipExpanded">
+      <div class="card">
+        <span class="section-label" style="margin-bottom:.6rem;display:block">Was ist passiert?</span>
+        <div class="slip-section">
+          <button class="slip-btn slip-gaming" id="slipGaming">🎮 Gezockt</button>
+          <button class="slip-btn slip-yt"     id="slipYt">▶️ YouTube</button>
+          <button class="slip-btn slip-adult"  id="slipAdult">🔞 Adult</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="card">
+      <span class="section-label">Notizen zum Tag</span>
+      <textarea class="notes-area" id="notesArea" placeholder="Gedanken, wie fühlst du dich heute, was hat geholfen…"></textarea>
+    </div>
+  </div>
+
+  <!-- PICKER VIEW -->
+  <div class="view" id="view-picker">
+    <div class="picker-card" id="pickerCard">
+      <div class="pool-count" id="poolCount"></div>
+      <div class="picker-result" id="pickerResult">—</div>
+      <div class="picker-meta" id="pickerMeta"></div>
+      <div class="picker-btns">
+        <button class="pbtn pbtn-spin" id="spinBtn">🎲 Ziehen!</button>
+      </div>
+      <div class="picker-btns" id="postPickBtns" style="margin-top:.6rem;display:none">
+        <button class="pbtn pbtn-done"    id="pickDoneBtn">✓ Hab's gemacht</button>
+        <button class="pbtn pbtn-other"   id="pickOtherBtn">🔀 Was anderes</button>
+        <button class="pbtn pbtn-later"   id="pickLaterBtn">↩ Später nochmal</button>
+        <button class="pbtn pbtn-already" id="pickAlreadyBtn">✓ Schon gemacht heute</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Etwas eintragen</div>
+      <div style="display:flex;gap:.5rem">
+        <input class="modal-input" id="manualAltInput" placeholder="Was hast du stattdessen gemacht?" style="margin-bottom:0">
+        <button class="add-btn" id="manualAltAdd">+ Log</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALTS VIEW -->
+  <div class="view" id="view-alts">
+    <div class="card">
+      <div class="card-title">🎯 Deine Alternativen-Liste</div>
+      <div class="alt-list" id="altList"></div>
+      <div class="add-alt-form">
+        <input class="add-alt-input" type="text" id="addAltName" placeholder="z.B. Sketchbook, Yoga, Küche aufräumen…">
+        <select class="type-select" id="addAltType">
+          <option value="daily">🔁 Daily</option>
+          <option value="weekly">📅 Weekly</option>
+          <option value="once">✨ Once</option>
+          <option value="impulse">⚡ Impuls</option>
+        </select>
+        <button class="add-btn" id="addAltBtn">+ Alt</button>
+      </div>
+      <div style="margin-top:.8rem;font-size:.72rem;color:var(--muted);line-height:1.6">
+        <strong style="color:var(--mid)">Typen:</strong>
+        🔁 Daily — täglich wieder verfügbar ·
+        📅 Weekly — 1x pro Woche ·
+        ✨ Once — einmalig ·
+        ⚡ Impuls — immer verfügbar, ideal für starke Drang-Momente
+      </div>
+    </div>
+  </div>
+
+  <!-- EVAL VIEW -->
+  <div class="view" id="view-eval">
+    <div id="evalCards"></div>
+    <div class="card" style="opacity:.6;font-size:.82rem;color:var(--muted)">
+      Evaluations-Karten erscheinen automatisch alle 3 Tage pro Kategorie.
+    </div>
+  </div>
+
+  <!-- OVERVIEW VIEW -->
+  <div class="view" id="view-overview">
+    <div class="card">
+      <div class="card-title">📊 Verlauf ab Tag 1</div>
+      <div class="overview-row" id="overviewRows"></div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- SLIP MODAL -->
+<div class="modal-backdrop" id="slipModal">
+  <div class="modal">
+    <h3 id="slipModalTitle">🎮 Okay, passiert.</h3>
+    <p>Was war der Auslöser? (hilft bei der Auswertung)</p>
+    <div class="hashtag-row" id="slipHashtagRow"></div>
+    <p style="margin-top:.6rem;margin-bottom:.4rem;font-size:.82rem;color:var(--mid)">Notiz (optional)</p>
+    <input class="modal-input" id="slipModalNote" placeholder="z.B. hab Yoga probiert aber es hat nicht geholfen…">
+    <div class="modal-btns">
+      <button class="mbtn mbtn-slip" id="slipModalConfirm">Eintragen</button>
+      <button class="mbtn mbtn-cancel" id="slipModalCancel">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════
+const SK = 'dti_v1';
+const CHALLENGE_DAYS = 14;
+const EVAL_INTERVAL_DAYS = 3;
+
+const CAT_META = {
+  gaming: { label: 'Gaming 🎮',    color: 'var(--gaming)', bg: 'var(--gaming-bg)' },
+  yt:     { label: 'YouTube ▶️',   color: 'var(--yt)',     bg: 'var(--yt-bg)'     },
+  adult:  { label: 'Adult 🔞',     color: 'var(--adult)',  bg: 'var(--adult-bg)'  },
+};
+
+const TYPE_META = {
+  daily:   { label:'🔁 Daily',   chip:'chip-daily',   color:'var(--daily)'   },
+  weekly:  { label:'📅 Weekly',  chip:'chip-weekly',  color:'var(--weekly)'  },
+  once:    { label:'✨ Once',    chip:'chip-once',    color:'var(--once)'    },
+  impulse: { label:'⚡ Impuls',  chip:'chip-impulse', color:'var(--impulse)' },
+};
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let S = {
+  startDate: null,         // ISO date
+  alternatives: [],        // [{id, name, type, doneOnDates:[], doneThisWeek:false, removed:false}]
+  days: {},                // dateKey -> { log:[{time,text,type:'alt'|'slip',slipCat,slipNote}], notes:'', slips:{gaming:bool,yt:bool,adult:bool}, clean:bool }
+  evals: {},               // catKey -> [{date, kept:bool, note}]
+  todayPickedId: null,     // currently active pick
+  todayDoneAltIds: [],     // alt ids done today (for "schon gemacht" logic)
+  lastResetDate: '',       // date key of last daily reset
+  nextId: 1,
+};
+
+function save() { localStorage.setItem(SK, JSON.stringify(S)); }
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SK)||'null');
+    if (d) S = {...S, ...d};
+  } catch(e) {}
+  if (!S.alternatives) S.alternatives = [];
+  if (!S.days) S.days = {};
+  if (!S.evals) S.evals = {};
+  if (!S.todayDoneAltIds) S.todayDoneAltIds = [];
+}
+
+// ══════════════════════════════════════
+// HASHTAG TRIGGERS
+// ══════════════════════════════════════
+const DEFAULT_HASHTAGS = ['#langeweile','#stress','#spätabends','#prokrastination','#müdigkeit','#sozialangst','#fomo','#einsamkeit','#automatisch'];
+let selectedHashtags = [];
+
+function renderHashtags(containerId) {
+  const row = document.getElementById(containerId);
+  if (!row) return;
+  const saved = S.customHashtags || [];
+  const all = [...DEFAULT_HASHTAGS, ...saved];
+  row.innerHTML = all.map(tag => `
+    <button class="hashtag ${selectedHashtags.includes(tag)?'selected':''}" data-tag="${tag}">${tag}</button>
+  `).join('') + `<button class="hashtag-custom-add" id="addCustomHashtag">+ eigener</button>`;
+  row.querySelectorAll('.hashtag[data-tag]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tag = btn.dataset.tag;
+      if (selectedHashtags.includes(tag)) selectedHashtags = selectedHashtags.filter(t=>t!==tag);
+      else selectedHashtags.push(tag);
+      renderHashtags(containerId);
+    });
+  });
+  document.getElementById('addCustomHashtag')?.addEventListener('click', () => {
+    const val = prompt('Eigener Hashtag (ohne #):');
+    if (!val) return;
+    const tag = '#' + val.trim().replace(/\s+/g,'').replace('#','');
+    if (!S.customHashtags) S.customHashtags = [];
+    if (!S.customHashtags.includes(tag)) { S.customHashtags.push(tag); save(); }
+    selectedHashtags.push(tag);
+    renderHashtags(containerId);
+  });
+}
+
+// ── COLLAPSED SLIP TOGGLE ──
+document.getElementById('slipTrigger').addEventListener('click', () => {
+  const expanded = document.getElementById('slipExpanded');
+  expanded.classList.toggle('open');
+  document.getElementById('slipTrigger').textContent = expanded.classList.contains('open')
+    ? '↑ ausblenden' : '· · · ehrlich sein · · ·';
+});
+function todayKey() { return new Date().toISOString().slice(0,10); }
+function nowTime() { const n=new Date(); return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0'); }
+function dayNum() {
+  if (!S.startDate) return 1;
+  const diff = Math.floor((new Date(todayKey()) - new Date(S.startDate)) / 86400000);
+  return Math.max(1, diff + 1);
+}
+function dateForDay(n) {
+  if (!S.startDate) return '—';
+  const d = new Date(S.startDate);
+  d.setDate(d.getDate() + n - 1);
+  const days=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  return days[d.getDay()] + ' ' + d.getDate() + '.' + String(d.getMonth()+1).padStart(2,'0');
+}
+function weekKey() {
+  const d = new Date(todayKey());
+  const day = d.getDay(), diff = (day===0?-6:1-day);
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().slice(0,10);
+}
+
+function ensureDay(k) {
+  if (!S.days[k]) S.days[k] = { log:[], notes:'', slips:{gaming:false,yt:false,adult:false}, clean:true };
+  return S.days[k];
+}
+
+// ── POOL LOGIC ──
+function getAvailablePool() {
+  const today = todayKey();
+  const wk = weekKey();
+  return S.alternatives.filter(a => {
+    if (a.removed) return false;
+    if (a.type === 'daily')   return !a.doneOnDates?.includes(today);
+    if (a.type === 'weekly')  return !a.doneOnWeeks?.includes(wk);
+    if (a.type === 'once')    return !a.doneOnDates?.length;
+    if (a.type === 'impulse') return true;
+    return true;
+  });
+}
+
+function markAltDone(altId) {
+  const a = S.alternatives.find(x => x.id === altId);
+  if (!a) return;
+  const today = todayKey();
+  const wk = weekKey();
+  if (a.type === 'daily')  { if (!a.doneOnDates) a.doneOnDates=[]; a.doneOnDates.push(today); }
+  if (a.type === 'weekly') { if (!a.doneOnWeeks) a.doneOnWeeks=[]; a.doneOnWeeks.push(wk); }
+  if (a.type === 'once')   { if (!a.doneOnDates) a.doneOnDates=[]; a.doneOnDates.push(today); }
+  if (!S.todayDoneAltIds) S.todayDoneAltIds = [];
+  if (!S.todayDoneAltIds.includes(altId)) S.todayDoneAltIds.push(altId);
+  save();
+}
+
+function putBackLater(altId) {
+  // track skip count
+  const a = S.alternatives.find(x => x.id === altId);
+  if (a) { a.skipCount = (a.skipCount || 0) + 1; }
+  S.todayPickedId = null;
+  save();
+}
+
+// ── INIT START ──
+function maybeInitStart() {
+  if (!S.startDate) {
+    if (confirm('Challenge jetzt starten? Tag 1 beginnt heute.')) {
+      S.startDate = todayKey();
+      save();
+      renderAll();
+    }
+  }
+}
+
+// ══════════════════════════════════════
+// NAV
+// ══════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    const id = 'view-'+btn.dataset.view;
+    document.getElementById(id).classList.add('active');
+    if (btn.dataset.view==='picker')   renderPicker();
+    if (btn.dataset.view==='alts')     renderAlts();
+    if (btn.dataset.view==='eval')     renderEval();
+    if (btn.dataset.view==='overview') renderOverview();
+  });
+});
+
+// ══════════════════════════════════════
+// DAY PIPS
+// ══════════════════════════════════════
+function renderPips() {
+  const container = document.getElementById('dayPips');
+  container.innerHTML = '';
+  const dn = dayNum();
+  for (let i = 1; i <= CHALLENGE_DAYS; i++) {
+    const pip = document.createElement('div');
+    const dk = S.startDate ? (() => { const d=new Date(S.startDate); d.setDate(d.getDate()+i-1); return d.toISOString().slice(0,10); })() : null;
+    const dayData = dk ? S.days[dk] : null;
+    const isToday = i === dn;
+    const isPast = i < dn;
+    let cls = 'day-pip';
+    if (isToday) cls += ' today';
+    else if (isPast && dayData) {
+      const hasSlip = Object.values(dayData.slips||{}).some(v=>v);
+      const hasAlts = dayData.log?.filter(l=>l.type==='alt').length > 0;
+      if (hasSlip && hasAlts) cls += ' partial';
+      else if (hasSlip) cls += ' slip';
+      else cls += ' clean';
+    }
+    pip.className = cls;
+    pip.textContent = i;
+    const shortDate = dk ? dk.slice(8) + '.' + dk.slice(5,7) : '';
+    pip.innerHTML = i + (shortDate ? `<span class="pip-label">${shortDate}</span>` : '');
+    container.appendChild(pip);
+  }
+}
+
+// ══════════════════════════════════════
+// TODAY VIEW
+// ══════════════════════════════════════
+function renderToday() {
+  const today = todayKey();
+  const day = ensureDay(today);
+
+  // quest banner
+  const pool = getAvailablePool().filter(a => !(S.todayDoneAltIds||[]).includes(a.id));
+  const doneToday = S.todayDoneAltIds?.length || 0;
+  document.getElementById('questCount').textContent = pool.length;
+  document.getElementById('questDoneToday').textContent = doneToday
+    ? `✓ ${doneToday} Quest${doneToday>1?'s':''} heute erledigt` : '';
+
+  // inline picker — restore if there's an active pick
+  const inlinePicker = document.getElementById('todayPickerInline');
+  const questBanner = document.getElementById('questBanner');
+  if (currentPick) {
+    inlinePicker.style.display = 'block';
+    questBanner.classList.add('has-active-pick');
+    const tm = TYPE_META[currentPick.type];
+    document.getElementById('todayPickerResult').innerHTML = `${currentPick.name} <span class="pool-type-chip ${tm.chip}">${tm.label}</span>`;
+  } else {
+    inlinePicker.style.display = 'none';
+    questBanner.classList.remove('has-active-pick');
+  }
+
+  // category status cards — only show after 22:00 as end-of-day review
+  const catRow = document.getElementById('catStatusRow');
+  const currentHour = new Date().getHours();
+  if (currentHour >= 22) {
+    catRow.style.display = 'flex';
+    catRow.innerHTML = '';
+    Object.entries(CAT_META).forEach(([key, meta]) => {
+      const hasSlip = day.slips?.[key];
+      const badge = document.createElement('div');
+      badge.className = 'cat-badge';
+      badge.style.setProperty('--cat-color', meta.color);
+      badge.style.setProperty('--cat-bg', meta.bg);
+      const streakDays = countStreak(key);
+      badge.innerHTML = `
+        <div>
+          <div class="cat-name">${meta.label}</div>
+          <div class="cat-count">${hasSlip ? `<span style="color:${meta.color}">slip heute</span>` : `${streakDays}d clean`}</div>
+        </div>
+        <div class="cat-streak" style="color:${hasSlip ? meta.color : 'var(--success)'}">
+          ${hasSlip ? '😮‍💨' : streakDays >= 7 ? '🔥' : '✓'}
+        </div>
+      `;
+      catRow.appendChild(badge);
+    });
+  } else {
+    catRow.style.display = 'none';
+  }
+
+  // log
+  const logEl = document.getElementById('todayLogList');
+  const alts = day.log?.filter(l=>l.type==='alt') || [];
+  const slips = day.log?.filter(l=>l.type==='slip') || [];
+  if (!day.log?.length) {
+    logEl.innerHTML = '<div style="color:var(--muted);font-style:italic;font-size:.85rem">Noch nichts heute eingetragen.</div>';
+  } else {
+    logEl.innerHTML = day.log.map(entry => {
+      const isSlip = entry.type==='slip';
+      const catMeta = isSlip ? CAT_META[entry.slipCat] : null;
+      return `
+        <div class="log-entry">
+          <div class="log-time">${entry.time}</div>
+          <div class="log-text ${isSlip?'log-slip '+(entry.slipCat||''):''}">
+            ${isSlip ? `<span class="log-tag" style="background:${catMeta?.bg};color:${catMeta?.color}">${catMeta?.label||'Slip'}</span>` : ''}
+            ${entry.text}
+            ${entry.tags?.length ? `<span style="font-size:.7rem;color:var(--muted);margin-left:.3rem">${entry.tags.join(' ')}</span>` : ''}
+            ${entry.slipNote ? `<br><span style="font-size:.72rem;color:var(--muted);font-style:italic">${entry.slipNote}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // notes
+  const notesEl = document.getElementById('notesArea');
+  notesEl.value = day.notes || '';
+
+  // summary if alts done
+  if (alts.length) {
+    const summary = document.createElement('div');
+    summary.style.cssText = 'font-size:.8rem;color:var(--success);margin-bottom:.6rem;font-weight:700';
+    summary.textContent = `✓ ${alts.length} Alternativ${alts.length>1?'en':'e'} heute statt Gaming`;
+    logEl.prepend(summary);
+  }
+}
+
+function countStreak(catKey) {
+  if (!S.startDate) return 0;
+  let streak = 0;
+  const dn = dayNum();
+  for (let i = dn; i >= 1; i--) {
+    const d = new Date(S.startDate); d.setDate(d.getDate()+i-1);
+    const dk = d.toISOString().slice(0,10);
+    const dayData = S.days[dk];
+    if (dayData?.slips?.[catKey]) break;
+    streak++;
+  }
+  return streak;
+}
+
+// ── NOTES save ──
+document.getElementById('notesArea').addEventListener('change', e => {
+  const day = ensureDay(todayKey());
+  day.notes = e.target.value;
+  save();
+});
+
+// ── FOCUS MODE TOGGLE ──
+document.getElementById('focusLeastLabel').addEventListener('click', () => {
+  const cb = document.getElementById('focusLeastDone');
+  cb.checked = !cb.checked;
+  const label = document.getElementById('focusLeastLabel');
+  const text = document.getElementById('focusLeastText');
+  if (cb.checked) {
+    label.style.background = 'var(--daily)';
+    label.style.borderColor = 'var(--daily)';
+    label.style.color = 'var(--bg)';
+    document.getElementById('focusLeastIcon').textContent = '✓';
+    text.style.color = 'var(--bg)';
+  } else {
+    label.style.background = 'var(--surface2)';
+    label.style.borderColor = 'var(--border2)';
+    label.style.color = 'var(--mid)';
+    document.getElementById('focusLeastIcon').textContent = '🎯';
+    text.style.color = '';
+  }
+});
+document.getElementById('questBanner').addEventListener('click', (e) => {
+  if (e.target.id === 'questSpinBtn' || e.target.closest('#questSpinBtn')) {
+    doSpin();
+  }
+});
+document.getElementById('questSpinBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  doSpin();
+});
+
+function getTotalDoneCount(alt) {
+  return (alt.doneOnDates?.length || 0) + (alt.doneOnWeeks?.length || 0);
+}
+
+function doSpin() {
+  const pool = getAvailablePool().filter(a => !(S.todayDoneAltIds||[]).includes(a.id));
+  if (!pool.length) { showToast('Pool ist leer! Füg mehr Alternativen hinzu 🌱'); return; }
+  const nonImpulse = pool.filter(a=>a.type!=='impulse');
+  const candidates = nonImpulse.length ? nonImpulse : pool;
+
+  const focusLeast = document.getElementById('focusLeastDone')?.checked;
+  let pick;
+  if (focusLeast && candidates.length > 1) {
+    // sort by total done count ascending, then pick randomly from bottom third
+    const sorted = [...candidates].sort((a,b) => getTotalDoneCount(a) - getTotalDoneCount(b));
+    const sliceSize = Math.max(1, Math.ceil(sorted.length / 3));
+    const leastDone = sorted.slice(0, sliceSize);
+    pick = leastDone[Math.floor(Math.random()*leastDone.length)];
+  } else {
+    pick = candidates[Math.floor(Math.random()*candidates.length)];
+  }
+
+  currentPick = pick;
+  S.todayPickedId = currentPick.id;
+  save();
+  renderToday();
+  if (document.querySelector('[data-view="picker"]')?.classList.contains('active')) renderPicker();
+}
+
+// ── INLINE PICKER BUTTONS ──
+function doPickDone() {
+  if (!currentPick) return;
+  markAltDone(currentPick.id);
+  const today = todayKey();
+  const day = ensureDay(today);
+  day.log.push({ time:nowTime(), text:currentPick.name, type:'alt', altId:currentPick.id });
+  save();
+  showToast(`✓ ${currentPick.name} — Quest erledigt! ✨`);
+  currentPick = null; S.todayPickedId = null; save();
+  renderAll();
+}
+function doPickOther() { currentPick=null; S.todayPickedId=null; save(); doSpin(); }
+function doPickLater()  { putBackLater(currentPick?.id); currentPick=null; renderToday(); showToast('↩ Zurück in den Pool'); }
+function doPickAlready(){ if(!currentPick)return; markAltDone(currentPick.id); showToast(`✓ Schon gemacht — gut!`); currentPick=null; S.todayPickedId=null; save(); renderToday(); renderPicker(); }
+
+document.getElementById('todayPickDone')?.addEventListener('click', doPickDone);
+document.getElementById('todayPickOther')?.addEventListener('click', doPickOther);
+document.getElementById('todayPickLater')?.addEventListener('click', doPickLater);
+document.getElementById('todayPickAlready')?.addEventListener('click', doPickAlready);
+let pendingSlipCat = null;
+function openSlipModal(cat) {
+  pendingSlipCat = cat;
+  selectedHashtags = [];
+  const meta = CAT_META[cat];
+  document.getElementById('slipModalTitle').textContent = meta.label + ' — okay, passiert.';
+  document.getElementById('slipModalNote').value = '';
+  renderHashtags('slipHashtagRow');
+  document.getElementById('slipModal').classList.add('open');
+  setTimeout(()=>document.getElementById('slipModalNote').focus(), 80);
+}
+document.getElementById('slipGaming').addEventListener('click', ()=>openSlipModal('gaming'));
+document.getElementById('slipYt').addEventListener('click', ()=>openSlipModal('yt'));
+document.getElementById('slipAdult').addEventListener('click', ()=>openSlipModal('adult'));
+document.getElementById('slipModalCancel').addEventListener('click', ()=>document.getElementById('slipModal').classList.remove('open'));
+document.getElementById('slipModalConfirm').addEventListener('click', ()=>{
+  if (!pendingSlipCat) return;
+  const note = document.getElementById('slipModalNote').value.trim();
+  const today = todayKey();
+  const day = ensureDay(today);
+  if (!day.slips) day.slips = {};
+  day.slips[pendingSlipCat] = true;
+  day.clean = false;
+  const altsDoneToday = S.todayDoneAltIds?.map(id => S.alternatives.find(a=>a.id===id)?.name).filter(Boolean);
+  const prevText = altsDoneToday?.length ? `Vorher versucht: ${altsDoneToday.join(', ')}. ` : '';
+  const tagText = selectedHashtags.length ? ' ' + selectedHashtags.join(' ') : '';
+  day.log.push({ time:nowTime(), text:`${prevText}${note||''}`.trim() || '—', type:'slip', slipCat:pendingSlipCat, slipNote:'', tags: selectedHashtags });
+  save();
+  document.getElementById('slipModal').classList.remove('open');
+  // collapse slip section again
+  document.getElementById('slipExpanded').classList.remove('open');
+  document.getElementById('slipTrigger').textContent = '· · · ehrlich sein · · ·';
+  renderAll();
+  showToast(`Eingetragen. Morgen ist ein neuer Tag 💜`);
+});
+
+// ══════════════════════════════════════
+// PICKER
+// ══════════════════════════════════════
+let currentPick = null;
+
+function renderPicker() {
+  const pool = getAvailablePool();
+  // filter out already done today
+  const doneIds = S.todayDoneAltIds || [];
+  const available = pool.filter(a => !doneIds.includes(a.id));
+  const impulseOnly = available.filter(a=>a.type==='impulse');
+  const nonImpulse = available.filter(a=>a.type!=='impulse');
+  const total = available.length;
+
+  document.getElementById('poolCount').innerHTML = `<strong>${total}</strong> Zettel im Pool · ${impulseOnly.length} Impuls-Optionen immer verfügbar`;
+
+  if (currentPick) {
+    document.getElementById('pickerCard').classList.add('has-pick');
+    const tm = TYPE_META[currentPick.type];
+    document.getElementById('pickerResult').innerHTML = `${currentPick.name} <span class="pool-type-chip ${tm.chip}">${tm.label}</span>`;
+    document.getElementById('pickerMeta').textContent = '';
+    document.getElementById('postPickBtns').style.display = 'flex';
+  } else {
+    document.getElementById('pickerCard').classList.remove('has-pick');
+    document.getElementById('pickerResult').textContent = '—';
+    document.getElementById('pickerMeta').textContent = 'Klick auf "Ziehen" um eine Alternative zu wählen';
+    document.getElementById('postPickBtns').style.display = 'none';
+  }
+}
+
+document.getElementById('spinBtn').addEventListener('click', doSpin);
+document.getElementById('pickDoneBtn').addEventListener('click', doPickDone);
+document.getElementById('pickOtherBtn').addEventListener('click', doPickOther);
+document.getElementById('pickLaterBtn').addEventListener('click', doPickLater);
+document.getElementById('pickAlreadyBtn').addEventListener('click', doPickAlready);
+
+document.getElementById('manualAltAdd').addEventListener('click', ()=>{
+  const val = document.getElementById('manualAltInput').value.trim();
+  if (!val) return;
+  const today = todayKey();
+  const day = ensureDay(today);
+  day.log.push({ time:nowTime(), text:val, type:'alt', altId:null });
+  document.getElementById('manualAltInput').value='';
+  save(); renderToday(); renderPips();
+  showToast(`✓ ${val} eingetragen!`);
+});
+
+// ══════════════════════════════════════
+// ALTERNATIVES MANAGER
+// ══════════════════════════════════════
+function renderAlts() {
+  const list = document.getElementById('altList');
+  list.innerHTML = '';
+  const today = todayKey();
+  const wk = weekKey();
+  const doneIds = S.todayDoneAltIds || [];
+
+  const active = S.alternatives.filter(a => !a.removed && !a.archived);
+  const archived = S.alternatives.filter(a => !a.removed && a.archived);
+
+  if (!active.length) {
+    list.innerHTML = '<div style="color:var(--muted);font-style:italic;font-size:.85rem">Noch keine Alternativen — füg welche hinzu!</div>';
+  }
+
+  active.forEach(a => {
+    const tm = TYPE_META[a.type];
+    const isDoneToday = doneIds.includes(a.id) ||
+      (a.type==='daily' && a.doneOnDates?.includes(today)) ||
+      (a.type==='weekly' && a.doneOnWeeks?.includes(wk)) ||
+      (a.type==='once' && a.doneOnDates?.length);
+    const skipCount = a.skipCount || 0;
+    const totalDone = getTotalDoneCount(a);
+
+    const row = document.createElement('div');
+    row.className = 'alt-row' + (isDoneToday ? ' done-today' : '');
+    row.innerHTML = `
+      ${isDoneToday
+        ? '<span style="font-size:.7rem;color:var(--success);flex-shrink:0">✓</span>'
+        : `<button class="alt-check-btn" data-id="${a.id}" title="Direkt abhaken">✓</button>`}
+      <span class="alt-icon">${a.type==='daily'?'🔁':a.type==='weekly'?'📅':a.type==='once'?'✨':'⚡'}</span>
+      <span class="alt-name">${a.name}</span>
+      <span class="alt-type-badge ${tm.chip}" style="color:${tm.color}" data-id="${a.id}" title="Klicken zum Ändern">${tm.label}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:.65rem;color:var(--muted);flex-shrink:0;display:flex;gap:.4rem">
+        ${totalDone > 0 ? `<span title="Gesamt gemacht">×${totalDone}</span>` : ''}
+        ${skipCount > 0 ? `<span title="Mal weitergezogen" style="color:var(--once)">↩${skipCount}</span>` : ''}
+      </span>
+      <button class="alt-archive-btn" data-id="${a.id}" title="Archivieren">📦</button>
+      <button class="alt-del" data-id="${a.id}" title="Löschen">✕</button>
+    `;
+
+    const TYPES = ['daily','weekly','once','impulse'];
+    row.querySelector('.alt-type-badge').addEventListener('click', () => {
+      const next = TYPES[(TYPES.indexOf(a.type)+1) % TYPES.length];
+      a.type = next; save(); renderAlts();
+      showToast(`→ ${TYPE_META[next].label}`);
+    });
+    row.querySelector('.alt-check-btn')?.addEventListener('click', () => {
+      // log it directly without going through the picker
+      markAltDone(a.id);
+      const day = ensureDay(today);
+      day.log.push({ time:nowTime(), text:a.name, type:'alt', altId:a.id });
+      save(); renderAlts(); renderToday(); renderPips();
+      showToast(`✓ ${a.name} — eingetragen!`);
+    });
+    row.querySelector('.alt-archive-btn').addEventListener('click', () => {
+      a.archived = true; save(); renderAlts();
+      showToast(`📦 ${a.name} archiviert`);
+    });
+    row.querySelector('.alt-del').addEventListener('click', () => {
+      a.removed = true; save(); renderAlts();
+    });
+    list.appendChild(row);
+  });
+
+  // archived section
+  if (archived.length) {
+    const sep = document.createElement('div');
+    sep.style.cssText = 'font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:.9rem 0 .4rem;display:flex;align-items:center;gap:.5rem';
+    sep.innerHTML = `<span>📦 Archiv (${archived.length})</span><span style="flex:1;height:1px;background:var(--border)"></span>`;
+    list.appendChild(sep);
+    archived.forEach(a => {
+      const tm = TYPE_META[a.type];
+      const row = document.createElement('div');
+      row.className = 'alt-row';
+      row.style.opacity = '.45';
+      row.innerHTML = `
+        <span class="alt-icon" style="filter:grayscale(1)">${a.type==='daily'?'🔁':a.type==='weekly'?'📅':a.type==='once'?'✨':'⚡'}</span>
+        <span class="alt-name" style="color:var(--muted)">${a.name}</span>
+        <button class="alt-archive-btn" data-id="${a.id}" title="Wiederherstellen" style="background:var(--weekly-bg);color:var(--weekly);border:1px solid var(--weekly);border-radius:99px;font-size:.65rem;padding:.15rem .5rem;cursor:pointer">↩ zurück</button>
+        <button class="alt-del" data-id="${a.id}" title="Löschen">✕</button>
+      `;
+      row.querySelector('.alt-archive-btn').addEventListener('click', () => {
+        a.archived = false; save(); renderAlts();
+        showToast(`↩ ${a.name} wieder aktiv`);
+      });
+      row.querySelector('.alt-del').addEventListener('click', () => {
+        a.removed = true; save(); renderAlts();
+      });
+      list.appendChild(row);
+    });
+  }
+}
+
+document.getElementById('addAltBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('addAltName').value.trim();
+  if (!name) return;
+  const type = document.getElementById('addAltType').value;
+  S.alternatives.push({ id: S.nextId++, name, type, doneOnDates:[], doneOnWeeks:[], removed:false });
+  document.getElementById('addAltName').value = '';
+  save(); renderAlts();
+  showToast(`🌱 "${name}" hinzugefügt`);
+});
+document.getElementById('addAltName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('addAltBtn').click(); });
+
+// ══════════════════════════════════════
+// EVAL CARDS
+// ══════════════════════════════════════
+function evalDue(catKey) {
+  if (!S.startDate) return false;
+  const dn = dayNum();
+  const catEvals = S.evals[catKey] || [];
+  const lastEvalDay = catEvals.length ? catEvals[catEvals.length-1].dayNum : 0;
+  return (dn - lastEvalDay) >= EVAL_INTERVAL_DAYS && dn >= EVAL_INTERVAL_DAYS;
+}
+
+function renderEval() {
+  const container = document.getElementById('evalCards');
+  container.innerHTML = '';
+  Object.entries(CAT_META).forEach(([catKey, meta]) => {
+    const isDue = evalDue(catKey);
+    const catEvals = S.evals[catKey] || [];
+    const card = document.createElement('div');
+    card.className = 'eval-card' + (isDue?' due':'');
+    const dn = dayNum();
+    card.innerHTML = `
+      <div class="eval-question">
+        ${meta.label}: ${isDue ? `Heute ist Tag ${dn} — wie läuft's?` : `Nächste Evaluation in ${EVAL_INTERVAL_DAYS - ((dn - (catEvals[catEvals.length-1]?.dayNum||0)))} Tag(en)`}
+      </div>
+      ${catEvals.length ? `
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.7rem">
+          ${catEvals.map(e=>`<div>Tag ${e.dayNum}: ${e.kept?'✓ weitergemacht':'⤼ abgebrochen'} ${e.note?'— '+e.note:''}</div>`).join('')}
+        </div>
+      ` : ''}
+      ${isDue ? `
+        <div style="margin-bottom:.7rem">
+          <input class="modal-input" id="evalNote-${catKey}" placeholder="Notiz (optional)…" style="margin-bottom:.5rem">
+        </div>
+        <div class="eval-btns">
+          <button class="eval-btn eval-yes" data-cat="${catKey}" data-kept="true">✓ Weitermachen</button>
+          <button class="eval-btn eval-no"  data-cat="${catKey}" data-kept="false">Abbrechen</button>
+          <button class="eval-btn eval-extend" data-cat="${catKey}" data-kept="extend">+3 Tage Schonfrist</button>
+        </div>
+      ` : `<div class="eval-result">${catEvals.length ? 'Letzte Entscheidung: ' + (catEvals[catEvals.length-1].kept?'Weitergemacht ✓':'Abgebrochen') : 'Noch keine Evaluation'}</div>`}
+    `;
+    container.appendChild(card);
+  });
+
+  container.querySelectorAll('[data-cat]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cat = btn.dataset.cat;
+      const kept = btn.dataset.kept==='true' ? true : btn.dataset.kept==='false' ? false : 'extend';
+      const note = document.getElementById('evalNote-'+cat)?.value?.trim()||'';
+      if (!S.evals[cat]) S.evals[cat]=[];
+      S.evals[cat].push({ dayNum:dayNum(), date:todayKey(), kept, note });
+      save();
+      renderEval();
+      showToast(kept===true?'✓ Weiter so! 💜':kept===false?'Entschieden, eingetragen.':'3 Tage Schonfrist gesetzt.');
+    });
+  });
+}
+
+// ══════════════════════════════════════
+// OVERVIEW
+// ══════════════════════════════════════
+function renderOverview() {
+  const rows = document.getElementById('overviewRows');
+  rows.innerHTML = '';
+  if (!S.startDate) { rows.innerHTML='<div style="color:var(--muted)">Challenge noch nicht gestartet.</div>'; return; }
+  const dn = dayNum();
+  for (let i=1; i<=Math.min(dn, CHALLENGE_DAYS); i++) {
+    const d = new Date(S.startDate); d.setDate(d.getDate()+i-1);
+    const dk = d.toISOString().slice(0,10);
+    const dayData = S.days[dk];
+    const alts = dayData?.log?.filter(l=>l.type==='alt') || [];
+    const slips = dayData?.log?.filter(l=>l.type==='slip') || [];
+    const hasSlip = slips.length > 0;
+    const row = document.createElement('div');
+    row.className = 'ov-day' + (hasSlip?' ov-slip':alts.length?' ov-clean':'');
+    row.innerHTML = `
+      <div>
+        <div class="ov-day-num">${i}</div>
+        <div class="ov-day-date">${dateForDay(i)}</div>
+      </div>
+      <div class="ov-day-info">
+        ${alts.length ? `
+          <div class="ov-day-alts">
+            ${alts.map(a=>`<span class="alt-item">✓ ${a.text}</span>`).join('')}
+          </div>
+        ` : '<div style="font-size:.78rem;color:var(--muted)">Keine Alternativen geloggt</div>'}
+        ${hasSlip ? slips.map(s=>`
+          <div class="ov-slip-tag">${CAT_META[s.slipCat]?.label||'Slip'} um ${s.time}${s.text&&s.text!=='—'?' — '+s.text:''}</div>
+        `).join('') : ''}
+        ${dayData?.notes ? `<div style="font-size:.72rem;color:var(--muted);margin-top:.3rem;font-style:italic">${dayData.notes}</div>` : ''}
+      </div>
+    `;
+    rows.appendChild(row);
+  }
+  if (!rows.children.length) rows.innerHTML='<div style="color:var(--muted)">Noch keine Daten.</div>';
+}
+
+// ══════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ══════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════
+function renderAll() {
+  renderPips();
+  renderToday();
+}
+
+// ══════════════════════════════════════
+// RESET
+// ══════════════════════════════════════
+document.getElementById('resetChallengeBtn').addEventListener('click', () => {
+  if (!confirm('Challenge neu starten? Tages-Logs, Slips, Notizen und Evaluationen werden gelöscht.\n\nDeine Alternativen-Liste bleibt erhalten. "Once"-Einträge die du erledigt hattest werden wieder verfügbar.')) return;
+
+  // keep alternatives, but reset completion state
+  const cleanedAlts = S.alternatives.map(a => ({
+    ...a,
+    doneOnDates: a.type === 'once' ? [] : (a.doneOnDates || []), // reset once-items
+    doneOnWeeks: [], // reset weekly tracking too
+  }));
+
+  S.startDate = todayKey();
+  S.days = {};
+  S.evals = {};
+  S.todayPickedId = null;
+  S.todayDoneAltIds = [];
+  S.alternatives = cleanedAlts;
+  currentPick = null;
+
+  save();
+  // switch back to today tab
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelector('[data-view="today"]').classList.add('active');
+  document.getElementById('view-today').classList.add('active');
+  renderAll();
+  showToast('🌱 Neue Challenge gestartet — viel Kraft 💜');
+});
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+load();
+
+// daily reset — clear today's picked/done state when a new day begins
+(function checkDailyReset() {
+  const today = todayKey();
+  if (S.lastResetDate !== today) {
+    S.todayDoneAltIds = [];
+    S.todayPickedId = null;
+    S.lastResetDate = today;
+    currentPick = null;
+    save();
+  }
+})();
+if (!S.startDate) {
+  setTimeout(()=>{
+    if (confirm('DoThisInstead — Challenge jetzt starten? Tag 1 beginnt heute.')) {
+      S.startDate = todayKey(); save(); renderAll();
+    }
+  }, 300);
+}
+renderAll();
+</script>
+</body>
+</html>

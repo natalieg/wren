@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Croquis Café – Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Karla:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #f5f0e8;
+  --surface: #fffdf8;
+  --ink: #1c1814;
+  --mid: #6b6155;
+  --muted: #a89e92;
+  --line: #ddd5c8;
+  --accent: #8b4a2f;
+  --accent2: #4a7c6b;
+  --done-bg: #e8f0ec;
+  --done-border: #4a7c6b;
+  --card-shadow: 0 1px 4px rgba(28,24,20,.08);
+  --radius: 4px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Karla', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 1.6rem 2.5rem 1.4rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  font-weight: 300;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+
+.header-left h1 em {
+  font-style: italic;
+  color: #c8a882;
+}
+
+.header-sub {
+  margin-top: .4rem;
+  font-size: .72rem;
+  color: #a89e92;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.stats-row {
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+}
+
+.stat {
+  text-align: right;
+}
+
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: #c8a882;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6b6155;
+  margin-top: .1rem;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-strip {
+  height: 3px;
+  background: #2e2820;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #c8a882;
+  transition: width .4s ease;
+}
+
+/* ── CONTROLS ── */
+.controls {
+  padding: .8rem 2.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-btns {
+  display: flex;
+  gap: .3rem;
+}
+
+.filter-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .3rem .8rem;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--mid);
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+.filter-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.controls-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.search-wrap {
+  position: relative;
+}
+
+.search-wrap input {
+  font-family: 'Karla', sans-serif;
+  font-size: .78rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .3rem .7rem .3rem 1.8rem;
+  color: var(--ink);
+  outline: none;
+  width: 140px;
+  transition: border-color .15s, width .2s;
+}
+.search-wrap input:focus { border-color: var(--muted); width: 180px; }
+.search-wrap input::placeholder { color: var(--muted); }
+
+.search-icon {
+  position: absolute;
+  left: .55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: .75rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.page-size-label {
+  font-size: .7rem;
+  color: var(--muted);
+}
+
+.page-size-select {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: .25rem .5rem;
+  color: var(--ink);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ── GRID ── */
+.grid-wrap {
+  padding: 1.5rem 2.5rem 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: .45rem;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: stretch;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  transition: border-color .15s, box-shadow .15s;
+  height: 44px;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(28,24,20,.1);
+}
+
+.card.done {
+  background: var(--done-bg);
+  border-color: var(--done-border);
+}
+
+/* link area — takes most of the card, opens video */
+.card-link {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  padding: 0 .65rem;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+  transition: background .12s;
+}
+.card-link:hover { background: rgba(139,74,47,.06); }
+.card.done .card-link:hover { background: rgba(74,124,107,.08); }
+
+.card-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.card.done .card-num { color: var(--accent2); }
+
+.card-label {
+  font-size: .58rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card.done .card-label { color: var(--accent2); opacity: .7; }
+
+.card-ts {
+  font-size: .56rem;
+  letter-spacing: .04em;
+  text-transform: none;
+  color: var(--accent2);
+  opacity: .85;
+  font-style: italic;
+  display: block;
+}
+
+.card-arrow {
+  margin-left: auto;
+  font-size: .65rem;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity .12s;
+  flex-shrink: 0;
+}
+.card-link:hover .card-arrow { opacity: 1; }
+
+/* checkmark button — right side */
+.card-check {
+  flex-shrink: 0;
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--line);
+  cursor: pointer;
+  background: transparent;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  transition: background .12s;
+  font-size: .9rem;
+  color: var(--muted);
+}
+.card-check:hover { background: rgba(28,24,20,.05); color: var(--accent2); }
+.card.done .card-check {
+  background: rgba(74,124,107,.12);
+  border-left-color: var(--done-border);
+  color: var(--accent2);
+}
+.card.done .card-check:hover { background: rgba(139,74,47,.1); color: var(--accent); }
+
+/* ── EMPTY STATE ── */
+.empty {
+  grid-column: 1/-1;
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+}
+
+/* ── PAGINATION ── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  padding: 0 2.5rem 2.5rem;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--mid);
+  cursor: pointer;
+  transition: all .15s;
+}
+.page-btn:hover { border-color: var(--ink); color: var(--ink); }
+.page-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.page-btn.ellipsis { border: none; background: transparent; cursor: default; }
+.page-btn:disabled { opacity: .3; cursor: default; }
+
+.page-nav {
+  font-size: .9rem;
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(2rem);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: .75rem;
+  padding: .5rem 1.2rem;
+  border-radius: 99px;
+  opacity: 0;
+  transition: opacity .2s, transform .2s;
+  pointer-events: none;
+  white-space: nowrap;
+  letter-spacing: .04em;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Croquis <em>Café</em></h1>
+    <div class="header-sub">Gesture Drawing Tracker</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num" id="statDone">0</div>
+      <div class="stat-label">Gemacht</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statLeft">629</div>
+      <div class="stat-label">Übrig</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num" id="statPct">0%</div>
+      <div class="stat-label">Erledigt</div>
+    </div>
+  </div>
+</header>
+
+<div class="progress-strip">
+  <div class="progress-fill" id="progressFill"></div>
+</div>
+
+<div class="controls">
+  <div class="filter-btns">
+    <button class="filter-btn active" data-filter="all">Alle</button>
+    <button class="filter-btn" data-filter="done">✓ Gemacht</button>
+    <button class="filter-btn" data-filter="todo">Noch offen</button>
+  </div>
+  <div class="controls-right">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="number" id="searchInput" placeholder="Week #…" min="72" max="700">
+    </div>
+    <span class="page-size-label">pro Seite:</span>
+    <select class="page-size-select" id="pageSizeSelect">
+      <option value="50" selected>50</option>
+      <option value="100">100</option>
+      <option value="200">200</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid-wrap">
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="pagination" id="pagination"></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const START = 72;
+const END = 700;
+const TOTAL = END - START + 1;
+const STORAGE_KEY = 'croquis_done';
+const STORAGE_TS = 'croquis_timestamps';
+
+// done = Set of week numbers
+// timestamps = Map of week number -> ISO timestamp string
+let done = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
+let timestamps = new Map(Object.entries(JSON.parse(localStorage.getItem(STORAGE_TS) || '{}')).map(([k,v]) => [parseInt(k), v]));
+let filter = 'all';
+let page = 1;
+let pageSize = 50;
+let searchVal = null;
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...done]));
+  const tsObj = {};
+  timestamps.forEach((v, k) => tsObj[k] = v);
+  localStorage.setItem(STORAGE_TS, JSON.stringify(tsObj));
+}
+
+function relativeTime(isoStr) {
+  const then = new Date(isoStr);
+  const now = new Date();
+  // compare calendar days
+  const thenDay = new Date(then.getFullYear(), then.getMonth(), then.getDate());
+  const nowDay  = new Date(now.getFullYear(),  now.getMonth(),  now.getDate());
+  const diffDays = Math.round((nowDay - thenDay) / 86400000);
+  if (diffDays === 0) return 'heute';
+  if (diffDays === 1) return 'gestern';
+  if (diffDays < 7)  return `vor ${diffDays} Tagen`;
+  if (diffDays < 14) return 'vor 1 Woche';
+  // older: show date
+  return then.toLocaleDateString('de-DE', { day: 'numeric', month: 'short' });
+}
+
+function getFiltered() {
+  const all = Array.from({length: TOTAL}, (_, i) => START + i);
+  let list = all;
+  if (searchVal !== null) {
+    list = list.filter(n => n === searchVal);
+  } else if (filter === 'done') {
+    list = list.filter(n => done.has(n));
+  } else if (filter === 'todo') {
+    list = list.filter(n => !done.has(n));
+  }
+  return list;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function updateStats() {
+  const d = done.size;
+  const pct = Math.round(d / TOTAL * 100);
+  document.getElementById('statDone').textContent = d;
+  document.getElementById('statLeft').textContent = TOTAL - d;
+  document.getElementById('statPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function renderGrid() {
+  const list = getFiltered();
+  const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+  if (page > totalPages) page = totalPages;
+
+  const slice = list.slice((page - 1) * pageSize, page * pageSize);
+
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  if (slice.length === 0) {
+    grid.innerHTML = '<div class="empty">Keine Videos gefunden.</div>';
+  } else {
+    slice.forEach(n => {
+      const card = document.createElement('div');
+      card.className = 'card' + (done.has(n) ? ' done' : '');
+
+      const ts = timestamps.get(n);
+      const tsLabel = ts ? relativeTime(ts) : null;
+
+      const link = document.createElement('a');
+      link.className = 'card-link';
+      link.href = `https://croquis.cafe/video/week-${n}/`;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.innerHTML = `
+        <span class="card-num">${n}</span>
+        <span class="card-label">Week${tsLabel ? `<span class="card-ts">${tsLabel}</span>` : ''}</span>
+        <span class="card-arrow">↗</span>
+      `;
+
+      const check = document.createElement('button');
+      check.className = 'card-check';
+      check.title = done.has(n) ? 'Als nicht gemacht markieren' : 'Als gemacht markieren';
+      check.textContent = done.has(n) ? '✓' : '○';
+
+      check.addEventListener('click', () => {
+        if (done.has(n)) {
+          done.delete(n);
+          timestamps.delete(n);
+          card.classList.remove('done');
+          check.textContent = '○';
+          check.title = 'Als gemacht markieren';
+          link.querySelector('.card-label').innerHTML = 'Week';
+          showToast(`Week ${n} entfernt`);
+        } else {
+          const now = new Date().toISOString();
+          done.add(n);
+          timestamps.set(n, now);
+          card.classList.add('done');
+          check.textContent = '✓';
+          check.title = 'Als nicht gemacht markieren';
+          link.querySelector('.card-label').innerHTML = `Week<span class="card-ts">heute</span>`;
+          showToast(`Week ${n} ✓ gemacht!`);
+        }
+        save();
+        updateStats();
+        if (filter !== 'all') renderGrid();
+      });
+
+      card.appendChild(link);
+      card.appendChild(check);
+      grid.appendChild(card);
+    });
+  }
+
+  renderPagination(totalPages);
+  updateStats();
+}
+
+function renderPagination(totalPages) {
+  const pag = document.getElementById('pagination');
+  pag.innerHTML = '';
+  if (totalPages <= 1) return;
+
+  function btn(label, pg, cls = '') {
+    const b = document.createElement('button');
+    b.className = 'page-btn' + (cls ? ' ' + cls : '') + (pg === page ? ' active' : '');
+    b.textContent = label;
+    if (pg !== null) b.addEventListener('click', () => { page = pg; renderGrid(); window.scrollTo(0,0); });
+    else b.classList.add('ellipsis');
+    pag.appendChild(b);
+  }
+
+  // prev
+  const prev = document.createElement('button');
+  prev.className = 'page-btn page-nav';
+  prev.textContent = '‹';
+  prev.disabled = page === 1;
+  prev.addEventListener('click', () => { if (page > 1) { page--; renderGrid(); window.scrollTo(0,0); } });
+  pag.appendChild(prev);
+
+  // page numbers with ellipsis
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== '…') {
+      pages.push('…');
+    }
+  }
+
+  pages.forEach(p => {
+    if (p === '…') btn('…', null);
+    else btn(p, p);
+  });
+
+  // next
+  const next = document.createElement('button');
+  next.className = 'page-btn page-nav';
+  next.textContent = '›';
+  next.disabled = page === totalPages;
+  next.addEventListener('click', () => { if (page < totalPages) { page++; renderGrid(); window.scrollTo(0,0); } });
+  pag.appendChild(next);
+}
+
+// ── FILTER ──
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filter = btn.dataset.filter;
+    searchVal = null;
+    document.getElementById('searchInput').value = '';
+    page = 1;
+    renderGrid();
+  });
+});
+
+// ── SEARCH ──
+document.getElementById('searchInput').addEventListener('input', e => {
+  const v = parseInt(e.target.value);
+  searchVal = (!isNaN(v) && v >= START && v <= END) ? v : null;
+  page = 1;
+  renderGrid();
+});
+
+// ── PAGE SIZE ──
+document.getElementById('pageSizeSelect').addEventListener('change', e => {
+  pageSize = parseInt(e.target.value);
+  page = 1;
+  renderGrid();
+});
+
+// ── INIT ──
+// jump to first page that still has unchecked videos
+function firstOpenPage() {
+  const all = Array.from({length: TOTAL}, (_, i) => START + i);
+  for (let p = 1; p <= Math.ceil(TOTAL / pageSize); p++) {
+    const slice = all.slice((p - 1) * pageSize, p * pageSize);
+    if (slice.some(n => !done.has(n))) return p;
+  }
+  return 1;
+}
+page = firstOpenPage();
+renderGrid();
+</script>
+</body>
+</html>

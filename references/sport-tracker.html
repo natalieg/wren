@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Karla:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0f0e0c;
+  --surface: #1a1916;
+  --surface2: #232118;
+  --border: #2e2b24;
+  --border2: #3d3930;
+  --text: #ede8df;
+  --muted: #7a7468;
+  --muted2: #514e48;
+  --yoga: #7eb89a;
+  --yoga-bg: #1a2e24;
+  --ballet: #c97fb0;
+  --ballet-bg: #2e1a2a;
+  --adipo: #e8a84a;
+  --adipo-bg: #2e2210;
+  --weight: #6fa8d4;
+  --weight-bg: #162030;
+  --accent: #e8a84a;
+  --today: #2a2720;
+  --today-border: #c97fb0;
+  --radius: 8px;
+  --radius-sm: 4px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Karla', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* ── HEADER ── */
+.app-header {
+  padding: 1.5rem 2rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.app-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.app-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.week-nav button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 28px; height: 28px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: .9rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: color .15s, border-color .15s;
+}
+.week-nav button:hover { color: var(--text); border-color: var(--border2); }
+
+.week-label {
+  font-size: .8rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+  min-width: 120px;
+  text-align: center;
+}
+
+.today-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: .3rem .7rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.today-btn:hover { color: var(--text); border-color: var(--border2); }
+
+/* ── GOALS BAR ── */
+.goals-bar {
+  padding: .9rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.goal-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .78rem;
+}
+
+.goal-label {
+  color: var(--muted);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-size: .68rem;
+}
+
+.goal-pips {
+  display: flex;
+  gap: 3px;
+}
+
+.pip {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  transition: background .2s;
+}
+
+.pip.done-yoga   { background: var(--yoga);   border-color: var(--yoga); }
+.pip.done-ballet { background: var(--ballet); border-color: var(--ballet); }
+.pip.done-adipo  { background: var(--adipo);  border-color: var(--adipo); }
+
+.goal-avg {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 20px;
+  transition: color .2s;
+}
+.goal-avg.on-track { color: var(--yoga); }
+.goal-avg.on-track-ballet { color: var(--ballet); }
+
+.goal-count {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.goal-sep { color: var(--border2); }
+
+.goal-target-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Karla', sans-serif;
+  font-size: .78rem;
+  width: 32px;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  padding: .1rem .2rem;
+}
+.goal-target-input:focus { outline: none; border-color: var(--ballet); }
+
+.weight-delta {
+  margin-left: auto;
+  font-size: .78rem;
+  color: var(--muted);
+}
+.weight-delta strong { color: var(--weight); }
+
+/* ── WEEK GRID ── */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (max-width: 700px) {
+  .week-grid { grid-template-columns: 1fr; }
+  .day-col { border-right: none !important; border-bottom: 1px solid var(--border); }
+}
+
+.day-col {
+  border-right: 1px solid var(--border);
+  padding: .9rem .8rem 1rem;
+  min-height: 340px;
+  position: relative;
+  transition: background .2s;
+}
+.day-col:last-child { border-right: none; }
+.day-col.is-today {
+  background: var(--today);
+  border-top: 2px solid var(--today-border);
+}
+.day-col.is-future { opacity: .6; }
+
+.day-header {
+  margin-bottom: .7rem;
+}
+
+.day-name {
+  font-family: 'Fraunces', serif;
+  font-size: .95rem;
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+
+.day-date {
+  font-size: .68rem;
+  color: var(--muted);
+  margin-top: .05rem;
+}
+
+.day-col.is-today .day-name { color: var(--today-border); }
+
+/* ── DAY SECTIONS ── */
+.day-section {
+  margin-bottom: .6rem;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .4rem;
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.section-head .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.section-yoga .section-head  { background: var(--yoga-bg);   color: var(--yoga); }
+.section-ballet .section-head { background: var(--ballet-bg); color: var(--ballet); }
+.section-adipo .section-head  { background: var(--adipo-bg);  color: var(--adipo); }
+
+.section-yoga .dot   { background: var(--yoga); }
+.section-ballet .dot { background: var(--ballet); }
+.section-adipo .dot  { background: var(--adipo); }
+
+.section-body {
+  background: var(--surface);
+  padding: .4rem .45rem;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.section-body.collapsed { display: none; }
+
+/* ── INPUTS ── */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.field-label {
+  font-size: .6rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+  flex-shrink: 0;
+  min-width: 30px;
+}
+
+input[type="number"], input[type="text"], select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Karla', sans-serif;
+  font-size: .75rem;
+  border-radius: var(--radius-sm);
+  padding: .2rem .35rem;
+  width: 100%;
+  outline: none;
+  transition: border-color .15s;
+}
+input:focus, select:focus { border-color: var(--border2); }
+select option { background: var(--surface2); }
+
+input[type="number"] { width: 54px; flex-shrink: 0; }
+
+.emoji-row {
+  display: flex;
+  gap: 3px;
+}
+
+.emoji-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: .9rem;
+  padding: .1rem .25rem;
+  line-height: 1;
+  transition: border-color .15s, background .15s, opacity .2s, max-width .2s, padding .2s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.emoji-btn:hover { border-color: var(--border2); }
+.emoji-btn.active { border-color: var(--border2); background: var(--surface); box-shadow: 0 0 0 1px var(--border2); }
+/* when a choice is made, hide others; reveal on row-hover */
+.emoji-row.has-selection .emoji-btn:not(.active) {
+  max-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.emoji-row.has-selection:hover .emoji-btn:not(.active) {
+  max-width: 2rem;
+  padding: .1rem .25rem;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  opacity: .5;
+  pointer-events: auto;
+}
+.emoji-btn[data-i="0"] { font-size: .72rem; color: var(--muted); }
+/* "-" when selected: show it collapsed like any other selection */
+.emoji-row.has-none .emoji-btn:not([data-i="0"]) {
+  max-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  border-left-width: 0;
+  border-right-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.emoji-row.has-none:hover .emoji-btn:not([data-i="0"]) {
+  max-width: 2rem;
+  padding: .1rem .25rem;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  opacity: .5;
+  pointer-events: auto;
+}
+.emoji-row.has-none .emoji-btn[data-i="0"] { border-color: var(--border2); background: var(--surface); box-shadow: 0 0 0 1px var(--border2); }
+
+/* ── DAY CARD SPORT COLORS ── */
+.day-col.sport-one {
+  background: #1f1c0e;
+  border-top: 2px solid var(--adipo);
+}
+.day-col.sport-two {
+  background: #121f17;
+  border-top: 2px solid var(--yoga);
+}
+.day-col.is-today.sport-one {
+  background: #252110;
+  border-top: 2px solid var(--adipo);
+}
+.day-col.is-today.sport-two {
+  background: #152219;
+  border-top: 2px solid var(--yoga);
+}
+
+/* toggle checkbox */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.toggle {
+  width: 26px; height: 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--muted2);
+  transition: transform .2s, background .2s;
+}
+.toggle.on { background: var(--adipo-bg); border-color: var(--adipo); }
+.toggle.on::after { transform: translateX(12px); background: var(--adipo); }
+
+.toggle-label { font-size: .65rem; color: var(--muted); }
+
+/* ── DAILY STATS ── */
+.daily-stats {
+  margin-top: .5rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.stat-icon { font-size: .75rem; flex-shrink: 0; }
+.stat-label { font-size: .6rem; color: var(--muted); min-width: 32px; letter-spacing: .04em; }
+
+.weight-input-wrap { display: flex; align-items: center; gap: .25rem; }
+.weight-unit { font-size: .65rem; color: var(--muted); }
+
+/* ── NOTES ── */
+.day-note {
+  margin-top: .4rem;
+}
+
+.day-note textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  border-radius: var(--radius-sm);
+  padding: .3rem .4rem;
+  width: 100%;
+  resize: none;
+  height: 44px;
+  outline: none;
+  line-height: 1.4;
+  transition: border-color .15s;
+}
+.day-note textarea:focus { border-color: var(--border2); }
+.day-note textarea::placeholder { color: var(--muted2); }
+
+/* ── WEIGHT CHART ── */
+.chart-section {
+  padding: 1rem 2rem 1.5rem;
+}
+
+.chart-title {
+  font-size: .68rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .8rem;
+}
+
+.weight-chart {
+  height: 60px;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.chart-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chart-bar {
+  width: 100%;
+  background: var(--weight-bg);
+  border-radius: 2px 2px 0 0;
+  border-top: 2px solid var(--weight);
+  min-height: 4px;
+  transition: height .3s ease;
+}
+
+.chart-val {
+  font-size: .58rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chart-day {
+  font-size: .55rem;
+  color: var(--muted2);
+  letter-spacing: .04em;
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-title">Mein <em>Tracker</em></div>
+  <div class="week-nav">
+    <button id="prevWeek">‹</button>
+    <span class="week-label" id="weekLabel">–</span>
+    <button id="nextWeek">›</button>
+    <button class="today-btn" id="todayBtn">Heute</button>
+  </div>
+</header>
+
+<div class="goals-bar">
+  <div class="goal-item">
+    <span class="goal-label">🧘 Yoga</span>
+    <div class="goal-pips" id="yogaPips"></div>
+    <span class="goal-count" id="yogaCount">0 / 7</span>
+    <span style="font-size:.65rem;color:var(--muted);margin-left:.3rem;">ø</span>
+    <span class="goal-avg" id="yogaAvg">–</span>
+    <span style="font-size:.65rem;color:var(--muted);">/ Ziel</span>
+    <input type="number" class="goal-target-input" id="yogaMinTarget" min="5" max="120" step="5" value="20" title="Ø Minuten-Ziel pro Yoga-Einheit">
+    <span style="font-size:.65rem;color:var(--muted);">min</span>
+  </div>
+  <span class="goal-sep">·</span>
+  <div class="goal-item">
+    <span class="goal-label">🩰 Ballett</span>
+    <div class="goal-pips" id="balletPips"></div>
+    <span class="goal-count" id="balletCount">0 / 5</span>
+    <span style="font-size:.65rem;color:var(--muted);margin-left:.2rem;">Ziel:</span>
+    <input type="number" class="goal-target-input" id="balletTarget" min="1" max="7" value="5">
+    <span style="font-size:.65rem;color:var(--muted);margin-left:.3rem;">ø</span>
+    <span class="goal-avg" id="balletAvg">–</span>
+    <span style="font-size:.65rem;color:var(--muted);">/ Ziel</span>
+    <input type="number" class="goal-target-input" id="balletMinTarget" min="5" max="300" step="5" value="60" title="Ø Minuten-Ziel pro Ballett-Einheit">
+    <span style="font-size:.65rem;color:var(--muted);">min</span>
+  </div>
+  <div class="weight-delta" id="weightDelta"></div>
+</div>
+
+<div class="week-grid" id="weekGrid"></div>
+
+<div class="chart-section">
+  <div class="chart-title">Gewicht diese Woche</div>
+  <div class="weight-chart" id="weightChart"></div>
+</div>
+
+<script>
+// ── CONFIG ──
+const START_WEIGHT = 112.5;
+const YOGA_TYPES = ['Restorative','Gentle','Hatha','Vinyasa','Yin','Power','Andere'];
+const EMOJIS = ['–','😢','😐','🙂','😄']; // index 0 = unset/unknown
+const DAYS_DE = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+const DAYS_FULL = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+
+// ── STATE ──
+let weekOffset = 0; // 0 = current week
+let balletTarget = parseInt(localStorage.getItem('balletTarget') || '5');
+
+function storageKey(dateStr) { return 'tracker_' + dateStr; }
+function getDay(dateStr) { return JSON.parse(localStorage.getItem(storageKey(dateStr)) || 'null') || {}; }
+function saveDay(dateStr, data) { localStorage.setItem(storageKey(dateStr), JSON.stringify(data)); }
+
+// ── DATE HELPERS ──
+function getWeekDates(offset) {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  monday.setHours(0,0,0,0);
+  return Array.from({length: 7}, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return d;
+  });
+}
+
+function fmtKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function fmtShort(d) {
+  return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+function isToday(d) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  return d.getTime() === t.getTime();
+}
+
+function isFuture(d) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  return d > t;
+}
+
+// ── RENDER ──
+function render() {
+  const dates = getWeekDates(weekOffset);
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+
+  // week label
+  const wl = document.getElementById('weekLabel');
+  wl.textContent = fmtShort(dates[0]) + ' – ' + fmtShort(dates[6]) + '.' + dates[6].getFullYear();
+
+  let yogaCount = 0, balletCount = 0;
+  const weights = [];
+
+  dates.forEach((date, idx) => {
+    const key = fmtKey(date);
+    const data = getDay(key);
+    const today = isToday(date);
+    const future = isFuture(date);
+    const isTue = idx === 1; // Tuesday = Adipositas day
+
+    if (data.yoga?.done) yogaCount++;
+    if (data.ballet?.done) balletCount++;
+    weights.push({ label: DAYS_DE[idx], val: data.weight || null });
+
+    // ── COLUMN ──
+    const yogaDone   = !!data.yoga?.done;
+    const moveDone   = !!(data.ballet?.done || data.adipo?.done);
+    const sportCount = (yogaDone ? 1 : 0) + (moveDone ? 1 : 0);
+    const sportClass = sportCount === 2 ? ' sport-two' : sportCount === 1 ? ' sport-one' : '';
+
+    const col = document.createElement('div');
+    col.className = 'day-col' + (today ? ' is-today' : '') + (future ? ' is-future' : '') + sportClass;
+
+    // header
+    col.innerHTML = `
+      <div class="day-header">
+        <div class="day-name">${DAYS_FULL[idx]}</div>
+        <div class="day-date">${fmtShort(date)}</div>
+      </div>
+    `;
+
+    // ── YOGA SECTION ──
+    const yogaSec = document.createElement('div');
+    yogaSec.className = 'day-section section-yoga';
+    yogaSec.innerHTML = `
+      <div class="section-head" data-section="yoga-${key}">
+        <div class="dot"></div>
+        <span>Yoga</span>
+        <span style="margin-left:auto;font-size:.75rem">${data.yoga?.done ? '✓' : ''}</span>
+      </div>
+      <div class="section-body" id="yoga-body-${key}">
+        <div class="field-row">
+          <span class="field-label">Typ</span>
+          <select id="yoga-type-${key}">
+            <option value="">–</option>
+            ${YOGA_TYPES.map(t => `<option value="${t}" ${data.yoga?.type===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Min</span>
+          <input type="number" id="yoga-min-${key}" min="0" max="180" step="5" value="${data.yoga?.minutes||''}" placeholder="–">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Feeling</span>
+          <div class="emoji-row${data.yoga?.feeling === -1 ? ' has-none' : (data.yoga?.feeling > 0 ? ' has-selection' : '')}" id="yoga-emoji-${key}">
+            ${EMOJIS.map((e,i) => `<button class="emoji-btn${data.yoga?.feeling===i&&i>0?' active':''}" data-i="${i}">${e}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    col.appendChild(yogaSec);
+
+    // ── BALLET / ADIPO SECTION ──
+    const moveSec = document.createElement('div');
+    const isAdipo = data.adipo?.isAdipo || false;
+    moveSec.className = 'day-section ' + (isAdipo ? 'section-adipo' : 'section-ballet');
+
+    if (isTue) {
+      // Tuesday: toggle adipo or ballet
+      moveSec.innerHTML = `
+        <div class="section-head" data-section="move-${key}">
+          <div class="dot"></div>
+          <span>${isAdipo ? 'Adipositas Sport' : 'Ballett'}</span>
+          <span style="margin-left:auto;font-size:.75rem">${(data.ballet?.done || data.adipo?.done) ? '✓' : ''}</span>
+        </div>
+        <div class="section-body" id="move-body-${key}">
+          <div class="toggle-wrap" style="margin-bottom:.2rem">
+            <div class="toggle${isAdipo?' on':''}" id="adipo-toggle-${key}"></div>
+            <span class="toggle-label">Adipositas-Einheit (kein Ballett)</span>
+          </div>
+          <div id="move-inner-${key}">
+            ${isAdipo ? renderAdipoFields(key, data) : renderBalletFields(key, data)}
+          </div>
+        </div>
+      `;
+    } else {
+      moveSec.innerHTML = `
+        <div class="section-head" data-section="move-${key}">
+          <div class="dot"></div>
+          <span>Ballett</span>
+          <span style="margin-left:auto;font-size:.75rem">${data.ballet?.done ? '✓' : ''}</span>
+        </div>
+        <div class="section-body" id="move-body-${key}">
+          ${renderBalletFields(key, data)}
+        </div>
+      `;
+    }
+    col.appendChild(moveSec);
+
+    // ── DAILY STATS ──
+    const stats = document.createElement('div');
+    stats.className = 'daily-stats';
+    stats.innerHTML = `
+      <div class="stat-row">
+        <span class="stat-icon">⚖️</span>
+        <span class="stat-label">kg</span>
+        <div class="weight-input-wrap">
+          <input type="number" id="weight-${key}" min="50" max="200" step="0.1" value="${data.weight||''}" placeholder="–" style="width:58px">
+          <span class="weight-unit">kg</span>
+        </div>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon">😴</span>
+        <span class="stat-label">Schlaf</span>
+        <input type="number" id="sleep-${key}" min="0" max="16" step="0.5" value="${data.sleep||''}" placeholder="–" style="width:54px">
+        <span class="weight-unit">h</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-icon">✨</span>
+        <span class="stat-label">Energie</span>
+        <div class="emoji-row${data.energy === -1 ? ' has-none' : (data.energy > 0 ? ' has-selection' : '')}" id="energy-${key}">
+          ${EMOJIS.map((e,i) => `<button class="emoji-btn${data.energy===i&&i>0?' active':''}" data-i="${i}">${e}</button>`).join('')}
+        </div>
+      </div>
+      <div class="day-note">
+        <textarea id="note-${key}" placeholder="Notiz…">${data.note||''}</textarea>
+      </div>
+    `;
+    col.appendChild(stats);
+
+    grid.appendChild(col);
+
+    // ── EVENTS ──
+    // section toggles
+    col.querySelectorAll('.section-head').forEach(head => {
+      head.addEventListener('click', () => {
+        const id = head.dataset.section;
+        const bodyId = id.replace('yoga-','yoga-body-').replace('move-','move-body-');
+        // find the body element
+        const body = col.querySelector(`#${bodyId}`);
+        if (body) body.classList.toggle('collapsed');
+      });
+    });
+
+    // yoga type
+    const yogaTypeEl = col.querySelector(`#yoga-type-${key}`);
+    const yogaMinEl  = col.querySelector(`#yoga-min-${key}`);
+    if (yogaTypeEl) yogaTypeEl.addEventListener('change', () => saveField(key, 'yoga', 'type', yogaTypeEl.value, col));
+    if (yogaMinEl)  yogaMinEl.addEventListener('change',  () => saveField(key, 'yoga', 'minutes', parseFloat(yogaMinEl.value)||null, col));
+
+    // yoga emoji
+    col.querySelectorAll(`#yoga-emoji-${key} .emoji-btn`).forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = parseInt(btn.dataset.i);
+        const row = col.querySelector(`#yoga-emoji-${key}`);
+        const wasActive = btn.classList.contains('active');
+        col.querySelectorAll(`#yoga-emoji-${key} .emoji-btn`).forEach(b => b.classList.remove('active'));
+        row.classList.remove('has-selection', 'has-none');
+        if (wasActive) {
+          // re-click active = full clear
+          saveField(key, 'yoga', 'feeling', null, col);
+        } else if (i === 0) {
+          row.classList.add('has-none');
+          saveField(key, 'yoga', 'feeling', -1, col);
+        } else {
+          btn.classList.add('active');
+          row.classList.add('has-selection');
+          saveField(key, 'yoga', 'feeling', i, col);
+        }
+      });
+    });
+
+    // mark yoga done when any field filled
+    function saveField(dateKey, section, field, val, colEl) {
+      const d = getDay(dateKey);
+      if (!d[section]) d[section] = {};
+      d[section][field] = val;
+      // auto-mark done
+      if (section === 'yoga') d.yoga.done = !!(d.yoga.type || d.yoga.minutes != null);
+      if (section === 'ballet') d.ballet.done = !!(d.ballet.minutes != null);
+      if (section === 'adipo') d.adipo.done = !!(d.adipo.minutes != null);
+      saveDay(dateKey, d);
+      updateGoals();
+    }
+
+    // adipo toggle
+    const adipoToggle = col.querySelector(`#adipo-toggle-${key}`);
+    if (adipoToggle) {
+      adipoToggle.addEventListener('click', () => {
+        const d = getDay(key);
+        const nowAdipo = !d.adipo?.isAdipo;
+        if (!d.adipo) d.adipo = {};
+        d.adipo.isAdipo = nowAdipo;
+        d.ballet = {}; // clear ballet
+        saveDay(key, d);
+        render();
+      });
+    }
+
+    // ballet fields events
+    bindBalletEvents(col, key);
+    bindAdipoEvents(col, key);
+
+    // weight
+    const weightEl = col.querySelector(`#weight-${key}`);
+    if (weightEl) weightEl.addEventListener('change', () => {
+      const d = getDay(key);
+      d.weight = parseFloat(weightEl.value) || null;
+      saveDay(key, d);
+      updateGoals();
+      renderWeightChart(dates);
+    });
+
+    // sleep
+    const sleepEl = col.querySelector(`#sleep-${key}`);
+    if (sleepEl) sleepEl.addEventListener('change', () => {
+      const d = getDay(key);
+      d.sleep = parseFloat(sleepEl.value) || null;
+      saveDay(key, d);
+    });
+
+    // energy emoji
+    col.querySelectorAll(`#energy-${key} .emoji-btn`).forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = parseInt(btn.dataset.i);
+        const row = col.querySelector(`#energy-${key}`);
+        const wasActive = btn.classList.contains('active');
+        col.querySelectorAll(`#energy-${key} .emoji-btn`).forEach(b => b.classList.remove('active'));
+        row.classList.remove('has-selection', 'has-none');
+        if (wasActive) {
+          const d = getDay(key); d.energy = null; saveDay(key, d);
+        } else if (i === 0) {
+          row.classList.add('has-none');
+          const d = getDay(key); d.energy = -1; saveDay(key, d);
+        } else {
+          btn.classList.add('active');
+          row.classList.add('has-selection');
+          const d = getDay(key); d.energy = i; saveDay(key, d);
+        }
+      });
+    });
+
+    // note
+    const noteEl = col.querySelector(`#note-${key}`);
+    if (noteEl) noteEl.addEventListener('input', () => {
+      const d = getDay(key);
+      d.note = noteEl.value;
+      saveDay(key, d);
+    });
+  });
+
+  // ── GOALS BAR ──
+  updateGoalsDisplay(yogaCount, balletCount, dates);
+  renderWeightChart(dates);
+}
+
+function renderBalletFields(key, data) {
+  const f = data.ballet?.feeling;
+  const rowClass = f === -1 ? ' has-none' : f > 0 ? ' has-selection' : '';
+  return `
+    <div class="field-row">
+      <span class="field-label">Min</span>
+      <input type="number" id="ballet-min-${key}" min="0" max="300" step="5" value="${data.ballet?.minutes||''}" placeholder="–">
+    </div>
+    <div class="field-row">
+      <span class="field-label">Feeling</span>
+      <div class="emoji-row${rowClass}" id="ballet-emoji-${key}">
+        ${EMOJIS.map((e,i) => `<button class="emoji-btn${f===i&&i>0?' active':''}" data-i="${i}">${e}</button>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderAdipoFields(key, data) {
+  const f = data.adipo?.feeling;
+  const rowClass = f === -1 ? ' has-none' : f > 0 ? ' has-selection' : '';
+  return `
+    <div class="field-row">
+      <span class="field-label">Min</span>
+      <input type="number" id="adipo-min-${key}" min="0" max="300" step="5" value="${data.adipo?.minutes||''}" placeholder="–">
+    </div>
+    <div class="field-row">
+      <span class="field-label">Feeling</span>
+      <div class="emoji-row${rowClass}" id="adipo-emoji-${key}">
+        ${EMOJIS.map((e,i) => `<button class="emoji-btn${f===i&&i>0?' active':''}" data-i="${i}">${e}</button>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function bindBalletEvents(col, key) {
+  const minEl = col.querySelector(`#ballet-min-${key}`);
+  if (minEl) minEl.addEventListener('change', () => {
+    const d = getDay(key);
+    if (!d.ballet) d.ballet = {};
+    d.ballet.minutes = parseFloat(minEl.value) || null;
+    d.ballet.done = d.ballet.minutes != null;
+    saveDay(key, d);
+    updateGoals();
+  });
+  col.querySelectorAll(`#ballet-emoji-${key} .emoji-btn`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i);
+      const row = col.querySelector(`#ballet-emoji-${key}`);
+      const wasActive = btn.classList.contains('active');
+      col.querySelectorAll(`#ballet-emoji-${key} .emoji-btn`).forEach(b => b.classList.remove('active'));
+      row.classList.remove('has-selection', 'has-none');
+      if (wasActive) {
+        const d = getDay(key); if (!d.ballet) d.ballet = {};
+        d.ballet.feeling = null; saveDay(key, d);
+      } else if (i === 0) {
+        row.classList.add('has-none');
+        const d = getDay(key); if (!d.ballet) d.ballet = {};
+        d.ballet.feeling = -1; saveDay(key, d);
+      } else {
+        btn.classList.add('active');
+        row.classList.add('has-selection');
+        const d = getDay(key); if (!d.ballet) d.ballet = {};
+        d.ballet.feeling = i; saveDay(key, d);
+      }
+    });
+  });
+}
+
+function bindAdipoEvents(col, key) {
+  const minEl = col.querySelector(`#adipo-min-${key}`);
+  if (minEl) minEl.addEventListener('change', () => {
+    const d = getDay(key);
+    if (!d.adipo) d.adipo = {};
+    d.adipo.minutes = parseFloat(minEl.value) || null;
+    d.adipo.done = d.adipo.minutes != null;
+    saveDay(key, d);
+    updateGoals();
+  });
+  col.querySelectorAll(`#adipo-emoji-${key} .emoji-btn`).forEach(btn => {
+    btn.addEventListener('click', () => {
+      const i = parseInt(btn.dataset.i);
+      const row = col.querySelector(`#adipo-emoji-${key}`);
+      const wasActive = btn.classList.contains('active');
+      col.querySelectorAll(`#adipo-emoji-${key} .emoji-btn`).forEach(b => b.classList.remove('active'));
+      row.classList.remove('has-selection', 'has-none');
+      if (wasActive) {
+        const d = getDay(key); if (!d.adipo) d.adipo = {};
+        d.adipo.feeling = null; saveDay(key, d);
+      } else if (i === 0) {
+        row.classList.add('has-none');
+        const d = getDay(key); if (!d.adipo) d.adipo = {};
+        d.adipo.feeling = -1; saveDay(key, d);
+      } else {
+        btn.classList.add('active');
+        row.classList.add('has-selection');
+        const d = getDay(key); if (!d.adipo) d.adipo = {};
+        d.adipo.feeling = i; saveDay(key, d);
+      }
+    });
+  });
+}
+
+function updateGoals() {
+  const dates = getWeekDates(weekOffset);
+  let yoga = 0, ballet = 0;
+  dates.forEach(d => {
+    const data = getDay(fmtKey(d));
+    if (data.yoga?.done) yoga++;
+    if (data.ballet?.done || data.adipo?.done) ballet++;
+  });
+  updateGoalsDisplay(yoga, ballet, dates);
+}
+
+function updateGoalsDisplay(yogaCount, balletCount, dates) {
+  // yoga pips
+  const yogaPips = document.getElementById('yogaPips');
+  yogaPips.innerHTML = '';
+  for (let i = 0; i < 7; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'pip' + (i < yogaCount ? ' done-yoga' : '');
+    yogaPips.appendChild(pip);
+  }
+  document.getElementById('yogaCount').textContent = yogaCount + ' / 7';
+
+  // yoga avg minutes
+  const yogaMinGoal = parseInt(document.getElementById('yogaMinTarget')?.value || '20');
+  const yogaMins = dates.map(d => getDay(fmtKey(d)).yoga?.minutes).filter(Boolean);
+  const yogaAvgEl = document.getElementById('yogaAvg');
+  if (yogaMins.length > 0) {
+    const avg = Math.round(yogaMins.reduce((a,b) => a+b, 0) / yogaMins.length);
+    yogaAvgEl.textContent = avg + 'min';
+    yogaAvgEl.className = 'goal-avg' + (avg >= yogaMinGoal ? ' on-track' : '');
+  } else {
+    yogaAvgEl.textContent = '–';
+    yogaAvgEl.className = 'goal-avg';
+  }
+
+  // ballet pips
+  const bp = document.getElementById('balletPips');
+  bp.innerHTML = '';
+  for (let i = 0; i < balletTarget; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'pip' + (i < balletCount ? ' done-ballet' : '');
+    bp.appendChild(pip);
+  }
+  document.getElementById('balletCount').textContent = balletCount + ' / ' + balletTarget;
+
+  // ballet avg minutes
+  const balletMinGoal = parseInt(document.getElementById('balletMinTarget')?.value || '60');
+  const balletMins = dates.flatMap(d => {
+    const data = getDay(fmtKey(d));
+    return [data.ballet?.minutes, data.adipo?.minutes].filter(Boolean);
+  });
+  const balletAvgEl = document.getElementById('balletAvg');
+  if (balletMins.length > 0) {
+    const avg = Math.round(balletMins.reduce((a,b) => a+b, 0) / balletMins.length);
+    balletAvgEl.textContent = avg + 'min';
+    balletAvgEl.className = 'goal-avg' + (avg >= balletMinGoal ? ' on-track-ballet' : '');
+  } else {
+    balletAvgEl.textContent = '–';
+    balletAvgEl.className = 'goal-avg';
+  }
+
+  // weight delta
+  const weights = dates.map(d => getDay(fmtKey(d)).weight).filter(Boolean);
+  const wd = document.getElementById('weightDelta');
+  if (weights.length >= 1) {
+    const first = weights[0], last = weights[weights.length-1];
+    const diff = (last - START_WEIGHT).toFixed(1);
+    const weekDiff = weights.length > 1 ? (last - first).toFixed(1) : null;
+    const sign = diff > 0 ? '+' : '';
+    wd.innerHTML = `⚖️ Aktuell <strong>${last} kg</strong> &nbsp;|&nbsp; vs. Start: ${sign}${diff} kg`
+      + (weekDiff !== null ? ` &nbsp;|&nbsp; diese Woche: ${weekDiff > 0 ? '+' : ''}${weekDiff} kg` : '');
+  } else {
+    wd.innerHTML = '';
+  }
+}
+
+function renderWeightChart(dates) {
+  const chart = document.getElementById('weightChart');
+  chart.innerHTML = '';
+  const vals = dates.map(d => ({ label: DAYS_DE[dates.indexOf(d)], val: getDay(fmtKey(d)).weight || null }));
+  const allVals = vals.map(v => v.val).filter(Boolean);
+  if (allVals.length === 0) { chart.innerHTML = '<span style="font-size:.72rem;color:var(--muted)">Noch kein Gewicht eingetragen</span>'; return; }
+  const min = Math.min(...allVals) - 1;
+  const max = Math.max(...allVals) + 1;
+  vals.forEach(v => {
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-bar-wrap';
+    if (v.val) {
+      const pct = ((v.val - min) / (max - min) * 80) + 10;
+      wrap.innerHTML = `
+        <div class="chart-val">${v.val}</div>
+        <div class="chart-bar" style="height:${pct}%"></div>
+        <div class="chart-day">${v.label}</div>
+      `;
+    } else {
+      wrap.innerHTML = `
+        <div class="chart-val" style="opacity:.3">–</div>
+        <div class="chart-bar" style="height:4px;opacity:.2"></div>
+        <div class="chart-day">${v.label}</div>
+      `;
+    }
+    chart.appendChild(wrap);
+  });
+}
+
+// ── NAV ──
+document.getElementById('prevWeek').addEventListener('click', () => { weekOffset--; render(); });
+document.getElementById('nextWeek').addEventListener('click', () => { weekOffset++; render(); });
+document.getElementById('todayBtn').addEventListener('click', () => { weekOffset = 0; render(); });
+
+// yoga min target
+const ymtEl = document.getElementById('yogaMinTarget');
+ymtEl.value = parseInt(localStorage.getItem('yogaMinTarget') || '20');
+ymtEl.addEventListener('change', () => {
+  localStorage.setItem('yogaMinTarget', ymtEl.value);
+  updateGoals();
+});
+
+// ballet target (count)
+const btEl = document.getElementById('balletTarget');
+btEl.value = balletTarget;
+btEl.addEventListener('change', () => {
+  balletTarget = parseInt(btEl.value) || 5;
+  localStorage.setItem('balletTarget', balletTarget);
+  updateGoals();
+});
+
+// ballet min target
+const bmtEl = document.getElementById('balletMinTarget');
+bmtEl.value = parseInt(localStorage.getItem('balletMinTarget') || '60');
+bmtEl.addEventListener('change', () => {
+  localStorage.setItem('balletMinTarget', bmtEl.value);
+  updateGoals();
+});
+
+render();
+</script>
+</body>
+</html>

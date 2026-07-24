@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>50 Sporteinheiten – Mein Fortschritt</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #faf8f4;
+    --ink: #1a1714;
+    --accent: #c8503a;
+    --accent-light: #f2e8e5;
+    --mid: #6b6560;
+    --line: #ddd8d2;
+    --box-empty: #ffffff;
+    --box-done: #c8503a;
+    --box-border: #c8b8b0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  /* ── SCREEN ONLY ── */
+  @media screen {
+    .print-hint {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: var(--ink);
+      color: #fff;
+      font-size: .78rem;
+      padding: .55rem 1rem;
+      border-radius: 2rem;
+      letter-spacing: .04em;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      z-index: 100;
+      transition: background .2s;
+    }
+    .print-hint:hover { background: var(--accent); }
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { padding: 1.2cm 1.5cm; }
+    .print-hint { display: none !important; }
+    .page { box-shadow: none !important; }
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    width: 100%;
+    max-width: 720px;
+    background: var(--box-empty);
+    border-radius: 2px;
+    box-shadow: 0 2px 32px rgba(0,0,0,.09);
+    padding: 2.8rem 3rem 2.4rem;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 1.4rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .header-left { flex: 1; }
+
+  .eyebrow {
+    font-size: .68rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: .4rem;
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    margin-top: .55rem;
+    font-size: .82rem;
+    color: var(--mid);
+    line-height: 1.55;
+  }
+
+  .badge {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2.5px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .badge-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.7rem;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .badge-label {
+    font-size: .55rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-top: .1rem;
+  }
+
+  /* ── NAME FIELD ── */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.2rem;
+    margin-bottom: 1.8rem;
+  }
+
+  .field label {
+    display: block;
+    font-size: .65rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: .3rem;
+  }
+
+  .field-line {
+    border: none;
+    border-bottom: 1.5px solid var(--line);
+    width: 100%;
+    padding: .25rem 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    color: var(--ink);
+    background: transparent;
+    outline: none;
+  }
+
+  /* ── GRID ── */
+  .section-label {
+    font-size: .65rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: .9rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: .45rem;
+    margin-bottom: 1.6rem;
+  }
+
+  .cell {
+    aspect-ratio: 1;
+    border: 1.5px solid var(--box-border);
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: var(--box-empty);
+    position: relative;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    user-select: none;
+  }
+
+  .cell:hover { border-color: var(--accent); }
+
+  .cell.done {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .cell-num {
+    font-size: .62rem;
+    font-weight: 600;
+    color: var(--mid);
+    line-height: 1;
+  }
+
+  .cell.done .cell-num { color: rgba(255,255,255,.7); }
+
+  .checkmark {
+    display: none;
+    width: 40%;
+    height: 40%;
+  }
+
+  .cell.done .checkmark { display: block; }
+  .cell.done .cell-num { display: none; }
+
+  /* ── MILESTONE MARKS ── */
+  .cell[data-n="10"],
+  .cell[data-n="25"],
+  .cell[data-n="50"] {
+    border-color: var(--ink);
+    border-width: 2px;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-section {
+    margin-bottom: 1.6rem;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: .5rem;
+  }
+
+  .progress-label {
+    font-size: .65rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+
+  .progress-count {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .progress-count span { color: var(--accent); }
+
+  .bar-track {
+    height: 6px;
+    background: var(--line);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 99px;
+    width: 0%;
+    transition: width .3s ease;
+  }
+
+  /* ── MILESTONES ── */
+  .milestones {
+    display: flex;
+    gap: .7rem;
+    margin-bottom: 1.8rem;
+    flex-wrap: wrap;
+  }
+
+  .milestone {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .72rem;
+    color: var(--mid);
+  }
+
+  .milestone-dot {
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--ink);
+    border-radius: 2px;
+    background: var(--box-empty);
+    flex-shrink: 0;
+  }
+
+  .milestone-dot.achieved { background: var(--accent); border-color: var(--accent); }
+
+  /* ── NOTES ── */
+  .notes-section {
+    border-top: 1.5px solid var(--line);
+    padding-top: 1.2rem;
+  }
+
+  .notes-label {
+    font-size: .65rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: .8rem;
+  }
+
+  .notes-lines {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+  }
+
+  .notes-line {
+    border-bottom: 1px solid var(--line);
+    height: 1.1rem;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 1.6rem;
+    text-align: center;
+    font-size: .65rem;
+    color: var(--line);
+    letter-spacing: .08em;
+  }
+
+  /* ── PRINT: hide interactivity ── */
+  @media print {
+    .cell { cursor: default; }
+    /* keep done state visible */
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header">
+    <div class="header-left">
+      <p class="eyebrow">Adipositas-Programm</p>
+      <h1>50 <em>Sporteinheiten</em></h1>
+      <p class="subtitle">
+        Hak jede absolvierte Einheit ab. Drei Meilensteine<br>
+        warten auf dich — und am Ende 50 geschaffte Einheiten. 🎉
+      </p>
+    </div>
+    <div class="badge">
+      <span class="badge-num">50</span>
+      <span class="badge-label">Einheiten</span>
+    </div>
+  </header>
+
+  <div class="meta-row">
+    <div class="field">
+      <label>Name</label>
+      <input class="field-line" type="text" placeholder="&nbsp;">
+    </div>
+    <div class="field">
+      <label>Startdatum</label>
+      <input class="field-line" type="text" placeholder="&nbsp;">
+    </div>
+    <div class="field">
+      <label>Zieldatum</label>
+      <input class="field-line" type="text" placeholder="&nbsp;">
+    </div>
+  </div>
+
+  <p class="section-label">Fortschritt — klick zum Abhaken (auf Papier: einfach ausmalen)</p>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Gesamt-Fortschritt</span>
+      <span class="progress-count"><span id="count">0</span> / 50</span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" id="bar"></div>
+    </div>
+  </div>
+
+  <div class="milestones">
+    <div class="milestone">
+      <div class="milestone-dot" id="m10"></div>
+      <span>Meilenstein 10 – Erster Schritt</span>
+    </div>
+    <div class="milestone">
+      <div class="milestone-dot" id="m25"></div>
+      <span>Meilenstein 25 – Halbzeit!</span>
+    </div>
+    <div class="milestone">
+      <div class="milestone-dot" id="m50"></div>
+      <span>Meilenstein 50 – Ziel erreicht ✨</span>
+    </div>
+  </div>
+
+  <div class="notes-section">
+    <p class="notes-label">Notizen</p>
+    <div class="notes-lines">
+      <div class="notes-line"></div>
+      <div class="notes-line"></div>
+      <div class="notes-line"></div>
+    </div>
+  </div>
+
+  <p class="footer">Drucken: Datei → Drucken → Hintergrundgrafiken aktivieren</p>
+</div>
+
+<button class="print-hint" onclick="window.print()">🖨 Drucken</button>
+
+<script>
+  const grid = document.getElementById('grid');
+  const countEl = document.getElementById('count');
+  const bar = document.getElementById('bar');
+  const m10 = document.getElementById('m10');
+  const m25 = document.getElementById('m25');
+  const m50 = document.getElementById('m50');
+
+  let done = JSON.parse(localStorage.getItem('sport50') || '[]');
+
+  function update() {
+    countEl.textContent = done.length;
+    bar.style.width = (done.length / 50 * 100) + '%';
+    m10.classList.toggle('achieved', done.length >= 10);
+    m25.classList.toggle('achieved', done.length >= 25);
+    m50.classList.toggle('achieved', done.length >= 50);
+    localStorage.setItem('sport50', JSON.stringify(done));
+  }
+
+  for (let i = 1; i <= 50; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (done.includes(i) ? ' done' : '');
+    cell.dataset.n = i;
+
+    // number label
+    const num = document.createElement('span');
+    num.className = 'cell-num';
+    num.textContent = i;
+    cell.appendChild(num);
+
+    // checkmark svg
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('fill','none');
+    svg.setAttribute('stroke','white');
+    svg.setAttribute('stroke-width','3');
+    svg.setAttribute('stroke-linecap','round');
+    svg.setAttribute('stroke-linejoin','round');
+    svg.classList.add('checkmark');
+    svg.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+    cell.appendChild(svg);
+
+    cell.addEventListener('click', () => {
+      if (done.includes(i)) {
+        done = done.filter(x => x !== i);
+        cell.classList.remove('done');
+      } else {
+        done.push(i);
+        cell.classList.add('done');
+      }
+      update();
+    });
+
+    grid.appendChild(cell);
+  }
+
+  update();
+</script>
+</body>
+</html>

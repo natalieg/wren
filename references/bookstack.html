@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Stack</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Karla:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #f2ede6;
+  --paper: #faf7f2;
+  --ink: #1a1714;
+  --mid: #5c5248;
+  --muted: #9a8f85;
+  --line: #e0d8cf;
+  --accent: #7a3b2e;
+  --accent2: #4a6e5a;
+  --gold: #c4933a;
+  --reading-bg: #fdf8ec;
+  --reading-border: #c4933a;
+  --done-bg: #eef3ee;
+  --done-border: #4a6e5a;
+  --radius: 5px;
+  --shadow: 0 1px 4px rgba(26,23,20,.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Karla', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 1.8rem 2rem 0;
+}
+
+.header-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .8rem;
+  padding-bottom: 1.2rem;
+}
+
+h1 {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.9rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+}
+h1 em { font-style: italic; color: #c4933a; }
+
+.header-stats {
+  display: flex;
+  gap: 1.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.stat { text-align: right; }
+.stat-num {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1.4rem;
+  color: #c4933a;
+  line-height: 1;
+}
+.stat-label {
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6a6050;
+  margin-top: .1rem;
+}
+
+/* ── GOAL BAR ── */
+.goal-bar {
+  background: #141210;
+  padding: .8rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.goal-label {
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #6a6050;
+  white-space: nowrap;
+}
+
+.goal-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.goal-input {
+  background: #1e1c18;
+  border: 1px solid #2e2c28;
+  color: var(--bg);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 1rem;
+  width: 64px;
+  text-align: center;
+  padding: .3rem .4rem;
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color .15s;
+}
+.goal-input:focus { border-color: var(--gold); }
+
+.goal-unit { font-size: .72rem; color: #6a6050; }
+
+.eta-text {
+  font-size: .8rem;
+  color: #8a8070;
+  font-style: italic;
+}
+.eta-text strong { color: #c4933a; font-style: normal; }
+
+.stack-warning {
+  margin-left: auto;
+  font-size: .72rem;
+  padding: .3rem .8rem;
+  border-radius: 99px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.stack-warning.ok { background: #1a2e22; color: #6ab882; }
+.stack-warning.warn { background: #2e1c0e; color: #c4933a; }
+.stack-warning.over { background: #2e1010; color: #c47a7a; }
+
+/* ── TAB NAV ── */
+.tab-nav {
+  background: var(--ink);
+  display: flex;
+  padding: 0 2rem;
+  gap: .2rem;
+  border-top: 1px solid #2a2820;
+}
+
+.tab-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .6rem 1rem .5rem;
+  border: none;
+  background: transparent;
+  color: #5a5448;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+}
+.tab-btn:hover { color: #9a9080; }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* ── CONTROLS ── */
+.controls {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: .7rem 2rem;
+  display: flex;
+  gap: .8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-btns { display: flex; gap: .3rem; }
+
+.filter-btn {
+  font-family: 'Karla', sans-serif;
+  font-size: .68rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .28rem .75rem;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .12s;
+}
+.filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+.filter-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.sort-select {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--mid);
+  padding: .25rem .5rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.add-btn {
+  margin-left: auto;
+  font-family: 'Karla', sans-serif;
+  font-size: .7rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .3rem .9rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .12s;
+}
+.add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── ADD FORM ── */
+.add-form {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: .8rem 2rem;
+  display: none;
+  gap: .6rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.add-form.open { display: flex; }
+
+.add-form input, .add-form select {
+  font-family: 'Karla', sans-serif;
+  font-size: .82rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  padding: .35rem .6rem;
+  outline: none;
+  transition: border-color .15s;
+}
+.add-form input:focus { border-color: var(--muted); }
+.add-form input::placeholder { color: #bbb0a8; }
+
+.add-form .f-title { flex: 2; min-width: 160px; }
+.add-form .f-author { flex: 1; min-width: 120px; }
+.add-form .f-pages { width: 80px; }
+
+.add-submit {
+  font-family: 'Karla', sans-serif;
+  font-size: .72rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .37rem .9rem;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--ink);
+  color: var(--bg);
+  cursor: pointer;
+  transition: background .12s;
+}
+.add-submit:hover { background: var(--accent); }
+
+/* ── BUY RULE ── */
+.buy-rule {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  padding: .6rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.buy-rule-label {
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.buy-progress {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.buy-pip {
+  width: 12px; height: 12px;
+  border-radius: 2px;
+  border: 1px solid var(--line);
+  background: transparent;
+  transition: background .2s;
+}
+.buy-pip.filled { background: var(--accent2); border-color: var(--accent2); }
+.buy-pip.bonus  { background: var(--gold);   border-color: var(--gold); }
+
+.buy-status {
+  font-size: .75rem;
+  color: var(--mid);
+  font-style: italic;
+}
+.buy-status strong { color: var(--accent2); font-style: normal; }
+.buy-status.ready strong { color: var(--gold); }
+
+/* ── BOOK LIST ── */
+.book-list {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 1.2rem 1.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+}
+
+/* ── BOOK ROW ── */
+.book-row {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .65rem .9rem;
+  box-shadow: var(--shadow);
+  transition: border-color .15s, background .15s, opacity .15s;
+  position: relative;
+}
+
+.book-row.reading  { background: var(--reading-bg); border-color: var(--reading-border); }
+.book-row.done     { background: var(--done-bg);    border-color: var(--done-border); opacity: .8; }
+.book-row.hidden   { display: none; }
+
+/* number */
+.book-num {
+  font-size: .65rem;
+  color: var(--muted);
+  min-width: 20px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* check */
+.book-check {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem;
+  transition: all .15s;
+}
+.book-row.done .book-check { background: var(--accent2); border-color: var(--accent2); color: white; }
+.book-row.reading .book-check { border-color: var(--gold); }
+
+/* text */
+.book-info { flex: 1; min-width: 0; }
+
+.book-title {
+  font-family: 'Libre Baskerville', serif;
+  font-size: .9rem;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-row.done .book-title { text-decoration: line-through; color: var(--muted); }
+.book-row.reading .book-title { color: var(--accent); }
+
+.book-author {
+  font-size: .7rem;
+  color: var(--muted);
+  margin-top: .1rem;
+}
+
+/* series tag */
+.series-tag {
+  font-size: .58rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .1rem .4rem;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* reading badge */
+.reading-badge {
+  font-size: .6rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* pages */
+.book-pages {
+  font-size: .75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  min-width: 52px;
+  text-align: right;
+}
+
+.book-row.reading .book-pages { color: var(--gold); }
+
+/* progress bar for reading books */
+.reading-progress {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--line);
+  border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+.reading-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+/* ── EDIT PANEL ── */
+.edit-panel {
+  display: none;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  padding: .6rem .9rem .7rem 2.8rem;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.edit-panel.open { display: flex; }
+
+.edit-panel label {
+  font-size: .65rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.edit-panel input {
+  font-family: 'Karla', sans-serif;
+  font-size: .82rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  padding: .28rem .5rem;
+  outline: none;
+  transition: border-color .15s;
+}
+.edit-panel input:focus { border-color: var(--muted); }
+.edit-panel input.f-sm { width: 72px; }
+.edit-panel input.f-lg { flex: 1; min-width: 140px; }
+
+.edit-save {
+  font-family: 'Karla', sans-serif;
+  font-size: .68rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .3rem .8rem;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--ink);
+  color: var(--bg);
+  cursor: pointer;
+  transition: background .12s;
+}
+.edit-save:hover { background: var(--accent2); }
+
+/* make book-row a block so edit panel can sit below */
+.book-row {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+}
+.book-row-main {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .65rem .9rem;
+  cursor: pointer;
+  position: relative;
+}
+
+/* delete btn */
+.book-delete {
+  font-size: .7rem;
+  color: var(--line);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: .1rem;
+  flex-shrink: 0;
+  transition: color .12s;
+  line-height: 1;
+}
+.book-row-main:hover .book-delete { color: var(--muted); }
+.book-delete:hover { color: var(--accent) !important; }
+
+.finished-ts {
+  font-size: .65rem;
+  color: var(--accent2);
+  font-style: italic;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  font-family: 'Libre Baskerville', serif;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  font-size: .62rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .6rem 0 .2rem;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: .2rem;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>Book <em>Stack</em></h1>
+    <div class="header-stats">
+      <div class="stat">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-label">Bücher gesamt</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statPages">0</div>
+        <div class="stat-label" id="statPagesLabel">Noch zu lesen</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statDone">0</div>
+        <div class="stat-label">Gelesen</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.2rem;margin-left:.5rem">
+        <div style="display:flex;gap:.4rem;align-items:center">
+          <button id="exportBtn" style="font-family:'Karla',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .7rem;border:1px solid #2e2820;border-radius:3px;background:transparent;color:#6a6050;cursor:pointer;" title="Backup exportieren">↓ Export</button>
+          <button id="importBtn" style="font-family:'Karla',sans-serif;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .7rem;border:1px solid #2e2820;border-radius:3px;background:transparent;color:#6a6050;cursor:pointer;" title="Backup importieren">↑ Import</button>
+          <input type="file" id="importFile" accept=".json" style="display:none">
+        </div>
+        <span id="lastExportLabel" style="font-size:.6rem;color:#3a3020;letter-spacing:.05em"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="goal-bar">
+  <span class="goal-label">Leselziel</span>
+  <div class="goal-input-wrap">
+    <input type="number" class="goal-input" id="goalInput" min="1" max="500" value="30">
+    <span class="goal-unit">Seiten / Tag</span>
+  </div>
+  <span class="eta-text" id="etaText">—</span>
+  <span class="goal-label" id="todayPages" style="margin-left:auto;padding-right:.5rem"></span>
+  <div class="stack-warning" id="stackWarning"></div>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" data-tab="stack">📚 Stack</button>
+  <button class="tab-btn" data-tab="done">✓ Gelesen</button>
+</div>
+
+<div class="buy-rule" id="buyRule">
+  <span class="buy-rule-label">🛍 Kaufregel: 1 neues Buch pro 10 gelesene</span>
+  <div class="buy-progress" id="buyProgress"></div>
+  <span class="buy-status" id="buyStatus"></span>
+</div>
+
+<div class="controls">
+  <div class="filter-btns" id="filterBtns">
+    <button class="filter-btn active" data-filter="all">Alle</button>
+    <button class="filter-btn" data-filter="reading">📖 Am Lesen</button>
+  </div>
+  <select class="sort-select" id="sortSelect">
+    <option value="order">Reihenfolge</option>
+    <option value="pages-asc">Seiten ↑</option>
+    <option value="pages-desc">Seiten ↓</option>
+    <option value="alpha">A–Z</option>
+  </select>
+  <button class="add-btn" id="addBtn">+ Buch hinzufügen</button>
+</div>
+
+<div class="add-form" id="addForm">
+  <input class="f-title" type="text" id="newTitle" placeholder="Titel…">
+  <input class="f-author" type="text" id="newAuthor" placeholder="Autor*in…">
+  <input class="f-pages" type="number" id="newPages" placeholder="Seiten" min="1">
+  <input class="f-pages" type="number" id="newPagesRead" placeholder="Gelesen" min="0">
+  <button class="add-submit" id="addSubmit">Hinzufügen</button>
+</div>
+
+<div class="book-list" id="bookList"></div>
+
+<script>
+// ── INITIAL DATA ──
+const INITIAL_BOOKS = [
+  { title: "Solutions and Other Problems", author: "Allie Brosh", pages: 517 },
+  { title: "Little Thieves", author: "Margaret Owen", pages: 504 },
+  { title: "Paris Daillencourt Is About to Crumble", author: "Alexis Hall", pages: 384 },
+  { title: "So This Is Wrath", author: "FT Lukens", pages: 341 },
+  { title: "Nimona", author: "ND Stevenson", pages: 266 },
+  { title: "A Thread Between the Stars", author: "Neike T.", pages: 568 },
+  { title: "Ursprungstherapie", author: "Diana Badenius", pages: 166 },
+  { title: "The Priory of the Orange Tree", author: "Samantha Shannon", pages: 845 },
+  { title: "The Alchemist", author: "Paulo Coelho", pages: 208 },
+  { title: "Yoga für Skeptiker", author: "Ulrich Ott", pages: 289 },
+  { title: "A Body of Work", author: "David Hallberg", pages: 432 },
+  { title: "Assistant to the Villain", author: "Hannah Nicole Morgen", pages: 342 },
+  { title: "Brennende Felle", author: "Mishards", pages: 40 },
+  { title: "Wormworld Saga 1", author: "Daniel Lieske", pages: 128, series: "Wormworld Saga" },
+  { title: "A Girl Can Dream", author: "Emily Barr", pages: 400 },
+  { title: "Memorien Vaeryscher Helden", author: "Alenor", pages: 168 },
+  { title: "Der Gardegeneral des Elfenkönigs", author: "AVG Koop.", pages: 673 },
+  { title: "Iris Kelly Doesn't Date", author: "Ashley Herring Blake", pages: 416 },
+  { title: "A River of Golden Bones", author: "Ale Mulford", pages: 379 },
+  { title: "The Ballad of Songbirds and Snakes", author: "Suzanne Collins", pages: 517 },
+  { title: "If We Were Villains", author: "ML Rio", pages: 422 },
+  { title: "Neuromancer", author: "William Gibson", pages: 297, series: "Sprawl Trilogy" },
+  { title: "Count Zero", author: "William Gibson", pages: 305, series: "Sprawl Trilogy" },
+  { title: "Mona Lisa Overdrive", author: "William Gibson", pages: 314, series: "Sprawl Trilogy" },
+  { title: "Burning Chrome", author: "William Gibson", pages: 204 },
+  { title: "Orbital", author: "Samantha Harvey", pages: 137 },
+  { title: "Snake Eater", author: "T. Kingfisher", pages: 345 },
+  { title: "Moth Dark", author: "Kika Hatzopoulou", pages: 373 },
+  { title: "Tailored Realities", author: "Brandon Sanderson", pages: 448 },
+  { title: "Nexus", author: "Yuval Noah Harari", pages: 544 },
+  { title: "Dancing on My Grave", author: "Gelsey Kirkland", pages: 363 },
+  { title: "Glück", author: "Will Ferguson", pages: 448 },
+  { title: "Polina", author: "Gerhard Haase-Hindenberg", pages: 248 },
+  { title: "The Ultimate Hitchhiker's Guide to the Galaxy", author: "Douglas Adams", pages: 815 },
+  { title: "A Spell for Heartsickness", author: "Alistair Reeves", pages: 334 },
+  { title: "If Cats Disappeared from the World", author: "Genki Kawamura", pages: 202 },
+  { title: "Boys with Sharp Teeth", author: "Jemi Howell", pages: 432 },
+  { title: "Don't Let the Forest In", author: "CG Daws", pages: 327 },
+  { title: "Dancing Through It", author: "Jenifer Ringer", pages: 304 },
+  { title: "Make the Season Bright", author: "Ashley Herring Blake", pages: 368 },
+  { title: "Rouge", author: "Mona Awad", pages: 372 },
+  { title: "Giovanni's Room", author: "James Baldwin", pages: 150 },
+  { title: "The Maiden and Her Monster", author: "M. Martinez", pages: 352 },
+  { title: "Call Down the Hawk", author: "Maggie Stiefvater", pages: 469, series: "Dreamer Trilogy" },
+  { title: "Mister Impossible", author: "Maggie Stiefvater", pages: 340, series: "Dreamer Trilogy" },
+  { title: "Greywaren", author: "Maggie Stiefvater", pages: 335, series: "Dreamer Trilogy" },
+  { title: "Battle of the Labyrinth", author: "Rick Riordan", pages: 361, series: "Percy Jackson" },
+  { title: "The Last Olympian", author: "Rick Riordan", pages: 381, series: "Percy Jackson" },
+  { title: "The Lost Hero", author: "Rick Riordan", pages: 576, series: "Heroes of Olympus" },
+  { title: "The Son of Neptune", author: "Rick Riordan", pages: 544, series: "Heroes of Olympus" },
+  { title: "The Mark of Athena", author: "Rick Riordan", pages: 604, series: "Heroes of Olympus" },
+  { title: "The House of Hades", author: "Rick Riordan", pages: 609, series: "Heroes of Olympus" },
+  { title: "Blood of Olympus", author: "Rick Riordan", pages: 528, series: "Heroes of Olympus" },
+  { title: "The Red Pyramid", author: "Rick Riordan", pages: 528, series: "Kane Chronicles" },
+  { title: "The Throne of Fire", author: "Rick Riordan", pages: 452, series: "Kane Chronicles" },
+  { title: "The Serpent's Shadow", author: "Rick Riordan", pages: 406, series: "Kane Chronicles" },
+  { title: "Turf Wars II", author: "Michael DiMartino et al.", pages: 76, series: "Legend of Korra" },
+  { title: "Turf Wars III", author: "Michael DiMartino et al.", pages: 76, series: "Legend of Korra" },
+  { title: "Gods Untold Comic Anthology", author: "Various", pages: 150 },
+  { title: "99 Tabs offen und keiner macht das Browser-Fenster zu", author: "Timo Fuchs", pages: 265, pagesRead: 94 },
+  { title: "Die Unendliche Geschichte", author: "Michael Ende", pages: 428 },
+  { title: "Gwen & Art Are Not in Love", author: "Lex Croucher", pages: 423 },
+  { title: "Wie wir lieben", author: "F. Karig", pages: 304 },
+  { title: "Wolfsblut 2", author: "Alenor J. Stevens", pages: 267 },
+  { title: "Entanglement of Rival Wizards", author: "S. Raach", pages: 336 },
+  { title: "Pride and Prejudice", author: "Jane Austen", pages: 367, pagesRead: 148 },
+  { title: "Magic Knight Rayearth 4", author: "CLAMP", pages: 210, series: "Magic Knight Rayearth", pagesRead: 0 },
+  { title: "Magic Knight Rayearth 5", author: "CLAMP", pages: 200, series: "Magic Knight Rayearth" },
+  { title: "Magic Knight Rayearth 6", author: "CLAMP", pages: 200, series: "Magic Knight Rayearth" },
+  { title: "The Subtle Art of Not Giving a F*ck", author: "Mark Manson", pages: 206, pagesRead: 134 },
+  { title: "The Djinn in the Nightingale's Eye", author: "A.S. Byatt", pages: 280 },
+  { title: "Normal People", author: "Sally Rooney", pages: 266 },
+  { title: "I Who Have Never Known Men", author: "Jacqueline Harpman et al.", pages: 188 },
+  { title: "The Bell Jar", author: "Sylvia Plath", pages: 234 },
+];
+
+const STORAGE_KEY = 'bookstack_data';
+const GOAL_KEY    = 'bookstack_goal';
+const BUY_KEY     = 'bookstack_buycredits'; // how many books bought with earned credits
+
+// ── STATE ──
+let books = loadBooks();
+let goal  = parseInt(localStorage.getItem(GOAL_KEY) || '30');
+let activeTab = 'stack';
+let activeFilter = 'all';
+let sortMode = 'order';
+
+function loadBooks() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored) return JSON.parse(stored);
+  // first load: assign IDs
+  return INITIAL_BOOKS.map((b, i) => ({
+    id: i + 1,
+    title: b.title,
+    author: b.author,
+    pages: b.pages,
+    pagesRead: b.pagesRead || 0,
+    series: b.series || null,
+    done: false,
+    order: i,
+  }));
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const diff = Math.floor((Date.now() - d) / 86400000);
+  if (diff === 0) return 'heute';
+  if (diff === 1) return 'gestern';
+  if (diff < 7)  return `vor ${diff} Tagen`;
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'short', year: d.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
+}
+
+function nextId() {
+  return Math.max(0, ...books.map(b => b.id)) + 1;
+}
+
+// ── DERIVED ──
+function stackBooks()  { return books.filter(b => !b.done); }
+function doneBooks()   { return books.filter(b => b.done); }
+function readingBooks(){ return books.filter(b => !b.done && b.pagesRead > 0); }
+
+function remainingPages() {
+  return stackBooks().reduce((sum, b) => sum + (b.pages - b.pagesRead), 0);
+}
+
+function doneCount() { return doneBooks().length; }
+
+// buy rule: 1 new book per 10 done
+function buyCredits() {
+  const earned = Math.floor(doneCount() / 10);
+  const spent  = parseInt(localStorage.getItem(BUY_KEY) || '0');
+  return Math.max(0, earned - spent);
+}
+
+function buyProgress() {
+  return doneCount() % 10;
+}
+
+// ── RENDER HEADER ──
+function renderHeader() {
+  const stack = stackBooks();
+  document.getElementById('statTotal').textContent = stack.length;
+  document.getElementById('statPages').textContent = remainingPages().toLocaleString('de');
+  document.getElementById('statDone').textContent  = doneCount();
+  document.getElementById('statPagesLabel').textContent = 'Noch zu lesen';
+
+  // ETA
+  const days = Math.ceil(remainingPages() / goal);
+  const eta  = new Date(); eta.setDate(eta.getDate() + days);
+  const etaStr = eta.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('etaText').innerHTML =
+    `Bei ${goal} Seiten/Tag fertig ca. <strong>${etaStr}</strong> (${days.toLocaleString('de')} Tage)`;
+
+  // today pages — sum of all pagesRead deltas logged today
+  const todayStr = new Date().toISOString().slice(0, 10);
+  let todayTotal = 0;
+  books.forEach(b => {
+    (b.readLog || []).forEach(entry => {
+      if (entry.date === todayStr) todayTotal += entry.delta;
+    });
+  });
+  const todayEl = document.getElementById('todayPages');
+  if (todayTotal > 0) {
+    todayEl.innerHTML = `📖 heute: <strong style="color:#c4933a">${todayTotal} S.</strong>`;
+  } else {
+    todayEl.textContent = '';
+  }
+  const warn = document.getElementById('stackWarning');
+  const n = stack.length;
+  if (n <= 10)      { warn.className = 'stack-warning ok';   warn.textContent = `✓ Stack: ${n}/10`; }
+  else if (n <= 15) { warn.className = 'stack-warning warn';  warn.textContent = `⚠ Stack: ${n}/10`; }
+  else              { warn.className = 'stack-warning over';  warn.textContent = `✕ Stack: ${n}/10`; }
+
+  // buy rule
+  const pips = document.getElementById('buyProgress');
+  const progress = buyProgress();
+  const credits  = buyCredits();
+  pips.innerHTML = '';
+  for (let i = 0; i < 10; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'buy-pip' + (i < progress ? ' filled' : '');
+    pips.appendChild(pip);
+  }
+  const statusEl = document.getElementById('buyStatus');
+  if (credits > 0) {
+    statusEl.className = 'buy-status ready';
+    statusEl.innerHTML = `<strong>🎉 ${credits} Buch${credits>1?'kauf':'kauf'} verfügbar!</strong>`;
+  } else {
+    statusEl.className = 'buy-status';
+    statusEl.innerHTML = `Noch <strong>${10 - progress}</strong> Bücher bis zum nächsten Kauf`;
+  }
+}
+
+// ── RENDER LIST ──
+function getSortedBooks(list) {
+  const arr = [...list];
+  if (sortMode === 'pages-asc')  return arr.sort((a,b) => a.pages - b.pages);
+  if (sortMode === 'pages-desc') return arr.sort((a,b) => b.pages - a.pages);
+  if (sortMode === 'alpha')      return arr.sort((a,b) => a.title.localeCompare(b.title));
+  return arr.sort((a,b) => a.order - b.order);
+}
+
+function renderList() {
+  const container = document.getElementById('bookList');
+  container.innerHTML = '';
+
+  const source = activeTab === 'done' ? doneBooks() : stackBooks();
+  let list = getSortedBooks(source);
+
+  if (activeFilter === 'reading') {
+    list = list.filter(b => b.pagesRead > 0);
+  }
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-state">Keine Bücher hier — schön! 🎉</div>';
+    return;
+  }
+
+  let displayNum = 1;
+  list.forEach(book => {
+    const isReading = book.pagesRead > 0 && !book.done;
+    const pct = book.pages > 0 ? Math.round(book.pagesRead / book.pages * 100) : 0;
+
+    const row = document.createElement('div');
+    row.className = 'book-row' + (book.done ? ' done' : isReading ? ' reading' : '');
+
+    // main row
+    const main = document.createElement('div');
+    main.className = 'book-row-main';
+    main.innerHTML = `
+      <span class="book-num">${displayNum}</span>
+      <div class="check-box book-check" data-id="${book.id}">${book.done ? '✓' : ''}</div>
+      <div class="book-info">
+        <div class="book-title">${book.title}</div>
+        <div class="book-author">${book.author}${book.done && book.finishedAt ? ` <span class="finished-ts">· fertig ${fmtDate(book.finishedAt)}</span>` : ''}</div>
+      </div>
+      ${book.series ? `<span class="series-tag">${book.series}</span>` : ''}
+      ${isReading ? `<span class="reading-badge">lese</span>` : ''}
+      <span class="book-pages">${isReading ? `${book.pagesRead}/${book.pages}` : `${book.pages} S.`}</span>
+      <button class="book-delete" data-id="${book.id}" title="Entfernen">✕</button>
+      ${isReading ? `<div class="reading-progress"><div class="reading-progress-fill" style="width:${pct}%"></div></div>` : ''}
+    `;
+
+    // edit panel
+    const edit = document.createElement('div');
+    edit.className = 'edit-panel';
+    edit.innerHTML = `
+      <label>Aktuelle Seite</label>
+      <input class="f-sm e-pagesread" type="number" min="0" max="${book.pages}" value="${book.pagesRead}" placeholder="0">
+      <label>Gesamt</label>
+      <input class="f-sm e-pages" type="number" min="1" value="${book.pages}" placeholder="Seiten">
+      <label>Titel</label>
+      <input class="f-lg e-title" type="text" value="${book.title}">
+      <label>Autor*in</label>
+      <input class="f-lg e-author" type="text" value="${book.author}">
+      <button class="edit-save">Speichern</button>
+    `;
+
+    // toggle edit on row click (not on check/delete)
+    main.addEventListener('click', e => {
+      if (e.target.classList.contains('book-check') || e.target.classList.contains('book-delete')) return;
+      edit.classList.toggle('open');
+    });
+
+    // check
+    main.querySelector('.book-check').addEventListener('click', e => {
+      e.stopPropagation();
+      const b = books.find(x => x.id === book.id);
+      b.done = !b.done;
+      if (b.done) {
+        const delta = b.pages - b.pagesRead;
+        b.pagesRead = b.pages;
+        b.finishedAt = new Date().toISOString();
+        if (delta > 0) {
+          if (!b.readLog) b.readLog = [];
+          b.readLog.push({ date: new Date().toISOString().slice(0,10), delta });
+        }
+      } else { b.finishedAt = null; }
+      save(); render();
+    });
+
+    // delete
+    main.querySelector('.book-delete').addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm(`"${book.title}" wirklich entfernen?`)) return;
+      books = books.filter(x => x.id !== book.id);
+      save(); render();
+    });
+
+    // save edit
+    edit.querySelector('.edit-save').addEventListener('click', () => {
+      const b = books.find(x => x.id === book.id);
+      const prevPages = b.pagesRead;
+      b.pagesRead = Math.max(0, Math.min(parseInt(edit.querySelector('.e-pagesread').value) || 0, b.pages));
+      b.pages     = parseInt(edit.querySelector('.e-pages').value) || b.pages;
+      b.title     = edit.querySelector('.e-title').value.trim() || b.title;
+      b.author    = edit.querySelector('.e-author').value.trim() || b.author;
+      // log delta if pages increased
+      const delta = b.pagesRead - prevPages;
+      if (delta > 0) {
+        if (!b.readLog) b.readLog = [];
+        const todayStr = new Date().toISOString().slice(0, 10);
+        b.readLog.push({ date: todayStr, delta });
+      }
+      save(); render();
+    });
+
+    row.appendChild(main);
+    row.appendChild(edit);
+    container.appendChild(row);
+    displayNum++;
+  });
+}
+
+function render() {
+  renderHeader();
+  renderList();
+}
+
+// ── TABS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTab = btn.dataset.tab;
+    // hide buy rule on done tab
+    document.getElementById('buyRule').style.display = activeTab === 'done' ? 'none' : '';
+    render();
+  });
+});
+
+// ── FILTERS ──
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    renderList();
+  });
+});
+
+// ── SORT ──
+document.getElementById('sortSelect').addEventListener('change', e => {
+  sortMode = e.target.value;
+  renderList();
+});
+
+// ── GOAL ──
+const goalInput = document.getElementById('goalInput');
+goalInput.value = goal;
+goalInput.addEventListener('change', () => {
+  goal = Math.max(1, parseInt(goalInput.value) || 30);
+  goalInput.value = goal;
+  localStorage.setItem(GOAL_KEY, goal);
+  renderHeader();
+});
+
+// ── ADD BOOK ──
+document.getElementById('addBtn').addEventListener('click', () => {
+  document.getElementById('addForm').classList.toggle('open');
+});
+
+document.getElementById('addSubmit').addEventListener('click', () => {
+  const title = document.getElementById('newTitle').value.trim();
+  const author = document.getElementById('newAuthor').value.trim();
+  const pages = parseInt(document.getElementById('newPages').value) || 0;
+  const pagesRead = parseInt(document.getElementById('newPagesRead').value) || 0;
+  if (!title || !pages) return;
+  books.push({ id: nextId(), title, author, pages, pagesRead, series: null, done: false, order: books.length });
+  save();
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newAuthor').value = '';
+  document.getElementById('newPages').value = '';
+  document.getElementById('newPagesRead').value = '';
+  document.getElementById('addForm').classList.remove('open');
+  render();
+});
+
+// ── EXPORT / IMPORT ──
+const EXPORT_KEY_BOOKS = 'bookstack_last_export';
+
+function updateExportLabel() {
+  const ts = localStorage.getItem(EXPORT_KEY_BOOKS);
+  const el = document.getElementById('lastExportLabel');
+  if (!ts) { el.textContent = 'Noch kein Export'; return; }
+  const d = new Date(ts);
+  const days = Math.floor((Date.now() - d) / 86400000);
+  const str = days === 0 ? 'heute' : days === 1 ? 'gestern' : `vor ${days} Tagen`;
+  el.textContent = `Letzter Export: ${str}`;
+  el.style.color = days > 60 ? '#8b6040' : '#3a3020';
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const backup = { books, goal, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `bookstack-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem(EXPORT_KEY_BOOKS, new Date().toISOString());
+  updateExportLabel();
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      // support both {books, goal} format and raw array
+      const imported = Array.isArray(data) ? data : data.books;
+      if (!Array.isArray(imported)) throw new Error();
+      if (!confirm(`${imported.length} Bücher importieren? Bestehende Daten werden überschrieben.`)) return;
+      books = imported;
+      if (data.goal) { goal = data.goal; localStorage.setItem(GOAL_KEY, goal); }
+      save();
+      render();
+    } catch {
+      alert('Import fehlgeschlagen — ist das eine gültige Bookstack-Backup-Datei?');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+// ── INIT ──
+updateExportLabel();
+render();
+</script>
+</body>
+</html>

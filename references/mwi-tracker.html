@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌙 MWI Tracker</title>
+<style>
+  :root {
+    --bg: #0f1129; --panel: #1a1f3a; --card: #222644;
+    --card-hover: #2a2f54; --border: #3a3f6a; --text: #e2e8f0; --muted: #8891b4; --accent: #7c8cf8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 20px; }
+  header { margin-bottom: 18px; }
+  header h1 { font-size: 1.3rem; font-weight: 700; }
+  header .sub { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
+
+  /* ── Char tabs ── */
+  .char-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+  .char-tab { background: var(--panel); border: 2px solid var(--border); border-radius: 10px; padding: 5px 12px; cursor: pointer; font-size: 0.9rem; color: var(--muted); transition: all 0.15s; display: flex; align-items: center; gap: 6px; user-select: none; }
+  .char-tab.active { border-color: var(--accent); color: var(--text); background: var(--card); }
+  .char-tab .del { font-size: 0.75rem; opacity: 0.4; cursor: pointer; padding: 0 2px; }
+  .char-tab .del:hover { opacity: 1; color: #f87171; }
+  .char-name-input { background: transparent; border: none; border-bottom: 1px solid transparent; color: inherit; font: inherit; width: 90px; outline: none; cursor: text; padding: 0; }
+  .char-name-input:focus { border-bottom-color: var(--accent); }
+  .add-char { background: transparent; border: 2px dashed var(--border); border-radius: 10px; padding: 5px 12px; cursor: pointer; font-size: 0.88rem; color: var(--muted); transition: all 0.15s; }
+  .add-char:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Sections ── */
+  .section { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── Loadout tabs ── */
+  .loadout-tabs { display: flex; gap: 5px; margin-left: auto; }
+  .loadout-tab { background: var(--card); border: 1px solid var(--border); border-radius: 7px; padding: 3px 10px; cursor: pointer; font-size: 0.75rem; color: var(--muted); transition: all 0.15s; font-weight: 600; }
+  .loadout-tab.active { border-color: var(--accent); color: var(--text); background: var(--card-hover); }
+
+  /* ── Grids ── */
+  .equip-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .equip-grid .spacer { visibility: hidden; }
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 8px; }
+
+  /* ── Equipment card ── */
+  .slot-card { background: var(--card); border: 1px solid var(--border); border-radius: 9px; padding: 7px 8px; display: flex; flex-direction: column; gap: 5px; transition: background 0.15s; }
+  .slot-card:hover { background: var(--card-hover); }
+  .slot-header { display: flex; align-items: center; gap: 5px; }
+  .slot-icon { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+  .slot-name { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .item-input-wrap { position: relative; }
+  .item-name-input {
+    width: 100%; background: var(--panel); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text); font-size: 0.75rem;
+    padding: 3px 5px; outline: none;
+  }
+  .item-name-input:focus { border-color: var(--accent); }
+  .item-name-input::placeholder { color: var(--muted); font-style: italic; }
+
+  .controls-row { display: flex; align-items: center; gap: 5px; }
+  .enchant-row { display: flex; align-items: center; gap: 3px; flex-shrink: 0; }
+  .enchant-row button { width: 18px; height: 18px; border: 1px solid var(--border); background: var(--panel); color: var(--text); border-radius: 4px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0; transition: background 0.1s; flex-shrink: 0; }
+  .enchant-row button:hover { background: var(--border); }
+  .enchant-val { font-size: 0.78rem; font-weight: 700; min-width: 26px; text-align: center; color: var(--muted); }
+  .enchant-val.nonzero { color: #fbbf24; }
+
+  /* tier color pill shown next to enchant */
+  .tier-pill { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex: 1; text-align: center; }
+  .tp-none      { background: #2d3058; color: var(--muted); }
+  .tp-cheese    { background: #3d2f0e; color: #c8a96e; }
+  .tp-verdant   { background: #0a2e1a; color: #4ade80; }
+  .tp-azure     { background: #0b1f3a; color: #60a5fa; }
+  .tp-burble    { background: #1e1040; color: #a78bfa; }
+  .tp-crimson   { background: #2e0a0a; color: #f87171; }
+  .tp-rainbow   { background: #2a1040; color: #f0c0f0; }
+  .tp-holy      { background: #2e2000; color: #fbbf24; }
+  .tp-celestial { background: #2a0040; color: #e879f9; }
+
+  /* card border glow */
+  .slot-card.tc-verdant   { border-color: #1a4d2a; }
+  .slot-card.tc-azure     { border-color: #1a3560; }
+  .slot-card.tc-burble    { border-color: #3a1a70; }
+  .slot-card.tc-crimson   { border-color: #5a1a1a; }
+  .slot-card.tc-rainbow   { border-color: #5a1a5a; }
+  .slot-card.tc-holy      { border-color: #5a4000; }
+  .slot-card.tc-celestial { border-color: #5a0080; }
+
+  /* ── Tool card extras ── */
+  .tier-select { flex: 1; min-width: 0; border: none; border-radius: 5px; padding: 3px 4px; font-size: 0.72rem; font-weight: 600; cursor: pointer; outline: none; -webkit-appearance: none; appearance: none; text-align: center; transition: all 0.15s; }
+  select option { background: #1a1f3a; color: #e2e8f0; }
+  .t-none      { background: #2d3058; color: var(--muted); }
+  .t-cheese    { background: #3d2f0e; color: #c8a96e; }
+  .t-verdant   { background: #0a2e1a; color: #4ade80; }
+  .t-azure     { background: #0b1f3a; color: #60a5fa; }
+  .t-burble    { background: #1e1040; color: #a78bfa; }
+  .t-crimson   { background: #2e0a0a; color: #f87171; }
+  .t-rainbow   { background: #2a1040; color: #f0c0f0; }
+  .t-holy      { background: #2e2000; color: #fbbf24; }
+  .t-celestial { background: #2a0040; color: #e879f9; }
+
+  .skill-row { display: flex; align-items: center; gap: 5px; }
+  .skill-label { font-size: 0.68rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+  .skill-input { width: 48px; background: var(--panel); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 0.78rem; font-weight: 600; padding: 2px 4px; outline: none; text-align: center; }
+  .skill-input:focus { border-color: var(--accent); }
+  .next-tier-badge { font-size: 0.65rem; padding: 2px 5px; border-radius: 4px; font-weight: 600; white-space: nowrap; flex: 1; text-align: right; }
+  .next-ready  { background: #0a3020; color: #4ade80; }
+  .next-locked { background: #1a1a2e; color: var(--muted); }
+  .next-max    { background: #2a2000; color: #fbbf24; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌙 Milky Way Idle — Tracker</h1>
+  <div class="sub">Equipment &amp; Tools pro Charakter • wird automatisch gespeichert</div>
+</header>
+<div class="char-tabs" id="charTabs"></div>
+<div id="charContent"></div>
+
+<script>
+// ── Item lists ────────────────────────────────────────────────────────────────
+
+const TOOL_TIERS = [
+  { id:'none',      label:'— leer —', level:0  },
+  { id:'cheese',    label:'Cheese',   level:1  },
+  { id:'verdant',   label:'Verdant',  level:10 },
+  { id:'azure',     label:'Azure',    level:20 },
+  { id:'burble',    label:'Burble',   level:35 },
+  { id:'crimson',   label:'Crimson',  level:50 },
+  { id:'rainbow',   label:'Rainbow',  level:65 },
+  { id:'holy',      label:'Holy',     level:80 },
+  { id:'celestial', label:'Celestial',level:90 },
+];
+
+// Items per loadout type, keyed by slot id
+const LOADOUT_ITEMS = {
+  melee: {
+    head:    ['Cheese Helmet','Verdant Helmet','Azure Helmet','Burble Helmet','Crimson Helmet','Rainbow Helmet','Holy Helmet','Snail Shell Helmet','Vision Helmet'],
+    chest:   ['Cheese Plate Body','Verdant Plate Body','Azure Plate Body','Burble Plate Body','Crimson Plate Body','Rainbow Plate Body','Holy Plate Body','Turtle Shell Body','Colossus Plate Body','Demonic Plate Body'],
+    legs:    ['Cheese Plate Legs','Verdant Plate Legs','Azure Plate Legs','Burble Plate Legs','Crimson Plate Legs','Rainbow Plate Legs','Holy Plate Legs','Turtle Shell Legs','Colossus Plate Legs','Demonic Plate Legs'],
+    feet:    ['Cheese Boots','Verdant Boots','Azure Boots','Burble Boots','Crimson Boots','Rainbow Boots','Holy Boots','Black Bear Shoes','Grizzly Bear Shoes','Polar Bear Shoes'],
+    hands:   ['Cheese Gauntlets','Verdant Gauntlets','Azure Gauntlets','Burble Gauntlets','Crimson Gauntlets','Rainbow Gauntlets','Holy Gauntlets','Pincer Gloves','Panda Gloves','Magnetic Gloves','Dodocamel Gauntlets'],
+    weapon:  ['Cheese Sword','Verdant Sword','Azure Sword','Burble Sword','Crimson Sword','Rainbow Sword','Holy Sword','Regal Sword','Werewolf Slasher','Snake Fang Dirk','Vampire Fang Dirk','Cheese Spear','Verdant Spear','Azure Spear','Burble Spear','Crimson Spear','Rainbow Spear','Holy Spear','Stalactite Spear','Cheese Mace','Verdant Mace','Azure Mace','Burble Mace','Crimson Mace','Rainbow Mace','Holy Mace','Granite Bludgeon','Chaotic Flail'],
+    offhand: ['Cheese Buckler','Verdant Buckler','Azure Buckler','Burble Buckler','Crimson Buckler','Rainbow Buckler','Holy Buckler','Vision Shield',"Knight's Aegis",'Cheese Bulwark','Verdant Bulwark','Azure Bulwark','Burble Bulwark','Crimson Bulwark','Rainbow Bulwark','Holy Bulwark','Spiked Bulwark','Griffin Bulwark'],
+    pouch:   ['Small Pouch','Medium Pouch','Large Pouch','Giant Pouch','Gluttonous Pouch','Guzzling Pouch'],
+    back:    [], trinket: [],
+  },
+  mage: {
+    head:    ['Rough Hood','Cotton Hat','Reptile Hood','Linen Hat','Gobo Hood','Bamboo Hat','Beast Hood','Silk Hat','Red Culinary Hat','Fluffy Red Hat','Umbral Hood','Radiant Hat','Acrobatic Hood',"Magician's Hat",'Acrobatic Hood (R)',"Magician's Hat (R)"],
+    chest:   ['Rough Tunic','Cotton Robe Top','Reptile Tunic','Linen Robe Top','Gobo Tunic','Bamboo Robe Top','Marine Tunic','Icy Robe Top','Flaming Robe Top','Beast Tunic','Silk Robe Top','Luna Robe Top','Umbral Tunic','Radiant Robe Top','Revenant Tunic','Griffin Tunic','Royal Water Robe Top','Royal Fire Robe Top','Royal Nature Robe Top','Royal Water Robe Top (R)','Royal Fire Robe Top (R)','Royal Nature Robe Top (R)','Griffin Tunic (R)','Revenant Tunic (R)'],
+    legs:    ['Rough Chaps','Cotton Robe Bottoms','Reptile Chaps','Linen Robe Bottoms','Gobo Chaps','Bamboo Robe Bottoms','Marine Chaps','Icy Robe Bottoms','Flaming Robe Bottoms','Beast Chaps','Silk Robe Bottoms','Luna Robe Bottoms','Umbral Chaps','Radiant Robe Bottoms','Revenant Chaps','Griffin Chaps','Royal Water Robe Bottoms','Royal Fire Robe Bottoms','Royal Nature Robe Bottoms','Griffin Chaps (R)','Revenant Chaps (R)'],
+    feet:    ['Rough Boots','Cotton Boots','Reptile Boots','Linen Boots','Shoebill Shoes','Gobo Boots','Bamboo Boots','Beast Boots','Silk Boots',"Collector's Boots",'Centaur Boots','Sorcerer Boots','Umbral Boots','Radiant Boots'],
+    hands:   ['Rough Bracers','Cotton Gloves','Reptile Bracers','Linen Gloves','Gobo Bracers','Bamboo Gloves','Beast Bracers','Silk Gloves','Sighted Bracers','Umbral Bracers','Radiant Gloves','Chrono Gloves','Enchanted Gloves','Dodocamel Gauntlets'],
+    weapon:  [],  // mage weapons from different source — free text
+    offhand: [],
+    pouch:   ['Small Pouch','Medium Pouch','Large Pouch','Giant Pouch','Gluttonous Pouch','Guzzling Pouch'],
+    back:    ['Chimerical Quiver (R)','Sinister Cape (R)','Enchanted Cloak (R)'],
+    trinket: [],
+  },
+  archer: {
+    // placeholder — same structure, all free text for now
+    head:[], chest:[], legs:[], feet:[], hands:[], weapon:[], offhand:[], pouch:['Small Pouch','Medium Pouch','Large Pouch','Giant Pouch','Gluttonous Pouch','Guzzling Pouch'], back:[], trinket:[],
+  },
+};
+
+// Shared accessor items (same across all loadouts)
+const ACCESSOR_ITEMS = { necklace:[], earrings:[], ring:[], charm:[] };
+
+// Auto-detect tier color from item name
+function itemToTier(name) {
+  if (!name) return 'none';
+  const n = name.toLowerCase();
+  if (n.includes('(r)') || n.includes('royal') || n.includes('celestial')) return 'celestial';
+  if (n.includes('holy') || n.includes('umbral') || n.includes('radiant') || n.includes('griffin') || n.includes('revenant') || n.includes('stalactite') || n.includes('granite') || n.includes('chaotic') || n.includes('spiked') || n.includes('magnetic') || n.includes("magician's") || n.includes('acrobatic') || n.includes('demonic') || n.includes('colossus')) return 'holy';
+  if (n.includes('rainbow') || n.includes('luna') || n.includes("collector's") || n.includes('sorcerer') || n.includes('centaur') || n.includes('panda') || n.includes('black bear') || n.includes('grizzly') || n.includes('polar bear') || n.includes("knight's") || n.includes('chrono') || n.includes('enchanted')) return 'rainbow';
+  if (n.includes('crimson') || n.includes('silk') || n.includes('marine') || n.includes('icy') || n.includes('flaming') || n.includes('beast') || n.includes('vampire') || n.includes('vision') || n.includes('sighted') || n.includes('dodocamel')) return 'crimson';
+  if (n.includes('burble') || n.includes('gobo') || n.includes('bamboo') || n.includes('turtle')) return 'burble';
+  if (n.includes('azure') || n.includes('linen') || n.includes('shoebill') || n.includes('pincer') || n.includes('snail') || n.includes('werewolf')) return 'azure';
+  if (n.includes('verdant') || n.includes('reptile') || n.includes('snake fang')) return 'verdant';
+  if (n.match(/\b(cheese|rough|cotton|small|medium|large|giant)\b/)) return 'cheese';
+  return 'none';
+}
+
+const LOADOUTS = [
+  { id:'melee',  label:'⚔️ Melee'  },
+  { id:'mage',   label:'🔮 Mage'   },
+  { id:'archer', label:'🏹 Archer' },
+];
+
+const EQUIP_SLOTS = [
+  { id:'back',     label:'Back',    icon:'🎒', col:0, row:0 },
+  { id:'weapon',   label:'Weapon',  icon:'⚔️',  col:0, row:1 },
+  { id:'hands',    label:'Gloves',  icon:'🧤', col:0, row:2 },
+  { id:'head',     label:'Helm',    icon:'⛑️',  col:1, row:0 },
+  { id:'chest',    label:'Chest',   icon:'🥋', col:1, row:1 },
+  { id:'legs',     label:'Legs',    icon:'👖', col:1, row:2 },
+  { id:'feet',     label:'Boots',   icon:'👢', col:1, row:3 },
+  { id:'trinket',  label:'Trinket', icon:'🔮', col:2, row:0 },
+  { id:'offhand',  label:'Shield',  icon:'🛡️',  col:2, row:1 },
+  { id:'pouch',    label:'Pouch',   icon:'👝', col:2, row:2 },
+  { id:'necklace', label:'Necklace',icon:'📿', col:4, row:0 },
+  { id:'earrings', label:'Earrings',icon:'💎', col:4, row:1 },
+  { id:'ring',     label:'Ring',    icon:'💍', col:4, row:2 },
+  { id:'charm',    label:'Charm',   icon:'✨', col:4, row:3 },
+];
+
+const TOOL_SLOTS = [
+  { id:'brush',    label:'Brush',    icon:'🖌️',  skill:'Milking'        },
+  { id:'shears',   label:'Shears',   icon:'✂️',  skill:'Foraging'       },
+  { id:'hatchet',  label:'Hatchet',  icon:'🪓', skill:'Woodcutting'    },
+  { id:'hammer',   label:'Hammer',   icon:'🔨', skill:'Cheesesmithing' },
+  { id:'chisel',   label:'Chisel',   icon:'🪛', skill:'Crafting'       },
+  { id:'needle',   label:'Needle',   icon:'🧵', skill:'Tailoring'      },
+  { id:'spatula',  label:'Spatula',  icon:'🍳', skill:'Cooking'        },
+  { id:'pot',      label:'Pot',      icon:'🫖', skill:'Brewing'        },
+  { id:'alembic',  label:'Alembic',  icon:'⚗️',  skill:'Alchemy'        },
+  { id:'enhancer', label:'Enhancer', icon:'🔬', skill:'Enhancing'      },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'mwi_tracker_v4';
+
+function defaultEquipSlots() {
+  const s = {};
+  EQUIP_SLOTS.forEach(d => { s[d.id] = { itemName:'', enchant:0 }; });
+  return s;
+}
+function defaultTools() {
+  const s = {};
+  TOOL_SLOTS.forEach(d => { s[d.id] = { tier:'none', enchant:0, skillLevel:'' }; });
+  return s;
+}
+function defaultChar(name) {
+  const loadouts = {};
+  LOADOUTS.forEach(l => { loadouts[l.id] = defaultEquipSlots(); });
+  return { name, activeLoadout:'melee', loadouts, tools: defaultTools() };
+}
+
+function migrateChar(ch) {
+  // migrate from v1/v2 (flat slots)
+  if (ch.slots && !ch.loadouts) {
+    const loadouts = {};
+    LOADOUTS.forEach(l => {
+      const s = {};
+      EQUIP_SLOTS.forEach(d => {
+        const old = ch.slots[d.id] || {};
+        s[d.id] = { itemName: old.itemName || '', enchant: old.enchant || 0 };
+      });
+      loadouts[l.id] = s;
+    });
+    ch.loadouts = loadouts;
+    ch.tools = defaultTools();
+    TOOL_SLOTS.forEach(d => {
+      if (ch.slots[d.id]) ch.tools[d.id] = { tier: ch.slots[d.id].tier || 'none', enchant: ch.slots[d.id].enchant || 0, skillLevel: ch.slots[d.id].skillLevel || '' };
+    });
+    delete ch.slots;
+  }
+  // migrate from v3 (had tier dropdown on equip slots)
+  if (ch.loadouts) {
+    LOADOUTS.forEach(l => {
+      if (!ch.loadouts[l.id]) ch.loadouts[l.id] = defaultEquipSlots();
+      EQUIP_SLOTS.forEach(d => {
+        const slot = ch.loadouts[l.id][d.id];
+        if (!slot) { ch.loadouts[l.id][d.id] = { itemName:'', enchant:0 }; return; }
+        // v3 had {tier, enchant, itemName} → v4 only needs {itemName, enchant}
+        if (slot.tier && !slot.itemName) slot.itemName = ''; // keep enchant
+        if (slot.itemName === undefined) slot.itemName = '';
+        if (slot.enchant === undefined) slot.enchant = 0;
+        delete slot.tier;
+      });
+    });
+  }
+  if (!ch.activeLoadout) ch.activeLoadout = 'melee';
+  if (!ch.tools) ch.tools = defaultTools();
+  TOOL_SLOTS.forEach(d => { if (!ch.tools[d.id]) ch.tools[d.id] = { tier:'none', enchant:0, skillLevel:'' }; });
+  return ch;
+}
+
+function loadData() {
+  for (const key of ['mwi_tracker_v4','mwi_tracker_v3','mwi_tracker_v2','mwi_tracker_v1']) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) { const d = JSON.parse(raw); d.chars = d.chars.map(migrateChar); return d; }
+    } catch(e) {}
+  }
+  return { chars:[defaultChar('Charakter 1'), defaultChar('Charakter 2')], activeChar:0 };
+}
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+let state = loadData();
+
+// ── Datalist management ───────────────────────────────────────────────────────
+let datalistCache = {};
+
+function getDatalistId(slotId, loadoutId) {
+  return `dl-${loadoutId}-${slotId}`;
+}
+
+function ensureDatalist(slotId, loadoutId) {
+  const id = getDatalistId(slotId, loadoutId);
+  if (datalistCache[id]) return id;
+  const items = (LOADOUT_ITEMS[loadoutId] || {})[slotId] || ACCESSOR_ITEMS[slotId] || [];
+  if (!items.length) return null;
+  const dl = document.createElement('datalist');
+  dl.id = id;
+  items.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    dl.appendChild(opt);
+  });
+  document.body.appendChild(dl);
+  datalistCache[id] = true;
+  return id;
+}
+
+// ── Card builders ─────────────────────────────────────────────────────────────
+
+function makeEquipCard(slotDef, slotData, loadoutId) {
+  const tier = itemToTier(slotData.itemName);
+  const card = document.createElement('div');
+  card.className = 'slot-card' + (tier !== 'none' ? ' tc-' + tier : '');
+
+  // header
+  const header = document.createElement('div');
+  header.className = 'slot-header';
+  const iconEl = document.createElement('span'); iconEl.className = 'slot-icon'; iconEl.textContent = slotDef.icon;
+  const nameEl = document.createElement('span'); nameEl.className = 'slot-name'; nameEl.textContent = slotDef.label;
+  header.appendChild(iconEl); header.appendChild(nameEl);
+  card.appendChild(header);
+
+  // item name input
+  const inp = document.createElement('input');
+  inp.className = 'item-name-input';
+  inp.type = 'text';
+  inp.placeholder = 'Item…';
+  inp.value = slotData.itemName || '';
+  const dlId = ensureDatalist(slotDef.id, loadoutId);
+  if (dlId) inp.setAttribute('list', dlId);
+
+  inp.addEventListener('input', () => {
+    slotData.itemName = inp.value;
+    const t = itemToTier(inp.value);
+    card.className = 'slot-card' + (t !== 'none' ? ' tc-' + t : '');
+    pill.className = 'tier-pill tp-' + t;
+    pill.textContent = t === 'none' ? '' : t.charAt(0).toUpperCase() + t.slice(1);
+    save();
+  });
+  card.appendChild(inp);
+
+  // controls: tier pill + enchant
+  const row = document.createElement('div');
+  row.className = 'controls-row';
+
+  const pill = document.createElement('span');
+  pill.className = 'tier-pill tp-' + tier;
+  pill.textContent = tier === 'none' ? '' : tier.charAt(0).toUpperCase() + tier.slice(1);
+
+  const { enchRow } = makeEnchantRow(slotData);
+  row.appendChild(pill);
+  row.appendChild(enchRow);
+  card.appendChild(row);
+  return card;
+}
+
+function makeToolCard(slotDef, slotData) {
+  const card = document.createElement('div');
+  card.className = 'slot-card t-' + slotData.tier;
+
+  const header = document.createElement('div');
+  header.className = 'slot-header';
+  const iconEl = document.createElement('span'); iconEl.className = 'slot-icon'; iconEl.textContent = slotDef.icon;
+  const nameEl = document.createElement('span'); nameEl.className = 'slot-name'; nameEl.textContent = slotDef.label;
+  const skillEl = document.createElement('span');
+  skillEl.style.cssText = 'font-size:0.62rem;color:var(--muted);margin-left:auto;flex-shrink:0;';
+  skillEl.textContent = slotDef.skill;
+  header.appendChild(iconEl); header.appendChild(nameEl); header.appendChild(skillEl);
+  card.appendChild(header);
+
+  // skill level + next tier
+  const skillRow = document.createElement('div');
+  skillRow.className = 'skill-row';
+  const skillLabel = document.createElement('span'); skillLabel.className = 'skill-label'; skillLabel.textContent = 'Lv.';
+  const skillInput = document.createElement('input');
+  skillInput.className = 'skill-input'; skillInput.type = 'number'; skillInput.min = 1; skillInput.max = 99;
+  skillInput.placeholder = '—'; skillInput.value = slotData.skillLevel || '';
+  const badge = document.createElement('span'); badge.className = 'next-tier-badge';
+
+  function refreshBadge() {
+    const idx = TOOL_TIERS.findIndex(t => t.id === slotData.tier);
+    if (idx < 0 || idx === TOOL_TIERS.length - 1) { badge.textContent = '✨ Max'; badge.className = 'next-tier-badge next-max'; return; }
+    const next = TOOL_TIERS[idx + 1];
+    const lvl = parseInt(slotData.skillLevel) || 0;
+    if (lvl >= next.level) { badge.textContent = '↑ ' + next.label + '!'; badge.className = 'next-tier-badge next-ready'; }
+    else { badge.textContent = next.label + ' @ ' + next.level; badge.className = 'next-tier-badge next-locked'; }
+  }
+  refreshBadge();
+  skillInput.addEventListener('input', () => { slotData.skillLevel = skillInput.value; refreshBadge(); save(); });
+  skillRow.appendChild(skillLabel); skillRow.appendChild(skillInput); skillRow.appendChild(badge);
+  card.appendChild(skillRow);
+
+  // tier + enchant
+  const ctrlRow = document.createElement('div');
+  ctrlRow.className = 'controls-row';
+  const sel = document.createElement('select');
+  sel.className = 'tier-select t-' + slotData.tier;
+  TOOL_TIERS.forEach(t => {
+    const o = document.createElement('option'); o.value = t.id; o.textContent = t.label;
+    if (t.id === slotData.tier) o.selected = true;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', () => {
+    slotData.tier = sel.value;
+    sel.className = 'tier-select t-' + sel.value;
+    card.className = 'slot-card t-' + sel.value;
+    refreshBadge(); save();
+  });
+  const { enchRow } = makeEnchantRow(slotData);
+  ctrlRow.appendChild(sel); ctrlRow.appendChild(enchRow);
+  card.appendChild(ctrlRow);
+  return card;
+}
+
+function makeEnchantRow(slotData) {
+  const enchRow = document.createElement('div');
+  enchRow.className = 'enchant-row';
+  const minus = document.createElement('button'); minus.textContent = '−';
+  const val = document.createElement('div');
+  val.className = 'enchant-val' + (slotData.enchant > 0 ? ' nonzero' : '');
+  val.textContent = '+' + slotData.enchant;
+  const plus = document.createElement('button'); plus.textContent = '+';
+  minus.addEventListener('click', () => { if (slotData.enchant > 0) { slotData.enchant--; update(); save(); } });
+  plus.addEventListener('click',  () => { if (slotData.enchant < 20) { slotData.enchant++; update(); save(); } });
+  function update() { val.textContent = '+' + slotData.enchant; val.className = 'enchant-val' + (slotData.enchant > 0 ? ' nonzero' : ''); }
+  enchRow.appendChild(minus); enchRow.appendChild(val); enchRow.appendChild(plus);
+  return { enchRow };
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+
+function renderTabs() {
+  const tabsEl = document.getElementById('charTabs');
+  tabsEl.innerHTML = '';
+  state.chars.forEach((ch, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'char-tab' + (i === state.activeChar ? ' active' : '');
+    const nameInput = document.createElement('input');
+    nameInput.className = 'char-name-input'; nameInput.value = ch.name;
+    nameInput.style.width = Math.max(60, ch.name.length * 9) + 'px';
+    nameInput.addEventListener('mousedown', e => {
+      if (i !== state.activeChar) { e.preventDefault(); state.activeChar = i; renderAll(); document.querySelectorAll('.char-name-input')[i]?.focus(); }
+    });
+    nameInput.addEventListener('input', () => { ch.name = nameInput.value; nameInput.style.width = Math.max(60, nameInput.value.length * 9) + 'px'; save(); });
+    tab.appendChild(nameInput);
+    if (state.chars.length > 1) {
+      const del = document.createElement('span'); del.className = 'del'; del.textContent = '✕';
+      del.addEventListener('click', e => { e.stopPropagation(); if (confirm(`"${ch.name}" löschen?`)) { state.chars.splice(i,1); if (state.activeChar >= state.chars.length) state.activeChar = state.chars.length-1; save(); renderAll(); } });
+      tab.appendChild(del);
+    }
+    tab.addEventListener('click', () => { if (i !== state.activeChar) { state.activeChar = i; renderAll(); } });
+    tabsEl.appendChild(tab);
+  });
+  const addBtn = document.createElement('button'); addBtn.className = 'add-char'; addBtn.textContent = '+ Charakter';
+  addBtn.addEventListener('click', () => { state.chars.push(defaultChar('Charakter '+(state.chars.length+1))); state.activeChar = state.chars.length-1; save(); renderAll(); });
+  tabsEl.appendChild(addBtn);
+}
+
+function renderContent() {
+  const el = document.getElementById('charContent');
+  el.innerHTML = '';
+  const ch = state.chars[state.activeChar];
+  if (!ch) return;
+
+  // Equipment section
+  const equipSec = document.createElement('div'); equipSec.className = 'section';
+  const secHdr = document.createElement('div'); secHdr.className = 'section-header';
+  const title = document.createElement('div'); title.className = 'section-title'; title.textContent = '⚔️ Equipment';
+  secHdr.appendChild(title);
+
+  const lTabs = document.createElement('div'); lTabs.className = 'loadout-tabs';
+  LOADOUTS.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'loadout-tab' + (ch.activeLoadout === l.id ? ' active' : '');
+    btn.textContent = l.label;
+    btn.addEventListener('click', () => { ch.activeLoadout = l.id; save(); renderContent(); });
+    lTabs.appendChild(btn);
+  });
+  secHdr.appendChild(lTabs);
+  equipSec.appendChild(secHdr);
+
+  const slots = ch.loadouts[ch.activeLoadout];
+  const grid = document.createElement('div'); grid.className = 'equip-grid';
+  const cells = Array(4).fill(null).map(() => Array(5).fill(null));
+  EQUIP_SLOTS.forEach(s => { cells[s.row][s.col] = s; });
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) {
+    const def = cells[r][c];
+    if (def) grid.appendChild(makeEquipCard(def, slots[def.id], ch.activeLoadout));
+    else { const sp = document.createElement('div'); sp.className = 'spacer'; grid.appendChild(sp); }
+  }
+  equipSec.appendChild(grid);
+  el.appendChild(equipSec);
+
+  // Tools section
+  const toolSec = document.createElement('div'); toolSec.className = 'section';
+  const toolHdr = document.createElement('div'); toolHdr.className = 'section-header';
+  const toolTitle = document.createElement('div'); toolTitle.className = 'section-title'; toolTitle.textContent = '🔧 Tools (alle Klassen)';
+  toolHdr.appendChild(toolTitle); toolSec.appendChild(toolHdr);
+  const toolGrid = document.createElement('div'); toolGrid.className = 'tool-grid';
+  TOOL_SLOTS.forEach(s => toolGrid.appendChild(makeToolCard(s, ch.tools[s.id])));
+  toolSec.appendChild(toolGrid);
+  el.appendChild(toolSec);
+}
+
+function renderAll() { renderTabs(); renderContent(); }
+renderAll();
+</script>
+</body>
+</html>

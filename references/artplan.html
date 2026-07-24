@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Art Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap');
+
+:root {
+  --bg:#f0ecf8;--paper:#faf8fe;--ink:#1e1830;--mid:#5a5070;--muted:#9890b8;
+  --line:#e2daf0;--line2:#ede8f8;
+  --a:#7c5cbf;--a2:#9b7fd4;--al:#eae4f8;--am:#c4b0e8;
+  --gesture:#7c5cbf;--gesture-bg:#eae4f8;
+  --anatomy:#2e8a6a;--anatomy-bg:#e0f4ee;
+  --croquis:#c47820;--croquis-bg:#fdf0dc;
+  --free:#5a5070;--free-bg:#ede8f8;
+  --r:12px;--rs:7px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--ink);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 0%,rgba(160,120,240,.1),transparent 55%),radial-gradient(ellipse at 85% 100%,rgba(100,180,150,.07),transparent 55%);pointer-events:none;z-index:0}
+.wrap{max-width:900px;margin:0 auto;padding:2rem 1.5rem 5rem;position:relative;z-index:1}
+
+/* HEADER */
+.ph{text-align:center;margin-bottom:1.5rem}
+.pt{font-family:'Fraunces',serif;font-size:2.6rem;font-weight:300;color:var(--ink);line-height:1.1}
+.pt em{font-style:italic;color:var(--a)}
+.ps{font-size:.82rem;color:var(--muted);margin-top:.4rem}
+
+/* PLANTS */
+.plants-row{display:flex;justify-content:center;gap:6px;margin:.8rem 0 1.8rem;flex-wrap:wrap}
+.plant{font-size:1.5rem;transition:transform .2s;cursor:default}
+.plant:hover{transform:scale(1.15)}
+
+/* TOP GRID */
+.top-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:1rem 1.2rem}
+.clabel{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem}
+.prog-pct{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:300;color:var(--a);line-height:1}
+.bar-track{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:.5rem 0}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--a),var(--a2));border-radius:99px;transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.mini-stats{display:flex;gap:.8rem;margin-top:.6rem}
+.ms{flex:1;text-align:center;background:var(--bg);border-radius:var(--rs);padding:.4rem .3rem}
+.ms-val{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:300;color:var(--a);line-height:1}
+.ms-lbl{font-size:.6rem;color:var(--muted);margin-top:.15rem}
+
+.cr{display:flex;align-items:center;gap:.7rem;margin-bottom:.55rem}
+.cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cname{font-size:.8rem;color:var(--mid);flex:1}
+.ctrack{flex:2;height:5px;background:var(--line);border-radius:99px;overflow:hidden}
+.cfill{height:100%;border-radius:99px;transition:width .5s}
+.cpct{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);width:36px;text-align:right}
+
+/* settings toggle */
+.settings-toggle{font-size:.65rem;color:var(--a);cursor:pointer;text-decoration:underline;margin-top:.6rem;display:inline-block}
+.settings-panel{margin-top:.5rem;display:none;flex-direction:column;gap:.35rem}
+.settings-panel.open{display:flex}
+.srow{display:flex;align-items:center;gap:.4rem}
+.slbl{font-size:.68rem;color:var(--muted);width:65px;flex-shrink:0}
+.sinput{font-family:'DM Mono',monospace;font-size:.72rem;background:var(--bg);border:1px solid var(--line);border-radius:4px;color:var(--ink);padding:.2rem .4rem;outline:none;flex:1;transition:border-color .15s}
+.sinput:focus{border-color:var(--a)}
+.sbtn{font-size:.68rem;padding:.22rem .6rem;border:1px solid var(--a);border-radius:4px;background:var(--a);color:white;cursor:pointer;white-space:nowrap}
+.scap{font-size:.58rem;color:var(--muted);font-style:italic}
+
+/* WEEK */
+.week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.week-title{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:300}
+.week-btns{display:flex;gap:.4rem}
+.wbtn{font-family:'DM Sans',sans-serif;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;padding:.28rem .7rem;border:1px solid var(--line);border-radius:99px;background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap}
+.wbtn:hover{color:var(--a);border-color:var(--a)}
+
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:1.5rem}
+.day-col{background:var(--paper);border:1px solid var(--line);border-radius:var(--rs);padding:7px 6px 8px;cursor:pointer;transition:border-color .15s;min-height:110px}
+.day-col:hover{border-color:var(--am)}
+.day-col.today{border:1.5px solid var(--a)}
+.day-col.selected{border-color:var(--a);background:var(--al)}
+.dhead{display:flex;flex-direction:column;align-items:center;margin-bottom:5px}
+.dname{font-size:.62rem;font-weight:500;color:var(--muted);letter-spacing:.07em;text-transform:uppercase}
+.ddate{font-size:.6rem;color:var(--muted)}
+.day-col.today .dname{color:var(--a)}
+.dpills{display:flex;flex-direction:column;gap:2px}
+.dpill{font-size:.6rem;border-radius:3px;padding:1px 4px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dpill-g{background:var(--gesture-bg);color:var(--gesture)}
+.dpill-a{background:var(--anatomy-bg);color:var(--anatomy)}
+.dpill-c{background:var(--croquis-bg);color:var(--croquis)}
+.dpill-f{background:var(--free-bg);color:var(--free)}
+.day-prog{margin-top:5px;height:3px;background:var(--line);border-radius:99px;overflow:hidden}
+.day-prog-fill{height:100%;background:var(--a);border-radius:99px;transition:width .3s}
+.day-done-mark{font-size:.65rem;color:var(--anatomy);text-align:center;margin-top:3px}
+
+/* SESSION */
+.ss{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.sh{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+.st{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:300}
+.st em{font-style:italic;color:var(--a)}
+.sp{font-size:.75rem;color:var(--muted);margin-left:auto}
+.sp strong{color:var(--anatomy)}
+
+.blocks{display:flex;flex-direction:column;gap:.5rem}
+.block{border:1px solid var(--line);border-radius:var(--rs);overflow:hidden;transition:opacity .2s}
+.block.done-block{opacity:.55}
+.bhead{display:flex;align-items:center;gap:.7rem;padding:.65rem .9rem;cursor:pointer}
+.bcheck{width:20px;height:20px;border:1.5px solid var(--line);border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:transparent;transition:all .15s;background:transparent}
+.block.done-block .bcheck{background:var(--a);border-color:var(--a);color:white}
+.bicon{font-size:1.1rem;flex-shrink:0}
+.binfo{flex:1;min-width:0}
+.btitle{font-size:.88rem;font-weight:500;color:var(--ink)}
+.block.done-block .btitle{text-decoration:line-through;color:var(--muted)}
+.bsub{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+.btag{font-size:.6rem;padding:.12rem .45rem;border-radius:99px;font-weight:500;flex-shrink:0}
+.tag-p{background:var(--al);color:var(--a)}
+.tag-o{background:var(--line2);color:var(--muted)}
+.tag-t{background:#e8e4f8;color:#5a3a9a}
+
+/* task body */
+.bbody{border-top:1px solid var(--line2);padding:.65rem .9rem;background:var(--bg)}
+.task-display{background:var(--paper);border:1px solid var(--line);border-radius:var(--rs);padding:.6rem .8rem;margin-bottom:.55rem}
+.task-label{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--a);margin-bottom:.25rem;font-weight:500}
+.task-text{font-size:.84rem;line-height:1.6;color:var(--ink)}
+
+/* counter */
+.counter-row{display:flex;align-items:center;gap:.6rem;margin:.4rem 0 .5rem;flex-wrap:wrap}
+.counter-label{font-size:.75rem;color:var(--mid)}
+.counter-btns{display:flex;align-items:center;gap:.3rem}
+.cbtn{font-size:.78rem;font-weight:500;padding:.15rem .55rem;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--mid);cursor:pointer;transition:all .12s}
+.cbtn:hover{border-color:var(--a);color:var(--a)}
+.cbtn.done-all{background:var(--anatomy);border-color:var(--anatomy);color:white}
+.counter-num{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:300;color:var(--a);min-width:60px;text-align:center}
+.counter-done-badge{font-size:.68rem;color:var(--anatomy);background:var(--anatomy-bg);padding:.15rem .5rem;border-radius:99px}
+
+.task-btns{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.35rem}
+.tbtn{font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:.25rem .65rem;border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--muted);cursor:pointer;transition:all .12s}
+.tbtn:hover{border-color:var(--a);color:var(--a)}
+.tbtn.primary{background:var(--a);border-color:var(--a);color:white}
+.tbtn.primary:hover{background:#6348a8}
+
+/* toast */
+.toast{position:fixed;top:1.4rem;left:50%;transform:translateX(-50%) translateY(-2rem);background:var(--ink);color:var(--paper);font-size:.82rem;padding:.55rem 1.3rem;border-radius:99px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty-hint{text-align:center;padding:1.5rem;color:var(--muted);font-style:italic;font-size:.86rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="ph">
+  <div class="pt">Art <em>Intensiv</em> Plan</div>
+  <div class="ps" id="weekLabel">wird geladen…</div>
+</div>
+
+<div class="plants-row" id="plantsRow"></div>
+
+<div class="top-grid">
+  <div class="card">
+    <div class="clabel">🌱 Wochenfortschritt</div>
+    <div class="prog-pct" id="weekPct">0%</div>
+    <div class="bar-track"><div class="bar-fill" id="weekBar" style="width:0%"></div></div>
+    <div class="mini-stats">
+      <div class="ms"><div class="ms-val" id="streakVal">0</div><div class="ms-lbl">🔥 Tage aktiv</div></div>
+      <div class="ms"><div class="ms-val" id="blocksVal">0</div><div class="ms-lbl">✓ Heute</div></div>
+      <div class="ms"><div class="ms-val" id="totalBV">0</div><div class="ms-lbl">Woche</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="clabel">📈 Kurs-Fortschritt</div>
+    <div class="cr">
+      <div class="cdot" style="background:var(--gesture)"></div>
+      <a class="cname" id="gLink" style="color:var(--gesture);text-decoration:none;cursor:pointer" title="Öffnen">Gesture ↗</a>
+      <div class="ctrack"><div class="cfill" id="gBar" style="width:0%;background:var(--gesture)"></div></div>
+      <span class="cpct" id="gPct">—</span>
+    </div>
+    <div class="cr">
+      <div class="cdot" style="background:var(--anatomy)"></div>
+      <a class="cname" id="aLink" style="color:var(--anatomy);text-decoration:none;cursor:pointer" title="Öffnen">Anatomy ↗</a>
+      <div class="ctrack"><div class="cfill" id="aBar" style="width:0%;background:var(--anatomy)"></div></div>
+      <span class="cpct" id="aPct">—</span>
+    </div>
+    <div class="cr" id="c3Row" style="opacity:.4">
+      <div class="cdot" style="background:var(--muted)"></div>
+      <a class="cname" id="c3Link" style="text-decoration:none;cursor:pointer" title="Öffnen"><span id="c3Name">Weiterer Kurs</span> ↗</a>
+      <div class="ctrack"><div class="cfill" id="c3Bar" style="width:0%;background:var(--muted)"></div></div>
+      <span class="cpct" id="c3Pct">—</span>
+    </div>
+    <span class="settings-toggle" id="settingsToggle">⚙ Curriculum-Dateien verknüpfen</span>
+    <div class="settings-panel" id="settingsPanel">
+      <div class="srow">
+        <span class="slbl">Gesture</span>
+        <input class="sinput" id="gKey" placeholder="proko-curriculum.html">
+        <button class="sbtn" id="saveKeys">Speichern</button>
+      </div>
+      <div class="srow">
+        <span class="slbl">Anatomy</span>
+        <input class="sinput" id="aKey" placeholder="proko-curriculum-anatomy.html">
+      </div>
+      <div class="srow">
+        <span class="slbl">Weiterer</span>
+        <input class="sinput" id="c3Key" placeholder="optional">
+      </div>
+      <div class="scap">Dateinamen ohne Pfad — muss im selben Browser geöffnet sein</div>
+    </div>
+  </div>
+</div>
+
+<div class="week-header">
+  <div class="week-title">Diese Woche</div>
+  <div class="week-btns">
+    <button class="wbtn" id="resetWeekBtn">↺ Woche zurücksetzen</button>
+  </div>
+</div>
+<div class="week-grid" id="weekGrid"></div>
+
+<div class="ss">
+  <div class="sh">
+    <div class="st" id="sessionTitle">Wähle einen Tag</div>
+    <div class="sp" id="sessionProg"></div>
+  </div>
+  <div class="blocks" id="blocksContainer">
+    <div class="empty-hint">Klicke auf einen Tag um die Session-Blöcke zu sehen.</div>
+  </div>
+</div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════
+// TASK TEMPLATES
+// ══════════════════════════════
+const TASKS = {
+  gesture: [
+    { text: "Zeichne 6 Figuren in 2-Minuten-Posen, Fokus nur auf die Bewegungslinie (C/S-Kurve). Keine Details, nur Fluss.", total: 6 },
+    { text: "5 stehende Figuren: erst Silhouette zeichnen, dann Gewichtsverlagerung mit einer Linie markieren. 3 min pro Figur.", total: 5 },
+    { text: "4 sitzende Posen, jeweils mit Bean-Methode. Torso und Hüfte als zwei separate Bohnen, dann verbinden.", total: 4 },
+    { text: "8 Quicksketches à 30 Sekunden, nur die wichtigste Linie pro Pose. Danach 2 davon zu 5-Minuten-Studies ausarbeiten.", total: 8 },
+    { text: "3 Figuren von hinten, 3 von vorne: Zeichne nur die Wirbelsäulen-Kurve und die Schulter-Hüft-Diagonale. 4 min pro Figur.", total: 6 },
+    { text: "5 dynamische Posen (Springen, Laufen, Fallen): Startpunkt Kopf, dann Bewegungsrichtung mit einer geschwungenen Linie durch den Körper.", total: 5 },
+    { text: "Wähle 4 Posen und zeichne jede zweimal: einmal 1 Minute, einmal 5 Minuten. Vergleiche was du in der Zeit mehr rausbringst.", total: 8 },
+    { text: "6 Figuren im Robo-Bean-Stil: Box für Torso, Box für Hüfte, Würste für Gliedmaßen. Proportionen müssen stimmen.", total: 6 },
+    { text: "3 Figuren mit starker Exaggeration — übertreibe jede Kurve und Neigung um 30%. Dann 3 normale daneben zum Vergleich.", total: 6 },
+    { text: "4 Figuren: Zeichne zuerst nur die Negative Space (den Raum UM die Figur), dann die Kontur daraus ableiten.", total: 4 },
+  ],
+  anatomy: [
+    { text: "Zeichne 4 Wirbelsäulen aus verschiedenen Winkeln (vorne, hinten, Seite, 3/4). Markiere Halswirbel, Brustwirbel, Lendenwirbel farbig.", total: 4 },
+    { text: "Zeichne das Becken 3x von vorne und 3x von der Seite, vereinfacht als Schmetterlingsform. Markiere die ASIS auf jeder Zeichnung.", total: 6 },
+    { text: "5 Rückenansichten: Schulterblätter in zwei Positionen (Arme hoch, Arme runter) einzeichnen. Zeige wie sie sich verschieben.", total: 5 },
+    { text: "4 Brustkörbe als Eiform zeichnen, dann Rippenansätze andeuten. Vorne und Seite je 2x.", total: 4 },
+    { text: "Zeichne 6 Schultergelenke: Schlüsselbein, Schulterblatt, Oberarm als vereinfachte Formen. Markiere den Deltoidansatz.", total: 6 },
+    { text: "3 Figuren: Nur Landmarks einzeichnen — ASIS, Nabel, Brustbein, Schulteracromion, Hüftkamm. Als Punkte, dann verbinden.", total: 3 },
+    { text: "5 Kniegelenke aus verschiedenen Winkeln: Oberschenkelknochen, Kniescheibe, Unterschenkel vereinfacht. Markiere Kniescheibe farbig.", total: 5 },
+    { text: "4 Hände: erst Handwurzel als Box, dann Finger als Würste. Zeige wie die Fingerreihen geschwungen verlaufen.", total: 4 },
+    { text: "Zeichne den Schädel 3x: Seitenansicht, Frontalansicht, 3/4. Markiere Jochbein, Stirnbein, Kinnpartie farbig.", total: 3 },
+    { text: "6 Fußansichten (innen, außen, oben): vereinfacht als Keilform. Markiere Knöchel, Fußwurzel, Zehenballen.", total: 6 },
+  ],
+  croquis: [
+    { text: "30 Sekunden pro Pose, 20 Posen: nur Linie ohne abzusetzen. Dann die 3 besten mit 2 Minuten ausarbeiten.", total: 20 },
+    { text: "2-Minuten-Posen, Fokus Proportion: Kopflängen zählen und als Markierungen eintragen. 10 Figuren.", total: 10 },
+    { text: "5-Minuten-Posen: erst 1 Min Gesture, dann 4 Min Volumen/Form hinzufügen. 5 Figuren.", total: 5 },
+    { text: "30-Sekunden-Explosion: 20 Posen, danach 5 Minuten-Studie der Lieblingspose.", total: 20 },
+    { text: "Wechsel: 30 Sek, 1 Min, 2 Min, 5 Min. Jeweils 3 Posen pro Zeitlimit. Spüre wie sich das Zeichnen ändert.", total: 12 },
+  ],
+  free: [
+    { text: "Wähle einen Kurs aus deiner Liste, mach das nächste Video und die direkte Übung dazu.", total: 1 },
+    { text: "Freie Studie: Suche dir 3 Kunstwerke die dich inspirieren und analysiere den Gesture-Aufbau. Dann eine eigene Studie.", total: 3 },
+    { text: "Master Copy: Such dir eine Figuren-Zeichnung eines Künstlers den du bewunderst und kopiere sie so genau wie möglich.", total: 1 },
+  ],
+};
+
+// ══════════════════════════════
+// WEEK SCHEDULE
+// ══════════════════════════════
+const WEEK = [
+  {name:'Mo', courses:['gesture'],          opt:['anatomy'], maxH:4},
+  {name:'Di', courses:['croquis'],          opt:[],          maxH:1},
+  {name:'Mi', courses:['anatomy'],          opt:[],          maxH:2},
+  {name:'Do', courses:['gesture'],          opt:[],          maxH:2},
+  {name:'Fr', courses:['anatomy'],          opt:[],          maxH:4},
+  {name:'Sa', courses:['gesture','anatomy'],opt:[],          maxH:6},
+  {name:'So', courses:['free'],             opt:['anatomy'], maxH:6},
+];
+
+function getBlocks(dayIdx) {
+  const d = WEEK[dayIdx];
+  const B = [];
+  B.push({id:'warmup', icon:'☕', title:'Croquis Warm-up', sub:'15–20 min · immer zuerst', tag:'p', hasTask:false});
+  d.courses.forEach(c => {
+    if (c==='gesture') {
+      B.push({id:'gesture-vid', icon:'🎯', title:'Gesture · Video', sub:'Nächstes Video im Curriculum', tag:'p', hasTask:false, course:'gesture'});
+      B.push({id:'gesture-task', icon:'✏️', title:'Gesture · Übung', sub:'Konkrete Aufgabe zum Thema', tag:'p', hasTask:true, taskPool:'gesture'});
+    }
+    if (c==='anatomy') {
+      B.push({id:'anatomy-vid', icon:'🦴', title:'Anatomy · Video', sub:'Nächstes Video im Curriculum', tag:'p', hasTask:false, course:'anatomy'});
+      B.push({id:'anatomy-task', icon:'✏️', title:'Anatomy · Übung', sub:'Konkrete Aufgabe zum Thema', tag:'p', hasTask:true, taskPool:'anatomy'});
+    }
+    if (c==='croquis') {
+      B.push({id:'croquis-main', icon:'⏱', title:'Croquis Session', sub:'30–60 min freies Zeichnen', tag:'p', hasTask:true, taskPool:'croquis'});
+    }
+    if (c==='free') {
+      B.push({id:'free-kurs', icon:'🎨', title:'Freier Kurs', sub:'Beliebiger angefangener Kurs', tag:'p', hasTask:true, taskPool:'free'});
+    }
+  });
+  if (d.maxH >= 2)
+    B.push({id:'focus-croquis', icon:'🎯', title:'Fokus-Croquis', sub:'Croquis mit Thema-Fokus', tag:'o', hasTask:false});
+  if (d.opt.includes('anatomy') && d.maxH >= 3)
+    B.push({id:'anatomy-extra', icon:'🦴', title:'Anatomy · Extra', sub:'Nur wenn noch Energie da ist', tag:'o', hasTask:false});
+  return B;
+}
+
+// ══════════════════════════════
+// STATE
+// ══════════════════════════════
+const SK = 'artplan_v2';
+let S = {
+  weekStart: '',
+  days: Array(7).fill(null).map(()=>({blocks:{}})),
+  // blocks[id] = {done, taskIdx, taskDone, taskTotal}
+  // taskDone/taskTotal persist across weeks
+  taskProgress: {}, // key: blockId → {done, total, taskIdx}
+  selectedDay: -1,
+  curriculumKeys: {
+    gesture: 'proko-curriculum',
+    anatomy: 'proko-curriculum-anatomy',
+    c3: '',
+  },
+  plants: 0,
+};
+
+function getMonday(d) {
+  const dt = new Date(d);
+  const day = dt.getDay();
+  dt.setDate(dt.getDate() + (day===0?-6:1-day));
+  return dt.toISOString().slice(0,10);
+}
+function todayIdx() { return (new Date().getDay()+6)%7; }
+function nowDate() { return new Date().toISOString().slice(0,10); }
+
+function save() { localStorage.setItem(SK, JSON.stringify(S)); }
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SK)||'null');
+    if (!d) return false;
+    S = {...S, ...d};
+    if (!S.taskProgress) S.taskProgress = {};
+    if (!S.curriculumKeys) S.curriculumKeys = {gesture:'proko-curriculum',anatomy:'proko-curriculum-anatomy',c3:''};
+    return true;
+  } catch(e) { return false; }
+}
+
+function checkWeekReset() {
+  const mon = getMonday(new Date());
+  if (S.weekStart !== mon) {
+    S.weekStart = mon;
+    // reset only day-haken, NOT taskProgress
+    S.days = Array(7).fill(null).map(()=>({blocks:{}}));
+    save();
+  }
+}
+
+// ══════════════════════════════
+// CURRICULUM
+// ══════════════════════════════
+function readCurriculum(fileKey) {
+  if (!fileKey) return null;
+  try {
+    const k = fileKey.replace('.html','').split('/').pop();
+    return JSON.parse(localStorage.getItem('curriculum_summary_'+k)||'null');
+  } catch(e) { return null; }
+}
+
+function updateCurriculumLinks() {
+  const gKey = S.curriculumKeys.gesture;
+  const aKey = S.curriculumKeys.anatomy;
+  const c3Key = S.curriculumKeys.c3;
+  const gLink = document.getElementById('gLink');
+  const aLink = document.getElementById('aLink');
+  const c3Link = document.getElementById('c3Link');
+  if (gLink) { gLink.href = gKey ? gKey+'.html' : '#'; gLink.target = gKey ? '_blank' : ''; }
+  if (aLink) { aLink.href = aKey ? aKey+'.html' : '#'; aLink.target = aKey ? '_blank' : ''; }
+  if (c3Link) { c3Link.href = c3Key ? c3Key+'.html' : '#'; c3Link.target = c3Key ? '_blank' : ''; }
+}
+
+function updateCourseProgress() {
+  updateCurriculumLinks();
+  const gs = readCurriculum(S.curriculumKeys.gesture);
+  const as = readCurriculum(S.curriculumKeys.anatomy);
+  const cs = S.curriculumKeys.c3 ? readCurriculum(S.curriculumKeys.c3) : null;
+  let connected = false;
+  if (gs) { document.getElementById('gBar').style.width=gs.pct+'%'; document.getElementById('gPct').textContent=gs.pct+'%'; connected=true; }
+  if (as) { document.getElementById('aBar').style.width=as.pct+'%'; document.getElementById('aPct').textContent=as.pct+'%'; connected=true; }
+  if (cs) { document.getElementById('c3Bar').style.width=cs.pct+'%'; document.getElementById('c3Pct').textContent=cs.pct+'%'; document.getElementById('c3Row').style.opacity='1'; connected=true; if (cs.title) document.getElementById('c3Name').textContent=cs.title; }
+}
+
+// ══════════════════════════════
+// PLANTS
+// ══════════════════════════════
+const PLANT_STAGES = ['🌰','🌱','🌿','🪴','🌸','🌺','🌻','🎋','🌳','🌲','🏵️','✨'];
+function computePlants() {
+  let total = 0;
+  S.days.forEach(day => { Object.values(day.blocks).forEach(b=>{ if(b.done) total++; }); });
+  Object.values(S.taskProgress).forEach(tp => { if (tp.done >= tp.total && tp.total > 0) total++; });
+  return Math.min(PLANT_STAGES.length-1, Math.floor(total/2));
+}
+function renderPlants() {
+  const count = computePlants();
+  const row = document.getElementById('plantsRow');
+  row.innerHTML = '';
+  for (let i = 0; i < PLANT_STAGES.length; i++) {
+    const span = document.createElement('span');
+    span.className = 'plant';
+    span.textContent = i <= count ? PLANT_STAGES[i] : '🌰';
+    span.title = i <= count ? '✓ freigeschaltet' : `noch ${(i-count)*2} Blöcke`;
+    row.appendChild(span);
+  }
+}
+
+// ══════════════════════════════
+// STATS
+// ══════════════════════════════
+function computeStats() {
+  let totalB=0, doneB=0, activeD=0, todayD=0;
+  const ti = todayIdx();
+  S.days.forEach((day,i)=>{
+    const blocks = getBlocks(i);
+    const pflicht = blocks.filter(b=>b.tag==='p').length;
+    const done = Object.values(day.blocks).filter(b=>b.done).length;
+    totalB += blocks.length; doneB += done;
+    if (done >= Math.ceil(pflicht*.5)) activeD++;
+    if (i===ti) todayD = done;
+  });
+  return {totalB, doneB, activeD, todayD};
+}
+
+function renderStats() {
+  const {totalB, doneB, activeD, todayD} = computeStats();
+  const pct = totalB>0 ? Math.round(doneB/totalB*100) : 0;
+  document.getElementById('weekPct').textContent = pct+'%';
+  document.getElementById('weekBar').style.width = pct+'%';
+  document.getElementById('streakVal').textContent = activeD;
+  document.getElementById('blocksVal').textContent = todayD;
+  document.getElementById('totalBV').textContent = doneB;
+
+  const mon = new Date(S.weekStart+'T12:00:00');
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  const months=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  document.getElementById('weekLabel').textContent =
+    `KW · ${mon.getDate()}. ${months[mon.getMonth()]} – ${sun.getDate()}. ${months[sun.getMonth()]} ${sun.getFullYear()}`;
+}
+
+// ══════════════════════════════
+// WEEK GRID
+// ══════════════════════════════
+function renderWeekGrid() {
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML = '';
+  const ti = todayIdx();
+  const mon = new Date(S.weekStart+'T12:00:00');
+
+  WEEK.forEach((tmpl,i) => {
+    const date = new Date(mon); date.setDate(mon.getDate()+i);
+    const dateStr = date.getDate()+'.'+(date.getMonth()+1);
+    const day = S.days[i];
+    const blocks = getBlocks(i);
+    const pflicht = blocks.filter(b=>b.tag==='p');
+    const doneC = Object.values(day.blocks).filter(b=>b.done).length;
+    const pct = pflicht.length>0 ? Math.round(doneC/pflicht.length*100) : 0;
+
+    const col = document.createElement('div');
+    col.className='day-col'+(i===ti?' today':'')+(i===S.selectedDay?' selected':'');
+
+    const pillHtml = tmpl.courses.map(c=>{
+      const cls = c==='gesture'?'dpill-g':c==='anatomy'?'dpill-a':c==='croquis'?'dpill-c':'dpill-f';
+      const lbl = c==='gesture'?'Gesture':c==='anatomy'?'Anatomy':c==='croquis'?'Croquis':'Frei';
+      return `<div class="dpill ${cls}">${lbl}</div>`;
+    }).join('');
+
+    col.innerHTML=`
+      <div class="dhead"><div class="dname">${tmpl.name}</div><div class="ddate">${dateStr}</div></div>
+      <div class="dpills">
+        <div class="dpill dpill-c" style="opacity:.65">Warm-up</div>
+        ${pillHtml}
+        ${tmpl.opt.map(c=>`<div class="dpill ${c==='anatomy'?'dpill-a':'dpill-f'}" style="opacity:.45">+${c==='anatomy'?'Anat.':'Frei'}</div>`).join('')}
+      </div>
+      ${doneC>0?`<div class="day-prog"><div class="day-prog-fill" style="width:${pct}%"></div></div>`:''}
+      ${doneC>=pflicht.length&&pflicht.length>0?'<div class="day-done-mark">✓ fertig</div>':''}
+    `;
+    col.addEventListener('click',()=>selectDay(i));
+    grid.appendChild(col);
+  });
+}
+
+// ══════════════════════════════
+// BLOCKS
+// ══════════════════════════════
+function selectDay(idx) {
+  S.selectedDay = idx;
+  save();
+  renderWeekGrid();
+  renderBlocks(idx);
+}
+
+function getOrInitTask(blockId, pool) {
+  if (!S.taskProgress[blockId]) {
+    const tasks = TASKS[pool] || [];
+    const taskIdx = Math.floor(Math.random()*tasks.length);
+    const task = tasks[taskIdx] || {text:'Freie Übung.', total:1};
+    S.taskProgress[blockId] = {done:0, total:task.total, taskIdx};
+    save();
+  }
+  return S.taskProgress[blockId];
+}
+
+function renderBlocks(dayIdx) {
+  const tmpl = WEEK[dayIdx];
+  const blocks = getBlocks(dayIdx);
+  const day = S.days[dayIdx];
+  const doneC = Object.values(day.blocks).filter(b=>b.done).length;
+  const pflicht = blocks.filter(b=>b.tag==='p');
+  const ti = todayIdx();
+
+  const title = document.getElementById('sessionTitle');
+  title.innerHTML = `<em>${tmpl.name}</em> · ${dayIdx===ti?'Heute':'Tagesplan'}`;
+  document.getElementById('sessionProg').innerHTML =
+    doneC>0 ? `<strong>${doneC}/${blocks.length}</strong> Blöcke erledigt` :
+    `${pflicht.length} Pflicht · ${blocks.length-pflicht.length} Optional`;
+
+  const container = document.getElementById('blocksContainer');
+  container.innerHTML = '';
+
+  blocks.forEach(block => {
+    const bState = day.blocks[block.id] || {done:false};
+    const isDone = bState.done;
+
+    const el = document.createElement('div');
+    el.className = 'block'+(isDone?' done-block':'');
+
+    const tagCls = block.tag==='p'?'tag-p':'tag-o';
+    const tagLbl = block.tag==='p'?'Pflicht':'Optional';
+
+    // Task progress for header badge
+    const tp0 = block.hasTask ? getOrInitTask(block.id, block.taskPool) : null;
+    const allDone0 = tp0 ? tp0.done >= tp0.total : false;
+    const isOpen = block.hasTask ? (S.taskProgress[block.id]?._open !== false) : false;
+
+    el.innerHTML = `
+      <div class="bhead">
+        <div class="bcheck">${isDone?'✓':''}</div>
+        <div class="bicon">${block.icon}</div>
+        <div class="binfo">
+          <div class="btitle">${block.title}</div>
+          <div class="bsub">${block.sub}</div>
+        </div>
+        ${tp0 && tp0.total > 1 ? `<span style="font-family:'DM Mono',monospace;font-size:.7rem;color:${allDone0?'var(--anatomy)':'var(--a)'};background:${allDone0?'var(--anatomy-bg)':'var(--al)'};padding:.12rem .45rem;border-radius:99px;flex-shrink:0">${tp0.done}/${tp0.total}</span>` : ''}
+        <span class="btag ${tagCls}">${tagLbl}</span>
+        ${block.hasTask ? `<button class="task-collapse-btn" data-id="${block.id}" style="background:none;border:1px solid var(--line);border-radius:4px;color:var(--muted);cursor:pointer;font-size:.7rem;padding:.15rem .45rem;flex-shrink:0;line-height:1">${isOpen?'▲':'▼'}</button>` : ''}
+      </div>
+    `;
+
+    // Task body
+    if (block.hasTask) {
+      const tp = tp0;
+      const tasks = TASKS[block.taskPool]||[];
+      const task = tasks[tp.taskIdx] || {text:'Freie Übung.',total:1};
+      const allDone = allDone0;
+
+      const bbody = document.createElement('div');
+      bbody.className = 'bbody';
+      bbody.style.display = isOpen ? 'block' : 'none';
+
+      // collapse toggle
+      const colBtn = el.querySelector('.task-collapse-btn');
+      if (colBtn) colBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const nowOpen = bbody.style.display === 'none';
+        bbody.style.display = nowOpen ? 'block' : 'none';
+        colBtn.textContent = nowOpen ? '▲' : '▼';
+        if (!S.taskProgress[block.id]) S.taskProgress[block.id] = {};
+        S.taskProgress[block.id]._open = nowOpen;
+        save();
+      });
+
+      const taskDisp = document.createElement('div');
+      taskDisp.className = 'task-display';
+      taskDisp.innerHTML = `
+        <div class="task-label">✦ Aufgabe <span style="font-size:.58rem;font-weight:400;opacity:.7">· klicken zum Bearbeiten</span></div>
+        <textarea class="task-text" id="tedit-${block.id}" style="width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:.84rem;line-height:1.6;color:var(--ink);resize:none;min-height:60px;cursor:text">${tp.customText || task.text}</textarea>
+      `;
+      bbody.appendChild(taskDisp);
+
+      const ta = taskDisp.querySelector('textarea');
+      if (ta) {
+        ta.style.height = ta.scrollHeight + 'px';
+        ta.addEventListener('input', ()=>{ ta.style.height='auto'; ta.style.height=ta.scrollHeight+'px'; });
+        ta.addEventListener('change', ()=>{ S.taskProgress[block.id].customText=ta.value.trim(); save(); });
+        ta.addEventListener('click', e=>e.stopPropagation());
+      }
+
+      // Counter
+      if (tp.total > 1) {
+        const counterRow = document.createElement('div');
+        counterRow.className = 'counter-row';
+
+        const remaining = tp.total - tp.done;
+        const todayPortion = Math.min(remaining, Math.ceil(remaining / Math.max(1, 7-dayIdx)));
+
+        counterRow.innerHTML = `
+          <span class="counter-label">Fortschritt:</span>
+          <div class="counter-btns">
+            <button class="cbtn" id="dec-${block.id}">−1</button>
+            <span class="counter-num">${tp.done} / <input id="total-${block.id}" type="number" min="1" max="99" value="${tp.total}" style="font-family:'Fraunces',serif;font-size:1.2rem;font-weight:300;color:var(--a);width:38px;border:none;border-bottom:1px dashed var(--am);background:transparent;outline:none;text-align:center;padding:0"></span>
+            <button class="cbtn" id="inc-${block.id}">+1</button>
+          </div>
+          ${allDone ? '<span class="counter-done-badge">✓ abgeschlossen!</span>' : `<span style="font-size:.68rem;color:var(--muted)">heute ~${todayPortion} sinnvoll</span>`}
+        `;
+        bbody.appendChild(counterRow);
+
+        const incBtn = counterRow.querySelector('#inc-'+block.id);
+        const decBtn = counterRow.querySelector('#dec-'+block.id);
+        const totalIn = counterRow.querySelector('#total-'+block.id);
+
+        if (incBtn) incBtn.addEventListener('click', e=>{ e.stopPropagation(); const cur=S.taskProgress[block.id]; cur.done=Math.min(cur.total,cur.done+1); save(); renderBlocks(dayIdx); if(cur.done>=cur.total) showToast('🎉 Aufgabe abgeschlossen!'); });
+        if (decBtn) decBtn.addEventListener('click', e=>{ e.stopPropagation(); const cur=S.taskProgress[block.id]; cur.done=Math.max(0,cur.done-1); save(); renderBlocks(dayIdx); });
+        if (totalIn) {
+          totalIn.addEventListener('click', e => e.stopPropagation());
+          totalIn.addEventListener('change', e => {
+            e.stopPropagation();
+            const newTotal = Math.max(1, parseInt(e.target.value)||1);
+            S.taskProgress[block.id].total = newTotal;
+            S.taskProgress[block.id].done = Math.min(S.taskProgress[block.id].done, newTotal);
+            save(); renderBlocks(dayIdx);
+          });
+        }
+      }
+
+      // Buttons
+      const taskBtns = document.createElement('div');
+      taskBtns.className = 'task-btns';
+      taskBtns.innerHTML = `
+        <button class="tbtn" id="reroll-${block.id}">🎲 Andere Aufgabe</button>
+        ${allDone ? `<button class="tbtn primary" id="newtask-${block.id}">✓ Neue Aufgabe starten</button>` : ''}
+      `;
+      bbody.appendChild(taskBtns);
+
+      const rerollBtn = taskBtns.querySelector('#reroll-'+block.id);
+      const newtaskBtn = taskBtns.querySelector('#newtask-'+block.id);
+      if (rerollBtn) rerollBtn.addEventListener('click', e=>{
+        e.stopPropagation();
+        const pool = TASKS[block.taskPool]||[];
+        let newIdx = tp.taskIdx;
+        if (pool.length > 1) while(newIdx===tp.taskIdx) newIdx=Math.floor(Math.random()*pool.length);
+        const newTask = pool[newIdx]||{text:'Freie Übung.',total:1};
+        S.taskProgress[block.id] = {done:0, total:newTask.total, taskIdx:newIdx, customText:''};
+        save(); renderBlocks(dayIdx);
+      });
+      if (newtaskBtn) newtaskBtn.addEventListener('click', e=>{
+        e.stopPropagation();
+        const pool = TASKS[block.taskPool]||[];
+        const newIdx = Math.floor(Math.random()*pool.length);
+        const newTask = pool[newIdx]||{text:'Freie Übung.',total:1};
+        S.taskProgress[block.id] = {done:0, total:newTask.total, taskIdx:newIdx, customText:''};
+        save(); renderBlocks(dayIdx); showToast('✨ Neue Aufgabe bereit!');
+      });
+
+      el.appendChild(bbody);
+    }
+
+    // Toggle done
+    el.querySelector('.bhead').addEventListener('click', ()=>{
+      if (!day.blocks[block.id]) day.blocks[block.id] = {done:false};
+      day.blocks[block.id].done = !day.blocks[block.id].done;
+      save(); renderAll();
+      if (day.blocks[block.id].done) showToast('✓ Erledigt! '+['🌸','🎨','✨','💜','🌿','⚡','🌺'][Math.floor(Math.random()*7)]);
+    });
+
+    container.appendChild(el);
+  });
+}
+
+// ══════════════════════════════
+// TOAST
+// ══════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// ══════════════════════════════
+// SETTINGS
+// ══════════════════════════════
+document.getElementById('settingsToggle').addEventListener('click', ()=>{
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    document.getElementById('gKey').value = S.curriculumKeys.gesture || '';
+    document.getElementById('aKey').value = S.curriculumKeys.anatomy || '';
+    document.getElementById('c3Key').value = S.curriculumKeys.c3 || '';
+  }
+});
+
+document.getElementById('saveKeys').addEventListener('click', ()=>{
+  S.curriculumKeys.gesture = document.getElementById('gKey').value.trim().replace('.html','');
+  S.curriculumKeys.anatomy = document.getElementById('aKey').value.trim().replace('.html','');
+  S.curriculumKeys.c3      = document.getElementById('c3Key').value.trim().replace('.html','');
+  save(); updateCourseProgress();
+  document.getElementById('settingsPanel').classList.remove('open');
+  showToast('✓ Gespeichert');
+});
+
+// ══════════════════════════════
+// CONTROLS
+// ══════════════════════════════
+document.getElementById('resetWeekBtn').addEventListener('click', ()=>{
+  if (!confirm('Woche zurücksetzen? Haken werden gelöscht, Aufgaben-Fortschritt bleibt.')) return;
+  S.days = Array(7).fill(null).map(()=>({blocks:{}}));
+  S.selectedDay = -1;
+  save(); renderAll();
+  document.getElementById('blocksContainer').innerHTML = '<div class="empty-hint">Klicke auf einen Tag um die Session-Blöcke zu sehen.</div>';
+});
+
+// ══════════════════════════════
+// RENDER ALL
+// ══════════════════════════════
+function renderAll() {
+  renderStats();
+  renderWeekGrid();
+  renderPlants();
+  updateCourseProgress();
+  if (S.selectedDay >= 0) renderBlocks(S.selectedDay);
+}
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+load();
+checkWeekReset();
+// set default anatomy key if not set
+if (!S.curriculumKeys.anatomy) S.curriculumKeys.anatomy = 'proko-curriculum-anatomy';
+renderAll();
+// auto-select today
+if (S.selectedDay === -1) selectDay(todayIdx());
+else selectDay(S.selectedDay);
+setInterval(updateCourseProgress, 30000);
+</script>
+</body>
+</html>

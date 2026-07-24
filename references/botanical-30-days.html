@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Botanical Art — 30 Days</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Lato:wght@300;400;700&display=swap');
+
+:root {
+  --bg: #f7f3ec;
+  --paper: #fffef9;
+  --ink: #1e1c18;
+  --mid: #5a5448;
+  --muted: #9a9080;
+  --line: #e0d8cc;
+  --green: #4a7c5c;
+  --green-bg: #eef5f0;
+  --accent: #8b4a2f;
+  --gold: #b8903a;
+  --done-bg: #f0f5f0;
+  --radius: 6px;
+  /* tab 2 accent — warm terracotta/figure */
+  --fig: #7a4a8a;
+  --fig-bg: #f5f0f8;
+  --fig-done: #f0ecf5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Lato', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── TAB BAR ── */
+.tab-bar {
+  background: var(--ink);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 2rem;
+  gap: .3rem;
+}
+
+.tab-btn {
+  font-family: 'Playfair Display', serif;
+  font-size: .88rem;
+  font-style: italic;
+  padding: .7rem 1.4rem .6rem;
+  border: none;
+  background: transparent;
+  color: #6a6458;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+}
+.tab-btn:hover { color: #c8a882; }
+.tab-btn.active { color: #c8a882; border-bottom-color: #c8a882; }
+
+/* ── HEADER ── */
+.tab-header {
+  background: var(--ink);
+  color: var(--bg);
+  padding: 1.5rem 2.5rem 1.8rem;
+  text-align: center;
+}
+
+.tab-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: .04em;
+  line-height: 1.2;
+}
+
+.tab-header h1 em { font-style: italic; color: #c8a882; }
+.tab-header h1 em.fig { color: #c8a0d8; }
+
+.tab-header p {
+  margin-top: .5rem;
+  font-size: .78rem;
+  color: #8a8070;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.progress-bar-wrap {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+}
+
+.progress-bar {
+  width: 220px;
+  height: 3px;
+  background: #2e2c28;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #c8a882;
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+
+.progress-fill.fig { background: #c8a0d8; }
+
+.progress-label {
+  font-size: .72rem;
+  color: #8a8070;
+  letter-spacing: .06em;
+}
+
+/* ── TAB PANELS ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── FILTER ── */
+.controls {
+  padding: .8rem 2rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  font-family: 'Lato', sans-serif;
+  font-size: .7rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .3rem .85rem;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+.filter-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.done-count {
+  margin-left: auto;
+  font-size: .75rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ── GRID ── */
+.grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1rem;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  transition: border-color .15s, background .2s, opacity .2s;
+  position: relative;
+}
+
+.card.done { background: var(--done-bg); border-color: #c8d8c8; }
+.card.done-fig { background: var(--fig-done); border-color: #c8a0d8; }
+.card.hidden { display: none; }
+
+.day-badge {
+  position: absolute;
+  top: .9rem; right: 1rem;
+  font-size: .62rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+.card.done .day-badge { color: var(--green); }
+.card.done-fig .day-badge { color: var(--fig); }
+
+/* ── CARD ARTIST ── */
+.card-artist { padding-right: 2.5rem; }
+.card-artist a {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  transition: border-color .15s, color .15s;
+  line-height: 1.3;
+}
+.card-artist a:hover { color: var(--accent); border-color: var(--accent); }
+.card.done .card-artist a { color: var(--green); border-color: #c8d8c8; }
+.card.done-fig .card-artist a { color: var(--fig); border-color: #c8a0d8; }
+
+/* ── PLANT PAIRING ── */
+.card-plant {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+}
+.plant-icon { font-size: .9rem; flex-shrink: 0; }
+.plant-name {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--green);
+  font-style: italic;
+}
+.plant-name.fig { color: var(--fig); }
+.plant-reason { font-size: .72rem; color: var(--mid); line-height: 1.4; }
+
+/* ── FOCUS TAGS ── */
+.card-tags {
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
+}
+.tag {
+  font-size: .6rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: .15rem .5rem;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 700;
+}
+.tag.anatomy { border-color: #c8a882; color: #8b6a2f; background: #fdf6ec; }
+.tag.figure  { border-color: #c8a0d8; color: var(--fig); background: var(--fig-bg); }
+.tag.portrait{ border-color: #a8c0c8; color: #2f6a7a; background: #ecf5f8; }
+.tag.comp    { border-color: #c8c8a0; color: #6a6a2f; background: #f8f8ec; }
+.tag.plant   { border-color: #a0c8b0; color: var(--green); background: var(--green-bg); }
+
+/* ── LINKS ── */
+.card-links { display: flex; gap: .4rem; flex-wrap: wrap; }
+.link-pill {
+  font-size: .65rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: .2rem .6rem;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  text-decoration: none;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.link-pill:hover { border-color: var(--accent); color: var(--accent); }
+.link-pill.plant { border-color: #c8d8c8; color: var(--green); }
+.link-pill.plant:hover { background: var(--green-bg); }
+.link-pill.fig-link { border-color: #c8a0d8; color: var(--fig); }
+.link-pill.fig-link:hover { background: var(--fig-bg); }
+
+/* ── TASK ── */
+.card-task {
+  font-size: .75rem;
+  color: var(--mid);
+  font-style: italic;
+  line-height: 1.45;
+  padding-top: .2rem;
+  border-top: 1px solid var(--line);
+}
+.card-task strong {
+  color: var(--ink);
+  font-style: normal;
+  font-size: .7rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ── TIP ── */
+.card-tip {
+  font-size: .7rem;
+  color: var(--gold);
+  font-style: italic;
+  padding: .25rem .5rem;
+  border-left: 2px solid var(--gold);
+  background: #fdf8ec;
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── CHECKBOX ── */
+.card-check {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  user-select: none;
+  margin-top: .1rem;
+}
+.check-box {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 3px;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem;
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.card.done .check-box { background: var(--green); border-color: var(--green); color: white; }
+.card.done-fig .check-box { background: var(--fig); border-color: var(--fig); color: white; }
+.check-label { font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.card.done .check-label { color: var(--green); }
+.card.done-fig .check-label { color: var(--fig); }
+</style>
+</head>
+<body>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="tab1">🌿 Botanical Masters</button>
+  <button class="tab-btn" data-tab="tab2">✏️ Plant & Figure</button>
+</div>
+
+<!-- ═══ TAB 1 ═══ -->
+<div class="tab-panel active" id="tab1">
+  <div class="tab-header">
+    <h1>30 Days of <em>Botanical Art</em></h1>
+    <p>Artist inspirations · paired with a plant · for each day</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill1"></div></div>
+      <span class="progress-label" id="progressLabel1">0 / 30</span>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="filter-btn active" data-filter="all" data-tab-target="tab1">Alle</button>
+    <button class="filter-btn" data-filter="todo" data-tab-target="tab1">Noch offen</button>
+    <button class="filter-btn" data-filter="done" data-tab-target="tab1">✓ Erledigt</button>
+    <span class="done-count" id="doneCount1"></span>
+  </div>
+  <div class="grid" id="grid1"></div>
+</div>
+
+<!-- ═══ TAB 2 ═══ -->
+<div class="tab-panel" id="tab2">
+  <div class="tab-header">
+    <h1>30 Days of <em class="fig">Plant & Figure</em></h1>
+    <p>Anatomy · Portrait · Komposition · Trockene Medien</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar"><div class="progress-fill fig" id="progressFill2"></div></div>
+      <span class="progress-label" id="progressLabel2">0 / 30</span>
+    </div>
+  </div>
+  <div class="controls">
+    <button class="filter-btn active" data-filter="all" data-tab-target="tab2">Alle</button>
+    <button class="filter-btn" data-filter="todo" data-tab-target="tab2">Noch offen</button>
+    <button class="filter-btn" data-filter="done" data-tab-target="tab2">✓ Erledigt</button>
+    <span class="done-count" id="doneCount2"></span>
+  </div>
+  <div class="grid" id="grid2"></div>
+</div>
+
+<script>
+// ═══════════════════════════════
+// TAB 1 — Botanical Masters
+// ═══════════════════════════════
+const DAYS1 = [
+  { artist: "The Flower Frescoes of Pompeii", plant: "Acanthus", plantReason: "Acanthus leaves were everywhere in Roman decorative art — a perfect match for these ancient frescoes", task: null, artistSearch: "Pompeii flower frescoes botanical", plantSearch: "Acanthus plant botanical illustration" },
+  { artist: "Drunk Cotton Roses by Li Di", plant: "Hibiscus mutabilis", plantReason: "The Cotton Rose itself — Li Di's Song Dynasty masterpiece captured its delicate blush tones with exquisite precision", task: null, artistSearch: "Li Di Song Dynasty Drunk Cotton Roses painting", plantSearch: "Hibiscus mutabilis cotton rose botanical" },
+  { artist: "De Materia Medica & The Vienna Dioscurides", plant: "Mandrake", plantReason: "The Mandrake is one of the most iconic plants in Dioscorides' herbal — loaded with myth, medicine, and magnificent illustrations", task: null, artistSearch: "Vienna Dioscurides De Materia Medica manuscript", plantSearch: "Mandrake botanical illustration medieval herbal" },
+  { artist: "Leonardo da Vinci — Plant Drawings", plant: "Star of Bethlehem (Ornithogalum)", plantReason: "Leonardo's famous 1506 drawing of Ornithogalum — swirling, dynamic, alive with energy unlike any botanical art before it", task: null, artistSearch: "Leonardo da Vinci plant drawings botanical", plantSearch: "Ornithogalum star of Bethlehem botanical illustration" },
+  { artist: "Martin Schongauer", plant: "Peony", plantReason: "Schongauer's Studies of Peonies (1472) is one of the earliest surviving northern European botanical studies drawn from life", task: "Practice wet-into-wet watercolor with one color", artistSearch: "Martin Schongauer botanical art peonies", plantSearch: "Peony botanical illustration watercolor" },
+  { artist: "Albrecht Dürer", plant: "Great Piece of Turf (Yarrow & Grasses)", plantReason: "Dürer's Das große Rasenstück — weeds and grass elevated to a masterpiece of observation", task: null, artistSearch: "Albrecht Durer botanical plant drawings Rasenstuck", plantSearch: "Yarrow Achillea botanical illustration" },
+  { artist: "Jacques Le Moyne de Morgues", plant: "Wild Strawberry", plantReason: "Le Moyne painted exquisite strawberries and small English wildflowers — intimate, jewel-like miniatures", task: "Komposition", artistSearch: "Jacques Le Moyne de Morgues botanical illustrations", plantSearch: "Wild strawberry Fragaria botanical illustration" },
+  { artist: "Giovanna Garzoni — Piante Varie", plant: "Pomegranate", plantReason: "Garzoni's pomegranates are legendary — her tempera on vellum technique made them glow like stained glass", task: "Stippling", artistSearch: "Giovanna Garzoni Piante Varie botanical art", plantSearch: "Pomegranate botanical illustration stippling" },
+  { artist: "Jacob Marrel — Book of Tulips", plant: "Semper Augustus Tulip", plantReason: "The rarest tulip of Tulip Mania — Marrel documented these fleeting broken tulips at the height of Dutch obsession", task: null, artistSearch: "Jacob Marrel tulip book botanical illustration", plantSearch: "Semper Augustus tulip mania botanical" },
+  { artist: "Maria Sibylla Merian", plant: "Passion Flower", plantReason: "Merian's Surinam expedition gave us the passion flower paired with its insects — radical, ecological, visionary", task: null, artistSearch: "Maria Sibylla Merian Surinam botanical illustrations", plantSearch: "Passiflora passion flower botanical illustration" },
+  { artist: "The Monckys Atlas", plant: "Bird of Paradise (Strelitzia)", plantReason: "The Monckys Atlas from Amsterdam documented exotic Cape plants — Strelitzia perfectly represents that spirit of discovery", task: null, artistSearch: "Monckys Atlas Amsterdam botanical manuscript", plantSearch: "Strelitzia bird of paradise botanical illustration" },
+  { artist: "Alida Withoos", plant: "Fritillaria", plantReason: "Withoos painted rare bulbs for the Amsterdam Hortus — Fritillaria's chequered bells echo her jewel-like Dutch precision", task: null, artistSearch: "Alida Withoos botanical artist Amsterdam", plantSearch: "Fritillaria botanical illustration Dutch Golden Age" },
+  { artist: "Elizabeth Blackwell — A Curious Herbal", plant: "Foxglove (Digitalis)", plantReason: "Blackwell drew Foxglove to document its medicinal properties — she taught herself engraving and hand-colored every plate to pay her husband's debts", task: null, artistSearch: "Elizabeth Blackwell Curious Herbal botanical", plantSearch: "Digitalis foxglove botanical illustration medicinal" },
+  { artist: "Mary Delany — Paper Mosaicks", plant: "Passion Flower (paper cut)", plantReason: "Delany's cut-paper botanicals are astonishing — her Passiflora laurifolia uses hundreds of tiny paper pieces, each a different shade", task: null, artistSearch: "Mary Delany paper mosaicks collage botanical", plantSearch: "Passion flower paper cut art botanical" },
+  { artist: "Claude Aubriet — Vélins du Roi", plant: "Auricula Primrose", plantReason: "Aubriet painted the royal plant collection at Versailles — Auriculas with their velvety colours were among the most prized garden flowers of Louis XIV", task: null, artistSearch: "Claude Aubriet Velins du Roi botanical Versailles", plantSearch: "Auricula primrose botanical illustration" },
+  { artist: "Françoise Madeleine Basseporte", plant: "Magnolia", plantReason: "First woman appointed official painter to the king — she documented early Magnolia specimens arriving in France with breathtaking delicacy", task: null, artistSearch: "Francoise Madeleine Basseporte botanical painter king", plantSearch: "Magnolia botanical illustration 18th century" },
+  { artist: "Gérard van Spaendonck", plant: "Rose (Centifolia)", plantReason: "Van Spaendonck's cabbage roses for Napoleon's court set the gold standard for French botanical painting — lush, painterly, impossibly full", task: null, artistSearch: "Gerard van Spaendonck botanical painter Napoleon", plantSearch: "Centifolia rose botanical illustration Dutch" },
+  { artist: "Pierre-Joseph Redouté — The Raphael of Flowers", plant: "Rosa centifolia (Cabbage Rose)", plantReason: "Redouté's roses are the most famous botanical illustrations ever made — his soft stipple engraving technique gave them an almost photographic luminosity", task: null, artistSearch: "Pierre-Joseph Redoute roses botanical illustration", plantSearch: "Rosa centifolia Redoute rose botanical" },
+  { artist: "Georg Dionysius Ehret", plant: "Banana Flower", plantReason: "Ehret documented exotic specimens flooding into Europe's collections — his dramatic banana illustration shocked audiences who'd never seen such a plant", task: null, artistSearch: "Georg Dionysius Ehret botanical illustration", plantSearch: "Banana Musa botanical illustration Ehret" },
+  { artist: "Anne Pratt — The Popular Botanist", plant: "Primrose", plantReason: "Pratt made botany accessible to Victorian women — the humble Primrose, England's beloved hedgerow flower, perfectly represents her democratic spirit", task: null, artistSearch: "Anne Pratt botanist Victorian botanical illustration", plantSearch: "Primrose botanical illustration Victorian" },
+  { artist: "Sydney Parkinson & the Banks Florilegium", plant: "Banksia", plantReason: "Parkinson sailed with Captain Cook and drew Banksia before dying on the voyage home — these spiky Australian flowers bear Sir Joseph Banks' name", task: null, artistSearch: "Sydney Parkinson Banks Florilegium Captain Cook botanical", plantSearch: "Banksia botanical illustration Banks Florilegium" },
+  { artist: "Franz & Ferdinand Bauer", plant: "Sturt's Desert Pea", plantReason: "The Bauer brothers painted with microscopic precision — Ferdinand's Australian specimens included the startling crimson Desert Pea", task: null, artistSearch: "Bauer Brothers Franz Ferdinand botanical illustration", plantSearch: "Sturt's desert pea Swainsona botanical illustration" },
+  { artist: "Emily Dickinson's Herbarium", plant: "Arbutus (Trailing)", plantReason: "Dickinson pressed Trailing Arbutus — the first flower of New England spring — and wrote poems about it. Her herbarium is poetry made botanical", task: null, artistSearch: "Emily Dickinson herbarium pressed flowers", plantSearch: "Trailing arbutus Epigaea botanical pressed flower" },
+  { artist: "John Ruskin", plant: "Alpine Gentian", plantReason: "Ruskin obsessively drew Alpine plants on his Swiss travels — Gentians with their impossible blue were a particular fixation and metaphor for truth", task: null, artistSearch: "John Ruskin botanical drawings plants art", plantSearch: "Alpine gentian botanical illustration watercolor" },
+  { artist: "Lilias Trotter — The Diary", plant: "Convolvulus (Bindweed)", plantReason: "Trotter found spiritual meaning in the humblest Algerian wildflowers — Convolvulus spiraling open each dawn perfectly captures her luminous faith", task: null, artistSearch: "Lilias Trotter diary botanical art watercolor Algeria", plantSearch: "Convolvulus bindweed botanical illustration watercolor" },
+  { artist: "Marianne North — The Nomadic Victorian", plant: "Pitcher Plant (Nepenthes)", plantReason: "North painted carnivorous Nepenthes in Borneo — her fearless solo travels took her to places no botanical artist had gone before", task: null, artistSearch: "Marianne North botanical paintings Kew Gardens", plantSearch: "Nepenthes pitcher plant botanical illustration Borneo" },
+  { artist: "Harriet Isabel Adams — Flowers of the British Isles", plant: "Ragged Robin (Lychnis flos-cuculi)", plantReason: "Adams' chromolithographed wildflowers documented the English countryside — Ragged Robin's tattered pink petals are as charming and underrated as Adams herself", task: null, artistSearch: "Harriet Isabel Adams Flowers British Isles botanical", plantSearch: "Ragged Robin Lychnis flos-cuculi botanical illustration" },
+  { artist: "Beatrix Potter — The Other Life", plant: "Fly Agaric Mushroom", plantReason: "Before Peter Rabbit, Potter was a serious mycologist — her precise fungal studies were rejected by the Linnean Society because she was a woman", task: null, artistSearch: "Beatrix Potter mycology fungus botanical drawings", plantSearch: "Fly agaric Amanita muscaria botanical illustration" },
+  { artist: "Salvador Dalí — Surrealist Flowers", plant: "Opium Poppy", plantReason: "Dalí's flowers drip and morph with hallucinatory intensity — the Opium Poppy's dreamlike haze and blood-red petals are pure surrealism made botanical", task: null, artistSearch: "Salvador Dali surrealist flowers art botanical", plantSearch: "Opium poppy Papaver somniferum botanical illustration" },
+  { artist: "Margaret Mee — Quest for the Moonflower Cactus", plant: "Selenicereus wittii (Amazon Moonflower)", plantReason: "Mee spent decades in the Amazon searching for this night-blooming cactus — she finally painted it by moonlight, age 79, months before her death", task: null, artistSearch: "Margaret Mee Amazon moonflower cactus botanical", plantSearch: "Selenicereus wittii moonflower cactus botanical" },
+];
+
+// ═══════════════════════════════
+// TAB 2 — Plant & Figure
+// ═══════════════════════════════
+const DAYS2 = [
+  {
+    artist: "Warm-up: Leaf Gestures",
+    plant: "Fern frond", focus: ["plant","figure"],
+    pairing: "Draw 10 fern fronds as loose gestural lines — treat them exactly like you'd treat a figure gesture. Same rhythm, same flow.",
+    tip: "Bleistift oder Fineliner — kein Radieren, einfach loslegen",
+    artistSearch: "fern botanical gesture drawing",
+    plantSearch: "fern frond illustration drawing",
+  },
+  {
+    artist: "Inspiration: Gustav Klimt — Tree of Life",
+    plant: "Weeping Birch", focus: ["comp","plant"],
+    pairing: "Klimt's decorative trees are almost figure-like. Sketch a weeping birch filling the page — branches as arms, roots as feet. Fill the negative space with small botanical details.",
+    tip: "Perfekt für Buntstift — layer leichte Farben",
+    artistSearch: "Gustav Klimt Tree of Life botanical art",
+    plantSearch: "Weeping birch tree botanical illustration",
+  },
+  {
+    artist: "Anatomy Study: The Hand & Roots",
+    plant: "Mangrove root", focus: ["anatomy","plant"],
+    pairing: "Draw one hand in detail, then let the fingers dissolve into tangled mangrove roots. Study the similarity of branching — tendons and roots follow the same logic.",
+    tip: "Bleistift, dann mit Fineliner nachziehen",
+    artistSearch: "hand anatomy drawing botanical",
+    plantSearch: "Mangrove root system illustration",
+  },
+  {
+    artist: "Inspiration: Alphonse Mucha — Art Nouveau Portraits",
+    plant: "Anemone", focus: ["portrait","plant","comp"],
+    pairing: "Mucha always placed his figures inside a botanical frame. Sketch a portrait head surrounded by anemones — use the flowers as a compositional border that grows organically from the figure.",
+    tip: "Fineliner für die Linienarbeit, Buntstift für die Blüten",
+    artistSearch: "Alphonse Mucha Art Nouveau botanical portrait",
+    plantSearch: "Anemone botanical illustration Art Nouveau",
+  },
+  {
+    artist: "Figure Study: The Spine & The Stem",
+    plant: "Sunflower stalk cross-section", focus: ["anatomy","plant"],
+    pairing: "The spine and a sunflower stalk have the same engineering logic — segmented, flexible, strong. Draw both side by side. Notice where they rhyme.",
+    tip: "Bleistift — nimm dir Zeit für die Details",
+    artistSearch: "spine anatomy botanical comparison drawing",
+    plantSearch: "Sunflower stalk cross section botanical",
+  },
+  {
+    artist: "Inspiration: Ernst Haeckel — Radiolaria",
+    plant: "Dandelion seed head", focus: ["plant","comp"],
+    pairing: "Haeckel's micro-organisms look like dandelion seed heads look like mandalas. Draw a dandelion in full detail from below, filling the whole page — radial composition exercise.",
+    tip: "Fineliner für die Strahlen — super meditativ",
+    artistSearch: "Ernst Haeckel Radiolaria botanical illustration",
+    plantSearch: "Dandelion seed head botanical illustration",
+  },
+  {
+    artist: "Portrait Study: Skin & Bark",
+    plant: "Birch bark", focus: ["portrait","plant","anatomy"],
+    pairing: "Study the texture of birch bark, then apply what you observed to the skin of a portrait — same horizontal striations, same papery quality. Draw both on the same page.",
+    tip: "Buntstift layering — off-whites, greys, soft pinks",
+    artistSearch: "bark texture portrait art botanical skin",
+    plantSearch: "Birch bark texture botanical illustration",
+  },
+  {
+    artist: "Komposition: Figure in the Void — First Fix",
+    plant: "Ivy", focus: ["figure","comp","plant"],
+    pairing: "Person steht in der Void? Heute: Zeichne eine stehende Figur, dann lass Efeu von den Füßen aus den Raum füllen. Der Boden ist da — er ist nur grün.",
+    tip: "Bleistift für die Figur, Fineliner für den Efeu",
+    artistSearch: "figure ivy botanical illustration fantasy art",
+    plantSearch: "Ivy Hedera botanical illustration",
+  },
+  {
+    artist: "Inspiration: Jan Toorop — Symbolism",
+    plant: "Water Lily (Nymphaea)", focus: ["figure","plant","comp"],
+    pairing: "Toorop's figures emerge from plants like they're part of the same organism. Sketch a figure from the waist up, rising from water lilies — the petals frame the torso.",
+    tip: "Aquarell für die Wasserfarben wenn du magst",
+    artistSearch: "Jan Toorop Symbolism botanical figures",
+    plantSearch: "Water lily Nymphaea botanical illustration",
+  },
+  {
+    artist: "Anatomy Study: Ribcage & Branch Structure",
+    plant: "Oak branch with acorns", focus: ["anatomy","plant"],
+    pairing: "The ribcage branches from the sternum exactly like an oak from its trunk. Sketch both — front-facing ribcage and front-facing branch. Let them overlap.",
+    tip: "Bleistift, kein Druck — leichte Konstruktionslinien",
+    artistSearch: "ribcage anatomy botanical drawing comparison",
+    plantSearch: "Oak branch acorn botanical illustration",
+  },
+  {
+    artist: "Inspiration: Odilon Redon — Flower Heads",
+    plant: "Chrysanthemum", focus: ["portrait","plant"],
+    pairing: "Redon painted faces inside flowers and flowers with faces. Sketch a portrait where the hair is one enormous chrysanthemum — petals replacing every strand.",
+    tip: "Das ist dein Ding — geh all in mit Bleistift und Buntstift",
+    artistSearch: "Odilon Redon flower head botanical portrait",
+    plantSearch: "Chrysanthemum botanical illustration",
+  },
+  {
+    artist: "Komposition: Ground & Atmosphere",
+    plant: "Moss & lichen", focus: ["comp","plant"],
+    pairing: "Heute: Zeichne eine Figur in einer Szene wo du den Boden wirklich durchdachst. Moos und Flechten als Textur — nichts muss schwebend sein.",
+    tip: "Fineliner für Textur, Buntstift für Atmosphäre",
+    artistSearch: "moss lichen botanical illustration ground texture",
+    plantSearch: "Moss lichen botanical illustration texture",
+  },
+  {
+    artist: "Inspiration: Heinrich Vogeler — Jugendstil Figures",
+    plant: "Apple blossom", focus: ["figure","plant","comp"],
+    pairing: "Vogeler embedded his figures in flowering orchards — the blossoms frame and echo the curves of the body. Sketch a figure under an apple tree where branch and arm are the same gesture.",
+    tip: "Fein und romantisch — Fineliner mit zartem Buntstift",
+    artistSearch: "Heinrich Vogeler Jugendstil botanical figure",
+    plantSearch: "Apple blossom botanical illustration",
+  },
+  {
+    artist: "Texture Study: Scales, Petals, Skin",
+    plant: "Pine cone", focus: ["anatomy","plant"],
+    pairing: "Pine cone scales and skin have the same Fibonacci logic. Draw a pine cone in extreme close-up, then a section of elbow skin in the same scale. Notice the pattern.",
+    tip: "Bleistift — hatching üben",
+    artistSearch: "pine cone pattern Fibonacci botanical drawing",
+    plantSearch: "Pine cone botanical illustration detail",
+  },
+  {
+    artist: "Inspiration: Franz von Stuck — Nature Spirits",
+    plant: "Wild Rose (Rosa canina)", focus: ["figure","plant","comp"],
+    pairing: "Von Stuck painted figures as forces of nature — raw, elemental. Sketch a figure where thorny rose canes grow from the body like veins coming outside-in.",
+    tip: "Bleistift mit hartem Druck für die Dornen",
+    artistSearch: "Franz von Stuck nature spirit botanical figure",
+    plantSearch: "Rosa canina wild rose botanical illustration",
+  },
+  {
+    artist: "Portrait Study: Eyes & Seeds",
+    plant: "Poppy seed pod", focus: ["portrait","plant","anatomy"],
+    pairing: "The poppy seed pod is a perfect eyeball — same round form, same crown of stamens like lashes. Draw a pair of eyes, then draw poppy pods next to them. Study and borrow.",
+    tip: "Fineliner für präzise Linien",
+    artistSearch: "poppy seed pod eye botanical portrait study",
+    plantSearch: "Poppy seed pod botanical illustration",
+  },
+  {
+    artist: "Komposition: Figur im Raum — Schatten als Boden",
+    plant: "Grass & wildflowers (meadow)", focus: ["figure","comp","plant"],
+    pairing: "Der Trick: Schatten verankert die Figur. Heute eine Figur sitzend oder liegend in einer Wiese — der Schatten unter ihr ist der Boden, die Gräser wachsen um sie herum.",
+    tip: "Probier Bleistift für die Figur, Buntstift für die Wiese",
+    artistSearch: "figure meadow botanical illustration composition",
+    plantSearch: "Meadow wildflowers grass botanical illustration",
+  },
+  {
+    artist: "Inspiration: Carlos Schwabe — Symbolist Naturalism",
+    plant: "Snowdrop", focus: ["figure","plant"],
+    pairing: "Schwabe's figures dissolve into petals and light. Sketch a figure from the shoulders up — the lower half of the face becomes snowdrop flowers in mid-transformation.",
+    tip: "Fineliner für den Übergang — kein klarer Schnitt",
+    artistSearch: "Carlos Schwabe Symbolist botanical figure",
+    plantSearch: "Snowdrop Galanthus botanical illustration",
+  },
+  {
+    artist: "Anatomy: The Foot & The Root",
+    plant: "Ginger root (Zingiber)", focus: ["anatomy","plant"],
+    pairing: "A ginger root and a bare foot have startling similarities — knobby, branching, organic. Draw both, overlapping. Let one become the other at some point.",
+    tip: "Bleistift — kein Druck, explorativ",
+    artistSearch: "foot anatomy botanical root comparison drawing",
+    plantSearch: "Ginger root Zingiber botanical illustration",
+  },
+  {
+    artist: "Inspiration: Sandro Botticelli — Primavera",
+    plant: "Orange blossom", focus: ["figure","plant","comp"],
+    pairing: "In the Primavera, figures stand in an orange grove so lush it becomes wallpaper. Sketch a figure where the space behind them is pure botanical density — no void, just plants.",
+    tip: "Buntstift für die Orangenblüten",
+    artistSearch: "Botticelli Primavera botanical figures orange blossom",
+    plantSearch: "Orange blossom Citrus botanical illustration",
+  },
+  {
+    artist: "Portrait: Hair as Plant",
+    plant: "Wisteria", focus: ["portrait","plant"],
+    pairing: "Du hast das schon in deiner eigenen Arbeit! Jetzt bewusst: Zeichne ein Portrait wo das Haar vollständig aus hängenden Wisteria-Trauben besteht. Jede Strähne ist eine Traube.",
+    tip: "Das ist genau dein Ding — go wild mit Bleistift und Fineliner",
+    artistSearch: "wisteria hair portrait botanical illustration",
+    plantSearch: "Wisteria botanical illustration hanging",
+  },
+  {
+    artist: "Komposition: Rahmen aus Natur",
+    plant: "Bramble (Rubus)", focus: ["comp","plant","figure"],
+    pairing: "Mucha-Methode: Die Figur ist mittig, die Natur bildet den Rahmen. Zeichne einen ovalen Rahmen aus Brombeer-Ranken — Figur innen, Dornen und Früchte außen.",
+    tip: "Fineliner für den Rahmen, Bleistift für die Figur",
+    artistSearch: "bramble brambles decorative botanical frame illustration",
+    plantSearch: "Rubus bramble botanical illustration",
+  },
+  {
+    artist: "Inspiration: Katsushika Hokusai — Nature Studies",
+    plant: "Chrysanthemum (again — different angle)", focus: ["plant","comp"],
+    pairing: "Hokusai drew the same subjects from dozens of angles. Today: draw one chrysanthemum 6 different ways on the same page — from above, below, side, wilting, opening, bud.",
+    tip: "Bleistift, schnell — exploration not perfection",
+    artistSearch: "Hokusai botanical nature study chrysanthemum",
+    plantSearch: "Chrysanthemum multiple angles botanical study",
+  },
+  {
+    artist: "Figure Study: Back & Bark",
+    plant: "Oak bark texture", focus: ["figure","anatomy","plant"],
+    pairing: "The muscular back and rough oak bark share the same vertical tension. Draw a back (from shoulders to waist), then render the skin as bark texture. Where does human end, tree begin?",
+    tip: "Bleistift mit crosshatching — nimm dir Zeit",
+    artistSearch: "back anatomy botanical bark texture figure study",
+    plantSearch: "Oak bark texture botanical illustration",
+  },
+  {
+    artist: "Inspiration: Egon Schiele — Plants & Figures",
+    plant: "Dead leaves (autumn)", focus: ["figure","plant"],
+    pairing: "Schiele drew withered plants with the same raw intensity as his figures — both felt exposed. Draw a figure in a curled, closed pose alongside a dried autumn leaf in the same position.",
+    tip: "Bleistift — expressiv, kein Eraser",
+    artistSearch: "Egon Schiele botanical plant drawing withered",
+    plantSearch: "Autumn dead leaf botanical illustration",
+  },
+  {
+    artist: "Komposition: The Figure as Part of the Ecosystem",
+    plant: "Mushroom cluster", focus: ["figure","comp","plant"],
+    pairing: "Dein Pilzmensch-Bild ist perfekte Inspiration! Heute: eine Figur die physisch Teil einer Pilzszene ist — nicht davor stehend, sondern darin, aus dem Boden wachsend.",
+    tip: "Bleistift für Struktur, Fineliner für Pilzdetails",
+    artistSearch: "figure mushroom ecosystem botanical illustration fantasy",
+    plantSearch: "Mushroom cluster botanical illustration",
+  },
+  {
+    artist: "Portrait: The Dissolved Face",
+    plant: "Moss & fern (forest floor)", focus: ["portrait","plant","comp"],
+    pairing: "Zeichne ein Gesicht das sich in Moos und Farne auflöst — klare Augen, Nase, Mund in der Mitte, aber der Rest des Gesichts wird zu Waldboden. Wo endet die Person?",
+    tip: "Fineliner für scharfe Züge, Buntstift für das Auflösen",
+    artistSearch: "face dissolve forest floor botanical portrait",
+    plantSearch: "Forest floor moss fern botanical illustration",
+  },
+  {
+    artist: "Anatomy: Rib & Leaf Venation",
+    plant: "Skeleton leaf", focus: ["anatomy","plant"],
+    pairing: "A skeleton leaf is literally an anatomical specimen. Hold one up to the light — the venation is identical to a hand's vascular system. Draw both at the same scale, overlapping.",
+    tip: "Fineliner für die Linienarbeit — extrem befriedigend",
+    artistSearch: "skeleton leaf venation anatomy botanical illustration",
+    plantSearch: "Skeleton leaf botanical illustration veins",
+  },
+  {
+    artist: "Inspiration: Remedios Varo — Surrealist Botanics",
+    plant: "Spiral shell & vine", focus: ["figure","plant","comp"],
+    pairing: "Varo's figures wear plants, live in plants, are half-plant. Sketch a figure in profile where the clothing slowly becomes a spiral vine growing down from the shoulder.",
+    tip: "Bleistift dann Fineliner — die Spirale macht sich selbst",
+    artistSearch: "Remedios Varo surrealist botanical figure",
+    plantSearch: "Spiral vine botanical illustration",
+  },
+  {
+    artist: "Freie Studie: Dein Pflanzen-Mensch",
+    plant: "Deine Wahl", focus: ["figure","plant","comp"],
+    pairing: "Kein Thema heute — du hast 29 Tage geübt. Zeichne einen Pflanzen-Menschen ganz nach deiner Vision. Bring alles zusammen: Anatomie, Komposition, deine Pflanze, dein Stil.",
+    tip: "Whatever medium feels right heute 🌿",
+    artistSearch: "botanical figure hybrid fantasy illustration",
+    plantSearch: "botanical human hybrid art illustration",
+  },
+];
+
+function searchUrl(q) {
+  return 'https://www.google.com/search?tbm=isch&q=' + encodeURIComponent(q);
+}
+
+// ── RENDER TAB 1 ──
+const done1 = new Set(JSON.parse(localStorage.getItem('bot30_done1') || '[]'));
+let filter1 = 'all';
+
+function updateProgress1() {
+  const n = done1.size;
+  document.getElementById('progressFill1').style.width = (n/30*100) + '%';
+  document.getElementById('progressLabel1').textContent = n + ' / 30';
+  document.getElementById('doneCount1').textContent = n===30 ? '🎉 Alle 30 Tage!' : n>0 ? `${n} erledigt` : '';
+  localStorage.setItem('bot30_done1', JSON.stringify([...done1]));
+}
+
+function applyFilter1() {
+  document.querySelectorAll('#grid1 .card').forEach(c => {
+    const d = c.classList.contains('done');
+    c.classList.toggle('hidden', filter1==='done'? !d : filter1==='todo'? d : false);
+  });
+}
+
+function renderTab1() {
+  const grid = document.getElementById('grid1');
+  DAYS1.forEach((day, idx) => {
+    const n = idx+1, isDone = done1.has(n);
+    const card = document.createElement('div');
+    card.className = 'card' + (isDone ? ' done' : '');
+    card.innerHTML = `
+      <div class="day-badge">Day ${n}</div>
+      <div class="card-artist"><a href="${searchUrl(day.artistSearch)}" target="_blank" rel="noopener">${day.artist}</a></div>
+      <div class="card-plant">
+        <span class="plant-icon">🌿</span>
+        <div>
+          <div class="plant-name">${day.plant}</div>
+          <div class="plant-reason">${day.plantReason}</div>
+        </div>
+      </div>
+      <div class="card-links">
+        <a class="link-pill" href="${searchUrl(day.artistSearch)}" target="_blank" rel="noopener">↗ Artist</a>
+        <a class="link-pill plant" href="${searchUrl(day.plantSearch)}" target="_blank" rel="noopener">🌿 Pflanze</a>
+        <a class="link-pill" href="${searchUrl(day.artistSearch+' museum collection')}" target="_blank" rel="noopener">🖼 Museum</a>
+      </div>
+      ${day.task ? `<div class="card-task"><strong>Aufgabe</strong> — ${day.task}</div>` : ''}
+      <div class="card-check">
+        <div class="check-box">${isDone?'✓':''}</div>
+        <span class="check-label">${isDone?'Erledigt':'Als erledigt markieren'}</span>
+      </div>`;
+    card.querySelector('.card-check').addEventListener('click', () => {
+      if (done1.has(n)) { done1.delete(n); card.classList.remove('done'); card.querySelector('.check-box').textContent=''; card.querySelector('.check-label').textContent='Als erledigt markieren'; }
+      else { done1.add(n); card.classList.add('done'); card.querySelector('.check-box').textContent='✓'; card.querySelector('.check-label').textContent='Erledigt'; }
+      updateProgress1(); applyFilter1();
+    });
+    grid.appendChild(card);
+  });
+  updateProgress1();
+}
+
+// ── RENDER TAB 2 ──
+const done2 = new Set(JSON.parse(localStorage.getItem('bot30_done2') || '[]'));
+let filter2 = 'all';
+
+const FOCUS_LABELS = { anatomy:'Anatomie', figure:'Figur', portrait:'Portrait', comp:'Komposition', plant:'Pflanze' };
+
+function updateProgress2() {
+  const n = done2.size;
+  document.getElementById('progressFill2').style.width = (n/30*100) + '%';
+  document.getElementById('progressLabel2').textContent = n + ' / 30';
+  document.getElementById('doneCount2').textContent = n===30 ? '🎉 Alle 30 Tage!' : n>0 ? `${n} erledigt` : '';
+  localStorage.setItem('bot30_done2', JSON.stringify([...done2]));
+}
+
+function applyFilter2() {
+  document.querySelectorAll('#grid2 .card').forEach(c => {
+    const d = c.classList.contains('done-fig');
+    c.classList.toggle('hidden', filter2==='done'? !d : filter2==='todo'? d : false);
+  });
+}
+
+function renderTab2() {
+  const grid = document.getElementById('grid2');
+  DAYS2.forEach((day, idx) => {
+    const n = idx+1, isDone = done2.has(n);
+    const tags = (day.focus||[]).map(f => `<span class="tag ${f}">${FOCUS_LABELS[f]||f}</span>`).join('');
+    const card = document.createElement('div');
+    card.className = 'card' + (isDone ? ' done-fig' : '');
+    card.innerHTML = `
+      <div class="day-badge">Day ${n}</div>
+      <div class="card-artist"><a href="${searchUrl(day.artistSearch)}" target="_blank" rel="noopener">${day.artist}</a></div>
+      ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+      <div class="card-plant">
+        <span class="plant-icon">✏️</span>
+        <div>
+          <div class="plant-name fig">${day.plant}</div>
+          <div class="plant-reason">${day.pairing}</div>
+        </div>
+      </div>
+      ${day.tip ? `<div class="card-tip">💡 ${day.tip}</div>` : ''}
+      <div class="card-links">
+        <a class="link-pill fig-link" href="${searchUrl(day.artistSearch)}" target="_blank" rel="noopener">↗ Inspiration</a>
+        <a class="link-pill plant" href="${searchUrl(day.plantSearch)}" target="_blank" rel="noopener">🌿 Pflanze</a>
+      </div>
+      <div class="card-check">
+        <div class="check-box">${isDone?'✓':''}</div>
+        <span class="check-label">${isDone?'Erledigt':'Als erledigt markieren'}</span>
+      </div>`;
+    card.querySelector('.card-check').addEventListener('click', () => {
+      if (done2.has(n)) { done2.delete(n); card.classList.remove('done-fig'); card.querySelector('.check-box').textContent=''; card.querySelector('.check-label').textContent='Als erledigt markieren'; }
+      else { done2.add(n); card.classList.add('done-fig'); card.querySelector('.check-box').textContent='✓'; card.querySelector('.check-label').textContent='Erledigt'; }
+      updateProgress2(); applyFilter2();
+    });
+    grid.appendChild(card);
+  });
+  updateProgress2();
+}
+
+// ── TABS ──
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── FILTERS ──
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.tabTarget;
+    document.querySelectorAll(`[data-tab-target="${target}"].filter-btn`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (target === 'tab1') { filter1 = btn.dataset.filter; applyFilter1(); }
+    else { filter2 = btn.dataset.filter; applyFilter2(); }
+  });
+});
+
+// ── INIT ──
+renderTab1();
+renderTab2();
+</script>
+</body>
+</html>

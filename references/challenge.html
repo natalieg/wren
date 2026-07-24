@@ -1,0 +1,568 @@
+<!-- 14-Tage Challenge Tracker · Wisteria Bloom · ADHD-friendly -->
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&family=Quicksand:wght@500;600;700&display=swap');
+
+  :root {
+    --bg: #f6f3fb; --bg-2: #efe9f8; --card: #ffffff;
+    --ink: #3a2e4d; --ink-soft: #6b5d82;
+    --wist-1: #b79ce8; --wist-2: #9d7fdb; --wist-3: #7e5cc9;
+    --leaf: #8fc7a0; --leaf-deep: #5fa978;
+    --gold: #f2c14e; --rose: #e89ac0; --sky: #8fb8e8; --coral: #f29e8a;
+    --shadow: 0 8px 30px rgba(126,92,201,0.13);
+    --shadow-sm: 0 3px 12px rgba(126,92,201,0.1);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  #root {
+    font-family:'Quicksand',sans-serif; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 80% -10%,rgba(183,156,232,0.28),transparent),
+      radial-gradient(900px 500px at -10% 30%,rgba(143,199,160,0.2),transparent),
+      var(--bg);
+    min-height:100vh; padding:28px 18px 80px; font-size:17px;
+  }
+  .wrap { max-width:1180px; margin:0 auto; }
+
+  /* hero */
+  .hero { text-align:center; margin-bottom:26px; padding:8px 0 2px; }
+  .hero h1 {
+    font-family:'Fraunces',serif; font-weight:800; font-size:clamp(2rem,5vw,3.1rem); line-height:1.05;
+    background:linear-gradient(120deg,var(--wist-3),var(--wist-1) 55%,var(--rose));
+    -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:-0.5px;
+  }
+  .hero .sub { font-size:1.05rem; color:var(--ink-soft); margin-top:6px; font-weight:600; }
+  .wisteria { font-size:1.8rem; letter-spacing:4px; margin-top:4px; user-select:none; }
+
+  /* dashboard */
+  .dash { display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:24px; }
+  @media(max-width:760px){ .dash { grid-template-columns:1fr; } }
+  .panel { background:var(--card); border-radius:22px; padding:22px 24px; box-shadow:var(--shadow); border:1.5px solid rgba(183,156,232,0.22); }
+  .panel h2 { font-family:'Fraunces',serif; font-weight:600; font-size:1.25rem; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .bigbar-label { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+  .bigbar-label .pct { font-family:'Fraunces',serif; font-size:1.9rem; font-weight:800; color:var(--wist-3); }
+  .bigbar-label .small { font-size:.95rem; color:var(--ink-soft); font-weight:600; }
+  .bigbar { height:26px; border-radius:20px; background:var(--bg-2); overflow:hidden; position:relative; box-shadow:inset 0 2px 5px rgba(126,92,201,0.12); }
+  .bigbar > span { position:absolute; inset:0 auto 0 0; border-radius:20px; background:linear-gradient(90deg,var(--wist-1),var(--wist-3) 70%,var(--rose)); transition:width .6s cubic-bezier(.2,.9,.3,1); box-shadow:0 0 18px rgba(157,127,219,0.5); }
+  .bigbar > span::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent); animation:shine 2.6s linear infinite; }
+  @keyframes shine{0%{transform:translateX(-100%)}100%{transform:translateX(220%)}}
+  .stat-row { display:flex; gap:14px; }
+  .stat { flex:1; background:var(--bg-2); border-radius:16px; padding:14px 12px; text-align:center; }
+  .stat .num { font-family:'Fraunces',serif; font-weight:800; font-size:2rem; line-height:1; }
+  .stat .lbl { font-size:.85rem; color:var(--ink-soft); font-weight:600; margin-top:4px; }
+  .stat.streak .num { color:var(--coral); }
+  .stat.level .num { color:var(--wist-3); }
+  .stat.bloom .num { color:var(--leaf-deep); }
+  .levelbar { height:10px; border-radius:8px; background:var(--bg); margin-top:8px; overflow:hidden; }
+  .levelbar > span { display:block; height:100%; background:linear-gradient(90deg,var(--gold),var(--coral)); transition:width .5s; }
+
+  /* meta panel */
+  .metaversion { font-family:'Fraunces',serif; font-weight:800; font-size:1.9rem; color:var(--wist-3); }
+  .metaline { font-size:.95rem; color:var(--ink-soft); font-weight:600; margin:2px 0 12px; }
+  .metahist { display:flex; flex-direction:column; gap:6px; max-height:118px; overflow-y:auto; margin-bottom:14px; }
+  .metarow { display:flex; justify-content:space-between; gap:10px; font-size:.86rem; font-weight:600; background:var(--bg-2); border-radius:11px; padding:7px 12px; color:var(--ink-soft); }
+  .metarow .mdone { color:var(--leaf-deep); font-weight:800; }
+  .metarow .mtry  { color:var(--coral); font-weight:800; }
+  .metaempty { font-size:.9rem; color:var(--ink-soft); font-weight:600; background:var(--bg-2); border-radius:12px; padding:14px; text-align:center; }
+  .resetchal { width:100%; border:none; border-radius:14px; padding:12px; cursor:pointer; font-family:'Quicksand',sans-serif; font-weight:700; font-size:1rem; background:linear-gradient(120deg,var(--wist-2),var(--wist-3)); color:#fff; box-shadow:0 5px 16px rgba(126,92,201,.3); transition:.18s; }
+  .resetchal:hover { filter:brightness(1.05); transform:translateY(-1px); }
+
+  /* day selector */
+  .days { display:flex; gap:10px; overflow-x:auto; padding:6px 2px 14px; margin-bottom:18px; scrollbar-width:thin; }
+  .daychip { flex:0 0 auto; width:62px; height:74px; border-radius:18px; background:var(--card); border:2px solid rgba(183,156,232,0.25); display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; transition:.2s; position:relative; font-weight:700; box-shadow:var(--shadow-sm); }
+  .daychip:hover { transform:translateY(-3px); }
+  .daychip .dn { font-family:'Fraunces',serif; font-size:1.5rem; line-height:1; }
+  .daychip .dd { font-size:.72rem; color:var(--ink-soft); margin-top:3px; }
+  .daychip.active { border-color:var(--wist-3); background:linear-gradient(160deg,#fff,var(--bg-2)); transform:translateY(-3px) scale(1.04); }
+  .daychip.active .dn { color:var(--wist-3); }
+  .daychip .ring { position:absolute; top:-7px; right:-7px; width:24px; height:24px; border-radius:50%; background:var(--leaf); color:#fff; font-size:.72rem; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); font-weight:800; }
+  .daychip.done-full .ring { background:var(--leaf-deep); }
+  .daychip.today::before { content:'heute'; position:absolute; bottom:-9px; left:50%; transform:translateX(-50%); background:var(--coral); color:#fff; font-size:.6rem; padding:1px 7px; border-radius:8px; font-weight:800; }
+
+  /* day header */
+  .dayhead { display:flex; align-items:center; justify-content:space-between; margin:6px 2px 16px; flex-wrap:wrap; gap:10px; }
+  .dayhead .title { font-family:'Fraunces',serif; font-size:1.6rem; font-weight:800; }
+  .dayhead .title small { color:var(--ink-soft); font-weight:600; font-size:1rem; }
+  .dayhead-right { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .daypct { font-weight:700; color:var(--wist-3); font-size:1.05rem; }
+  .toggle-done { background:var(--card); border:1.5px solid rgba(183,156,232,.4); color:var(--ink-soft); border-radius:12px; padding:7px 14px; cursor:pointer; font-family:inherit; font-weight:700; font-size:.9rem; transition:.15s; }
+  .toggle-done:hover { border-color:var(--wist-3); color:var(--wist-3); }
+  .toggle-done.on { background:linear-gradient(120deg,var(--wist-2),var(--wist-3)); color:#fff; border-color:transparent; }
+
+  /* activity grid */
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:16px; }
+  .act { background:var(--card); border-radius:20px; padding:18px 18px 16px; box-shadow:var(--shadow-sm); border-left:7px solid var(--c); transition:.25s; position:relative; overflow:hidden; }
+  .act:hover { box-shadow:var(--shadow); transform:translateY(-2px); }
+  .act .ico { font-size:1.5rem; }
+  .act .nm { font-family:'Fraunces',serif; font-weight:600; font-size:1.2rem; display:flex; align-items:center; gap:8px; }
+  .act .tag { font-size:.78rem; font-weight:700; padding:2px 9px; border-radius:9px; background:var(--bg-2); color:var(--ink-soft); }
+  .act .meta { font-size:.9rem; color:var(--ink-soft); font-weight:600; margin:8px 0 12px; min-height:20px; }
+
+  /* card states */
+  .act.complete { background:#f3fbf6; background:color-mix(in srgb,var(--c) 12%,#ffffff); box-shadow:0 8px 24px var(--cglow); }
+  .act.failed   { background:#fdf1ee; background:color-mix(in srgb,var(--coral) 13%,#ffffff); }
+  .act.okd      { background:#f0f5fc; background:color-mix(in srgb,var(--sky) 10%,#ffffff); }
+  .act .donebadge  { position:absolute; top:0; right:0; z-index:2; background:linear-gradient(120deg,var(--c),var(--c2)); color:#fff; font-weight:800; font-size:.78rem; padding:4px 13px; border-bottom-left-radius:14px; }
+  .act .failbadge  { position:absolute; top:0; right:0; z-index:2; background:var(--coral); color:#fff; font-weight:800; font-size:.78rem; padding:4px 13px; border-bottom-left-radius:14px; }
+  .act .okbadge    { position:absolute; top:0; right:0; z-index:2; background:var(--sky); color:#fff; font-weight:800; font-size:.78rem; padding:4px 13px; border-bottom-left-radius:14px; }
+  .act .missedbadge{ position:absolute; top:0; right:0; z-index:2; background:#c2b4d6; color:#fff; font-weight:800; font-size:.78rem; padding:4px 13px; border-bottom-left-radius:14px; }
+  .act.satisfied { opacity:.6; }
+  .act .satisfiednote { font-size:.8rem; font-weight:700; color:var(--leaf-deep); margin-bottom:8px; }
+  .act.failed .nm, .act.failed .meta { opacity:.7; }
+
+  /* done toggle */
+  .check { width:100%; border:none; border-radius:14px; padding:13px; cursor:pointer; font-family:'Quicksand',sans-serif; font-weight:700; font-size:1.05rem; background:var(--bg-2); color:var(--ink-soft); transition:.18s; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .check:hover { filter:brightness(.98); }
+  .check.on { background:linear-gradient(120deg,var(--c),var(--c2)); color:#fff; box-shadow:0 5px 16px var(--cglow); }
+
+  /* number input counter */
+  .counterinput { display:flex; align-items:center; justify-content:center; gap:10px; }
+  .counterinput input { width:96px; font-family:'Fraunces',serif; font-weight:800; font-size:1.7rem; text-align:center; color:var(--c); border:2px solid var(--bg-2); border-radius:12px; padding:6px 8px; background:#fff; }
+  .counterinput input:focus { outline:none; border-color:var(--c); }
+  .counterinput .cunit { font-size:.9rem; color:var(--ink-soft); font-weight:700; }
+  .cbar { height:12px; border-radius:8px; background:var(--bg-2); margin-top:12px; overflow:hidden; box-shadow:inset 0 1px 3px rgba(126,92,201,.12); }
+  .cbar > span { display:block; height:100%; border-radius:8px; background:linear-gradient(90deg,var(--c),var(--c2)); box-shadow:0 0 10px var(--cglow); transition:width .35s; }
+
+  /* work counter */
+  .counter { display:flex; align-items:center; gap:10px; justify-content:center; }
+  .counter button { width:42px; height:42px; border-radius:12px; border:none; cursor:pointer; font-size:1.4rem; font-weight:800; background:var(--bg-2); color:var(--c); transition:.15s; }
+  .counter button:hover { background:var(--c); color:#fff; }
+  .counter .val { font-family:'Fraunces',serif; font-weight:800; font-size:1.7rem; min-width:64px; text-align:center; }
+  .counter .val small { font-size:.85rem; color:var(--ink-soft); font-weight:600; }
+  .pips { display:flex; gap:5px; justify-content:center; margin-top:10px; flex-wrap:wrap; }
+  .pip { width:15px; height:15px; border-radius:50%; background:var(--bg-2); transition:.2s; }
+  .pip.fill { background:var(--c); box-shadow:0 0 8px var(--cglow); transform:scale(1.05); }
+  .pip.plan { box-shadow:inset 0 0 0 2px var(--c); }
+
+  /* buildup */
+  .build { text-align:center; }
+  .build .mins { font-family:'Fraunces',serif; font-weight:800; font-size:2.1rem; color:var(--c); }
+  .build .mins small { font-size:.95rem; color:var(--ink-soft); font-weight:600; }
+  .build .target { font-size:.82rem; color:var(--ink-soft); font-weight:600; margin-top:2px; }
+  .minirow { display:flex; gap:8px; justify-content:center; margin-top:10px; }
+  .minirow button { flex:1; max-width:80px; border:none; border-radius:11px; padding:9px; cursor:pointer; font-weight:700; background:var(--bg-2); color:var(--c); transition:.15s; }
+  .minirow button:hover { background:var(--c); color:#fff; }
+  .minirow button.done { background:linear-gradient(120deg,var(--c),var(--c2)); color:#fff; }
+
+  /* gaming time input */
+  .gaming { text-align:center; }
+  .gaming .goal { font-size:.92rem; color:var(--ink-soft); font-weight:700; margin-bottom:10px; }
+  .gaming .goal b { color:var(--c); font-family:'Fraunces',serif; font-size:1.15rem; }
+  .gaming input[type=time] { font-family:'Quicksand',sans-serif; font-weight:700; font-size:1.15rem; color:var(--ink); border:2px solid var(--bg-2); border-radius:12px; padding:8px 12px; background:#fff; cursor:pointer; }
+  .gaming input[type=time]:focus { outline:none; border-color:var(--c); }
+  .gaming .delta { font-family:'Fraunces',serif; font-weight:800; font-size:1.25rem; margin-top:10px; }
+  .gaming .delta.good { color:var(--leaf-deep); }
+  .gaming .delta.bad  { color:var(--coral); }
+  .gaming .nogame { margin-top:10px; border:none; border-radius:11px; padding:8px 14px; cursor:pointer; font-family:inherit; font-weight:700; font-size:.9rem; background:var(--bg-2); color:var(--c); transition:.15s; }
+  .gaming .nogame:hover { background:var(--c); color:#fff; }
+  .gaming .nogame.on { background:linear-gradient(120deg,var(--c),var(--c2)); color:#fff; }
+
+  /* resolution rows */
+  .okrow { margin-top:10px; text-align:center; }
+  .okbtn { width:100%; border:1.5px solid rgba(183,156,232,.3); border-radius:12px; padding:8px; cursor:pointer; font-family:inherit; font-weight:700; font-size:.88rem; color:var(--ink-soft); background:transparent; transition:.15s; }
+  .okbtn:hover { border-color:var(--leaf-deep); color:var(--leaf-deep); background:rgba(95,169,120,.08); }
+  .resolve { margin-top:8px; text-align:center; }
+  .resolve button { background:none; border:none; cursor:pointer; font-family:inherit; font-weight:700; font-size:.82rem; color:var(--ink-soft); opacity:.7; padding:4px 6px; transition:.15s; }
+  .resolve button:hover { opacity:1; color:var(--coral); text-decoration:underline; }
+  .resolve button.unfail:hover { color:var(--leaf-deep); }
+  .resolve button.undook:hover { color:var(--leaf-deep); }
+
+  /* confetti + levelup */
+  .burst { position:fixed; pointer-events:none; z-index:99; font-size:1.3rem; animation:pop .9s ease-out forwards; }
+  @keyframes pop{0%{transform:translateY(0) scale(.5);opacity:1}100%{transform:translateY(-90px) scale(1.3) rotate(40deg);opacity:0}}
+  .levelup { position:fixed; top:24px; left:50%; transform:translateX(-50%) translateY(-120px); background:linear-gradient(120deg,var(--gold),var(--coral)); color:#fff; padding:16px 30px; border-radius:18px; font-family:'Fraunces',serif; font-weight:800; font-size:1.35rem; box-shadow:0 12px 40px rgba(242,158,138,.5); z-index:100; transition:transform .5s cubic-bezier(.2,1.3,.4,1); display:flex; align-items:center; gap:10px; }
+  .levelup.show { transform:translateX(-50%) translateY(0); }
+
+  /* footer */
+  .foot { text-align:center; margin-top:30px; color:var(--ink-soft); font-size:.85rem; font-weight:600; }
+  .foot button { background:none; border:1.5px solid rgba(183,156,232,.4); color:var(--ink-soft); border-radius:10px; padding:6px 14px; cursor:pointer; font-family:inherit; font-weight:700; margin-left:8px; }
+  .foot button:hover { border-color:var(--wist-3); color:var(--wist-3); }
+</style>
+
+<script>
+const { useState, useEffect, useRef } = React;
+
+/* ─── config ─── */
+const TOTAL_DAYS = 14;
+const START_KEY = 'chal_start', DATA_KEY = 'chal_data_v1', META_KEY = 'chal_meta_v1', HIDE_KEY = 'chal_hide_done';
+const WD = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+
+const workPlan = (date) => { const d=date.getDay(); if(d===1||d===2) return 3; if(d===3||d===4) return 5; if(d===5) return 2; return 0; };
+
+// adaptive gaming goal params
+const GAME_START=14*60, GAME_STEP=45, GAME_FLOOR=11*60, GAME_CAP=21*60, GAME_MAX_EASE=90;
+const fmtTime = (t) => `${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`;
+const toMin   = (s) => { if(!s) return 0; const p=s.split(':'); return (+p[0])*60+(+(p[1]||0)); };
+
+const COLORS = {
+  kanji: {c:'#7e5cc9',c2:'#b79ce8',glow:'rgba(126,92,201,.35)'},
+  work:  {c:'#5fa978',c2:'#8fc7a0',glow:'rgba(95,169,120,.35)'},
+  yoga:  {c:'#8fb8e8',c2:'#b7d2f0',glow:'rgba(143,184,232,.35)'},
+  art:   {c:'#e89ac0',c2:'#f2bcd8',glow:'rgba(232,154,192,.35)'},
+  study: {c:'#d98ab0',c2:'#e89ac0',glow:'rgba(217,138,176,.35)'},
+  ballet:{c:'#c98ae0',c2:'#dca8ef',glow:'rgba(201,138,224,.35)'},
+  journal:{c:'#f2c14e',c2:'#f7d785',glow:'rgba(242,193,78,.35)'},
+  read:  {c:'#6fb0a8',c2:'#9bcfc8',glow:'rgba(111,176,168,.35)'},
+  home:  {c:'#f29e8a',c2:'#f7bcae',glow:'rgba(242,158,138,.35)'},
+  piano: {c:'#9d7fdb',c2:'#c0aae8',glow:'rgba(157,127,219,.35)'},
+  gaming:{c:'#8a93c9',c2:'#b3bbe6',glow:'rgba(138,147,201,.35)'},
+};
+
+const ACTS = [
+  {id:'kanji', ico:'🀄',nm:'Kanji',    tag:'Morgen-Anker',kind:'counter', goal:20,unit:'Wdh.'},
+  {id:'work',  ico:'⚙️',nm:'Arbeitsphasen',tag:'Pomo',  kind:'workcount'},
+  {id:'yoga',  ico:'🧘',nm:'Yoga',     tag:'Pflicht',   kind:'done'},
+  {id:'journal',ico:'📓',nm:'Journal', tag:'Pflicht',   kind:'done'},
+  {id:'read',  ico:'📖',nm:'Lesen',    tag:'Pflicht',   kind:'done'},
+  {id:'art',   ico:'🎨',nm:'Art',      tag:'Buildup',   kind:'build',base:10,step:5,cap:45,group:'kunst'},
+  {id:'study', ico:'✏️',nm:'Art Study',tag:'Buildup',   kind:'build',base:10,step:5,cap:40,group:'kunst'},
+  {id:'ballet',ico:'🩰',nm:'Ballett',  tag:'Buildup',   kind:'build',base:10,step:5,cap:40},
+  {id:'home',  ico:'🧹',nm:'Haushalt', tag:'Alle 2 Tage',kind:'done',everyOther:true},
+  {id:'gaming',ico:'🎮',nm:'Gaming-Start',tag:'Ziel-Zeit',kind:'time'},
+  {id:'piano', ico:'🎹',nm:'Klavier',  tag:'Bonus',     kind:'done',bonus:true},
+];
+
+// required units; group collapses to one unit
+function dayUnits(dayIdx, date){
+  const units=[]; const seen={};
+  for(const a of ACTS){
+    if(a.bonus) continue;
+    if(a.id==='work'&&workPlan(date)===0) continue;
+    if(a.id==='home'&&dayIdx%2!==0) continue;
+    if(a.group){ if(seen[a.group]){seen[a.group].ids.push(a.id);continue;} const u={key:'g:'+a.group,group:a.group,ids:[a.id]}; seen[a.group]=u; units.push(u); }
+    else units.push({key:a.id,ids:[a.id]});
+  }
+  return units;
+}
+
+/* ─── storage ─── */
+function loadData(){ try{return JSON.parse(localStorage.getItem(DATA_KEY))||{};}catch{return{};} }
+function saveData(d){ try{localStorage.setItem(DATA_KEY,JSON.stringify(d));}catch{} }
+function loadMeta(){ try{const m=JSON.parse(localStorage.getItem(META_KEY));return m&&m.attempts?m:{attempts:[]};}catch{return{attempts:[]};} }
+function saveMeta(m){ try{localStorage.setItem(META_KEY,JSON.stringify(m));}catch{} }
+function loadStart(){ let s=localStorage.getItem(START_KEY); if(!s){const t=new Date();t.setHours(0,0,0,0);s=t.toISOString();localStorage.setItem(START_KEY,s);} return new Date(s); }
+
+/* ─── helpers ─── */
+function dateForDay(start,idx){ const d=new Date(start); d.setDate(d.getDate()+idx); return d; }
+function fmtDate(d){ return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}`; }
+
+// actFraction: gGoal for time; bTarget + buildCredit for build
+function actFraction(a, dayIdx, val, date, gGoal, bTarget, buildCredit){
+  if(a.kind==='done') return val?1:0;
+  if(a.kind==='counter') return Math.min((val||0)/a.goal,1);
+  if(a.kind==='workcount'){ const plan=workPlan(date); return plan?Math.min((val&&val.done||0)/plan,1):((val&&val.done)?1:0); }
+  if(a.kind==='build'){ const t=bTarget!=null?bTarget:(a.base+dayIdx*a.step>a.cap?a.cap:a.base+dayIdx*a.step); return Math.min(((val||0)+(buildCredit||0))/t,1); }
+  if(a.kind==='time'){ const goal=gGoal!=null?gGoal:GAME_START; if(!val) return 0; if(val.none) return 1; if(val.start) return toMin(val.start)>=goal?1:0; return 0; }
+  return 0;
+}
+
+/* ─── sub-components ─── */
+function Burst({x,y}){ return '🌸✨💜🍃⭐'.split('').map((e,i)=>React.createElement('span',{key:i,className:'burst',style:{left:x+(i-2)*16,top:y,animationDelay:(i*.04)+'s'}},e)); }
+
+// time input: local state, commits only on blur
+function TimeEntry({value, onCommit}){
+  const [local,setLocal]=useState(value||'');
+  useEffect(()=>setLocal(value||''),[value]);
+  return React.createElement('input',{type:'time',value:local,
+    onChange:e=>setLocal(e.target.value),
+    onBlur:e=>onCommit(e.target.value)});
+}
+
+// number input: local state, commits only on blur
+function NumberEntry({value, goal, unit, onCommit}){
+  const [local,setLocal]=useState(value!=null?String(value):'');
+  useEffect(()=>setLocal(value!=null?String(value):''),[value]);
+  return React.createElement('div',{className:'counterinput'},
+    React.createElement('input',{type:'number',min:0,inputMode:'numeric',value:local,placeholder:'0',
+      onChange:e=>setLocal(e.target.value),
+      onBlur:e=>onCommit(Math.max(0,parseInt(e.target.value,10)||0))}),
+    React.createElement('span',{className:'cunit'},'/ '+goal+' '+unit));
+}
+
+/* ─── main ─── */
+function App(){
+  const start=useRef(loadStart()).current;
+  const meta=useRef(loadMeta()).current;
+  const [data,setData]=useState(loadData);
+  const [hideDone,setHideDone]=useState(()=>localStorage.getItem(HIDE_KEY)==='1');
+  const [sel,setSel]=useState(()=>{ const today=new Date();today.setHours(0,0,0,0); const diff=Math.round((today-start)/86400000); return Math.min(Math.max(diff,0),TOTAL_DAYS-1); });
+  const [bursts,setBursts]=useState([]);
+  const [levelUp,setLevelUp]=useState(null);
+  const prevLevel=useRef(0);
+
+  useEffect(()=>saveData(data),[data]);
+  useEffect(()=>localStorage.setItem(HIDE_KEY,hideDone?'1':'0'),[hideDone]);
+
+  const get   =(dayIdx,id)=>data[`${dayIdx}:${id}`];
+  const isFailed=(dayIdx,id)=>!!data[`x:${dayIdx}:${id}`];
+  const isOk  =(dayIdx,id)=>!!data[`o:${dayIdx}:${id}`];
+  // commit: set value, clear fail + ok flags
+  const commit=(dayIdx,id,v)=>setData(d=>{ const n={...d,[`${dayIdx}:${id}`]:v}; delete n[`x:${dayIdx}:${id}`]; delete n[`o:${dayIdx}:${id}`]; return n; });
+  const setFail=(dayIdx,id,v)=>setData(d=>{ const n={...d}; if(v){n[`x:${dayIdx}:${id}`]=true;delete n[`${dayIdx}:${id}`];}else delete n[`x:${dayIdx}:${id}`]; return n; });
+  const setOkFlag=(dayIdx,id,v)=>setData(d=>{ const n={...d}; if(v) n[`o:${dayIdx}:${id}`]=true; else delete n[`o:${dayIdx}:${id}`]; return n; });
+
+  function fireBurst(e){ const x=(e&&e.clientX)||window.innerWidth/2,y=(e&&e.clientY)||140; const id=Date.now()+Math.random(); setBursts(b=>[...b,{id,x,y}]); setTimeout(()=>setBursts(b=>b.filter(z=>z.id!==id)),900); }
+
+  /* ─── adaptive gaming goals chain ─── */
+  const gGoals=new Array(TOTAL_DAYS); gGoals[0]=GAME_START;
+  for(let i=1;i<TOTAL_DAYS;i++){
+    const pg=gGoals[i-1]; const pe=get(i-1,'gaming');
+    const pa=(pe&&pe.start)?toMin(pe.start):pg; // none/unlogged = treat as met goal
+    let g=pa+GAME_STEP;
+    g=Math.max(g,pg-GAME_MAX_EASE); g=Math.min(g,pg+GAME_STEP);
+    g=Math.max(g,GAME_FLOOR);       g=Math.min(g,GAME_CAP);
+    gGoals[i]=g;
+  }
+
+  /* ─── adaptive build targets (advance only if yesterday's combined effort hit the goal) ─── */
+  const bTargets={};
+  for(const a of ACTS.filter(x=>x.kind==='build')){
+    const arr=new Array(TOTAL_DAYS); arr[0]=a.base;
+    for(let i=1;i<TOTAL_DAYS;i++){
+      const prev=arr[i-1];
+      const v=get(i-1,a.id)||0;
+      const credit=a.group==='kunst'?(a.id==='art'?(get(i-1,'study')||0):(get(i-1,'art')||0)):0;
+      arr[i]=(v+credit)>=prev ? Math.min(prev+a.step,a.cap) : prev;
+    }
+    bTargets[a.id]=arr;
+  }
+
+  /* ─── aggregate stats ─── */
+  let totalFrac=0,totalUnits=0;
+  const dayDoneMap={};
+  for(let i=0;i<TOTAL_DAYS;i++){
+    const date=dateForDay(start,i); const units=dayUnits(i,date);
+    let dFrac=0;
+    for(const u of units){
+      let best=0;
+      const artV=u.group==='kunst'?(get(i,'art')||0):0;
+      const studyV=u.group==='kunst'?(get(i,'study')||0):0;
+      for(const id of u.ids){
+        if(isFailed(i,id)) continue;
+        const a=ACTS.find(x=>x.id===id);
+        const credit=a.group==='kunst'?(a.id==='art'?studyV:artV):0;
+        best=Math.max(best,actFraction(a,i,get(i,id),date,gGoals[i],bTargets[a.id]?.[i],credit));
+      }
+      dFrac+=best;
+    }
+    totalFrac+=dFrac; totalUnits+=units.length;
+    dayDoneMap[i]={frac:units.length?dFrac/units.length:0};
+  }
+  const overallPct=totalUnits?Math.round(totalFrac/totalUnits*100):0;
+
+  const todayIdx=Math.min(Math.max(Math.round((new Date().setHours(0,0,0,0)-start)/86400000),0),TOTAL_DAYS-1);
+  let streak=0; for(let i=todayIdx;i>=0;i--){ if(dayDoneMap[i].frac>=0.7) streak++; else break; }
+  const level=Math.min(Math.floor(overallPct/12.5),8);
+  useEffect(()=>{ if(level>prevLevel.current&&prevLevel.current!==0){setLevelUp(level);setTimeout(()=>setLevelUp(null),2600);} prevLevel.current=level; },[level]);
+  const flowers='🌸'.repeat(level)+'🌱'.repeat(Math.max(0,8-level));
+
+  /* ─── challenge meta ─── */
+  const totalAttempts=meta.attempts.length+1;
+  const completedCount=meta.attempts.filter(a=>a.done).length;
+  const version=completedCount+0.1*totalAttempts;
+  function resetChallenge(){
+    if(!confirm('Challenge neu starten?\n\nDer aktuelle Durchlauf wird archiviert und die 14 Tage starten neu ab heute.')) return;
+    const done=confirm('Hast du diese Challenge GESCHAFFT?\n\nOK = ja 🌸 (zählt +1.0)\nAbbrechen = war ein Versuch (zählt +0.1)');
+    const m=loadMeta(); m.attempts.push({start:start.toISOString(),end:new Date().toISOString(),pct:overallPct,done}); saveMeta(m);
+    localStorage.removeItem(DATA_KEY); const t=new Date();t.setHours(0,0,0,0);localStorage.setItem(START_KEY,t.toISOString()); location.reload();
+  }
+
+  /* ─── selected day ─── */
+  const date=dateForDay(start,sel);
+  const units=dayUnits(sel,date);
+  const reqIds=new Set(units.flatMap(u=>u.ids));
+  const dayPct=Math.round(dayDoneMap[sel].frac*100);
+
+  const cardComplete=(a)=>{
+    if(isFailed(sel,a.id)) return false;
+    const credit=a.group==='kunst'?(a.id==='art'?(get(sel,'study')||0):(get(sel,'art')||0)):0;
+    return actFraction(a,sel,get(sel,a.id),date,gGoals[sel],bTargets[a.id]?.[sel],credit)>=0.999;
+  };
+  const groupComplete={};
+  for(const a of ACTS){ if(a.group&&cardComplete(a)) groupComplete[a.group]=true; }
+  const satisfiedByGroup=(a)=>a.group&&groupComplete[a.group]&&!cardComplete(a);
+
+  const statusRank=(a)=>{
+    const isOff=(a.id==='work'&&workPlan(date)===0)||(a.id==='home'&&sel%2!==0);
+    if(isOff) return 3;
+    if(isOk(sel,a.id)) return 1;
+    if(isFailed(sel,a.id)) return 2;
+    if(cardComplete(a)||satisfiedByGroup(a)) return 1;
+    if(a.kind==='time'){const v=get(sel,a.id);if(v&&v.start) return 2;}
+    return 0;
+  };
+
+  /* ─── handlers ─── */
+  function handleToggleDone(a,e){ const cur=get(sel,a.id);const nv=!cur; commit(sel,a.id,nv); if(nv) fireBurst(e); }
+  function handleCounterSet(a,n){ const cur=get(sel,a.id)||0;const nv=Math.max(0,n); commit(sel,a.id,nv); if(nv>=a.goal&&cur<a.goal) fireBurst(null); }
+  function handleWork(delta,e){ const cur=get(sel,'work')||{done:0}; const plan=workPlan(date); const nv={plan,done:Math.max(0,(cur.done||0)+delta)}; commit(sel,'work',nv); if(delta>0&&plan>0&&nv.done>=plan&&(cur.done||0)<plan) fireBurst(e); }
+  function handleBuild(a,delta,e){ const t=bTargets[a.id]?.[sel]; const cur=get(sel,a.id)||0; const nv=Math.max(0,cur+delta); commit(sel,a.id,nv); const credit=a.group==='kunst'?(a.id==='art'?(get(sel,'study')||0):(get(sel,'art')||0)):0; if(delta>0&&(nv+credit)>=t&&(cur+credit)<t) fireBurst(e); }
+  function handleTime(a,val,e){ commit(sel,a.id,val); const win=val&&(val.none||(val.start&&toMin(val.start)>=gGoals[sel])); if(win) fireBurst(e); }
+
+  /* ─── render ─── */
+  return React.createElement('div',{className:'wrap'},
+    bursts.map(b=>React.createElement(Burst,{key:b.id,x:b.x,y:b.y})),
+    levelUp&&React.createElement('div',{className:'levelup show'},'🌸 Level '+levelUp+'! Deine Wisteria blüht weiter'),
+
+    React.createElement('div',{className:'hero'},
+      React.createElement('h1',null,'14 Tage Bloom Challenge'),
+      React.createElement('div',{className:'sub'},'Sanfter Reset · flexibel · ein 1-Minuten-Downdog zählt auch'),
+      React.createElement('div',{className:'wisteria'},flowers),
+    ),
+
+    React.createElement('div',{className:'dash'},
+      React.createElement('div',{className:'panel'},
+        React.createElement('h2',null,'🌿 Gesamt-Fortschritt'),
+        React.createElement('div',{className:'bigbar-label'},
+          React.createElement('span',{className:'pct'},overallPct+'%'),
+          React.createElement('span',{className:'small'},'über alle 14 Tage')),
+        React.createElement('div',{className:'bigbar'},React.createElement('span',{style:{width:overallPct+'%'}})),
+        React.createElement('div',{className:'stat-row',style:{marginTop:'16px'}},
+          React.createElement('div',{className:'stat streak'},React.createElement('div',{className:'num'},streak+'🔥'),React.createElement('div',{className:'lbl'},'Tage-Streak (≥70%)')),
+          React.createElement('div',{className:'stat level'},React.createElement('div',{className:'num'},level),React.createElement('div',{className:'lbl'},'Bloom-Level'),React.createElement('div',{className:'levelbar'},React.createElement('span',{style:{width:((overallPct%12.5)/12.5*100)+'%'}}))),
+          React.createElement('div',{className:'stat bloom'},React.createElement('div',{className:'num'},Math.round(totalFrac)),React.createElement('div',{className:'lbl'},'Wins gesammelt')),
+        ),
+      ),
+      React.createElement('div',{className:'panel'},
+        React.createElement('h2',null,'🌼 Challenge ',React.createElement('span',{className:'metaversion'},version.toFixed(1))),
+        React.createElement('div',{className:'metaline'},'Versuch #'+totalAttempts+(completedCount?' · '+completedCount+'× geschafft 🌸':' · noch keiner abgeschlossen')),
+        React.createElement('div',{className:'metahist'},
+          meta.attempts.length===0
+            ? React.createElement('div',{className:'metaempty'},'Noch keine vergangenen Durchläufe – das hier ist dein erster 🌱')
+            : meta.attempts.map((at,i)=>React.createElement('div',{key:i,className:'metarow'},
+                React.createElement('span',null,'#'+(i+1)+' · '+fmtDate(new Date(at.start))+'–'+fmtDate(new Date(at.end))),
+                React.createElement('span',{className:at.done?'mdone':'mtry'},at.pct+'% '+(at.done?'🌸':'🌱'))))),
+        React.createElement('button',{className:'resetchal',onClick:resetChallenge},'↻ Challenge neu starten'),
+      ),
+    ),
+
+    React.createElement('div',{className:'days'},
+      Array.from({length:TOTAL_DAYS}).map((_,i)=>{
+        const d=dateForDay(start,i); const dm=dayDoneMap[i]; const full=dm.frac>=0.999;
+        const cls='daychip'+(i===sel?' active':'')+(full?' done-full':'')+(i===todayIdx?' today':'');
+        return React.createElement('div',{key:i,className:cls,onClick:()=>setSel(i)},
+          dm.frac>0&&React.createElement('div',{className:'ring'},Math.round(dm.frac*100)),
+          React.createElement('div',{className:'dn'},i+1),
+          React.createElement('div',{className:'dd'},WD[d.getDay()]+' '+fmtDate(d)));
+      })
+    ),
+
+    React.createElement('div',{className:'dayhead'},
+      React.createElement('div',{className:'title'},'Tag '+(sel+1)+' ',React.createElement('small',null,WD[date.getDay()]+', '+fmtDate(date))),
+      React.createElement('div',{className:'dayhead-right'},
+        React.createElement('div',{className:'daypct'},dayPct+'% geschafft · '+units.length+' Pflicht-Items'),
+        React.createElement('button',{className:'toggle-done'+(hideDone?' on':''),onClick:()=>setHideDone(v=>!v)},hideDone?'✓ Erledigte ausgeblendet':'Erledigte ausblenden'),
+      ),
+    ),
+
+    React.createElement('div',{className:'grid'},
+      ACTS
+        .map((a,idx)=>({a,idx}))
+        .sort((p,q)=>(statusRank(p.a)-statusRank(q.a))||(p.idx-q.idx))
+        .filter(({a})=>!(hideDone&&(cardComplete(a)||satisfiedByGroup(a)||isOk(sel,a.id))))
+        .map(({a})=>{
+          const col=COLORS[a.id]; const style={'--c':col.c,'--c2':col.c2,'--cglow':col.glow};
+          const isOff=(a.id==='work'&&workPlan(date)===0)||(a.id==='home'&&sel%2!==0);
+          const failed=isFailed(sel,a.id);
+          const complete=cardComplete(a);
+          const satisfied=satisfiedByGroup(a);
+          const okToday=isOk(sel,a.id);
+          const gamingMissed=a.kind==='time'&&!complete&&(()=>{const v=get(sel,a.id);return !!(v&&v.start);})();
+          const showOkBtn=(a.kind==='build'||a.kind==='counter')&&!complete&&!failed&&!okToday;
+          const showUndoOk=(a.kind==='build'||a.kind==='counter')&&!complete&&okToday;
+          const showNGBtn=!isOff&&a.kind!=='time'&&!complete&&!okToday;
+
+          let body;
+          if(a.kind==='done'){
+            const on=!!get(sel,a.id);
+            body=React.createElement('button',{className:'check'+(on?' on':''),onClick:e=>handleToggleDone(a,e)},on?'✓ erledigt':'als erledigt markieren');
+          }
+          else if(a.kind==='counter'){
+            const v=get(sel,a.id)||0;
+            body=React.createElement('div',null,
+              React.createElement(NumberEntry,{value:v,goal:a.goal,unit:a.unit,onCommit:n=>handleCounterSet(a,n)}),
+              React.createElement('div',{className:'cbar'},React.createElement('span',{style:{width:Math.min(v/a.goal*100,100)+'%'}})));
+          }
+          else if(a.kind==='workcount'){
+            const plan=workPlan(date); const v=get(sel,'work')||{done:0};
+            body=React.createElement('div',null,
+              React.createElement('div',{className:'counter'},
+                React.createElement('button',{onClick:e=>handleWork(-1,e)},'−'),
+                React.createElement('div',{className:'val'},(v.done||0),React.createElement('small',null,plan?' /'+plan:' frei')),
+                React.createElement('button',{onClick:e=>handleWork(1,e)},'+')),
+              React.createElement('div',{className:'pips'},
+                Array.from({length:plan||Math.max(v.done||0,1)}).map((_,i)=>
+                  React.createElement('div',{key:i,className:'pip'+(i<(v.done||0)?' fill':(plan?' plan':''))}))));
+          }
+          else if(a.kind==='build'){
+            const t=bTargets[a.id]?.[sel]??10; const v=get(sel,a.id)||0;
+            const credit=a.group==='kunst'?(a.id==='art'?(get(sel,'study')||0):(get(sel,'art')||0)):0;
+            const combined=v+credit; const done=combined>=t;
+            const creditLabel=a.id==='art'?'Art Study':'Art';
+            body=React.createElement('div',{className:'build'},
+              React.createElement('div',{className:'mins'},v,React.createElement('small',null,' / '+t+' min')),
+              React.createElement('div',{className:'target'},credit>0?'+'+credit+' min von '+creditLabel+' zählen':'Heutiges Ziel: '+t+' min'),
+              React.createElement('div',{className:'minirow'},
+                React.createElement('button',{onClick:e=>handleBuild(a,-5,e)},'−5 min'),
+                React.createElement('button',{onClick:e=>handleBuild(a,5,e),className:done?'done':''},done?'✓ geschafft':'+5 min')));
+          }
+          else if(a.kind==='time'){
+            const v=get(sel,a.id); const goalM=gGoals[sel];
+            let delta=null;
+            if(v&&v.none){ delta=React.createElement('div',{className:'delta good'},'gar nicht gezockt 🎉'); }
+            else if(v&&v.start){ const diff=toMin(v.start)-goalM; const ad=Math.abs(diff); const hh=Math.floor(ad/60),mm=ad%60; const num=(diff>=0?'+':'−')+(hh?hh+'h ':'')+( mm?mm+'min':(hh?'':'0min')); delta=React.createElement('div',{className:'delta '+(diff>=0?'good':'bad')},num+' '+(diff>=0?'später 🌿':'früher')); }
+            body=React.createElement('div',{className:'gaming'},
+              React.createElement('div',{className:'goal'},'Ziel: ab ',React.createElement('b',null,fmtTime(goalM))),
+              React.createElement(TimeEntry,{value:(v&&v.start)||'',onCommit:s=>handleTime(a,s?{start:s}:{},null)}),
+              delta,
+              React.createElement('button',{className:'nogame'+(v&&v.none?' on':''),onClick:e=>handleTime(a,(v&&v.none)?{}:{none:true},e)},(v&&v.none)?'↩︎ doch gezockt':'🚫 gar nicht gezockt'));
+          }
+
+          const metaTxt=
+            a.kind==='time'   ? 'Start eintragen · später als Ziel = grün, früher = rot' :
+            a.kind==='build'  ? (a.group==='kunst'?'Art & Art Study teilen sich die Minuten':'Buildup · rückt vor wenn du gestern das Ziel getroffen hast') :
+            a.kind==='workcount'?(workPlan(date)===0?'Wochenende – frei, zähl was du machst':'Plan für '+WD[date.getDay()]+': '+workPlan(date)+' Phasen') :
+            a.kind==='counter' ? 'Ziel: '+a.goal+' Kanji-Wiederholungen als Morgen-Anker' :
+            a.id==='home'     ? (sel%2===0?'Heute dran (alle 2 Tage)':'Heute frei – morgen wieder') :
+            a.bonus           ? 'Wenn du Lust hast – kein Druck' : 'Einfach machen, dann antippen';
+
+          return React.createElement('div',{key:a.id,
+            className:'act'+(complete?' complete':'')+(failed?' failed':'')+(okToday&&!complete?' okd':'')+(satisfied?' satisfied':''),
+            style:{...style,opacity:isOff?0.55:undefined}},
+
+            complete  && React.createElement('div',{className:'donebadge'},'✓ geschafft'),
+            failed    && React.createElement('div',{className:'failbadge'},'✕ nicht geschafft'),
+            okToday&&!complete&&React.createElement('div',{className:'okbadge'},'für heute ok'),
+            gamingMissed&&!failed&&React.createElement('div',{className:'missedbadge'},'eingetragen'),
+
+            React.createElement('div',{className:'nm'},React.createElement('span',{className:'ico'},a.ico),a.nm,React.createElement('span',{className:'tag',style:{marginLeft:'auto'}},a.tag)),
+            satisfied&&React.createElement('div',{className:'satisfiednote'},'✓ Kunst-Pflicht schon erfüllt – extra zählt trotzdem'),
+            React.createElement('div',{className:'meta'},metaTxt),
+            body,
+
+            showOkBtn&&React.createElement('div',{className:'okrow'},
+              React.createElement('button',{className:'okbtn',onClick:()=>setOkFlag(sel,a.id,true)},'✓ für heute ok')),
+            showUndoOk&&React.createElement('div',{className:'okrow'},
+              React.createElement('button',{className:'okbtn',onClick:()=>setOkFlag(sel,a.id,false)},'↩ doch weitermachen')),
+
+            showNGBtn&&React.createElement('div',{className:'resolve'},
+              failed
+                ? React.createElement('button',{className:'unfail',onClick:()=>setFail(sel,a.id,false)},'↩︎ doch nochmal versuchen')
+                : React.createElement('button',{onClick:()=>setFail(sel,a.id,true)},'✕ heute nicht geschafft')),
+          );
+        })
+    ),
+
+    React.createElement('div',{className:'foot'},
+      'Alles wird lokal in deinem Browser gespeichert · Start: '+fmtDate(start)+' ',
+      React.createElement('button',{onClick:()=>{ if(confirm('Startdatum auf HEUTE setzen?')){const t=new Date();t.setHours(0,0,0,0);localStorage.setItem(START_KEY,t.toISOString());location.reload();} }},'Start = heute'),
+      React.createElement('button',{onClick:()=>{ if(confirm('Wirklich ALLEN Fortschritt löschen? (Challenge-Historie bleibt)')){localStorage.removeItem(DATA_KEY);location.reload();} }},'Tag-Fortschritt zurücksetzen'),
+    ),
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+</script>

@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heute schaffen</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Quicksand:wght@400;500;600;700&family=Caveat:wght@500;600&display=swap');
+
+    :root {
+      /* Monet picnic palette */
+      --sky: #eef3ea;
+      --paper: #fffdf8;
+      --paper-soft: #fbf7ee;
+      --ink: #2f3b2e;
+      --mid: #5c6a55;
+      --muted: #94a08c;
+      --line: #e2e6d4;
+
+      --lily: #7a8fc4;
+      /* physical - water lily blue */
+      --lily-bg: #e6ecf7;
+      --poppy: #c4607a;
+      /* mental hard - poppy red/pink */
+      --poppy-bg: #f7e3e9;
+      --willow: #7a9e6e;
+      /* mental soft - willow green */
+      --willow-bg: #e7f0e1;
+      --lavender: #a08fc4;
+      /* rest/pause - lavender */
+      --lavender-bg: #eee8f7;
+      --clay: #b8784a;
+      /* chores/duty - terracotta clay */
+      --clay-bg: #f5e8dc;
+
+      --gold: #d4a64a;
+      --gold-bg: #faf0dc;
+
+      --radius: 18px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--sky);
+      font-family: 'Quicksand', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* watercolor wash background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 700px 500px at 8% 8%, rgba(122, 143, 196, .16) 0%, transparent 60%),
+        radial-gradient(ellipse 600px 600px at 95% 15%, rgba(196, 96, 122, .10) 0%, transparent 55%),
+        radial-gradient(ellipse 800px 600px at 50% 100%, rgba(122, 158, 110, .14) 0%, transparent 60%),
+        radial-gradient(ellipse 500px 400px at 85% 80%, rgba(212, 166, 74, .08) 0%, transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* paper grain texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .7;
+    }
+
+    .app {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ══════════════════════════
+   SIDEBAR — TEMPLATE GARDEN
+   ══════════════════════════ */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: rgba(255, 253, 248, .5);
+      border-right: 1px solid var(--line);
+      padding: 1.4rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+      transition: width .25s ease, padding .25s ease, opacity .2s;
+      overflow: hidden;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      padding-left: 0;
+      padding-right: 0;
+      opacity: 0;
+      border-right: none;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: .5rem;
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-family: 'Cormorant', serif;
+      font-size: 1.35rem;
+      font-style: italic;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .sidebar-sub {
+      font-size: .68rem;
+      color: var(--muted);
+      margin-top: -.3rem;
+      margin-bottom: .2rem;
+      flex-shrink: 0;
+    }
+
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .template-chip {
+      background: var(--paper);
+      border: 2px solid var(--cat-color, var(--muted));
+      border-radius: 14px;
+      padding: .55rem .8rem;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    .template-chip:hover {
+      transform: translateY(-2px) rotate(-.4deg);
+      box-shadow: 0 4px 14px rgba(60, 70, 50, .1);
+    }
+
+    .template-chip:active {
+      transform: translateY(0) scale(.98);
+    }
+
+    .template-icon {
+      font-size: 1.05rem;
+      flex-shrink: 0;
+    }
+
+    .template-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .template-name {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .template-meta {
+      font-size: .68rem;
+      color: var(--muted);
+    }
+
+    .template-del {
+      background: none;
+      border: none;
+      color: transparent;
+      cursor: pointer;
+      font-size: .7rem;
+      padding: .1rem;
+      transition: color .12s;
+      flex-shrink: 0;
+    }
+
+    .template-chip:hover .template-del {
+      color: var(--muted);
+    }
+
+    .template-del:hover {
+      color: var(--poppy) !important;
+    }
+
+    .add-template-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      padding: .55rem;
+      border: 2px dashed var(--line);
+      border-radius: 14px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .add-template-btn:hover {
+      border-color: var(--willow);
+      color: var(--willow);
+      background: var(--willow-bg);
+    }
+
+    .sidebar-toggle {
+      position: fixed;
+      top: 1.3rem;
+      z-index: 20;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: .9rem;
+      color: var(--mid);
+      box-shadow: 0 2px 8px rgba(60, 70, 50, .08);
+      transition: left .25s ease;
+    }
+
+    /* ══════════════════════════
+   MAIN
+   ══════════════════════════ */
+    .main {
+      flex: 1;
+      padding: 2.2rem 2.5rem 4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-width: 0;
+    }
+
+    .date-line {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .7rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .3rem;
+      max-width: 1080px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .page-title {
+      font-family: 'Cormorant', serif;
+      font-size: 2.6rem;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      max-width: 1080px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .page-title em {
+      font-style: italic;
+      color: var(--lily);
+    }
+
+    /* XP card */
+    .xp-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 3px 16px rgba(60, 70, 50, .05);
+    }
+
+    .xp-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: .65rem;
+    }
+
+    .xp-level {
+      font-size: .68rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--lily);
+      font-weight: 600;
+    }
+
+    .xp-total {
+      font-family: 'Cormorant', serif;
+      font-size: 1.5rem;
+      color: var(--ink);
+    }
+
+    .xp-total span {
+      font-size: .8rem;
+      color: var(--muted);
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    .bar-track {
+      height: 9px;
+      background: var(--line);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: .5rem;
+      position: relative;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--lily) 0%, var(--willow) 100%);
+      border-radius: 99px;
+      transition: width .6s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    .xp-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .emoji-shelf {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      min-height: 20px;
+    }
+
+    .emoji-item {
+      font-size: 1rem;
+      animation: bloom .4s cubic-bezier(.34, 1.56, .64, 1);
+    }
+
+    @keyframes bloom {
+      from {
+        transform: scale(0) rotate(-15deg);
+        opacity: 0
+      }
+
+      to {
+        transform: scale(1) rotate(0);
+        opacity: 1
+      }
+    }
+
+    .today-xp {
+      font-size: .7rem;
+      color: var(--muted);
+    }
+
+    .today-xp strong {
+      color: var(--willow);
+    }
+
+    /* controls */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      margin-bottom: 1.1rem;
+      flex-wrap: wrap;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: .6rem .85rem;
+    }
+
+    .ctrl-label {
+      font-size: .68rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .time-input {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .85rem;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      padding: .25rem .5rem;
+      outline: none;
+      width: 100px;
+      transition: border-color .15s;
+    }
+
+    .time-input:focus {
+      border-color: var(--lily);
+    }
+
+    .pill-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .03em;
+      padding: .3rem .65rem;
+      border-radius: 99px;
+      border: 1px solid var(--lily);
+      background: var(--lily-bg);
+      color: var(--lily);
+      cursor: pointer;
+      transition: all .12s;
+      white-space: nowrap;
+    }
+
+    .pill-btn:hover {
+      background: var(--lily);
+      color: white;
+    }
+
+    .pill-btn.primary {
+      background: var(--willow);
+      border-color: var(--willow);
+      color: white;
+    }
+
+    .pill-btn.primary:hover {
+      background: #6a8e5e;
+    }
+
+    .ctrl-sep {
+      color: var(--line);
+      font-size: 1rem;
+    }
+
+    .buf-input {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .8rem;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      padding: .25rem .45rem;
+      outline: none;
+      width: 48px;
+      text-align: center;
+      transition: border-color .15s;
+    }
+
+    .buf-input:focus {
+      border-color: var(--lily);
+    }
+
+    /* legend */
+    .legend-row {
+      display: flex;
+      gap: .9rem;
+      margin-bottom: 1.1rem;
+      flex-wrap: wrap;
+      padding: 0 .2rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+      font-size: .68rem;
+      color: var(--mid);
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════
+   TASK LIST
+   ══════════════════════════ */
+    .task-list {
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+      margin-bottom: 1rem;
+    }
+
+    .task-row {
+      background: var(--paper);
+      border: 1.5px solid var(--cat-color, var(--line));
+      border-left-width: 5px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(60, 70, 50, .04);
+      transition: opacity .15s, border-color .15s;
+    }
+
+    .task-row.done {
+      opacity: .55;
+      background: var(--paper-soft);
+    }
+
+    .task-row.done .task-name {
+      text-decoration: line-through;
+      color: var(--muted);
+    }
+
+    .task-row.is-late {
+      box-shadow: 0 0 0 2px rgba(196, 96, 122, .25);
+    }
+
+    .task-main {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: .65rem .9rem;
+    }
+
+    .task-check {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      cursor: pointer;
+      border: 2px solid var(--cat-color, var(--line));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      background: transparent;
+      color: transparent;
+      transition: all .15s;
+    }
+
+    .task-check:hover {
+      background: var(--cat-bg, var(--paper-soft));
+    }
+
+    .task-row.done .task-check {
+      background: var(--cat-color, var(--muted));
+      color: white;
+    }
+
+    .task-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-name {
+      font-size: .9rem;
+      font-weight: 500;
+      color: var(--ink);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-cat-label {
+      font-size: .62rem;
+      color: var(--cat-color, var(--muted));
+      font-weight: 600;
+      letter-spacing: .03em;
+      margin-top: .05rem;
+    }
+
+    .task-time-block {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .task-time-display {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .72rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .task-done-time {
+      font-size: .68rem;
+      color: var(--willow);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .task-dur-input {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .72rem;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      color: var(--mid);
+      padding: .12rem .3rem;
+      width: 40px;
+      text-align: center;
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    .task-dur-input:focus {
+      border-color: var(--lily);
+    }
+
+    .pts-badge {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .62rem;
+      font-weight: 600;
+      color: var(--gold);
+      background: var(--gold-bg);
+      padding: .1rem .4rem;
+      border-radius: 99px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .task-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: transparent;
+      font-size: .72rem;
+      padding: .15rem .25rem;
+      transition: color .12s;
+      flex-shrink: 0;
+    }
+
+    .task-row:hover .task-del {
+      color: var(--muted);
+    }
+
+    .task-del:hover {
+      color: var(--poppy) !important;
+    }
+
+    /* ══════════════════════════
+   ADD TASK
+   ══════════════════════════ */
+    .add-task-form {
+      background: var(--paper);
+      border: 2px dashed var(--line);
+      border-radius: var(--radius-sm);
+      padding: .65rem .85rem;
+      display: flex;
+      gap: .45rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .add-name-input {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .86rem;
+      background: transparent;
+      border: none;
+      color: var(--ink);
+      outline: none;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .add-name-input::placeholder {
+      color: var(--muted);
+    }
+
+    .add-dur-input {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .78rem;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--mid);
+      padding: .22rem .45rem;
+      width: 48px;
+      text-align: center;
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    .add-dur-input:focus {
+      border-color: var(--lily);
+    }
+
+    .cat-select {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .76rem;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--mid);
+      padding: .22rem .4rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+
+    .cat-select:focus {
+      border-color: var(--lily);
+    }
+
+    .add-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .76rem;
+      font-weight: 700;
+      letter-spacing: .03em;
+      padding: .3rem .8rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--willow);
+      color: white;
+      cursor: pointer;
+      transition: background .12s;
+      white-space: nowrap;
+    }
+
+    .add-btn:hover {
+      background: #6a8e5e;
+    }
+
+    /* save as template checkbox */
+    .save-template-row {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .68rem;
+      color: var(--muted);
+    }
+
+    .save-template-row input {
+      accent-color: var(--willow);
+      cursor: pointer;
+    }
+
+    /* ══════════════════════════
+   BOTTOM
+   ══════════════════════════ */
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1.2rem;
+      padding-top: .9rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .total-time {
+      font-size: .72rem;
+      color: var(--muted);
+    }
+
+    .reset-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .68rem;
+      font-weight: 600;
+      padding: .27rem .7rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .reset-btn:hover {
+      color: var(--poppy);
+      border-color: var(--poppy);
+    }
+
+    .empty-hint {
+      text-align: center;
+      padding: 1.6rem;
+      color: var(--muted);
+      font-style: italic;
+      font-size: .88rem;
+      font-family: 'Cormorant', serif;
+    }
+
+    /* ══════════════════════════
+   TOAST
+   ══════════════════════════ */
+    .toast {
+      position: fixed;
+      top: 1.4rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-2rem);
+      background: var(--ink);
+      color: var(--paper);
+      font-family: 'Quicksand', sans-serif;
+      font-weight: 600;
+      font-size: .82rem;
+      padding: .55rem 1.3rem;
+      border-radius: 99px;
+      opacity: 0;
+      transition: opacity .25s, transform .25s;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @keyframes completePop {
+      0% {
+        transform: scale(1)
+      }
+
+      40% {
+        transform: scale(1.02)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    .task-row.just-done {
+      animation: completePop .3s ease;
+    }
+
+    .template-group-label {
+      font-size: .62rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--group-color, var(--muted));
+      margin: .5rem 0 -.1rem;
+      padding-left: .15rem;
+    }
+
+    .template-group-label:first-child {
+      margin-top: 0;
+    }
+
+    .template-chip.is-hidden {
+      opacity: .45;
+    }
+
+    .template-eye {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .75rem;
+      padding: .1rem .2rem;
+      flex-shrink: 0;
+      transition: color .12s;
+      opacity: 0;
+    }
+
+    .template-chip:hover .template-eye {
+      opacity: .6;
+    }
+
+    .template-eye:hover {
+      opacity: 1 !important;
+      color: var(--lily) !important;
+    }
+
+    .template-chip.is-hidden .template-eye {
+      opacity: 1;
+      color: var(--poppy);
+    }
+
+    /* ══════════════════════════
+   TWO-COLUMN: content + xp glass
+   ══════════════════════════ */
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 180px;
+      gap: clamp(4rem, 6vw, 6.5rem);
+      align-items: start;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .content-main {
+      min-width: 0;
+      max-width: 760px;
+      justify-self: center;
+    }
+
+    .xp-glass-wrap {
+      position: sticky;
+      top: 2.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      justify-self: end;
+    }
+
+    .xp-glass-toggle {
+      font-size: .62rem;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    .xp-glass-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: .9rem .8rem 1rem;
+      box-shadow: 0 3px 16px rgba(60, 70, 50, .05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      width: 100%;
+    }
+
+    .xp-glass-card.collapsed-glass {
+      display: none;
+    }
+
+    .xp-level-label {
+      font-size: .62rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--lily);
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .glass-jar {
+      width: 56px;
+      height: 140px;
+      position: relative;
+      border: 2.5px solid var(--ink);
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      background: var(--paper-soft);
+      overflow: hidden;
+    }
+
+    .glass-jar::before {
+      content: '';
+      position: absolute;
+      top: -2.5px;
+      left: -4px;
+      right: -4px;
+      height: 6px;
+      border: 2.5px solid var(--ink);
+      border-radius: 3px;
+      background: var(--paper-soft);
+    }
+
+    .glass-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(180deg, var(--willow) 0%, var(--lily) 100%);
+      height: 0%;
+      transition: height .6s cubic-bezier(.34, 1.56, .64, 1);
+      border-radius: 0 0 14px 14px;
+    }
+
+    .xp-total-glass {
+      font-family: 'Cormorant', serif;
+      font-size: 1.5rem;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1;
+    }
+
+    .xp-total-glass span {
+      font-size: .65rem;
+      color: var(--muted);
+      font-family: 'Quicksand', sans-serif;
+      display: block;
+    }
+
+    .today-xp-glass {
+      font-size: .65rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .today-xp-glass strong {
+      color: var(--willow);
+    }
+
+    .emoji-shelf-glass {
+      display: flex;
+      gap: 2px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 130px;
+    }
+
+    .emoji-shelf-glass .emoji-item {
+      font-size: .85rem;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: .8rem;
+    }
+
+    .filter-pill {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .25rem .65rem;
+      border-radius: 99px;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .filter-pill.active {
+      background: var(--willow);
+      border-color: var(--willow);
+      color: white;
+    }
+
+    .template-chip {
+      position: relative;
+    }
+
+    .template-usage-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--gold);
+      color: white;
+      font-size: .62rem;
+      font-weight: 700;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--paper);
+    }
+
+    /* drag and drop */
+    .task-row[draggable="true"] {
+      cursor: grab;
+    }
+
+    .task-row.dragging {
+      opacity: .4;
+    }
+
+    .task-row.drag-over {
+      border-top: 3px solid var(--gold) !important;
+    }
+
+    .drag-handle {
+      color: var(--muted);
+      font-size: .8rem;
+      cursor: grab;
+      flex-shrink: 0;
+      padding: 0 .1rem;
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+    }
+
+    /* eye / hide */
+    .task-eye {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .8rem;
+      padding: .15rem .25rem;
+      flex-shrink: 0;
+      transition: color .12s;
+      opacity: 0;
+    }
+
+    .task-row:hover .task-eye {
+      opacity: .6;
+    }
+
+    .task-eye:hover {
+      opacity: 1 !important;
+      color: var(--lily) !important;
+    }
+
+    .task-row.hidden-task {
+      display: none;
+    }
+
+    .task-row.hidden-task.show-hidden {
+      display: block;
+      opacity: .5;
+    }
+
+    .task-row.hidden-task.show-hidden .task-eye {
+      opacity: 1;
+      color: var(--poppy);
+    }
+
+    .hidden-filter-row {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      margin-bottom: .6rem;
+      font-size: .7rem;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .hidden-filter-row button {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .68rem;
+      font-weight: 600;
+      padding: .2rem .55rem;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      background: var(--paper);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .12s;
+    }
+
+    .hidden-filter-row button.active {
+      background: var(--lily);
+      border-color: var(--lily);
+      color: white;
+    }
+
+    /* editable name */
+    .task-name-input {
+      display: none;
+      font-family: 'Quicksand', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      background: var(--paper-soft);
+      border: 1px solid var(--lily);
+      border-radius: 6px;
+      color: var(--ink);
+      padding: .15rem .4rem;
+      outline: none;
+      width: 100%;
+    }
+
+    .task-name-input.editing {
+      display: block;
+    }
+
+    .task-name.editable {
+      cursor: text;
+    }
+
+    .task-name.editing-hidden {
+      display: none;
+    }
+
+    /* plant progress row */
+    .plant-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin: .2rem 0 1.1rem;
+      flex-wrap: wrap;
+    }
+
+    .plant-item {
+      font-size: 1.3rem;
+      transition: transform .2s;
+    }
+
+    .plant-item.locked {
+      opacity: .25;
+      filter: grayscale(1);
+    }
+
+    /* timer card */
+    .timer-card {
+      background: var(--paper);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.3rem 1.4rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+      box-shadow: 0 3px 16px rgba(60, 70, 50, .06);
+    }
+
+    .timer-card.mode-active {
+      border-color: var(--lily);
+    }
+
+    .timer-card.mode-overflow {
+      border-color: var(--poppy);
+      background: var(--poppy-bg);
+    }
+
+    .timer-empty {
+      color: var(--muted);
+      font-style: italic;
+      font-family: 'Cormorant', serif;
+      font-size: 1rem;
+      padding: .6rem 0;
+    }
+
+    .timer-task-name {
+      font-family: 'Cormorant', serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: .2rem;
+    }
+
+    .timer-clock {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+      margin: .5rem 0;
+      letter-spacing: -.02em;
+    }
+
+    .timer-clock.warning {
+      color: var(--gold);
+    }
+
+    .timer-clock.overflow {
+      color: var(--poppy);
+    }
+
+    .timer-overflow-label {
+      font-size: .72rem;
+      color: var(--poppy);
+      font-weight: 600;
+      margin-bottom: .5rem;
+    }
+
+    .timer-btn-row {
+      display: flex;
+      gap: .5rem;
+      justify-content: center;
+      margin-top: .8rem;
+    }
+
+    .timer-btn {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      padding: .5rem 1.1rem;
+      border-radius: 99px;
+      border: none;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .timer-btn.start {
+      background: var(--willow);
+      color: white;
+    }
+
+    .timer-btn.start:hover {
+      background: #6a8e5e;
+    }
+
+    .timer-btn.pause {
+      background: var(--gold-bg);
+      color: var(--gold);
+      border: 1px solid var(--gold);
+    }
+
+    .timer-btn.done {
+      background: var(--lily);
+      color: white;
+    }
+
+    .timer-btn.done:hover {
+      background: #6a7eb0;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(47, 59, 46, .3);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.6rem 1.7rem;
+      width: 100%;
+      max-width: 380px;
+      margin: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: .8rem;
+      box-shadow: 0 12px 40px rgba(47, 59, 46, .18);
+    }
+
+    .modal h2 {
+      font-family: 'Cormorant', serif;
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .modal-field label {
+      font-size: .68rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: .3rem;
+    }
+
+    .modal-field input,
+    .modal-field select {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .88rem;
+      background: var(--paper-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      padding: .45rem .6rem;
+      outline: none;
+      width: 100%;
+      transition: border-color .15s;
+    }
+
+    .modal-field input:focus,
+    .modal-field select:focus {
+      border-color: var(--lily);
+    }
+
+    .modal-row {
+      display: flex;
+      gap: .6rem;
+    }
+
+    .modal-row .modal-field {
+      flex: 1;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: .5rem;
+      justify-content: flex-end;
+      margin-top: .4rem;
+    }
+
+    .btn-cancel {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      padding: .4rem .9rem;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .btn-confirm {
+      font-family: 'Quicksand', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      padding: .4rem 1rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--willow);
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-confirm:hover {
+      background: #6a8e5e;
+    }
+  </style>
+</head>
+
+<body>
+
+  <button class="sidebar-toggle" id="sidebarToggle" style="left: 254px;">◂</button>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Garten</div>
+      </div>
+      <div class="sidebar-sub">Anklicken zum Einpflanzen 🌱</div>
+      <div class="hidden-filter-row">
+        <button id="toggleHiddenTplBtn">🚫 Ausgeblendet (<span id="hiddenTplCount">0</span>)</button>
+      </div>
+      <div class="template-list" id="templateList"></div>
+      <button class="add-template-btn" id="addTemplateBtn">+ Neue Vorlage</button>
+    </aside>
+
+    <main class="main">
+      <div class="date-line" id="dateLine"></div>
+      <h1 class="page-title">Heute <em>schaffen</em></h1>
+
+      <div class="content-grid">
+        <div class="content-main">
+
+          <div class="timer-card" id="timerCard"></div>
+
+          <div class="controls-row">
+            <span class="ctrl-label">Start</span>
+            <input type="time" class="time-input" id="startTime" value="09:00">
+            <button class="pill-btn" id="nowBtn">Jetzt</button>
+            <span class="ctrl-sep">·</span>
+            <span class="ctrl-label">Puffer</span>
+            <input type="number" class="buf-input" id="bufferMin" value="0" min="0" max="60" step="5">
+            <span class="ctrl-label">min</span>
+            <span class="ctrl-sep">·</span>
+            <button class="pill-btn primary" id="resumeBtn">▶ Jetzt weitermachen</button>
+          </div>
+
+          <div class="legend-row">
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--lily)"></div>Physisch
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--poppy)"></div>Mental · anstrengend
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--willow)"></div>Mental · entspannend
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--clay)"></div>Haushalt/Pflicht
+            </div>
+            <div class="legend-item">
+              <div class="legend-dot" style="background:var(--lavender)"></div>Pause
+            </div>
+          </div>
+
+          <div class="filter-row">
+            <button class="filter-pill" id="hideDoneBtn">✓ Erledigte ausblenden</button>
+          </div>
+
+          <div class="task-list" id="taskList"></div>
+
+          <div class="add-task-form">
+            <input class="add-name-input" type="text" id="addName" placeholder="Task hinzufügen…">
+            <input class="add-dur-input" type="number" id="addDur" value="30" min="5" max="480" step="5">
+            <span style="font-size:.7rem;color:var(--muted)">min</span>
+            <select class="cat-select" id="addCat">
+              <option value="physical">🏃 Physisch</option>
+              <option value="hard">💼 Mental anstrengend</option>
+              <option value="soft">🌿 Mental entspannend</option>
+              <option value="chore">🧹 Haushalt/Pflicht</option>
+              <option value="rest">🫖 Pause</option>
+            </select>
+            <button class="add-btn" id="addBtn">+ Task</button>
+          </div>
+          <div class="save-template-row" style="margin-top:.4rem">
+            <input type="checkbox" id="saveAsTemplate">
+            <label for="saveAsTemplate">auch als Vorlage im Garten speichern</label>
+          </div>
+
+          <div class="bottom-row">
+            <span class="total-time" id="totalTime"></span>
+            <button class="reset-btn" id="resetBtn">Tag zurücksetzen</button>
+          </div>
+
+          <div class="plant-row" id="plantRow"></div>
+        </div>
+
+        <div class="xp-glass-wrap">
+          <button class="xp-glass-toggle" id="xpGlassToggle">verstecken</button>
+          <div class="xp-glass-card" id="xpGlassCard">
+            <div class="xp-level-label" id="levelLabel">Level 1<br>Anfänger</div>
+            <div class="glass-jar">
+              <div class="glass-fill" id="xpGlassFill" style="height:0%"></div>
+            </div>
+            <div class="xp-total-glass"><span id="totalPts">0</span><span>XP gesamt</span></div>
+            <div class="today-xp-glass">Heute: <strong id="todayXpLabel">0 XP</strong></div>
+            <div class="emoji-shelf-glass" id="emojiShelf"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- NEW TEMPLATE MODAL -->
+  <div class="modal-backdrop" id="templateModal">
+    <div class="modal">
+      <h2>Neue Vorlage</h2>
+      <div class="modal-field">
+        <label>Name</label>
+        <input type="text" id="tplName" placeholder="z.B. Yoga">
+      </div>
+      <div class="modal-row">
+        <div class="modal-field">
+          <label>Dauer (min)</label>
+          <input type="number" id="tplDur" value="30" min="5" max="480" step="5">
+        </div>
+        <div class="modal-field">
+          <label>Kategorie</label>
+          <select id="tplCat">
+            <option value="physical">🏃 Physisch</option>
+            <option value="hard">💼 Mental anstrengend</option>
+            <option value="soft">🌿 Mental entspannend</option>
+            <option value="chore">🧹 Haushalt/Pflicht</option>
+            <option value="rest">🫖 Pause</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>Icon (optional)</label>
+        <input type="text" id="tplIcon" placeholder="z.B. 🧘" maxlength="4">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" id="tplCancel">Abbrechen</button>
+        <button class="btn-confirm" id="tplConfirm">Anlegen</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════
+    // CONFIG
+    // ══════════════════════════════════════
+    const SK = 'dayplan_picnic_v1';
+
+    const CATS = {
+      physical: { label: 'Physisch', color: 'var(--lily)', bg: 'var(--lily-bg)', pts: 15, icon: '🏃' },
+      hard: { label: 'Mental anstrengend', color: 'var(--poppy)', bg: 'var(--poppy-bg)', pts: 12, icon: '💼' },
+      soft: { label: 'Mental entspannend', color: 'var(--willow)', bg: 'var(--willow-bg)', pts: 8, icon: '🌿' },
+      chore: { label: 'Haushalt/Pflicht', color: 'var(--clay)', bg: 'var(--clay-bg)', pts: 10, icon: '🧹' },
+      rest: { label: 'Pause', color: 'var(--lavender)', bg: 'var(--lavender-bg)', pts: 4, icon: '🫖' },
+    };
+
+    const CAT_EMOJIS = {
+      physical: ['🏃', '💪', '🔥', '⚡', '🌊'],
+      hard: ['💼', '📊', '✅', '🖥️', '📝'],
+      soft: ['🌿', '📖', '🍃', '🌸', '☘️'],
+      chore: ['🧹', '🧺', '✨', '🪣', '🧽'],
+      rest: ['🫖', '☁️', '🪶', '🌙', '✨'],
+    };
+
+    const LEVELS = [
+      { name: 'Anfänger', min: 0 },
+      { name: 'Am Blühen', min: 50 },
+      { name: 'Im Wachstum', min: 150 },
+      { name: 'Produktiv', min: 300 },
+      { name: 'Im Rausch', min: 500 },
+      { name: 'Unaufhaltbar', min: 800 },
+      { name: 'Legendär', min: 1200 },
+    ];
+
+    const DEFAULT_TEMPLATES = [
+      { id: 't1', name: 'Wohnzimmer', dur: 40, cat: 'chore', icon: '🛋️' },
+      { id: 't2', name: 'Arbeit', dur: 40, cat: 'hard', icon: '💼' },
+      { id: 't3', name: 'Kanji', dur: 20, cat: 'soft', icon: '🈯' },
+      { id: 't4', name: 'Journal', dur: 20, cat: 'soft', icon: '📓' },
+      { id: 't5', name: 'Pause', dur: 20, cat: 'rest', icon: '🫖' },
+      { id: 't6', name: 'Sport', dur: 30, cat: 'physical', icon: '🏃' },
+      { id: 't7', name: 'Küche', dur: 25, cat: 'chore', icon: '🍳' },
+    ];
+
+    // ══════════════════════════════════════
+    // STATE
+    // ══════════════════════════════════════
+    let S = {
+      tasks: [],       // {id, name, cat, dur, done, doneAt, hidden, templateId}
+      startTime: '09:00',
+      bufferMin: 0,
+      totalXp: 0,
+      todayXp: 0,
+      emojis: [],
+      lastDate: '',
+      templates: null,
+      sidebarOpen: true,
+      showHiddenTemplates: false,
+      hideDone: false,
+      glassCollapsed: false,
+      activeTimerTaskId: null, // which task currently has an active running timer
+    };
+    let nextId = 1;
+    let nextTplId = 100;
+    let timerInterval = null;
+
+    function save() { localStorage.setItem(SK, JSON.stringify(S)); }
+    function load() {
+      try {
+        const d = JSON.parse(localStorage.getItem(SK) || 'null');
+        if (d) {
+          S = { ...S, ...d };
+          S.tasks = d.tasks || [];
+          S.emojis = d.emojis || [];
+        }
+      } catch (e) { }
+      if (!S.templates || !S.templates.length) S.templates = DEFAULT_TEMPLATES.map(t => ({ ...t }));
+      nextId = Math.max(1, ...S.tasks.map(t => t.id + 1), 1);
+      nextTplId = Math.max(100, ...S.templates.map(t => (parseInt(String(t.id).replace(/\D/g, '')) || 0) + 1), 100);
+    }
+    function checkDailyReset() {
+      const today = new Date().toISOString().slice(0, 10);
+      if (S.lastDate !== today) {
+        S.tasks = []; S.todayXp = 0; S.emojis = []; S.lastDate = today; S.activeTimerTaskId = null;
+        save();
+      }
+    }
+
+    // ══════════════════════════════════════
+    // TIME UTILS
+    // ══════════════════════════════════════
+    function timeToMins(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+    function minsToTime(m) { const h = Math.floor(m / 60) % 24, mm = m % 60; return String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0'); }
+    function fmtDur(m) { if (m < 60) return m + ' min'; const h = Math.floor(m / 60), mm = m % 60; return mm ? `${h}h ${mm}m` : `${h}h`; }
+    function nowTime() { const n = new Date(); return String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0'); }
+
+    // Schedule: completed tasks use real doneAt time to drive the next task's start
+    function computeSchedule() {
+      let cursor = timeToMins(S.startTime);
+      const buf = S.bufferMin || 0;
+      return S.tasks.map(task => {
+        const plannedStart = cursor;
+        if (task.done && task.doneAt) {
+          cursor = timeToMins(task.doneAt) + buf;
+        } else if (!task.done) {
+          cursor += task.dur + buf;
+        }
+        return {
+          start: plannedStart,
+          end: task.done && task.doneAt ? timeToMins(task.doneAt) : plannedStart + task.dur,
+        };
+      });
+    }
+
+    // ══════════════════════════════════════
+    // XP
+    // ══════════════════════════════════════
+    function ptsForTask(task) {
+      const base = (CATS[task.cat] || CATS.soft).pts;
+      return base + Math.floor(task.dur / 30);
+    }
+    function getLevel(xp) { let l = 0; for (let i = LEVELS.length - 1; i >= 0; i--) { if (xp >= LEVELS[i].min) { l = i; break; } } return l; }
+    function getLevelProgress(xp) { const l = getLevel(xp); const curr = LEVELS[l].min; const next = LEVELS[l + 1] ? LEVELS[l + 1].min : curr + 200; return { pct: Math.min(100, ((xp - curr) / (next - curr)) * 100), l }; }
+    function pickEmoji(cat) { const pool = CAT_EMOJIS[cat] || CAT_EMOJIS.soft; return pool[Math.floor(Math.random() * pool.length)]; }
+
+    // ══════════════════════════════════════
+    // RENDER
+    // ══════════════════════════════════════
+    function render() {
+      renderHeader();
+      renderXP();
+      renderTemplates();
+      renderTasks();
+    }
+
+    function renderHeader() {
+      const d = new Date();
+      const days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+      const months = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+      document.getElementById('dateLine').textContent = `${days[d.getDay()]} · ${d.getDate()}. ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function renderXP() {
+      const xp = S.totalXp;
+      const { pct, l } = getLevelProgress(xp);
+      document.getElementById('xpGlassFill').style.height = pct + '%';
+      document.getElementById('totalPts').textContent = xp;
+      document.getElementById('levelLabel').innerHTML = `Level ${l + 1}<br>${LEVELS[l].name}`;
+      document.getElementById('todayXpLabel').textContent = `${S.todayXp} XP`;
+      document.getElementById('emojiShelf').innerHTML = S.emojis.map(e => `<span class="emoji-item">${e}</span>`).join('');
+    }
+
+    function renderTemplates() {
+      const list = document.getElementById('templateList');
+      list.innerHTML = '';
+
+      const hiddenCount = S.templates.filter(t => t.hidden).length;
+      document.getElementById('hiddenTplCount').textContent = hiddenCount;
+      document.getElementById('toggleHiddenTplBtn').classList.toggle('active', S.showHiddenTemplates);
+
+      // group templates by category, in CATS key order
+      const catOrder = Object.keys(CATS);
+      catOrder.forEach(catKey => {
+        const cat = CATS[catKey];
+        const tpls = S.templates.filter(t => t.cat === catKey && (!t.hidden || S.showHiddenTemplates));
+        if (!tpls.length) return;
+
+        const groupLabel = document.createElement('div');
+        groupLabel.className = 'template-group-label';
+        groupLabel.style.setProperty('--group-color', cat.color);
+        groupLabel.textContent = cat.icon + ' ' + cat.label;
+        list.appendChild(groupLabel);
+
+        tpls.forEach(tpl => {
+          const usageCount = S.tasks.filter(t => t.templateId === tpl.id).length;
+          const chip = document.createElement('div');
+          chip.className = 'template-chip' + (tpl.hidden ? ' is-hidden' : '');
+          chip.style.setProperty('--cat-color', cat.color);
+          chip.innerHTML = `
+        ${usageCount > 0 ? `<span class="template-usage-badge">${usageCount}</span>` : ''}
+        <span class="template-icon">${tpl.icon || cat.icon}</span>
+        <div class="template-info">
+          <div class="template-name">${tpl.name}</div>
+          <div class="template-meta">${tpl.dur} min</div>
+        </div>
+        <button class="template-eye" data-id="${tpl.id}" title="${tpl.hidden ? 'Wieder einblenden' : 'Heute ausblenden'}">${tpl.hidden ? '🚫' : '👁'}</button>
+        <button class="template-del" data-id="${tpl.id}" title="Vorlage löschen">✕</button>
+      `;
+          chip.addEventListener('click', (e) => {
+            if (e.target.closest('.template-del') || e.target.closest('.template-eye')) return;
+            if (tpl.hidden) return; // don't plant hidden templates accidentally
+            plantTemplate(tpl);
+          });
+          chip.querySelector('.template-eye').addEventListener('click', (e) => {
+            e.stopPropagation();
+            tpl.hidden = !tpl.hidden;
+            save(); renderTemplates();
+            showToast(tpl.hidden ? `🚫 ${tpl.name} ausgeblendet` : `👁 ${tpl.name} wieder da`);
+          });
+          chip.querySelector('.template-del').addEventListener('click', (e) => {
+            e.stopPropagation();
+            S.templates = S.templates.filter(t => t.id !== tpl.id);
+            save(); renderTemplates();
+          });
+          list.appendChild(chip);
+        });
+      });
+
+      if (!S.templates.length) {
+        list.innerHTML = '<div style="text-align:center;color:var(--muted);font-style:italic;font-size:.8rem;padding:1rem 0">Noch keine Vorlagen 🌱</div>';
+      }
+    }
+
+    function plantTemplate(tpl) {
+      const newTask = { id: nextId++, name: tpl.name, cat: tpl.cat, dur: tpl.dur, done: false, doneAt: null, hidden: false, templateId: tpl.id };
+      S.tasks.push(newTask);
+      save(); renderTasks(); renderTemplates();
+      showToast(`🌱 ${tpl.name} eingepflanzt`);
+      // highlight the newly added row briefly
+      requestAnimationFrame(() => {
+        const row = document.querySelector(`.task-row[data-id="${newTask.id}"]`);
+        if (row) { row.classList.add('just-done'); setTimeout(() => row.classList.remove('just-done'), 350); }
+      });
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+
+      document.getElementById('hideDoneBtn').classList.toggle('active', S.hideDone);
+
+      if (!S.tasks.length) {
+        list.innerHTML = '<div class="empty-hint">Noch keine Tasks — pflanz eine aus dem Garten oder füg eine hinzu 🌼</div>';
+        document.getElementById('totalTime').textContent = '';
+        renderTimer();
+        renderPlants();
+        return;
+      }
+
+      const visibleTasks = S.hideDone ? S.tasks.filter(t => !t.done) : S.tasks;
+      if (!visibleTasks.length) {
+        list.innerHTML = '<div class="empty-hint">Alles erledigt für heute 🌸</div>';
+        document.getElementById('totalTime').textContent = `0 min verbleibend · ${S.tasks.length}/${S.tasks.length} erledigt`;
+        renderTimer();
+        renderPlants();
+        return;
+      }
+
+      const sched = computeSchedule();
+      const nowMins = timeToMins(nowTime());
+
+      S.tasks.forEach((task, idx) => {
+        if (S.hideDone && task.done) return;
+
+        const cat = CATS[task.cat] || CATS.soft;
+        const s = sched[idx];
+        const pts = ptsForTask(task);
+        const isLate = !task.done && s.start < nowMins;
+
+        const row = document.createElement('div');
+        row.className = 'task-row' + (task.done ? ' done' : '') + (isLate ? ' is-late' : '');
+        row.style.setProperty('--cat-color', cat.color);
+        row.style.setProperty('--cat-bg', cat.bg);
+        row.dataset.id = task.id;
+        row.draggable = true;
+
+        const timeHtml = task.done && task.doneAt
+          ? `<span class="task-done-time">✓ ${task.doneAt}</span>`
+          : `<span class="task-time-display">${minsToTime(s.start)} – ${minsToTime(s.end)}</span>`;
+
+        row.innerHTML = `
+      <div class="task-main">
+        <span class="drag-handle">⠿</span>
+        <button class="task-check" data-id="${task.id}">${task.done ? '✓' : ''}</button>
+        <div class="task-info">
+          <span class="task-name editable" data-id="${task.id}">${task.name}</span>
+          <input class="task-name-input" type="text" value="${task.name}" data-id="${task.id}">
+          <div class="task-cat-label">${cat.label}</div>
+        </div>
+        <div class="task-time-block">
+          ${timeHtml}
+          <input class="task-dur-input" type="number" min="5" max="480" step="5" value="${task.dur}" data-id="${task.id}">
+          <span style="font-size:.6rem;color:var(--muted)">m</span>
+          <span class="pts-badge">+${pts} XP</span>
+        </div>
+        <button class="task-del" data-id="${task.id}" title="Löschen">✕</button>
+      </div>
+    `;
+
+        // check
+        row.querySelector('.task-check').addEventListener('click', () => toggleDone(task.id));
+        // duration
+        row.querySelector('.task-dur-input').addEventListener('change', e => {
+          const t = S.tasks.find(x => x.id === task.id);
+          if (t) { t.dur = Math.max(5, parseInt(e.target.value) || 30); save(); renderTasks(); }
+        });
+        // delete
+        row.querySelector('.task-del').addEventListener('click', () => {
+          S.tasks = S.tasks.filter(x => x.id !== task.id); save(); renderTasks(); renderTemplates();
+        });
+        // editable name
+        const nameSpan = row.querySelector('.task-name');
+        const nameInput = row.querySelector('.task-name-input');
+        nameSpan.addEventListener('click', () => {
+          nameSpan.classList.add('editing-hidden');
+          nameInput.classList.add('editing');
+          nameInput.focus(); nameInput.select();
+        });
+        function closeNameEdit() {
+          const t = S.tasks.find(x => x.id === task.id);
+          const v = nameInput.value.trim();
+          if (v) t.name = v;
+          nameInput.classList.remove('editing');
+          nameSpan.classList.remove('editing-hidden');
+          nameSpan.textContent = t.name;
+          save();
+        }
+        nameInput.addEventListener('blur', closeNameEdit);
+        nameInput.addEventListener('keydown', e => {
+          if (e.key === 'Enter') nameInput.blur();
+          if (e.key === 'Escape') { nameInput.value = task.name; nameInput.blur(); }
+        });
+
+        // drag & drop
+        row.addEventListener('dragstart', () => { row.classList.add('dragging'); });
+        row.addEventListener('dragend', () => { row.classList.remove('dragging'); document.querySelectorAll('.task-row').forEach(r => r.classList.remove('drag-over')); });
+        row.addEventListener('dragover', e => {
+          e.preventDefault();
+          row.classList.add('drag-over');
+        });
+        row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+        row.addEventListener('drop', e => {
+          e.preventDefault();
+          row.classList.remove('drag-over');
+          const draggingRow = document.querySelector('.task-row.dragging');
+          if (!draggingRow || draggingRow === row) return;
+          const fromId = parseInt(draggingRow.dataset.id);
+          const toId = task.id;
+          const fromIdx = S.tasks.findIndex(t => t.id === fromId);
+          const toIdx = S.tasks.findIndex(t => t.id === toId);
+          if (fromIdx === -1 || toIdx === -1) return;
+          const [moved] = S.tasks.splice(fromIdx, 1);
+          S.tasks.splice(toIdx, 0, moved);
+          save(); renderTasks();
+        });
+
+        list.appendChild(row);
+      });
+
+      const remaining = S.tasks.filter(t => !t.done).reduce((s, t) => s + t.dur, 0);
+      const doneCount = S.tasks.filter(t => t.done).length;
+      document.getElementById('totalTime').textContent = `${fmtDur(remaining)} verbleibend · ${doneCount}/${S.tasks.length} erledigt`;
+
+      renderTimer();
+      renderPlants();
+    }
+
+    // ══════════════════════════════════════
+    // PLANT PROGRESS ROW
+    // ══════════════════════════════════════
+    const PLANT_STAGES = ['🌰', '🌱', '🌿', '🪴', '🌸', '🌺', '🌻', '🍀', '🌷', '🌹', '💐'];
+    function renderPlants() {
+      const doneCount = S.tasks.filter(t => t.done).length;
+      const unlocked = Math.min(PLANT_STAGES.length - 1, Math.floor(doneCount / 1));
+      const row = document.getElementById('plantRow');
+      row.innerHTML = '';
+      for (let i = 1; i < PLANT_STAGES.length; i++) {
+        const span = document.createElement('span');
+        span.className = 'plant-item' + (i > unlocked ? ' locked' : '');
+        span.textContent = PLANT_STAGES[i];
+        span.title = i <= unlocked ? '✓ erblüht' : `noch ${i - unlocked} Task${i - unlocked > 1 ? 's' : ''}`;
+        row.appendChild(span);
+      }
+    }
+
+    // ══════════════════════════════════════
+    // TIMER
+    // ══════════════════════════════════════
+    function fmtClock(s) {
+      const neg = s < 0; const abs = Math.abs(s);
+      const m = Math.floor(abs / 60), sec = abs % 60;
+      return (neg ? '+' : '') + String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+    }
+
+    function getActiveTask() {
+      if (!S.activeTimerTaskId) return null;
+      return S.tasks.find(t => t.id === S.activeTimerTaskId && !t.done) || null;
+    }
+
+    function getTimerLeft(task) {
+      if (!task.timerStart) return task.dur * 60;
+      const paused = task.timerPausedSec || 0;
+      if (task.timerPaused) return task.dur * 60 - paused;
+      const elapsed = Math.floor((Date.now() - new Date(task.timerStart).getTime()) / 1000);
+      return task.dur * 60 - paused - elapsed;
+    }
+
+    function renderTimer() {
+      const card = document.getElementById('timerCard');
+      const task = getActiveTask();
+
+      if (!task) {
+        // suggest the first undone, unhidden task
+        const next = S.tasks.find(t => !t.done);
+        card.className = 'timer-card';
+        if (!next) {
+          card.innerHTML = `<div class="timer-empty">Kein Task ausgewählt — alles erledigt oder ausgeblendet 🌼</div>`;
+        } else {
+          card.innerHTML = `
+        <div class="timer-empty">Bereit für den nächsten Block?</div>
+        <div class="timer-task-name">${next.name}</div>
+        <div class="timer-btn-row">
+          <button class="timer-btn start" id="startTimerBtn" data-id="${next.id}">▶ ${next.dur} min starten</button>
+        </div>
+      `;
+          document.getElementById('startTimerBtn').addEventListener('click', () => startBlockTimer(next.id));
+        }
+        return;
+      }
+
+      const left = getTimerLeft(task);
+      const isWarning = left <= 60 && left > 0;
+      const isOverflow = left < 0;
+      card.className = 'timer-card' + (task.timerPaused ? '' : ' mode-active') + (isOverflow ? ' mode-overflow' : '');
+
+      card.innerHTML = `
+    <div class="timer-task-name">${task.name}</div>
+    <div class="timer-clock ${isWarning ? 'warning' : ''} ${isOverflow ? 'overflow' : ''}" id="timerClock">${fmtClock(left)}</div>
+    ${isOverflow ? `<div class="timer-overflow-label">⚠ über der geplanten Zeit — kein Problem</div>` : ''}
+    <div class="timer-btn-row">
+      ${task.timerPaused
+          ? `<button class="timer-btn start" id="resumeTimerBtn">▶ Weiter</button>`
+          : `<button class="timer-btn pause" id="pauseTimerBtn">⏸ Pause</button>`}
+      <button class="timer-btn done" id="finishTimerBtn">✓ Fertig</button>
+    </div>
+  `;
+
+      document.getElementById('finishTimerBtn').addEventListener('click', () => { toggleDone(task.id); stopTimerLoop(); });
+      document.getElementById('pauseTimerBtn')?.addEventListener('click', () => pauseBlockTimer(task.id));
+      document.getElementById('resumeTimerBtn')?.addEventListener('click', () => resumeBlockTimer(task.id));
+
+      if (!task.timerPaused) runTimerLoop();
+    }
+
+    function startBlockTimer(taskId) {
+      const task = S.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      task.timerStart = new Date().toISOString();
+      task.timerPaused = false;
+      task.timerPausedSec = 0;
+      S.activeTimerTaskId = taskId;
+      save(); renderTimer();
+    }
+
+    function pauseBlockTimer(taskId) {
+      const task = S.tasks.find(t => t.id === taskId);
+      if (!task || !task.timerStart) return;
+      const elapsed = Math.floor((Date.now() - new Date(task.timerStart).getTime()) / 1000);
+      task.timerPausedSec = (task.timerPausedSec || 0) + elapsed;
+      task.timerPaused = true;
+      stopTimerLoop();
+      save(); renderTimer();
+    }
+
+    function resumeBlockTimer(taskId) {
+      const task = S.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      task.timerStart = new Date().toISOString();
+      task.timerPaused = false;
+      save(); renderTimer();
+    }
+
+    function stopTimerLoop() { clearInterval(timerInterval); timerInterval = null; }
+
+    function runTimerLoop() {
+      stopTimerLoop();
+      timerInterval = setInterval(() => {
+        const task = getActiveTask();
+        if (!task || task.timerPaused) { stopTimerLoop(); return; }
+        const left = getTimerLeft(task);
+        const clock = document.getElementById('timerClock');
+        if (clock) {
+          clock.textContent = fmtClock(left);
+          clock.classList.toggle('warning', left <= 60 && left > 0);
+          clock.classList.toggle('overflow', left < 0);
+        }
+        document.getElementById('timerCard')?.classList.toggle('mode-overflow', left < 0);
+        if (left === 0) showToast('⏰ Zeit ist um — fertig oder weiter?');
+      }, 1000);
+    }
+    function toggleDone(id) {
+      const idx = S.tasks.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      const task = S.tasks[idx];
+
+      if (task.done) {
+        const pts = ptsForTask(task);
+        task.done = false; task.doneAt = null;
+        S.totalXp = Math.max(0, S.totalXp - pts);
+        S.todayXp = Math.max(0, S.todayXp - pts);
+        const pool = CAT_EMOJIS[task.cat] || [];
+        for (let i = S.emojis.length - 1; i >= 0; i--) {
+          if (pool.includes(S.emojis[i])) { S.emojis.splice(i, 1); break; }
+        }
+        S.tasks.splice(idx, 1);
+        const firstDoneIdx = S.tasks.findIndex(t => t.done);
+        if (firstDoneIdx === -1) S.tasks.push(task);
+        else S.tasks.splice(firstDoneIdx, 0, task);
+        save(); render(); return;
+      }
+
+      const prevLevel = getLevel(S.totalXp);
+      const pts = ptsForTask(task);
+      task.done = true;
+      task.doneAt = nowTime();
+      S.totalXp += pts;
+      S.todayXp += pts;
+      S.emojis.push(pickEmoji(task.cat));
+
+      // clear timer fields and unset as active if this was the running task
+      if (S.activeTimerTaskId === task.id) { S.activeTimerTaskId = null; stopTimerLoop(); }
+      delete task.timerStart; delete task.timerPaused; delete task.timerPausedSec;
+
+      S.tasks.splice(idx, 1);
+      const lastDoneIdx = S.tasks.reduce((last, t, i) => t.done ? i : last, -1);
+      S.tasks.splice(lastDoneIdx + 1, 0, task);
+      save();
+
+      const row = document.querySelector(`.task-row[data-id="${id}"]`);
+      if (row) row.classList.add('just-done');
+
+      const newLevel = getLevel(S.totalXp);
+      showToast(newLevel > prevLevel ? `🌸 Level Up! ${LEVELS[newLevel].name}` : `+${pts} XP · ${S.emojis[S.emojis.length - 1]}`);
+      render();
+    }
+
+    function addTask() {
+      const name = document.getElementById('addName').value.trim();
+      if (!name) { document.getElementById('addName').focus(); return; }
+      const dur = Math.max(5, parseInt(document.getElementById('addDur').value) || 30);
+      const cat = document.getElementById('addCat').value;
+      S.tasks.push({ id: nextId++, name, cat, dur, done: false, doneAt: null, hidden: false, templateId: null });
+
+      if (document.getElementById('saveAsTemplate').checked) {
+        S.templates.push({ id: 't' + (nextTplId++), name, dur, cat, icon: '' });
+        document.getElementById('saveAsTemplate').checked = false;
+        renderTemplates();
+      }
+
+      document.getElementById('addName').value = '';
+      save(); renderTasks();
+      document.getElementById('addName').focus();
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._t);
+      t._t = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    // ══════════════════════════════════════
+    // TEMPLATE MODAL
+    // ══════════════════════════════════════
+    const tplModal = document.getElementById('templateModal');
+    document.getElementById('addTemplateBtn').addEventListener('click', () => {
+      document.getElementById('tplName').value = '';
+      document.getElementById('tplDur').value = 30;
+      document.getElementById('tplCat').value = 'soft';
+      document.getElementById('tplIcon').value = '';
+      tplModal.classList.add('open');
+      setTimeout(() => document.getElementById('tplName').focus(), 50);
+    });
+    document.getElementById('tplCancel').addEventListener('click', () => tplModal.classList.remove('open'));
+    tplModal.addEventListener('click', e => { if (e.target === tplModal) tplModal.classList.remove('open'); });
+    document.getElementById('tplConfirm').addEventListener('click', () => {
+      const name = document.getElementById('tplName').value.trim();
+      if (!name) { document.getElementById('tplName').focus(); return; }
+      const dur = Math.max(5, parseInt(document.getElementById('tplDur').value) || 30);
+      const cat = document.getElementById('tplCat').value;
+      const icon = document.getElementById('tplIcon').value.trim();
+      S.templates.push({ id: 't' + (nextTplId++), name, dur, cat, icon });
+      save(); renderTemplates();
+      tplModal.classList.remove('open');
+      showToast('🌱 Vorlage angelegt');
+    });
+
+    // ══════════════════════════════════════
+    // SIDEBAR TOGGLE
+    // ══════════════════════════════════════
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    function applySidebarState() {
+      sidebar.classList.toggle('collapsed', !S.sidebarOpen);
+      sidebarToggle.style.left = S.sidebarOpen ? '254px' : '14px';
+      sidebarToggle.textContent = S.sidebarOpen ? '◂' : '▸';
+    }
+    sidebarToggle.addEventListener('click', () => {
+      S.sidebarOpen = !S.sidebarOpen;
+      save(); applySidebarState();
+    });
+
+    // ══════════════════════════════════════
+    // CONTROLS
+    // ══════════════════════════════════════
+    document.getElementById('toggleHiddenTplBtn').addEventListener('click', () => {
+      S.showHiddenTemplates = !S.showHiddenTemplates;
+      save(); renderTemplates();
+    });
+    document.getElementById('hideDoneBtn').addEventListener('click', () => {
+      S.hideDone = !S.hideDone;
+      save(); renderTasks();
+    });
+    document.getElementById('xpGlassToggle').addEventListener('click', () => {
+      S.glassCollapsed = !S.glassCollapsed;
+      document.getElementById('xpGlassCard').classList.toggle('collapsed-glass', S.glassCollapsed);
+      document.getElementById('xpGlassToggle').textContent = S.glassCollapsed ? 'zeigen' : 'verstecken';
+      save();
+    });
+    document.getElementById('addBtn').addEventListener('click', addTask);
+    document.getElementById('addName').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+    document.getElementById('addDur').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+
+    document.getElementById('nowBtn').addEventListener('click', () => {
+      S.startTime = nowTime();
+      document.getElementById('startTime').value = S.startTime;
+      save(); renderTasks();
+    });
+    document.getElementById('startTime').addEventListener('change', e => { S.startTime = e.target.value; save(); renderTasks(); });
+    document.getElementById('bufferMin').addEventListener('change', e => { S.bufferMin = Math.max(0, parseInt(e.target.value) || 0); save(); renderTasks(); });
+    document.getElementById('bufferMin').addEventListener('keydown', e => { if (e.key === 'Enter') e.target.blur(); });
+
+    document.getElementById('resumeBtn').addEventListener('click', () => {
+      const buf = S.bufferMin || 0;
+      const nowMins = timeToMins(nowTime());
+      const firstUndoneIdx = S.tasks.findIndex(t => !t.done);
+      if (firstUndoneIdx === -1) { showToast('Alle Tasks erledigt! 🎉'); return; }
+      let cumulativeMins = 0;
+      for (let i = 0; i < firstUndoneIdx; i++) {
+        const t = S.tasks[i];
+        if (t.done) cumulativeMins += t.dur + buf;
+      }
+      S.startTime = minsToTime(Math.max(0, nowMins - cumulativeMins));
+      document.getElementById('startTime').value = S.startTime;
+      save(); renderTasks();
+      showToast('⏱ Ab jetzt neu berechnet');
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      if (!confirm('Tag zurücksetzen? Tasks und heutige XP werden gelöscht.')) return;
+      S.tasks = []; S.todayXp = 0; S.emojis = []; S.activeTimerTaskId = null; stopTimerLoop(); save(); render();
+    });
+
+    // ══════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════
+    load();
+    checkDailyReset();
+    document.getElementById('startTime').value = S.startTime;
+    document.getElementById('bufferMin').value = S.bufferMin || 0;
+    applySidebarState();
+    document.getElementById('xpGlassCard').classList.toggle('collapsed-glass', S.glassCollapsed);
+    document.getElementById('xpGlassToggle').textContent = S.glassCollapsed ? 'zeigen' : 'verstecken';
+    render();
+  </script>
+</body>
+
+</html>
