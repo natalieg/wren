@@ -1,13 +1,13 @@
 import React from 'react'
 import DocWrapper from '../components/DocWrapper'
-import Today from './Today'
+import Tasklist from './Tasklist'
 
 export default function Main({ className }) {
     return (
         <DocWrapper
             className={className}
             background="var(--bg-base)">
-            <Today />
+            <Tasklist />
         </DocWrapper>
     )
 }

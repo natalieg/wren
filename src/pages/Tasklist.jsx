@@ -4,7 +4,7 @@ import TaskItem from '../components/TaskItem'
 
 // TODO evaluate if this should be seperated from the task handling - if 'tasking' should be
 // it's own component
-export default function Today() {
+export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
     const [tasks, setTasks] = useState(() => {
         try {

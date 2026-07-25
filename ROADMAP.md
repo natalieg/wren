@@ -46,11 +46,11 @@ Rough sequencing, not a hard commitment — reorder freely as priorities shift.
 - Imported and reviewed the Wren Design System (Claude Design MCP).
 - Wrote this roadmap.
 
-### Phase 1 — Daylist MVP (home page revival) — in progress
-The project stalled for ~4 months, partly from over-focusing on design last round with nothing usable to show for it. Priority #1 is a small, real, *used* thing: a daily task list living at the existing `/` "Home" route (`src/pages/Main.jsx`), so there's an actual reason to open the app day to day. Deliberately not blocked on design-system migration — ship functional first, reskin later.
-- 2026-07-24: rough shell in place (`Main.jsx` renders a toggleable task list, in-memory only, one placeholder task).
-- Next (to design together, not just implement solo): real data model, add/remove tasks, persistence (localStorage to start — no backend exists yet), maybe a first pass at linking a task to a project.
-- Good candidate for a "daily quest": Natalie implements the add/persist logic herself with hints, rather than Claude just writing it.
+### Phase 1 — Daylist MVP (home page revival) — mostly working
+The project stalled for ~4 months, partly from over-focusing on design last round with nothing usable to show for it. Priority #1 is a small, real, *used* thing: a daily task list living at the existing `/` "Home" route (`Main.jsx` → `Today.jsx`), so there's an actual reason to open the app day to day. Deliberately not blocked on design-system migration — ship functional first, reskin later.
+- 2026-07-24: done — add a task (`Input`), see it in the list (`TaskItem`), toggle done, persisted to localStorage (`useState` lazy initializer + a save effect, no separate load-effect race). Styled with real design-system tokens registered in Tailwind's `@theme` (see `feedback_code_architecture` pattern), not inline styles. Committed and pushed.
+- Not done yet: **delete a task** (list only grows right now), edit a task's label, linking a task to a project. No focus-modes, no XP/streak/energy-check-in extras — still explicitly deferred.
+- Good next session: pick ONE of the "not done yet" items — delete is probably the smallest/most useful. Keep it to one thing.
 
 ### Phase 2 — Design tokens into the app
 Swap the current dark palette (`src/index.css`, `src/utils/constants.js`) for the new light-default token set. Small, isolated, low-risk. No component behavior changes, just the visual base layer (colors, fonts, spacing/radius/shadow tokens).
