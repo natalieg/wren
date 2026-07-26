@@ -1,8 +1,9 @@
 import React from 'react'
 
-export default function TaskItem({ task, onToggle }) {
+export default function TaskItem({ task, onToggle, onDelete }) {
+
     return (
-        <div className='task-item' onClick={() => onToggle(task.id)}>
+        <div className='group task-item flex justify-between' onClick={() => onToggle(task.id)}>
             <span
                 role='checkbox'
                 aria-checked={task.done}
@@ -14,6 +15,14 @@ export default function TaskItem({ task, onToggle }) {
             >{task.done ? '✦' : ''}</span>
             <span className={(task.done ? 'line-through text-text-muted' : 'text-text-primary') + ' select-none'}>
                 {task.label}
+            </span>
+            <span className='opacity-0 group-hover:opacity-100 transition-opacity duration-(--dur-fast) ease-bounce text-text-muted
+            hover:text-text-primary'
+                onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete(task.id)
+                }}>
+                ✕
             </span>
         </div>
     )

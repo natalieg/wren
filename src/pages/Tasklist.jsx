@@ -15,12 +15,16 @@ export default function Tasklist() {
             return []
         }
     })
+    const [finishedTasks, setFinishedTasks] = useState(() => tasks.filter(t => t.done).length)
 
     useEffect(() => {
         localStorage.setItem('tasks', JSON.stringify(tasks))
     }, [tasks])
 
-    const toggle = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
+    const toggle = (id) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
+        setFinishedTasks(tasks.filter(t => t.id === id ? !t.done : t.done).length)
+    }
 
     const handleAddTask = () => {
         if (newTask.trim() === '') return
@@ -35,9 +39,19 @@ export default function Tasklist() {
         }
     }
 
+    const handleDeleteTask = (id) => {
+        setTasks(tasks.filter(t => t.id !== id))
+        setFinishedTasks(tasks.filter(t => t.id !== id && t.done).length)
+    }
+
+    const deleteAllFinishedTasks = () => {
+        setTasks(tasks.filter(t => !t.done))
+        setFinishedTasks(0)
+    }
+
     return (
         <>
-            <p className='header'>Today</p>
+            <p className='header'>Tasks</p>
             <div className='flex flex-col gap-2 max-w-md mx-auto'>
                 <Input
                     placeholder="Add a new task..."
@@ -45,8 +59,12 @@ export default function Tasklist() {
                     onChange={(e) => setNewTask(e.target.value)}
                     onKeyDown={handleKeyDown}
                 />
+                <button className={`smallButton ${finishedTasks === 0 ? 'opacity-50 cursor-not-allowed noHover' : ''}`}
+                    disabled={finishedTasks === 0}
+                    onClick={deleteAllFinishedTasks}>
+                    Delete all finished tasks</button>
                 {tasks?.map(t => (
-                    <TaskItem key={t.id} task={t} onToggle={toggle} />
+                    <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask} />
                 ))}
             </div>
         </>

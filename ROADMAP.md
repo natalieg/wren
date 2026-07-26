@@ -47,10 +47,11 @@ Rough sequencing, not a hard commitment — reorder freely as priorities shift.
 - Wrote this roadmap.
 
 ### Phase 1 — Daylist MVP (home page revival) — mostly working
-The project stalled for ~4 months, partly from over-focusing on design last round with nothing usable to show for it. Priority #1 is a small, real, *used* thing: a daily task list living at the existing `/` "Home" route (`Main.jsx` → `Today.jsx`), so there's an actual reason to open the app day to day. Deliberately not blocked on design-system migration — ship functional first, reskin later.
+The project stalled for ~4 months, partly from over-focusing on design last round with nothing usable to show for it. Priority #1 is a small, real, *used* thing: a daily task list living at the existing `/` "Home" route (`Main.jsx` → `Tasklist.jsx`, renamed from `Today.jsx` — see `design/life-balance.md` for why "today" and "tasklist" are different concepts), so there's an actual reason to open the app day to day. Deliberately not blocked on design-system migration — ship functional first, reskin later.
 - 2026-07-24: done — add a task (`Input`), see it in the list (`TaskItem`), toggle done, persisted to localStorage (`useState` lazy initializer + a save effect, no separate load-effect race). Styled with real design-system tokens registered in Tailwind's `@theme` (see `feedback_code_architecture` pattern), not inline styles. Committed and pushed.
-- Not done yet: **delete a task** (list only grows right now), edit a task's label, linking a task to a project. No focus-modes, no XP/streak/energy-check-in extras — still explicitly deferred.
-- Good next session: pick ONE of the "not done yet" items — delete is probably the smallest/most useful. Keep it to one thing.
+- 2026-07-25: done — delete a single task, "delete all finished" bulk action. Not committed yet (Natalie's rule: no midnight commits).
+- Not done yet: edit a task's label, linking a task to a project, `area` tag (see `design/life-balance.md`), archive instead of hard-delete (later, for balance-tracking history). All still explicitly deferred.
+- **Next session's goal: time estimates.** Give tasks an estimated-minutes field and a simple (numeric, not visual) total-vs-day-capacity overview — the minimum version of `design/day-planning.md`'s "time & capacity" section, which explicitly needs tasks to have real time data before any of that can be built. Drag/drop and visual polish come later, once the basic math works. Time/date arithmetic specifically is a good spot for Claude to help more directly rather than hints-only (easy to get subtly wrong).
 
 ### Phase 2 — Design tokens into the app
 Swap the current dark palette (`src/index.css`, `src/utils/constants.js`) for the new light-default token set. Small, isolated, low-risk. No component behavior changes, just the visual base layer (colors, fonts, spacing/radius/shadow tokens).
@@ -74,8 +75,10 @@ Once enough coverage exists, start actually using Wren instead of Sunsama/pomo a
 Once Wren can represent projects with subprojects/goals well, recreate this roadmap as an actual Wren project object and retire this file.
 
 ## Future ideas (captured, not scheduled)
-- **Focus modes:** a day/week "focus" setting (work, habits, balance, catch-up-on-neglected-things, procrastination-support) that changes *how* lists/plans are displayed — while all the underlying metadata of what was actually worked on that day is still tracked regardless of focus. Needs real design thought once there's more than one list type to reflow (post Phase 1).
+- **Focus modes:** a day/week "focus" setting (work, habits, balance, catch-up-on-neglected-things, procrastination-support) that changes *how* lists/plans are displayed — while all the underlying metadata of what was actually worked on that day is still tracked regardless of focus. Needs real design thought once there's more than one list type to reflow (post Phase 1). Concrete design exploration for the day-vs-tasklist split now exists — see `design/day-planning.md`; task-type taxonomy (recurring, growing-habit, project-linked) and the week-vs-day balance framing live in `design/life-balance.md`.
 - **ManicTime import:** ManicTime does automated time tracking already. Eventually importing that data would let Wren compare planned vs. actual time use. Not urgent — revisit once Daylist/planning data actually exists to compare against.
+- **Books tab:** reading as its own feature area (to-read stack, page goals, day-list "continue this book" nudges, reading stats) — see `design/books.md`. Likely successor to `bookstack.html` in `references/`.
+- **Leveling areas & class system:** per-area XP/leveling once `area` (life-balance.md) exists, plus a Ragnarok-inspired class-unlock layer on top — see `design/gamification.md`. Both explicitly depend on areas and task/area XP tracking landing first; not scheduled.
 
 ## Open questions (revisit together)
 - `sporteinheiten-tracker.html` vs `-v2.html` — same thing, keep only v2?
