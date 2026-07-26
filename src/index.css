@@ -5,30 +5,48 @@
    als auch als Tailwind-Utility verfügbar (border-gold, text-gold, bg-gold).
    Für Theming einfach die Variablen in .dark { } oder [data-theme="..."] { } überschreiben.
 */
-@theme {
-  --color-gold: #ffc858;
-  --color-border: #84622d;
-  --titleFont: 'Cinzel Decorative', serif;
-  --color-main1: rgba(113, 77, 91);
-  --drop-shadow-glow-gold: 0 0 2px var(--color-gold);
-  /* Wren Design System tokens — ported as needed (ROADMAP.md Phase 2 finishes
+/* Wren Design System tokens — ported as needed (ROADMAP.md Phase 2 finishes
      the rest). No light/dark switching wired up yet, always the light value
      for now. --color-bg/--radius-/--shadow-ease- are real Tailwind
      theme namespaces, so these also exist as utilities (bg-surface,
      border-border-soft, rounded-sm, shadow-glow-accent, ease-bounce, ...) --
      prefer those over var() in inline style for anything conditional. */
+@theme {
+  --color-gold: #ffc858;
+  --color-border: #84622d;
+  --titleFont: 'Cinzel Decorative', serif;
+  --surface: #ffffff;
+  --color-main1: rgba(113, 77, 91);
+  --drop-shadow-glow-gold: 0 0 2px var(--color-gold);
   --color-bg-base: #faf4ff;
   --color-surface: #ffffff;
   --color-border-soft: #e6d9f0;
   --color-text-primary: #2b1a3d;
+  --text-secondary: #5c4a70;
+  /* plum-500 */
   --color-text-muted: #8e7aa3;
   --color-accent-primary: #863bff;
   --color-accent-muted: #8e7aa3;
+  --color-success: #3ab890;
+  /* mint-500 */
+  /* Border */
+  --border-soft: var(--plum-200, #e6d9f0);
+  --border-strong: #cba3ff;
+  /* violet-300 */
+  --border-w: 1.5px;
   --radius-sm: 6px;
   --radius-md: 10px;
+  --radius-pill: 999px;
   --shadow-glow-accent: 0 0 12px color-mix(in srgb, #a56bff 45%, transparent);
+  /* animation */
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+  /* typography */
+  --font-body: 'Quicksand', sans-serif;
+  --font-retro: 'VT323', monospace;
+  /* shadow (depends on --shadow-color + --border-strong) */
+  --shadow-color: 220 40% 30%;
+  --shadow-window: 0 6px 0 var(--border-strong), 0 8px 20px hsl(var(--shadow-color) / .25);
 }
 
 /* Scratchpad for testing new styles, not part of the design system. */
@@ -59,7 +77,6 @@
 }
 
 .input {
-  width: 100%;
   font-size: 1rem;
   color: var(--color-text-primary);
   background: var(--color-surface);
@@ -119,6 +136,35 @@
   }
 }
 
+/* todo maybe delete when themes are implemented?? */
+.headerDark {
+  font-family: var(--titleFont);
+  font-weight: 50;
+  font-style: normal;
+  font-size: 3em;
+  color: var(--color-text-primary);
+  width: fit-content;
+  text-align: center;
+  line-height: 1;
+  margin: 8px auto 32px;
+
+  padding: 16px;
+
+  &:before,
+  &:after {
+    /* content: "⊿⫍⫶"; */
+    content: "✧ ✦";
+    font-size: 0.4em;
+    padding: 2px 16px;
+    color: var(--color-text-primary);
+  }
+
+  &:after {
+    display: inline-block;
+    transform: rotateY(180deg);
+  }
+}
+
 .sidebar {
   border-right: 1px solid var(--color-border);
 }
@@ -167,6 +213,49 @@
   &:hover {
     box-shadow: var(--drop-shadow-glow-gold);
   }
+}
+
+.smallPanel {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 220px;
+  padding: 10px 16px;
+  background: var(--color-surface);
+  border: var(--border-w-thick) solid var(--color-text-primary);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-window);
+}
+
+.smallPanel .stat-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.smallPanel .stat-value {
+  font-family: var(--font-retro);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--color-accent-primary);
+}
+
+.bar {
+  height: 8px;
+  width: 100%;
+  background: var(--color-border-soft);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width var(--dur-base) var(--ease-out);
 }
 
 .glow {

@@ -55,3 +55,7 @@ This is the rough shape of a future day-view component — worth returning to on
 
 - `Tasklist.jsx` still visibly renders the heading "Today" — now that the component/file is `Tasklist`, should that change, or is "Today" reserved for the future day-view wrapper described here?
 - None of 1a–1p is implemented — this is a reference bank, not a build queue. Pull one sketch at a time.
+
+## Note for later (2026-07-27)
+
+A first done-vs-left time display now exists in `Tasklist.jsx` (`Bar` component + done/left minutes, deliberately simple, explicitly not meant to be forever). If a second "progress display" need shows up elsewhere, evaluate then whether a dedicated time-progression component (wrapping `Bar` + labels + the percent math) is worth it — not speculatively now.

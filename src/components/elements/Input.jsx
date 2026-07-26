@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function Input({ placeholder = '...', value, onChange, onKeyDown }) {
+export default function Input({ placeholder = '...', value, onChange, onKeyDown, width = 'w-full' }) {
     return (
         <input
             type="text"
@@ -8,7 +8,7 @@ export default function Input({ placeholder = '...', value, onChange, onKeyDown 
             value={value}
             onChange={onChange}
             onKeyDown={onKeyDown}
-            className="input"
+            className={`input ${width}`}
         />
     )
 }

@@ -31,6 +31,30 @@ Once tasks have types (above), tagging each with a life `area` (short for life a
 
 Hard-deleting a task loses it for good — fine for day-to-day clutter, but works against the whole point of week/life balance tracking, which needs history to actually balance against. Later idea: an archive (soft-delete, keeps the record) instead of / alongside hard delete, specifically for long-term balancing data. Not needed now — `Tasklist.jsx` currently hard-deletes, which is fine for the MVP stage.
 
+## Design exploration: "Balance Explorations" (2026-07-26)
+
+Source: same Claude Design canvas project as `day-planning.md` (`8a763246-ab75-44de-ba87-ea90e9623033`), file `Balance Explorations.dc.html`. Sketch IDs (1a–1l) match that canvas. **Reference/idea bank only — nothing here is built.**
+
+**The rule running through all of it:** an area has a **band** ("2–4× this week"), never a quota. Under the band is dim, not red — the *only* failure state Wren ever shows is **silence** (an area untouched for a while), never "you're behind." Bands/jars refill Monday and nothing carries over — explicitly called "the mercy."
+
+### Vocabulary (1a–1c)
+- **1a — area anatomy:** colour + glyph + a band. Exactly three kinds: **need** (has to happen), **want** (you'd like it to), **growing** (a habit on a ramp). No percentages anywhere.
+- **1b — the band, not the target:** a range, not a number — inside the band you're just *done*, going further isn't praised or punished. "A single number invites overshoot, a band tells you when to stop."
+- **1c — growing habit, the ramp:** growth is *offered* weekly (e.g. "ready to try 14 minutes next week?"), never automatic — "stay here" is a real, respected answer. A missed week doesn't reset the ramp, it just doesn't ask that week.
+
+### Seven ways to show the week (1d–1j) — same week, seven shapes, tradeoffs noted for each
+- **1d — orbits:** concentric rings, one per area, each fills toward its own band. Pretty; hard to read exact numbers off.
+- **1e — area × day grid ("the workhorse"):** solid = done, hatched = planned, pale = untouched, per day, band column on the right. Colour depth carries minutes so a light day still reads as "showed up."
+- **1f — the scales:** a literal balance beam, needs vs. wants. Most emotionally direct — and most dangerous; only works if the tilt is capped and copy stays warm, never reads as a crash.
+- **1g — the shelf:** a jar/vial per area, band marked as two lines on the jar. Most on-brand, most glanceable, worst at precision. Refill Monday.
+- **1h — constellation:** a star per completed session, no bands/numbers at all — pure reward/recap surface. An untouched area is an unlit outline, not a deficit. Best as end-of-week recap, not a planning tool.
+- **1i — one week, one bar:** proportional bar, areas literally competing for the same finite week. Only view that shows that competition directly; weak on showing rhythm (can't tell "all in one Sunday binge" from spread-out).
+- **1j — silence, not deficit:** the *one* nudge Wren gives — a `RetroWindow` ("quiet.exe") that fires only after real silence on an area, and always offers *lowering the band* as a first-class option alongside "do it now" and "rest this area for a month." Never fires on "you're at 1 of 3."
+
+### Assembled (1k–1l)
+- **1k — week view:** full composed view — the area×day grid as the spine, the jar shelf for an at-a-glance read, and exactly **one** suggestion, placed on the emptiest day (not "the next day").
+- **1l — "Today, aware of the week"** (builds on sketch 1n from `day-planning.md`): shows how balance is allowed to touch the Today/Tasklist view — a thin 5-line week-progress rail in the sidebar, and *at most one* suggestion card. Tasks gain an area-colour left spine (replacing the plain energy dot). Explicit constraint: **balance shows up in Today at most twice, no more.**
+
 ## Open questions / not designed yet
 
 - How "week balance" actually gets computed or displayed — no design exists for this at all yet.
