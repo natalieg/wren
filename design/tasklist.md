@@ -1,5 +1,7 @@
 # Design plan: Tasklist
 
+Test for Obsidian 
+
 Covers `Tasklist.jsx` + `TaskItem.jsx` specifically — the task-list piece only. For the broader day-view/capacity concepts (a day composing one or more tasklists, time budgeting, etc.), see [day-planning.md](day-planning.md) — kept as a separate sprint doc on purpose.
 
 Status: working (ROADMAP Phase 1) — add/toggle/persist all function, styled with real design-system tokens via Tailwind `@theme` (not inline style).
