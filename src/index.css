@@ -22,17 +22,14 @@
   --color-surface: #ffffff;
   --color-border-soft: #e6d9f0;
   --color-text-primary: #2b1a3d;
-  --text-secondary: #5c4a70;
-  /* plum-500 */
+  --color-text-secondary: #5c4a70;
   --color-text-muted: #8e7aa3;
   --color-accent-primary: #863bff;
   --color-accent-muted: #8e7aa3;
   --color-success: #3ab890;
-  /* mint-500 */
   /* Border */
   --border-soft: var(--plum-200, #e6d9f0);
   --border-strong: #cba3ff;
-  /* violet-300 */
   --border-w: 1.5px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -47,22 +44,6 @@
   /* shadow (depends on --shadow-color + --border-strong) */
   --shadow-color: 220 40% 30%;
   --shadow-window: 0 6px 0 var(--border-strong), 0 8px 20px hsl(var(--shadow-color) / .25);
-}
-
-/* Scratchpad for testing new styles, not part of the design system. */
-.scratch {
-  color: #faf4ff;
-  /* background color of the light theme, for testing contrast */
-  color: #e6d9f0;
-  /* border color of the light theme, for testing contrast */
-  color: #2b1a3d;
-  /* text color of the light theme, for testing contrast */
-  color: #8e7aa3;
-  /* muted text color of the light theme, for testing contrast */
-  color: #863bff;
-  /* accent color of the light theme, for testing contrast */
-  color: #a56bff;
-  /* accent color of the light theme, for testing contrast */
 }
 
 /* Border-width and duration aren't extensible Tailwind theme namespaces in v4
@@ -100,13 +81,13 @@
   background: var(--color-surface);
   border: var(--border-w) solid var(--color-border-soft);
   border-radius: var(--radius-md);
+  font-family: var(--font-body);
   cursor: pointer;
   transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
-}
-
-.task-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow-accent);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow-accent);
+  }
 }
 
 .header {
@@ -183,22 +164,17 @@
   }
 }
 
-.smallButton {
-  letter-spacing: 1px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-gold);
-  background-color: color-mix(in srgb, var(--color-main1) 50%, transparent);
+.softButton {
+  background-color:  color-mix(in srgb, var(--color-bg-base) 88%, var( --color-accent-primary) 10%);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 2px 12px;
   cursor: pointer;
-
   &:hover {
-    border: 1px solid var(--color-gold);
-    background-color: var(--color-bg-base);
-    color: var(--color-text-primary);
-  }
-
-  &:active {
-    background-color: color-mix(in srgb, var(--color-bg-base) 70%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-border-soft) 90%, black 10%);
+      box-shadow: var(--shadow-glow-accent);
   }
 }
 

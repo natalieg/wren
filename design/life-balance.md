@@ -27,9 +27,15 @@ Relationship to the other design docs: [tasklist.md](tasklist.md) is the working
 
 Once tasks have types (above), tagging each with a life `area` (short for life area) is the natural next attribute — not implementing yet, just keeping the field in mind so future work (task model changes, filtering UI) doesn't have to retrofit it in.
 
-## Archive vs. delete (2026-07-25)
+## Habits — priority, deliberately simpler than Areas (2026-07-28)
+
+Natalie flagged "habits" as a near-future priority, explicitly wanting it to carry *less* complexity than the full Areas system (bands, week-balance math, etc. — see below). Not yet designed how "simple habits" and "growing habit" (task type, above) and "Areas" all relate to each other — worth resolving before building any of them, so habits don't end up needing a redesign once Areas lands, the same trap Areas-before-stats was built to avoid (see `ROADMAP.md` Phase 3).
+
+## Archive vs. delete (2026-07-25, refined 2026-07-28)
 
 Hard-deleting a task loses it for good — fine for day-to-day clutter, but works against the whole point of week/life balance tracking, which needs history to actually balance against. Later idea: an archive (soft-delete, keeps the record) instead of / alongside hard delete, specifically for long-term balancing data. Not needed now — `Tasklist.jsx` currently hard-deletes, which is fine for the MVP stage.
+
+**2026-07-28, decided:** finished tasks get their own section via two separate filtered lists (`tasks.filter(t => !t.done)` / `tasks.filter(t => t.done)`, not a single sorted array) specifically so that section can become collapsible — that's the reason a separate archive mechanic isn't needed for now. A true archive (surviving deletion, for long-term balance-tracking history) stays a later idea, but the immediate "hide finished tasks" need is covered by the collapsible done-section instead.
 
 ## Design exploration: "Balance Explorations" (2026-07-26)
 

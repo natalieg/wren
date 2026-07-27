@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import Input from '../components/elements/Input'
 import TaskItem from '../components/TaskItem'
 import Bar from '../components/elements/Bar'
+import { Divider } from '../components/elements/Divider'
+import CollapsableDiv from '../components/CollapsableDiv'
+import { formatTime } from '../utils/formatTime'
 
 // TODO evaluate if this should be seperated from the task handling - if 'tasking' should be
 // it's own component
@@ -17,7 +20,6 @@ export default function Tasklist() {
             return []
         }
     })
-    const [finishedTasks, setFinishedTasks] = useState(() => tasks.filter(t => t.done).length)
 
     useEffect(() => {
         localStorage.setItem('tasks', JSON.stringify(tasks))
@@ -25,7 +27,6 @@ export default function Tasklist() {
 
     const toggle = (id) => {
         setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
-        setFinishedTasks(tasks.filter(t => t.id === id ? !t.done : t.done).length)
     }
 
     const handleAddTask = () => {
@@ -44,15 +45,11 @@ export default function Tasklist() {
 
     const handleDeleteTask = (id) => {
         setTasks(tasks.filter(t => t.id !== id))
-        setFinishedTasks(tasks.filter(t => t.id !== id && t.done).length)
     }
 
     const deleteAllFinishedTasks = () => {
         setTasks(tasks.filter(t => !t.done))
-        setFinishedTasks(0)
     }
-
-    const formatTime = (minutes) => minutes >= 60 ? `${Math.floor(minutes / 60)}h${minutes % 60 ? minutes % 60 + 'm' : ''}` : `${minutes}m`;
 
     const totalTimeLeft = tasks.reduce((sum, task) => {
         return !task.done ? sum + parseInt(task.time) : sum;
@@ -64,6 +61,9 @@ export default function Tasklist() {
 
     const totalTimePlanned = totalTimeDone + totalTimeLeft;
     const donePercent = totalTimePlanned > 0 ? (totalTimeDone / totalTimePlanned) * 100 : 0;
+
+    const openTasks = tasks.filter(t => !t.done)
+    const finishedTasks = tasks.filter(t => t.done)
 
     return (
         <>
@@ -93,15 +93,25 @@ export default function Tasklist() {
                         </div>
                     </div>
                 </div>
-                {tasks?.map(t => (
+                {openTasks?.map(t => (
                     <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask} />
                 ))}
-                {/* TODO fix styling now that the real bg color is active */}
-                <button id='deleteAllFinishedBtn'
-                    className={`smallButton ${finishedTasks === 0 ? 'opacity-50 cursor-not-allowed noHover' : ''}`}
-                    disabled={finishedTasks === 0}
-                    onClick={deleteAllFinishedTasks}>
-                    Delete all finished tasks</button>
+                {finishedTasks.length > 0 && (
+                    <CollapsableDiv
+                        label={`Finished tasks (${finishedTasks.length})`}>
+                        <div className={`flex flex-col gap-2`}>
+                            {finishedTasks?.map(t => (
+                                <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask} />
+                            ))}
+                            <button id='deleteAllFinishedBtn'
+                                className={`softButton mt-4 min-w-40 w-1/2 mx-auto`}
+                                disabled={finishedTasks.length === 0}
+                                onClick={deleteAllFinishedTasks}>
+                                Delete all finished tasks
+                            </button>
+                        </div>
+                    </CollapsableDiv>
+                )}
             </div>
         </>
     )

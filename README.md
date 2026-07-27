@@ -16,6 +16,30 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
+## Testing
+
+Tests run on [Vitest](https://vitest.dev). Test files are colocated with the code they test (`formatTime.js` → `formatTime.test.js` in the same folder) and picked up automatically — no registration needed.
+
+Run in watch mode (reruns automatically as you edit, use this while writing tests):
+
+```bash
+npm test
+```
+
+Run once and exit (for a one-off check, e.g. before committing):
+
+```bash
+npx vitest run
+```
+
+## Linting
+
+```bash
+npm run lint
+```
+
+Also runs live in-editor if the [ESLint VS Code extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) is installed — catches things like undefined-variable references before you even save.
+
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
