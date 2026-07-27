@@ -1,9 +1,8 @@
-import React from 'react'
 
-export default function Input({ placeholder = '...', value, onChange, onKeyDown, width = 'w-full' }) {
+export default function Input({ placeholder = '...', value, type = 'text', onChange, onKeyDown, width = 'w-full' }) {
     return (
         <input
-            type="text"
+            type={type}
             placeholder={placeholder}
             value={value}
             onChange={onChange}

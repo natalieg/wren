@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Input from '../components/elements/Input'
-import TaskItem from '../components/TaskItem'
+import TaskItem from '../components/tasks/TaskItem'
+import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
+import Modal from '../components/elements/Modal'
 import Bar from '../components/elements/Bar'
-import { Divider } from '../components/elements/Divider'
 import CollapsableDiv from '../components/CollapsableDiv'
 import { formatTime } from '../utils/formatTime'
 
-// TODO evaluate if this should be seperated from the task handling - if 'tasking' should be
-// it's own component
 export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
     const [taskTime, setTaskTime] = useState(20) //todo define default time in settings
@@ -65,6 +64,13 @@ export default function Tasklist() {
     const openTasks = tasks.filter(t => !t.done)
     const finishedTasks = tasks.filter(t => t.done)
 
+    const handleFieldChange = (id, field, value) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, [field]: value } : t))
+    }
+
+    const [editingTaskId, setEditingTaskId] = useState(null)
+    const editingTaskActive = tasks.find(t => t.id === editingTaskId)
+
     return (
         <>
             <p className='headerDark'>Tasks</p>
@@ -94,14 +100,18 @@ export default function Tasklist() {
                     </div>
                 </div>
                 {openTasks?.map(t => (
-                    <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask} />
+                    <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask}
+                        onEdit={setEditingTaskId} />
                 ))}
                 {finishedTasks.length > 0 && (
                     <CollapsableDiv
                         label={`Finished tasks (${finishedTasks.length})`}>
                         <div className={`flex flex-col gap-2`}>
                             {finishedTasks?.map(t => (
-                                <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask} />
+                                <TaskItem key={t.id} task={t}
+                                    onToggle={toggle}
+                                    onDelete={handleDeleteTask}
+                                    onEdit={setEditingTaskId} />
                             ))}
                             <button id='deleteAllFinishedBtn'
                                 className={`softButton mt-4 min-w-40 w-1/2 mx-auto`}
@@ -113,6 +123,11 @@ export default function Tasklist() {
                     </CollapsableDiv>
                 )}
             </div>
+            {editingTaskActive &&
+                <Modal title='edit task' width='w-120' onClose={() => setEditingTaskId(null)}>
+                    <TaskEditModalBody task={editingTaskActive} handleChange={handleFieldChange} closeModal={() => setEditingTaskId(null)} />
+                </Modal>
+            }
         </>
     )
 }

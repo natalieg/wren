@@ -44,6 +44,8 @@
   /* shadow (depends on --shadow-color + --border-strong) */
   --shadow-color: 220 40% 30%;
   --shadow-window: 0 6px 0 var(--border-strong), 0 8px 20px hsl(var(--shadow-color) / .25);
+  --shadow-window-deep: 0 6px 0 color-mix(in srgb, var(--color-text-primary) 80%, white), 0 10px 24px hsl(var(--shadow-color) / .45);
+  --shadow-lg: 0 10px 30px hsl(var(--shadow-color) / .22);
 }
 
 /* Border-width and duration aren't extensible Tailwind theme namespaces in v4
@@ -55,6 +57,11 @@
   --border-w-thick: 2.5px;
   --dur-base: 200ms;
   --dur-fast: 120ms;
+  /* Single source of truth for the sidebar's width — App.jsx and Modal.jsx
+     both read this instead of hardcoding 16rem separately. Update this one
+     value (or make it dynamic) once the sidebar becomes collapsible, and
+     anything referencing it stays correct automatically. */
+  --sidebar-w: 16rem;
 }
 
 .input {
