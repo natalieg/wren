@@ -42,30 +42,33 @@ Not yet deeply read — titles/rough grouping only, confirm details when each is
 
 Rough sequencing, not a hard commitment — reorder freely as priorities shift.
 
-**Legend:** ✅ done · 🟡 today / actively in progress · 🔷 next up (roughly the next 3 steps)
+**Legend:** ✅ done · 🟡 today / actively in progress · 🔷 next up (roughly the next 3 steps) · 🟥 open/unresolved question, not yet scheduled
+
+Background/reasoning for decisions lives in `design/decisions.md`, not here — keep entries below short and bulleted.
 
 ### ✅ Phase 0 — Groundwork (done 2026-07-24)
 - Imported and reviewed the Wren Design System (Claude Design MCP).
 - Wrote this roadmap.
-### 🟡 Phase 1 — Daylist MVP (home page revival) — working
-The project stalled for ~4 months, partly from over-focusing on design last round with nothing usable to show for it. Priority #1 was a small, real, *used* thing: a daily task list living at the existing `/` "Home" route (`Main.jsx` → `Tasklist.jsx`, renamed from `Today.jsx` — see `design/life-balance.md` for why "today" and "tasklist" are different concepts), so there's an actual reason to open the app day to day. Deliberately not blocked on design-system migration — ship functional first, reskin later.
-- ✅ 2026-07-24: done — **add** a task (`Input`), see it in the list (`TaskItem`), toggle done, persisted to localStorage. Styled with real design-system tokens registered in Tailwind's `@theme`, not inline styles.
-- ✅ 2026-07-25: done — **delete** a single task, "delete all finished" bulk action.
-- ✅ 2026-07-26/27: done — per-task **time estimate** (minutes), a done-vs-left time panel using a new reusable `Bar` component (`components/elements/Bar.jsx`, predefined `color` set + `freestyle` escape hatch).
-- 🟥 Still open, not yet phased: `area` tag, archive instead of hard-delete (both `design/life-balance.md`) — revisit once Phases 4–5 give more shape to what tasks actually need.
+### ✅ Phase 1 — Daylist MVP (home page revival) — working
+Home route (`/` → `Tasklist.jsx`) — a real, used daily task list. Ship functional first, reskin later.
+- ✅ 2026-07-24: add, display, toggle done, persist to localStorage — real design-system tokens via Tailwind `@theme`, not inline styles.
+- ✅ 2026-07-25: delete a task, "delete all finished."
+- ✅ 2026-07-26/27: per-task time estimate, done-vs-left `Bar` panel.
+
 ### 🟡 Phase 2 — Task editing, time tracking, sorting & drag-and-drop — in progress
-- ✅ 2026-07-24–28: done — add, toggle, delete, delete-all-finished, per-task time estimate, done-vs-left time panel (see Phase 1 log above for the earlier pieces).
-- ✅ 2026-07-28: done — finished-tasks collapsible section, `formatTime` extracted + unit tested (Vitest set up), a real crash bug fixed (`setFinishedTasks`/`setFinishedTasksVisible` dead references from an earlier refactor), ESLint extension installed (`no-undef` now live in-editor).
-- Natalie's explicit build order within this phase (2026-07-28): **tasks-to-bottom → edit → time tracking MVP → drag-and-drop.**
-1. ✅ **Finished tasks sort to the bottom automatically** 
-	1. via two separate filtered lists (`tasks.filter(t => !t.done)` / `tasks.filter(t => t.done)`, `.filter()` preserves order so no sort comparator needed), not one sorted array — done specifically so the finished section has a natural seam to become collapsible later (resolves the archive-vs-collapse open question in `design/life-balance.md`). Shipped as a collapsible section (`CollapsableDiv.jsx`) with a `grid-template-rows` open/close transition. ^472136
-2. 🟡 **Edit a task's label and time estimate — decided: a popup, not inline/icon-based editing.** Claude originally suggested a dedicated edit icon (matching the delete ✕ pattern); Natalie pushed back with two arguments that won: (a) the row is already tight (checkbox, label, time chip, delete — see the squish bug fixed 2026-07-28) and a task item will only grow more fields over time (energy, XP, `#area`, project link, recurring pattern...) — a popup absorbs that growth without the row itself getting more cluttered, inline editing doesn't scale the same way; (b) **Jakob's Law**, backed by her own quick competitive check — she tested 4 other task apps just now and all four use an edit popup, so that's the pattern users already carry into Wren. Popup trigger, decided: the row's click-to-toggle moves to the checkbox only, freeing the rest of the row to open the popup. Also adding a Sunsama-style shortcut: hover a task + press `c` to mark it complete. Not built yet — next actual coding step.
-3. 🔷 **Time tracking MVP** — real-time start/stop/pause tracking per task, not just the static estimate. Explicitly named as "its own little package" but prioritized deliberately: Natalie loses focus switching to separate time-tracking software, and pulling this into Wren directly serves the project's actual point (stop needing other tools). Loose design reference: `design/day-planning.md` sketch 1e ("running task" — pulsing indicator, live elapsed counter, progress vs. estimate, "you usually need ~38m" learned-estimate feedback) — not committing to that full polish yet, just the closest existing design thinking on this. Also lays groundwork for the ManicTime-import future idea (planned vs. *actual* time) without needing the external import at all yet.
-4. 🔷 **Drag-and-drop reordering** via `dnd-kit` (Natalie's pick — solid, current choice for React DnD).
-- Parse natural time input ("15m", "1h", "1h30") into minutes, for both add and edit, instead of a raw number field. Time/date parsing is a spot for Claude to help directly rather than hints-only (established exception, see the `feedback_workflow` memory).
+Build order: tasks-to-bottom → edit → time tracking MVP → drag-and-drop.
+- ✅ 2026-07-28: finished tasks sort into a collapsible section (`CollapsableDiv.jsx`).
+- ✅ 2026-07-28: `formatTime` extracted to `src/utils/` + unit tested (Vitest set up).
+- ✅ 2026-07-28: fixed a real crash bug (dead `setFinishedTasks`/`setFinishedTasksVisible` refs) — ESLint extension now installed and live in-editor.
+1. ✅ Sort finished tasks to bottom, collapsible section.
+2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
+3. 🔷 Time tracking MVP (real-time start/stop, not just the static estimate) — ref: `design/day-planning.md` sketch 1e. Also sets up the ManicTime-comparison future idea for free.
+4. 🔷 Drag-and-drop via `dnd-kit`.
+- Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### 🔷 Phase 3 — Areas
 Promoted from a vague future-idea to a real phase: `area` (life-balance.md) needs to actually exist as a task field. Turned out to be a shared prerequisite for two different threads at once — life-balance's week/area tracking, and the gamification concept's stat system (task → area → stat, via the activity→stat mapping table in `design/wren-idle-konzept.md`) — so it earned its own phase rather than staying an unscheduled aside. Natalie's own dependency analysis (2026-07-27): build areas *before* wiring anything directly task→stat, or it'd need a redesign once areas land anyway.
+- 🟥 Open: `area` tag itself, archive-instead-of-delete — see `design/life-balance.md`.
 
 ### Phase 4 — Gamification MVP: character tab, no art
 The smallest possible slice of `design/wren-idle-konzept.md`, deliberately scoped as a real hypothesis test, not a commitment to the full system: "do I actually look forward to opening Wren tomorrow morning?" Only after Phase 3 (Areas), per the dependency above.

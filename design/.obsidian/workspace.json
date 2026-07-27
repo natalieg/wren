@@ -220,10 +220,16 @@
       "bases:Create new base": false
     }
   },
-  "active": "fdab91320715a567",
+  "active": "8ffd1d2fe2a13789",
   "lastOpenFiles": [
-    "_ROADMAP.md",
+    "_ROADMAP.md.tmp.41568.5416e8db337d",
     "_Today.md",
+    "_ROADMAP.md.tmp.41568.0e3f00ce356f",
+    "_ROADMAP.md.tmp.41568.48558f897303",
+    "_ROADMAP.md.tmp.41568.8b55b30e6cf4",
+    "decisions.md",
+    "decisions.md.tmp.41568.f07aec3b76cf",
+    "_ROADMAP.md",
     "🟡 Phase 1 — Daylist MVP (home page revival) — working.md",
     "2026-07-27.md",
     "Untitled.base",
@@ -237,8 +243,6 @@
     "pdf",
     "Wren Balance Explorations.html",
     "html/HTML TEST.md",
-    "html/Wren Balance Explorations.html",
-    "html",
     "books.md"
   ]
 }
