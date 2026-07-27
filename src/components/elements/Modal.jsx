@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react'
+import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import PropTypes from 'prop-types'
 
 const titleBarStyle = { background: 'linear-gradient(135deg, #a56bff, #f7719e)' }
 
-export default function Modal({ title = 'wren.exe', onClose, children }) {
+export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, children }) {
     useEffect(() => {
         const handleKeyDown = (e) => e.key === 'Escape' && onClose?.()
         document.addEventListener('keydown', handleKeyDown)
@@ -14,7 +14,7 @@ export default function Modal({ title = 'wren.exe', onClose, children }) {
     return createPortal(
         <div className='fixed inset-y-0 right-0 left-(--sidebar-w) z-50 flex items-center justify-center bg-black/40' onClick={onClose}>
             <div
-                className='w-80 overflow-hidden rounded-sm border-(length:--border-w-thick) border-text-primary bg-surface shadow-window-deep'
+                className={`${width} overflow-hidden rounded-sm border-(length:--border-w-thick) border-text-primary bg-surface shadow-window-deep`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className='flex items-center justify-between px-2.5 py-1.5 font-retro text-lg text-white' style={titleBarStyle}>

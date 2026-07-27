@@ -1,4 +1,3 @@
-import React from 'react'
 
 const lineStyle = { background: 'linear-gradient(90deg, transparent, var(--border-strong) 30%, var(--border-strong) 70%, transparent)' }
 

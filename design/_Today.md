@@ -2,9 +2,10 @@
 - [ ] edit
 	- [x] change click behaviour to checkbox only
 	- [x] new modal shell
-		- [ ] can the shadow be a 'real' shadow, behaving like 'multiply'
-	- [ ] click opens modal
-	- [ ] change task name and time in modal
+		- [x] 🟥 can the shadow be a 'real' shadow, behaving like 'multiply'
+	- [x] click opens modal
+	- [x] change task name and time in modal
+- [ ] styling fix for the bottom area - 'delete tasks' klebt am boden
 - [ ] time tracking ( MVP) 
 - [ ] DND
 

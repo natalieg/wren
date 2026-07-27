@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Divider } from './elements/Divider'
 
 export default function CollapsableDiv({ label, children }) {
