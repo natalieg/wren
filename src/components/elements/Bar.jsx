@@ -1,9 +1,8 @@
-import React from 'react'
 import PropTypes from 'prop-types'
 
 const BAR_COLORS = {
-    accent: 'var(--color-accent-primary)',
-    success: 'var(--color-success)',
+    accent: 'var(--background-image-gradient-main)',
+    success: 'var(--background-image-gradient-success)',
     muted: 'var(--color-text-muted)',
 }
 

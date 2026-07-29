@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Input from '../components/elements/Input'
-import TaskItem from '../components/tasks/TaskItem'
+import TaskGroup from '../components/tasks/TaskGroup'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
 import Modal from '../components/elements/Modal'
 import Bar from '../components/elements/Bar'
@@ -19,19 +19,24 @@ export default function Tasklist() {
             return []
         }
     })
+    const [inputActive, setInputActive] = useState(false)
 
     useEffect(() => {
         localStorage.setItem('tasks', JSON.stringify(tasks))
     }, [tasks])
 
-    const toggle = (id) => {
+    const toggleDone = (id) => {
         setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t))
+    }
+
+    const toggleActive = (id) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, active: !t.active } : t))
     }
 
     const handleAddTask = () => {
         if (newTask.trim() === '') return
         const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1
-        setTasks([...tasks, { id: newId, label: newTask, time: taskTime, done: false }])
+        setTasks([...tasks, { id: newId, label: newTask, time: taskTime, active: true, done: false }])
         setTaskTime(20)
         setNewTask('')
     }
@@ -61,7 +66,8 @@ export default function Tasklist() {
     const totalTimePlanned = totalTimeDone + totalTimeLeft;
     const donePercent = totalTimePlanned > 0 ? (totalTimeDone / totalTimePlanned) * 100 : 0;
 
-    const openTasks = tasks.filter(t => !t.done)
+    const openTasks = tasks.filter(t => !t.done && t.active)
+    const inactiveTasks = tasks.filter(t => !t.done && !t.active)
     const finishedTasks = tasks.filter(t => t.done)
 
     const handleFieldChange = (id, field, value) => {
@@ -70,6 +76,8 @@ export default function Tasklist() {
 
     const [editingTaskId, setEditingTaskId] = useState(null)
     const editingTaskActive = tasks.find(t => t.id === editingTaskId)
+
+    const taskActions = { toggleDone, toggleActive, onDelete: handleDeleteTask, onEdit: setEditingTaskId, blockKeys: inputActive }
 
     return (
         <>
@@ -81,6 +89,8 @@ export default function Tasklist() {
                         value={newTask}
                         onChange={(e) => setNewTask(e.target.value)}
                         onKeyDown={handleKeyDown}
+                        onFocus={() => setInputActive(true)}
+                        onBlur={() => setInputActive(false)}
                     />
                     <Input
                         placeholder="Time"
@@ -88,8 +98,12 @@ export default function Tasklist() {
                         value={taskTime}
                         onChange={(e) => setTaskTime(parseInt(e.target.value))}
                         onKeyDown={handleKeyDown}
+                        onFocus={() => setInputActive(true)}
+                        onBlur={() => setInputActive(false)}
                     />
                 </div>
+                {/* Time display + Bar */}
+                {/* Todo move to own component */}
                 <div className='flex gap-4 items-center justify-center mt-2 mb-4'>
                     <div id='timePanel' className='select-none smallPanel self-start'>
                         <Bar percent={donePercent} color='success' />
@@ -99,33 +113,36 @@ export default function Tasklist() {
                         </div>
                     </div>
                 </div>
-                {openTasks?.map(t => (
-                    <TaskItem key={t.id} task={t} onToggle={toggle} onDelete={handleDeleteTask}
-                        onEdit={setEditingTaskId} />
-                ))}
+                {/* Inactive Tasks */}
+                {/* Todo move to side component when implemented */}
+                {inactiveTasks.length > 0 && (
+                    <CollapsableDiv
+                        label={`Inactive tasks (${inactiveTasks.length})`}>
+                        <TaskGroup tasks={inactiveTasks} {...taskActions} />
+                    </CollapsableDiv>
+                )}
+                {/* Active Tasks */}
+                <TaskGroup tasks={openTasks} {...taskActions} />
+                {/* Finished Tasks */}
                 {finishedTasks.length > 0 && (
                     <CollapsableDiv
                         label={`Finished tasks (${finishedTasks.length})`}>
-                        <div className={`flex flex-col gap-2`}>
-                            {finishedTasks?.map(t => (
-                                <TaskItem key={t.id} task={t}
-                                    onToggle={toggle}
-                                    onDelete={handleDeleteTask}
-                                    onEdit={setEditingTaskId} />
-                            ))}
-                            <button id='deleteAllFinishedBtn'
-                                className={`softButton mt-4 min-w-40 w-1/2 mx-auto`}
-                                disabled={finishedTasks.length === 0}
-                                onClick={deleteAllFinishedTasks}>
-                                Delete all finished tasks
-                            </button>
-                        </div>
+                        <TaskGroup tasks={finishedTasks} {...taskActions} />
+                        <button id='deleteAllFinishedBtn'
+                            className={`softButton mt-4 min-w-40 w-1/2 mx-auto block`}
+                            disabled={finishedTasks.length === 0}
+                            onClick={deleteAllFinishedTasks}>
+                            Delete all finished tasks
+                        </button>
                     </CollapsableDiv>
                 )}
             </div>
             {editingTaskActive &&
                 <Modal title='edit task' width='w-120' onClose={() => setEditingTaskId(null)}>
-                    <TaskEditModalBody task={editingTaskActive} handleChange={handleFieldChange} closeModal={() => setEditingTaskId(null)} />
+                    <TaskEditModalBody
+                        task={editingTaskActive}
+                        handleChange={handleFieldChange}
+                        closeModal={() => setEditingTaskId(null)} />
                 </Modal>
             }
         </>

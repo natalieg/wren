@@ -6,3 +6,26 @@ Unsorted thoughts - can be structured whenever
 - single tasks should be able to start time tracking
 - BUT: one general issue, sometimes there are many tini tasks on the list, in those cases a general tracker would be better. Maybe something that works along the lines of pomo tracking
 	- one problem here: what do i actually track during that time? should the timing be related to the tasks i 'finish' during that time, or should i activate an area for an unconnected focus session? 
+- plan workblocks but with tasks that are not connected to the workblock? esp in programming i cannot always estimate how long something will take, so i plan my blocks but i still track my tasks thats always kind of a hassle
+	- intelligent work phases? only works if subtasks have their own time.. idk in sunsama the workblock shifts to match the subtasks, but its annoying to always fill the workblocks with new subtasks, it would be better if tasks could 'group' together and i would also have the option to track 'general worktime' for when i'm doing stuff like emails etc that i dont want to track one by one, 
+
+
+Design Explorations:
+Use the claude_design MCP (https://api.anthropic.com/v1/design/mcp, auth via /design-login) to import this project:
+https://claude.ai/design/p/8a763246-ab75-44de-ba87-ea90e9623033?file=Work+Sessions+Explorations.dc.html
+
+Focus on these files (the whole project is readable):
+- `Work Sessions Explorations.dc.html`
+
+Also read these files the selection imports:
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/_ds_bundle.js`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/base.css`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/styles.css`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/tokens/colors.css`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/tokens/effects.css`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/tokens/fonts.css`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/tokens/spacing.css`
+- `_ds/wren-design-system-dd9e3af3-cb06-4090-97be-43fc36685d2f/tokens/typography.css`
+- `support.js`
+
+Implement: `Work Sessions Explorations.dc.html`

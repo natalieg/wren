@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 
 const titleBarStyle = { background: 'linear-gradient(135deg, #a56bff, #f7719e)' }
 
+// TODO test
 export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, children }) {
     useEffect(() => {
         const handleKeyDown = (e) => e.key === 'Escape' && onClose?.()
@@ -12,7 +13,7 @@ export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, chi
     }, [onClose])
 
     return createPortal(
-        <div className='fixed inset-y-0 right-0 left-(--sidebar-w) z-50 flex items-center justify-center bg-black/40' onClick={onClose}>
+        <div id='modalOverlay' className='fixed inset-y-0 right-0 left-(--sidebar-w) z-50 flex items-center justify-center bg-black/40' onClick={onClose}>
             <div
                 className={`${width} overflow-hidden rounded-sm border-(length:--border-w-thick) border-text-primary bg-surface shadow-window-deep`}
                 onClick={(e) => e.stopPropagation()}

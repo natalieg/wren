@@ -15,6 +15,7 @@ export default function CollapsableDiv({ label, children }) {
             >
                 <div className='min-h-0'>
                     {children}
+                    <Divider />
                 </div>
             </div>
         </div>
