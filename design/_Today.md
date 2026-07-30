@@ -1,6 +1,8 @@
 
+- [x] **Refactor** [[Refactoring Tasks]]
+- [x] **Small Fix** Set focus back to input field after enter (not time)
 - [ ] styling fix for the bottom area - 'delete tasks' klebt am boden
-- [ ] **edit**: shortcut [c] hover over task 'finishes' it
+- [x] **edit**: shortcut [c] hover over task 'finishes' it
 - [ ] time tracking ( MVP) 
 	- [ ] **Questions**: Start timer (on hover? ▶ symbol on task card?) shortcut like [t] for 'time'?
 	- [ ] Timebar on top should hold the time of all finished tasks + current elapsed time
@@ -13,6 +15,9 @@
 
 ## Soon:
 - [ ] Parking Space for tasks i want to do later [dnd is prerequisite] 
+	- [x] MVP without DND
+		- [x] area above active tasks (should be deleted once real area is implemented)
+		- [x] tasks can be moved by shortcuts [a, p] or through the edit modal
 	- [ ] evaluate if space could be at the side of the main list, collapsable, maybe dragging tasks into today but also with shortcut, maybe right arrow -> (if parking is left lol)
 - [ ] MVP Project
 	- [ ] 1. Name, Time, Deadline

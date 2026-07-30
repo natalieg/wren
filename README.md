@@ -25,6 +25,10 @@ Run in watch mode (reruns automatically as you edit, use this while writing test
 ```bash
 npm test
 ```
+One Shot
+```bash
+npm test -- run
+```
 
 Run once and exit (for a one-off check, e.g. before committing):
 

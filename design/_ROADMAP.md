@@ -62,8 +62,9 @@ Build order: tasks-to-bottom → edit → time tracking MVP → drag-and-drop.
 - ✅ 2026-07-28: fixed a real crash bug (dead `setFinishedTasks`/`setFinishedTasksVisible` refs) — ESLint extension now installed and live in-editor.
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
-3. 🔷 Time tracking MVP (real-time start/stop, not just the static estimate) — ref: `design/day-planning.md` sketch 1e. Also sets up the ManicTime-comparison future idea for free.
+3. 🔷 Time tracking MVP (real-time start/stop, not just the static estimate) — ref: `design/day-planning.md` sketch 1e. Also sets up the ManicTime-comparison future idea for free. Now includes pulling Phase 5's projected-finish-time concept forward — design decided, see `design/decisions.md`.
 4. 🔷 Drag-and-drop via `dnd-kit`.
+- Next up (2026-07-31): extract the time-display panel (`smallPanel`/`Bar`/done-left labels in `Tasklist.jsx`) into its own component before starting the time MVP work — flagged as prone to grow once time tracking lands.
 - Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### 🔷 Phase 3 — Areas
@@ -81,8 +82,10 @@ Deliberately the *minimum* version, not the full `design/day-planning.md` timeli
 - A simple buffer/slack time concept alongside it (loose reference: `design/day-planning.md` sketch 1j's buffer rows).
 - Natalie flagged this needs more design thought before implementation starts — don't jump straight to code here.
 
-### Phase 6 — Day split: Tasklist vs. Today (medium future)
-Makes the day/tasklist/task distinction from `design/life-balance.md` real in code for the first time — a general `Tasklist` (backlog, not yet scheduled) vs. a day-scoped view showing only tasks active *today*. Needs a new task property (`active` / `planned` — naming TBD) and operations to push a task into the future or pull it back into the general list.
+### ✅ Phase 6 — Parking / active tasks — mostly done
+Jumped the queue ahead of Phase 2's remaining items — real daily friction (dumping thoughts into the list, then needing to set most of them aside without deleting them), surfaced through actual use exactly as Phase 13 anticipated. Simpler than originally sketched: no separate Today/Tasklist route split, just `active: boolean` on a task, one page.
+- ✅ 2026-07-29: `active` field (defaults `true` on creation), toggle via edit modal or hover shortcuts (`a` activate, `p` park). `TaskGroup.jsx` extracted; parked tasks sit in their own collapsible section.
+- 🔷 Open: move the parked-tasks panel from above the active list to beside it (collapsible sidebar) — the original ask, deferred since the MVP works without it.
 
 ### Phase 7 — Projects MVP (timing not decided)
 A first, deliberately simpler version of "projects" than Natalie's original fuller design idea. A real pain point — this was the whole reason the last redesign attempt started — but explicitly acknowledged as not a small session. Revisit *when*, together, once Phases 2–6 give a better sense of how tasks and projects should actually connect (see `design/life-balance.md`'s "project-related tasks" type).
@@ -119,4 +122,4 @@ Originally: recreate this roadmap as a Wren project object and retire this file.
 ## Open questions (revisit together)
 - `sporteinheiten-tracker.html` vs `-v2.html` — same thing, keep only v2?
 - Any of the 17 reference apps already dead/unused and safe to just delete now rather than migrate?
-- Which single tracker/planner is causing the most day-to-day friction right now — that should probably jump the queue in Phase 5/6.
+- ~~Which single tracker/planner is causing the most day-to-day friction right now~~ — answered: parking/inactive tasks (2026-07-29), which is why Phase 6 jumped the queue.

@@ -1,9 +1,11 @@
+import { forwardRef } from 'react'
 
-export default function Input({ placeholder = '...', value, type = 'text', onChange, onKeyDown, width = 'w-full',
+const Input = forwardRef(function Input({ placeholder = '...', value, type = 'text', onChange, onKeyDown, width = 'w-full',
     onFocus, onBlur
- }) {
+ }, ref) {
     return (
         <input
+            ref={ref}
             type={type}
             placeholder={placeholder}
             value={value}
@@ -14,4 +16,6 @@ export default function Input({ placeholder = '...', value, type = 'text', onCha
             onBlur={onBlur}
         />
     )
-}
+})
+
+export default Input
