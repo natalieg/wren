@@ -1,9 +1,8 @@
 
-- [x] **Refactor** [[Refactoring Tasks]]
-- [x] **Small Fix** Set focus back to input field after enter (not time)
-- [x] styling fix for the bottom area - 'delete tasks' klebt am boden
-- [x] **edit**: shortcut [c] hover over task 'finishes' it
-- [ ] [[Time Tracking]] ( MVP) 
+- [ ] [[Time Tracking 260801]] ( MVP) 
+	- [x] show 'started' time in timeCard
+	- [x] show 'estimated time' for each active task
+	- [x] 'estimate' for inactive tasks, those are handled parallel not acc
 	- [ ] **Questions**: Start timer (on hover? ▶ symbol on task card?) shortcut like [t] for 'time'?
 	- [ ] Timebar on top should hold the time of all finished tasks + current elapsed time
 	- [ ] make current 'running' task card bigger than others
@@ -14,17 +13,14 @@
 ![[Pasted image 20260727211428.png]]
 
 ## Soon:
-- [ ] Parking Space for tasks i want to do later [dnd is prerequisite] 
-	- [x] MVP without DND
-		- [x] area above active tasks (should be deleted once real area is implemented)
-		- [x] tasks can be moved by shortcuts [a, p] or through the edit modal
-	- [ ] evaluate if space could be at the side of the main list, collapsable, maybe dragging tasks into today but also with shortcut, maybe right arrow -> (if parking is left lol)
 - [ ] MVP Project
-	- [ ] 1. Name, Time, Deadline
+	- [ ] 1. Name, Time, Value [current, goal], Deadline
+		- [ ] once deadline is set: calc how many [value] per day
 	- [ ] Split task from project, most simple way - 'grab x minutes from project -> Tasklist'
 	- [ ] custom unit - unit per hour / hour per unit whatever way is better
 
 
 ## Later:
 
-- [ ] Sort last checked task to top
+- [ ] #small Sort last checked task to top
+- [ ]  #sidepanel #parking space evaluate if  could be at the side of the main list, collapsable, maybe dragging tasks into today but also with shortcut, maybe right arrow -> (if parking is left lol)

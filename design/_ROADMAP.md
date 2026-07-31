@@ -60,11 +60,17 @@ Build order: tasks-to-bottom → edit → time tracking MVP → drag-and-drop.
 - ✅ 2026-07-28: finished tasks sort into a collapsible section (`CollapsableDiv.jsx`).
 - ✅ 2026-07-28: `formatTime` extracted to `src/utils/` + unit tested (Vitest set up).
 - ✅ 2026-07-28: fixed a real crash bug (dead `setFinishedTasks`/`setFinishedTasksVisible` refs) — ESLint extension now installed and live in-editor.
+- ✅ 2026-07-31: extracted the time-display panel into its own `TimeProgress.jsx`.
+- ✅ 2026-08-01: cascading per-task estimate (`useTasks.js`'s `openTasks`/`baseTime` reduce) and inactive-task preview estimates anchored off the active queue; `newActionTime` checkpoint that only refreshes when nothing's active, so resuming from idle doesn't produce stale estimates. Real-vs-estimated *actual* time tracking still open — model worked out, see `design/decisions.md`.
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
-3. 🔷 Time tracking MVP (real-time start/stop, not just the static estimate) — ref: `design/day-planning.md` sketch 1e. Also sets up the ManicTime-comparison future idea for free. Now includes pulling Phase 5's projected-finish-time concept forward — design decided, see `design/decisions.md`.
+3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Also sets up the ManicTime-comparison future idea for free. Pulls Phase 5's projected-finish-time concept forward, design decided (`design/decisions.md`). Estimates: done (above). Still open:
+   - Real-time start/stop per task (a "running" state), not just the static estimate.
+   - Running-task display — bigger card and/or a progress bar; the existing edit-modal could double as a focus-mode view.
+   - Rename `time` → `timeLeft` once real-time tracking needs to distinguish planned time from remaining time.
+   - Reconcile *actual* vs. *estimated* time per task using the tracked-vs-inferred distinction in `design/decisions.md`.
+   - Switching tasks mid-flight should stop the old timer.
 4. 🔷 Drag-and-drop via `dnd-kit`.
-- Next up (2026-07-31): extract the time-display panel (`smallPanel`/`Bar`/done-left labels in `Tasklist.jsx`) into its own component before starting the time MVP work — flagged as prone to grow once time tracking lands.
 - Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### 🔷 Phase 3 — Areas

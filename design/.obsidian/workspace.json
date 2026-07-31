@@ -6,7 +6,7 @@
       {
         "id": "fa59b5adf7aebf82",
         "type": "tabs",
-        "dimension": 77.34771573604061,
+        "dimension": 69.98730964467005,
         "children": [
           {
             "id": "fdab91320715a567",
@@ -14,12 +14,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Time Tracking.md",
+                "file": "_Today.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Time Tracking"
+              "title": "_Today"
             }
           }
         ]
@@ -27,7 +27,7 @@
       {
         "id": "a92349433446861b",
         "type": "tabs",
-        "dimension": 22.65228426395939,
+        "dimension": 30.01269035532995,
         "children": [
           {
             "id": "78f175928f107674",
@@ -86,7 +86,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#parking",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -107,7 +107,8 @@
               "title": "Lesezeichen"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -218,9 +219,12 @@
   },
   "active": "fdab91320715a567",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.117216.0ad1eb7f16dd",
+    "decisions.md.tmp.117216.015a7fbfa61c",
+    "Time Tracking 260801.md",
+    "wren-idle-konzept.md",
     "decisions.md.tmp.117216.34a439ccf944",
     "_Today.md",
-    "Time Tracking.md",
     "Untitled.canvas",
     "life-balance.md",
     "Pasted image 20260727211428.png",
@@ -236,13 +240,10 @@
     "_ROADMAP.md.tmp.99680.6ea806bf5400",
     "_ROADMAP.md.tmp.99680.399e46a90ff1",
     "books.md",
-    "wren-idle-konzept.md",
     "2026-07-27.md",
     "DayFiles",
     "_ROADMAP.md.tmp.41568.5416e8db337d",
     "_ROADMAP.md.tmp.41568.0e3f00ce356f",
-    "_ROADMAP.md.tmp.41568.48558f897303",
-    "_ROADMAP.md.tmp.41568.8b55b30e6cf4",
     "decisions.md",
     "🟡 Phase 1 — Daylist MVP (home page revival) — working.md",
     "data-architecture.md",

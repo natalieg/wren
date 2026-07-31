@@ -11,7 +11,7 @@ function useTasks(newTask = "", taskTime = 20) {
             return []
         }
     })
-    const [newTaskCreatedTime, setNewTaskCreatedTime] = useState(null)
+    const [newActionTime, setNewActionTime] = useState(null)
     const activeTasks = taskList.filter(t => t.active && !t.done)
 
     useEffect(() => {
@@ -38,6 +38,12 @@ function useTasks(newTask = "", taskTime = 20) {
         return fresh
     })
 
+    const updateActionTime = () => {
+        if (activeTasks.length === 0) {
+            setNewActionTime(new Date())
+        }
+    }
+
     const toggleDone = (id) => {
         const newTaskList = taskList.map((task) => {
             if (task.id !== id) return task
@@ -55,22 +61,23 @@ function useTasks(newTask = "", taskTime = 20) {
         if (newTask?.trim() === '') return
         const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
         setTaskList([...taskList, { id: newId, label: newTask, time: taskTime, active: true, done: false }])
-        if (activeTasks.length === 0) {
-            setNewTaskCreatedTime(new Date())
-        }
+        updateActionTime()
     }
 
     const handleFieldChange = (id, field, value) => {
         setTaskList(taskList.map(t => t.id === id ? { ...t, [field]: value } : t))
+        updateActionTime()
     }
 
     const handleDeleteTask = (id) => {
         setTaskList(taskList.filter(t => t.id !== id))
+        updateActionTime()
     }
 
     const deleteAllFinishedTasks = () => {
         setTaskList(taskList.filter(t => !t.done))
     }
+
 
     const taskActions = {
         toggleDone,
@@ -79,28 +86,33 @@ function useTasks(newTask = "", taskTime = 20) {
         onDelete: handleDeleteTask,
         handleFieldChange,
         deleteAllFinishedTasks,
-        setTaskList
+        setTaskList,
     }
 
     const finishedTasks = taskList.filter(t => t.done)
-
-
 
     //baseTime is either [startedAt], [last finished task], or [new task created time] if no tasks are active
     const baseTime = Math.max(
         startedAt.getTime(),
         ...finishedTasks.map(t => new Date(t.finishedTimestamp).getTime()),
-        newTaskCreatedTime)
+        newActionTime)
 
-    const openTasks = activeTasks?.reduce((acc, task) => {
+    const openTasksResult = activeTasks?.reduce((acc, task) => {
         const estimateTime = acc.runningTime + task.time * 60000 // in ms
         const taskWithEstimate = { ...task, estimate: new Date(estimateTime) }
         return { runningTime: estimateTime, list: [...acc.list, taskWithEstimate] }
-    }, { runningTime: baseTime, list: [] }).list
+    }, { runningTime: baseTime, list: [] })
 
-    const inactiveTasks = taskList.filter(t => !t.done && !t.active)
+    const openTasks = openTasksResult.list
 
-    return { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt }
+    // add 'possibleEstimate' timestamp to each task, anchored after the last
+    // active task's estimate (or baseTime, when nothing's active — the reduce
+    // above leaves runningTime unchanged in that case)
+    const inactiveTasks = taskList.filter(t => !t.done && !t.active).map((task) => {
+        return { ...task, possibleEstimate: new Date(openTasksResult.runningTime + task.time * 60000) }
+    })
+
+    return { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime }
 }
 
 export default useTasks

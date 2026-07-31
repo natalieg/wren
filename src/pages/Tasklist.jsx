@@ -11,7 +11,7 @@ export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [taskTime, setTaskTime] = useState(20)
-    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt } = useTasks(newTask, taskTime)
+    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime } = useTasks(newTask, taskTime)
     const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
     const editingTaskActive = taskList.find(t => t.id === editingTaskId)
     const [inputActive, setInputActive] = useState(false)  
@@ -59,17 +59,18 @@ export default function Tasklist() {
                 </div>
                 {/* Time display + Bar */}
                 <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} />
-                {/* Inactive Tasks */}
+                {/* 💤 Inactive Tasks */}
                 {/* Todo move to side component when implemented */}
                 {inactiveTasks.length > 0 && (
                     <CollapsableDiv
-                        label={`Inactive tasks (${inactiveTasks.length})`}>
+                        label={`Inactive tasks (${inactiveTasks.length})`}
+                        collapseAction={updateActionTime}>
                         <TaskGroup tasks={inactiveTasks} {...taskActionBundle} />
                     </CollapsableDiv>
                 )}
-                {/* Active Tasks */}
+                {/* ⚡ Active Tasks */}
                 <TaskGroup tasks={openTasks} {...taskActionBundle} />
-                {/* Finished Tasks */}
+                {/* ✅ Finished Tasks */}
                 {finishedTasks.length > 0 && (
                     <CollapsableDiv
                         label={`Finished tasks (${finishedTasks.length})`}>

@@ -4,7 +4,7 @@ import { formatClockTime } from '../../utils/formatTime'
 
 // TODO add right click menu for actions, including keyboard shortcut information
 export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, onDelete, onEdit }) {
-    const { id, label, time, done, estimate, finishedTimestamp } = task
+    const { id, label, time, done, estimate, finishedTimestamp, possibleEstimate } = task
     const [mouseOver, setMouseOver] = useState(false)
 
     useEffect(() => {
@@ -41,6 +41,8 @@ export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, on
                     </span>
                 </div>
             </div>
+            {possibleEstimate &&
+                <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(possibleEstimate)}</div>}
             {estimate &&
                 <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
             {finishedTimestamp &&

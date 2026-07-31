@@ -34,6 +34,20 @@ Why, in Natalie's own reasoning:
 
 **Not decided yet, on purpose:** the actual layout/display mechanism (how the second field sits next to `TaskItem` without breaking the current row layout). Explicitly deferred to when this is actually built, not decided now.
 
+## Time MVP: tracked vs. inferred actual time (2026-08-01)
+
+The problem: a naive "actual time = now − last checkpoint" calculation breaks down across idle gaps. If Natalie wanders away from the tool for 3 hours, then marks a 10-minute task done, that task's "actual time" reads as 3h. Worse, if she then marks several more tasks done in quick succession right after (catching up on a batch), those get near-zero actual time each — the checkpoints are only seconds apart in real click-time, even though the tasks themselves took real time earlier.
+
+Rejected: always falling back to the estimate as "actual." Simple, but throws away the auto-tracking value entirely — including for the common case where she *did* stay engaged and a task's real elapsed time is exactly the useful signal (e.g. catching chronic under/overestimation).
+
+**Decision:** the fix isn't a universal plausibility bound — it's distinguishing *how* a task got marked done:
+- **Actively tracked** (has an explicit running/started state — ties into the not-yet-built running-task/focus-mode feature): trust the real elapsed time as-is, even when it overruns wildly. An overrun here is real data about Natalie's estimation habits, not noise to smooth away.
+- **Inferred purely from checkpoint cascade** (no explicit tracking session — the current MVP's only mode): apply a sanity-bound fallback to the task's own estimate when the observed delta looks implausible in *either* direction — too long (AFK gap) or too near-zero (batch-finished after being away).
+
+**Deferred to a later version:** a finish-time confirmation prompt ("Spent 3h on this? [Yes] / [No, use estimate] / [Manual]"), configurable in settings. Not built now — this pass only nailed the underlying model, not the UI.
+
+**Not decided yet:** where exactly the "implausible" threshold sits for the inferred case (a multiple of the estimate? a flat cap?) — revisit once actively-tracked tasks actually exist, since that's what the bound needs to *not* apply to.
+
 ## Backend/database: Python + FastAPI over a hosted option (2026-07-27)
 
 Considered Supabase (faster, less to learn) vs. Python + FastAPI + SQLite. Chose FastAPI deliberately, not as the easy default — Natalie wants real backend skills for career reasons, already has Python from another project, and works alongside a backend dev she wants to understand better. Full writeup: `design/data-architecture.md`.
