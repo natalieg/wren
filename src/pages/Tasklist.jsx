@@ -11,7 +11,7 @@ export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [taskTime, setTaskTime] = useState(20)
-    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions } = useTasks(newTask, taskTime)
+    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt } = useTasks(newTask, taskTime)
     const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
     const editingTaskActive = taskList.find(t => t.id === editingTaskId)
     const [inputActive, setInputActive] = useState(false)  
@@ -58,7 +58,7 @@ export default function Tasklist() {
                     />
                 </div>
                 {/* Time display + Bar */}
-                <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} />
+                <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} />
                 {/* Inactive Tasks */}
                 {/* Todo move to side component when implemented */}
                 {inactiveTasks.length > 0 && (

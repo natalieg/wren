@@ -14,6 +14,15 @@ Popup trigger: the row's click-to-toggle moved to the checkbox only, freeing the
 
 `tasks.filter(t => !t.done)` / `tasks.filter(t => t.done)`, not a single sorted array — `.filter()` preserves order so no sort comparator is needed, and it gives the finished section a natural seam to become its own collapsible area, resolving the archive-vs-collapse question from `design/life-balance.md`.
 
+## Time MVP: the full "started at" vision (2026-07-31)
+
+Only the first, narrow piece of this is built (`startedAt` persisted to localStorage, seeded fresh once per calendar day). Rest of the vision, captured so it doesn't need re-explaining:
+
+- **Per-task cascading estimate:** task 1's estimated finish = `startedAt` + task 1's time. Task 2's estimate = task 1's estimated (or real, once it exists) finish + task 2's time. Each task's estimate is seeded by the previous task's finish, not by a shared `now`.
+- **Why no live-ticking clock:** deliberately avoided. Not everyone wants active time tracking, and a continuously-updating `now` forces that on everyone. Instead: checkpoint timestamps. When a task is checked done, that moment becomes its "real finished" timestamp; "real time spent" is the difference between that and the previous checkpoint (or `startedAt` for the first task). The *next* task's estimate then cascades from this last real checkpoint, not from a live clock. Gives real-vs-estimated data (feeds the ManicTime-comparison future idea) without an always-running timer UI.
+- **Day-boundary reset — genuinely unresolved, not just deferred for effort reasons:** a hard midnight reset doesn't work for night-shift-style users. Real candidates for later: a user-configurable "day resets at X" setting, or tying the reset to the (not-yet-built) end-of-day journal / to "when the user finishes planning the day" rather than a clock time at all. Today's implementation is deliberately the simplest placeholder (same-calendar-day check) specifically *because* the better answer isn't known yet — don't treat the current logic as a real design decision, it's a stopgap.
+- **"Restart starting time" (later):** for when an unplanned break/distraction throws off the day's plan — resets the baseline so downstream estimates aren't cascading-wrong from a stale start. Label would change from "Started at" to "Restarted at" when used. Not built.
+
 ## Time MVP: projected finish time as its own field, not inline (2026-07-31)
 
 Estimated finish time per task ("Task 1 20min" → "12:30") displayed as a separate field to the *right* of the task row, not folded into `TaskItem` itself — two visually distinct boxes per row, e.g. `[ Task 1  20min ]  [ 12:30 ]`.

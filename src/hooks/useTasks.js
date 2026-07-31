@@ -16,6 +16,26 @@ function useTasks(newTask = "", taskTime = 20) {
         localStorage.setItem('tasks', JSON.stringify(taskList))
     }, [taskList])
 
+    // Resets the 'startedAt' timestamp if it's the next day
+    // TODO add manual reset
+    // TODO add user configurable reset hour
+    const [startedAt] = useState(() => {
+        try {
+            const saved = localStorage.getItem('startedAt')
+            if (saved) {
+                const savedDate = new Date(saved)
+                if (savedDate.toDateString() === new Date().toDateString()) {
+                    return savedDate
+                }
+            }
+        } catch (e) {
+            console.error('Failed to load startedAt from localStorage:', e)
+        }
+        const fresh = new Date()
+        localStorage.setItem('startedAt', fresh.toISOString())
+        return fresh
+    })
+
     const toggleDone = (id) => {
         setTaskList(taskList.map(t => t.id === id ? { ...t, done: !t.done } : t))
     }
@@ -57,7 +77,7 @@ function useTasks(newTask = "", taskTime = 20) {
     const finishedTasks = taskList.filter(t => t.done)
 
 
-    return { taskList, openTasks, inactiveTasks, finishedTasks, taskActions }
+    return { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt }
 }
 
 export default useTasks
