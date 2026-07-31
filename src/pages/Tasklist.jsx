@@ -3,10 +3,9 @@ import Input from '../components/elements/Input'
 import TaskGroup from '../components/tasks/TaskGroup'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
 import Modal from '../components/elements/Modal'
-import Bar from '../components/elements/Bar'
 import CollapsableDiv from '../components/CollapsableDiv'
-import { formatTime } from '../utils/formatTime'
 import useTasks from '../hooks/useTasks'
+import TimeProgress from '../components/TimeProgress'
 
 export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
@@ -15,19 +14,7 @@ export default function Tasklist() {
     const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions } = useTasks(newTask, taskTime)
     const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
     const editingTaskActive = taskList.find(t => t.id === editingTaskId)
-    const [inputActive, setInputActive] = useState(false)
-
-    const totalTimeLeft = taskList.reduce((sum, task) => {
-        return !task.done ? sum + (parseInt(task.time) || 0) : sum;
-    }, 0);
-
-    const totalTimeDone = taskList.reduce((sum, task) => {
-        return task.done ? sum + (parseInt(task.time) || 0) : sum;
-    }, 0);
-
-    const totalTimePlanned = totalTimeDone + totalTimeLeft;
-    const donePercent = totalTimePlanned > 0 ? (totalTimeDone / totalTimePlanned) * 100 : 0;
-
+    const [inputActive, setInputActive] = useState(false)  
 
     const taskNameInputRef = useRef(null)
 
@@ -71,16 +58,7 @@ export default function Tasklist() {
                     />
                 </div>
                 {/* Time display + Bar */}
-                {/* Todo move to own component */}
-                <div className='flex gap-4 items-center justify-center mt-2 mb-4'>
-                    <div id='timePanel' className='select-none smallPanel self-start'>
-                        <Bar percent={donePercent} color='success' />
-                        <div className='flex items-center justify-between gap-4'>
-                            <span className='text-xs font-semibold text-success'>{formatTime(totalTimeDone)} done</span>
-                            <span className='text-xs font-semibold text-text-muted'>{formatTime(totalTimeLeft)} left</span>
-                        </div>
-                    </div>
-                </div>
+                <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} />
                 {/* Inactive Tasks */}
                 {/* Todo move to side component when implemented */}
                 {inactiveTasks.length > 0 && (

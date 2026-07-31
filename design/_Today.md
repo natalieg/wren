@@ -1,9 +1,9 @@
 
 - [x] **Refactor** [[Refactoring Tasks]]
 - [x] **Small Fix** Set focus back to input field after enter (not time)
-- [ ] styling fix for the bottom area - 'delete tasks' klebt am boden
+- [x] styling fix for the bottom area - 'delete tasks' klebt am boden
 - [x] **edit**: shortcut [c] hover over task 'finishes' it
-- [ ] time tracking ( MVP) 
+- [ ] [[Time Tracking]] ( MVP) 
 	- [ ] **Questions**: Start timer (on hover? ▶ symbol on task card?) shortcut like [t] for 'time'?
 	- [ ] Timebar on top should hold the time of all finished tasks + current elapsed time
 	- [ ] make current 'running' task card bigger than others

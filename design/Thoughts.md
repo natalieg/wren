@@ -30,3 +30,21 @@ Also read these files the selection imports:
 
 Implement: `Work Sessions Explorations.dc.html`
 
+#### Task Template
+Space to create new tasks that can be 'pulled' into the active task list (see the dayplan-picnic.html) for an example
+I could imagine that the main page has a sidebar like sunsama, where the user can switch between different views: 
+- parked tasks
+- task templates
+- current projects
+added value: they are not directly 'recurring tasks' but rather tasks that are done often, i'm not 100% how i will handle recurring task planning yet, this is a different topic but kinda related 
+==possibilities==:
+- user can either set a preference in the settings
+- user starts with a decision:
+	- start with template for eg 'wednesday' -> all recurring tasks for a wednesday are pulled, rest of the day is filled by the rules of energy/time 
+	- day starts empty: user pulls relevant tasks into the day, switches in the sidebar between templates, recurring etc to put the day together themselves 
+- at every time, the user can decide that they want to 'switch', maybe they used the pre-set day in the beginning but they want to clear the afternoon, maybe with a 'clear day' action, then they can fill the rest of the day, or maybe something like 'energy is lower than expected' action, that spreads the rest tasks of the day, maybe reducing the planned time for high energy tasks (needs finetuning)
+- MVP for templates:
+	- new subpage 'task templates'
+	- user can add templates, edit them, work similiar to adding tasks 
+	- pre requisite: #areas as templates should be grouped into their areas 
+	- 'templates' are shown in the sidebar (pre requisite #sidebar)
