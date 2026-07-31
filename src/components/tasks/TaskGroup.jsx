@@ -2,7 +2,7 @@ import TaskItem from './TaskItem'
 
 export default function TaskGroup({ tasks, toggleDone, toggleActive, onDelete, onEdit, blockKeys }) {
     return (
-        <div className='flex flex-col gap-2'>
+        <div className='flex flex-col'>
             {tasks.map(t => (
                 <TaskItem key={t.id} task={t}
                     toggleDone={toggleDone}

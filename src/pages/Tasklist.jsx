@@ -34,9 +34,9 @@ export default function Tasklist() {
     }
 
     return (
-        <div id='taskList'>
+        <div id='taskList' className='w-full lg:w-1/2 min-w-150'>
             <p className='headerDark'>Tasks</p>
-            <div className='flex flex-col gap-2 max-w-md mx-auto'>
+            <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
                 <div id='inputArea' className='flex gap-2'>
                     <Input
                         ref={taskNameInputRef}

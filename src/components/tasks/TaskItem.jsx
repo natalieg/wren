@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import Checkbox from '../elements/Checkbox'
+import { formatClockTime } from '../../utils/formatTime'
 
 // TODO add right click menu for actions, including keyboard shortcut information
 export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, onDelete, onEdit }) {
-    const { id, label, time, done } = task
+    const { id, label, time, done, estimate, finishedTimestamp } = task
     const [mouseOver, setMouseOver] = useState(false)
 
     useEffect(() => {
@@ -18,14 +19,14 @@ export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, on
     }, [mouseOver, task, id, toggleDone, toggleActive, blockKeys])
 
     return (
-        <>
+        <div className='group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid grid-cols-[80%_20%] gap-2 items-center'>
             <div className='group task-item flex justify-between'
                 onMouseEnter={() => setMouseOver(true)}
                 onMouseLeave={() => setMouseOver(false)}
                 onClick={() => onEdit(id)}>
                 <Checkbox id={id} onToggle={toggleDone} checked={done} />
                 <span className={(done ? 'line-through text-text-muted' : 'text-text-primary')
-                    + ' select-none'}>
+                    + ' select-none w-full'}>
                     {label}
                 </span>
                 <div className='flex gap-2 items-center'>
@@ -40,6 +41,10 @@ export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, on
                     </span>
                 </div>
             </div>
-        </>
+            {estimate &&
+                <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
+            {finishedTimestamp &&
+                <div className='w-20 text-text-muted/70 group-hover:text-text-secondary flex items-center justify-center text-center'>{formatClockTime(finishedTimestamp)}</div>}
+        </div>
     )
 }

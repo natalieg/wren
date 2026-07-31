@@ -31,4 +31,8 @@ describe('formatClockTime', () => {
     it('formats midnight as "00:00", not "24:00" or "12:00 AM"', () => {
         expect(formatClockTime(new Date(2026, 0, 1, 0, 0))).toBe('00:00')
     })
+
+    it('accepts an ISO string, e.g. after a localStorage round-trip', () => {
+        expect(formatClockTime(new Date(2026, 0, 1, 14, 5).toISOString())).toBe('14:05')
+    })
 })
