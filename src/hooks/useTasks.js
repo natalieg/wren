@@ -124,6 +124,12 @@ function useTasks(newTask = "", taskTime = 20) {
 
     const stopTracking = () => {
         flushTrackedTime()
+        // keep the just-stopped task at the top instead of letting it fall
+        setTaskList(currentTaskList => {
+            const stoppedTask = currentTaskList.find(t => t.id === runningTaskId)
+            const rest = currentTaskList.filter(t => t.id !== runningTaskId)
+            return [stoppedTask, ...rest]
+        })
         setRunningTaskId(null)
     }
 
