@@ -117,6 +117,7 @@ function useTasks(newTask = "", taskTime = 20) {
                 return [outgoingTask, ...rest]
             })
         }
+        setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ? { ...t, active: true } : t))
         setNewActionTime(new Date())
         setRunningTaskId(id)
     }
@@ -136,6 +137,12 @@ function useTasks(newTask = "", taskTime = 20) {
 
     const handleFieldChange = (id, field, value) => {
         setTaskList(taskList.map(t => t.id === id ? { ...t, [field]: value } : t))
+        // parking the currently-tracked task via the edit modal should stop
+        // tracking too, same safety net toggleActive already has
+        if (field === 'active' && value === false && id === runningTaskId) {
+            setRunningTaskId(null)
+            flushTrackedTime()
+        }
         updateActionTime()
     }
 
@@ -163,9 +170,14 @@ function useTasks(newTask = "", taskTime = 20) {
     const finishedTasks = taskList.filter(t => t.done)
 
     //baseTime is either [startedAt], [last finished task], or [new task created time] if no tasks are active
+    // guard against legacy finished tasks with no/invalid finishedTimestamp — one
+    // NaN here would poison the whole Math.max, breaking every estimate
+    const validFinishedTimestamps = finishedTasks
+        .map(t => new Date(t.finishedTimestamp).getTime())
+        .filter(time => !isNaN(time))
     const baseTime = Math.max(
         startedAt.getTime(),
-        ...finishedTasks.map(t => new Date(t.finishedTimestamp).getTime()),
+        ...validFinishedTimestamps,
         newActionTime)
 
     const calculateEstimateFinishTime = (task, runningTime) => {
@@ -185,6 +197,10 @@ function useTasks(newTask = "", taskTime = 20) {
     const sortedActiveTasks = () => {
         if (!runningTaskId) return activeTasks
         const runningTask = activeTasks.find(t => t.id === runningTaskId)
+        // runningTaskId can point at a task that isn't in activeTasks (e.g.
+        // parked while tracking, before the fixes above) — fall back rather
+        // than putting `undefined` at the front and breaking every estimate
+        if (!runningTask) return activeTasks
         const otherActiveTasks = activeTasks.filter(t => t.id !== runningTaskId)
         return [runningTask, ...otherActiveTasks]
     }

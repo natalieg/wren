@@ -69,6 +69,8 @@ Build order: tasks-to-bottom → edit → time tracking MVP → drag-and-drop.
    - 🔷 Edit modal doesn't reflect time-tracking fields yet — and could double as a "focus mode" showing a tracking bar for the running task (Natalie's flag, 2026-08-01: "especially neat for the modal").
    - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
+   - 🐛 Starting tracking on an inactive task doesn't also set it `active` (Natalie, 2026-08-01).
+   - 🐛 Legacy finished tasks in the deployed instance's `localStorage` predate `finishedTimestamp` — `undefined` there poisons `baseTime` via `Math.max`'s NaN behavior, breaking every estimate (seen live on the deployed site, 2026-08-01). Guard `finishedTasks.map(...)` against a missing/unparseable timestamp instead of trusting it's always present.
 4. 🔷 Drag-and-drop via `dnd-kit` — Natalie wants to get to this soon (2026-08-01).
 - Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
