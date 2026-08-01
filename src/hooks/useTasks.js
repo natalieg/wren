@@ -103,7 +103,20 @@ function useTasks(newTask = "", taskTime = 20) {
     }, [runningTaskId])
 
     const startTracking = (id) => {
-        if (runningTaskId) { flushTrackedTime() }
+        if (runningTaskId) {
+            flushTrackedTime()
+            // sortedActiveTasks() always pulls whichever task is running to
+            // the very front for display, regardless of stored position — so
+            // the outgoing task just needs to lead the "everyone else" pool,
+            // and it naturally lands right after the new task once displayed.
+            // functional update: must build on flushTrackedTime's taskList
+            // change above, not the stale outer `taskList` closure.
+            setTaskList(currentTaskList => {
+                const outgoingTask = currentTaskList.find(t => t.id === runningTaskId)
+                const rest = currentTaskList.filter(t => t.id !== runningTaskId)
+                return [outgoingTask, ...rest]
+            })
+        }
         setNewActionTime(new Date())
         setRunningTaskId(id)
     }
