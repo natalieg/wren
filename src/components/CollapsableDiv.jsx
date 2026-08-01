@@ -1,12 +1,19 @@
 import { useState } from 'react'
 import { Divider } from './elements/Divider'
 
-export default function CollapsableDiv({ label, children }) {
+export default function CollapsableDiv({ label, children, collapseAction }) {
     const [collapsed, setCollapsed] = useState(true)
+
+    const handleClick = () => {
+        setCollapsed(!collapsed)
+        if (collapseAction && collapsed) {
+            collapseAction()
+        }
+    }
 
     return (
         <div className='flex flex-col gap-2 mt-4 select-none'>
-            <div className='cursor-pointer' onClick={() => setCollapsed(!collapsed)}>
+            <div className='cursor-pointer' onClick={handleClick}>
                 <Divider label={label} glyph={collapsed ? '✧' : '✦'} />
             </div>
             <div

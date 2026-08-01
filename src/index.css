@@ -18,6 +18,7 @@
   --surface: #ffffff;
   --color-main1: rgba(113, 77, 91);
   --drop-shadow-glow-gold: 0 0 2px var(--color-gold);
+  --drop-shadow-glow-accent: 0 0 6px color-mix(in srgb, #a56bff 60%, transparent);
   --color-bg-base: #faf4ff;
   --color-surface: #ffffff;
   --color-border-soft: #e6d9f0;
@@ -25,7 +26,8 @@
   --color-text-secondary: #5c4a70;
   --color-text-muted: #8e7aa3;
   --color-accent-primary: #863bff;
-  --color-accent-muted: #8e7aa3;
+  --color-accent-soft: #c8b3e986;
+  --color-accent-muted: #d5bdee;
   --color-success: #3ab890;
   /* Gradient */
   --background-image-gradient-main: linear-gradient(135deg, #a56bff, #f7719e);
@@ -85,6 +87,12 @@
   box-shadow: var(--shadow-glow-accent);
 }
 
+.task-wrapper {
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+
 .task-item {
   display: flex;
   align-items: center;
@@ -93,11 +101,9 @@
   background: var(--color-surface);
   border: var(--border-w) solid var(--color-border-soft);
   border-radius: var(--radius-md);
-  font-family: var(--font-body);
-  cursor: pointer;
   transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
   &:hover {
-    transform: translateY(-2px);
+    transform: translateX(1px);
     box-shadow: var(--shadow-glow-accent);
   }
 }
