@@ -61,16 +61,15 @@ Build order: tasks-to-bottom → edit → time tracking MVP → drag-and-drop.
 - ✅ 2026-07-28: `formatTime` extracted to `src/utils/` + unit tested (Vitest set up).
 - ✅ 2026-07-28: fixed a real crash bug (dead `setFinishedTasks`/`setFinishedTasksVisible` refs) — ESLint extension now installed and live in-editor.
 - ✅ 2026-07-31: extracted the time-display panel into its own `TimeProgress.jsx`.
-- ✅ 2026-08-01: cascading per-task estimate (`useTasks.js`'s `openTasks`/`baseTime` reduce) and inactive-task preview estimates anchored off the active queue; `newActionTime` checkpoint that only refreshes when nothing's active, so resuming from idle doesn't produce stale estimates. Real-vs-estimated *actual* time tracking still open — model worked out, see `design/decisions.md`.
+- ✅ 2026-08-01: cascading per-task estimate (`useTasks.js`'s `openTasks`/`baseTime` reduce) and inactive-task preview estimates anchored off the active queue; `newActionTime` checkpoint that only refreshes when nothing's active, so resuming from idle doesn't produce stale estimates.
+- ✅ 2026-08-01: real active time tracking — start/stop per task (`PlayBtn`/`TimeFlag`), live ticking, persisted `trackedTime` with a 5min failsafe flush against accidental refresh/close. Switching tasks flushes and stops the old one, and settles it right below the new running task in the list instead of jumping back to its original position. The running task anchors the whole cascade off its own real remaining time, falling back to `now` once it runs over its own estimate. Covered by tests in `useTasks.test.js`. Full model/reasoning: `design/decisions.md`.
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
-3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Also sets up the ManicTime-comparison future idea for free. Pulls Phase 5's projected-finish-time concept forward, design decided (`design/decisions.md`). Estimates: done (above). Still open:
-   - Real-time start/stop per task (a "running" state), not just the static estimate.
-   - Running-task display — bigger card and/or a progress bar; the existing edit-modal could double as a focus-mode view.
-   - Rename `time` → `timeLeft` once real-time tracking needs to distinguish planned time from remaining time.
-   - Reconcile *actual* vs. *estimated* time per task using the tracked-vs-inferred distinction in `design/decisions.md`.
-   - Switching tasks mid-flight should stop the old timer.
-4. 🔷 Drag-and-drop via `dnd-kit`.
+3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
+   - 🔷 Edit modal doesn't reflect time-tracking fields yet — and could double as a "focus mode" showing a tracking bar for the running task (Natalie's flag, 2026-08-01: "especially neat for the modal").
+   - Fill-up progress bar for the running task's own card, not just the modal.
+   - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
+4. 🔷 Drag-and-drop via `dnd-kit` — Natalie wants to get to this soon (2026-08-01).
 - Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### 🔷 Phase 3 — Areas
@@ -82,13 +81,12 @@ The smallest possible slice of `design/wren-idle-konzept.md`, deliberately scope
 - A character tab showing EXP per stat (INT/STR/AGI/VIT/DEX/LUK), computed from completed tasks' areas via the activity→stat table. No sprite, no art, no night/expedition loop yet.
 - The full idle-game vision (day/night loop, dungeon expeditions, AI-generated narrative, pets, bosses, sprites/outfits, collections) stays exactly where Natalie's own doc sequences it (its Phase 2–4) — explicitly *not* pulled forward. That's real scope, comparable to everything else in this roadmap combined; building it now would repeat the "perfect one thing, everything else dies" pattern this whole roadmap exists to counter.
 
-### Phase 5 — Simple day-aware time (needs pre-thought before coding)
-Deliberately the *minimum* version, not the full `design/day-planning.md` timeline/day-tape vision (sketches 1h–1m) — those need real capacity data and UI work this phase explicitly skips for now.
-- Now vs. remaining tasks → a projected finish time per task, computed sequentially (task N finishes at now + sum of estimates for tasks 1..N).
-- A simple buffer/slack time concept alongside it (loose reference: `design/day-planning.md` sketch 1j's buffer rows).
-- Natalie flagged this needs more design thought before implementation starts — don't jump straight to code here.
+### 🟡 Phase 5 — Simple day-aware time — absorbed into Phase 2 (2026-08-01)
+Deliberately the *minimum* version, not the full `design/day-planning.md` timeline/day-tape vision (sketches 1h–1m) — those still need real capacity data and UI work this phase always intended to skip.
+- ✅ Now vs. remaining tasks → a projected finish time per task, computed sequentially — built as part of Phase 2's time tracking MVP (`openTasksResult` cascade in `useTasks.js`), not separately.
+- 🟥 Still open, not carried into Phase 2: a buffer/slack time concept (loose reference: `design/day-planning.md` sketch 1j's buffer rows) — revisit if it turns out to matter once time tracking's been used for a while.
 
-### ✅ Phase 6 — Parking / active tasks — mostly done
+### 🟡 Phase 6 — Parking / active tasks — mostly done
 Jumped the queue ahead of Phase 2's remaining items — real daily friction (dumping thoughts into the list, then needing to set most of them aside without deleting them), surfaced through actual use exactly as Phase 13 anticipated. Simpler than originally sketched: no separate Today/Tasklist route split, just `active: boolean` on a task, one page.
 - ✅ 2026-07-29: `active` field (defaults `true` on creation), toggle via edit modal or hover shortcuts (`a` activate, `p` park). `TaskGroup.jsx` extracted; parked tasks sit in their own collapsible section.
 - 🔷 Open: move the parked-tasks panel from above the active list to beside it (collapsible sidebar) — the original ask, deferred since the MVP works without it.

@@ -1,5 +1,3 @@
-import React, { useState } from 'react'
-
 export default function PlayBtn({ id, onClick, showAlways = false, active }) {
 
     const handleClick = (e) => {

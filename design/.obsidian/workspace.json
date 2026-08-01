@@ -14,12 +14,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Time Tracking 260801.md",
+                "file": "_Today.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Time Tracking 260801"
+              "title": "_Today"
             }
           }
         ]
@@ -220,16 +220,18 @@
   },
   "active": "fdab91320715a567",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.128544.c41359904737",
+    "_ROADMAP.md.tmp.128544.cfd320df60f6",
+    "2026-07-31.md",
     "_Today.md",
+    "Time Tracking 260801.md",
     "_ROADMAP.md.tmp.117216.0ad1eb7f16dd",
     "decisions.md.tmp.117216.015a7fbfa61c",
-    "Time Tracking 260801.md",
     "wren-idle-konzept.md",
     "decisions.md.tmp.117216.34a439ccf944",
     "Untitled.canvas",
     "life-balance.md",
     "Pasted image 20260727211428.png",
-    "2026-07-31.md",
     "Untitled.base",
     "Thoughts.md",
     "_ROADMAP.md",
@@ -243,7 +245,6 @@
     "books.md",
     "2026-07-27.md",
     "DayFiles",
-    "_ROADMAP.md.tmp.41568.5416e8db337d",
     "decisions.md",
     "🟡 Phase 1 — Daylist MVP (home page revival) — working.md",
     "data-architecture.md",
