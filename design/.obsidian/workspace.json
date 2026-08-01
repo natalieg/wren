@@ -14,12 +14,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Today.md",
+                "file": "Time Tracking 260801.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_Today"
+              "title": "Time Tracking 260801"
             }
           }
         ]
@@ -74,7 +74,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -86,7 +88,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#parking",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -107,8 +109,7 @@
               "title": "Lesezeichen"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -219,12 +220,12 @@
   },
   "active": "fdab91320715a567",
   "lastOpenFiles": [
+    "_Today.md",
     "_ROADMAP.md.tmp.117216.0ad1eb7f16dd",
     "decisions.md.tmp.117216.015a7fbfa61c",
     "Time Tracking 260801.md",
     "wren-idle-konzept.md",
     "decisions.md.tmp.117216.34a439ccf944",
-    "_Today.md",
     "Untitled.canvas",
     "life-balance.md",
     "Pasted image 20260727211428.png",
@@ -243,7 +244,6 @@
     "2026-07-27.md",
     "DayFiles",
     "_ROADMAP.md.tmp.41568.5416e8db337d",
-    "_ROADMAP.md.tmp.41568.0e3f00ce356f",
     "decisions.md",
     "🟡 Phase 1 — Daylist MVP (home page revival) — working.md",
     "data-architecture.md",

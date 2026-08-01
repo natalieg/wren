@@ -83,3 +83,19 @@ if no active tasks, new time value:
 'newTaskCreatedTime' 
 
 should only be checked if 'activeTasks' list is empty
+
+---
+time tracking shows the following logical misalign:
+
+- [ ] if i start tracking a tsak, the start time should ALWAYS be the current time / the estimated finished should orient on that minus 'time left'
+- [x] show running seconds on the current task
+- [x] stylefix: single source of thruth for the current tracked item
+- [x] second display fix, leading zero
+- [ ] numbers should not 'wobble' around while the tracker is running
+- [ ] bug: tracked number is not displayed on new 'tracking' task, only after i switched to another tsk and then back again
+
+**#2 (live ticking display) needs that exact same TODO closed** — once `runningTaskId`/`trackedSeconds` reach `TaskItem`, the number to show isn't new state either, it's derived: `task.trackedTime` (already flushed) plus, only if this task is the one running, the live `trackedSeconds` on top. `TimeFlag` already takes a `tracked` prop in seconds — feed it that combined total instead of raw `trackedTime`.
+
+**#1 is the real design question, and I think it actually resolves the other pending TODO at the same time.** Right now every active task's `estimate` comes from the cascade reduce (`baseTime + cumulative queue time`) — fine for tasks that haven't started, but once a task is _actually_ being tracked, it has better ground truth: real time spent so far. So instead of bolting "set a start-time on click" onto `startTracking`, what if the running task's `estimate` is computed differently inside the reduce — `now + timeLeft` (its own real remaining time) instead of the generic `runningTime + task.time` — and everything _after_ it in the queue just cascades off that? That's the same "sort running task to front" TODO already sitting in the file, just paired with a special-cased formula for that one element. No new anchor-tracking needed in `startTracking` at all.
+
+Want to sit with #1 a bit more, or is that framing enough to run with?
