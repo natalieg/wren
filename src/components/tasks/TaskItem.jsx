@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import Checkbox from '../elements/Checkbox'
+import { formatClockTime } from '../../utils/formatTime'
+import PlayBtn from '../elements/PlayBtn'
+import TimeFlag from '../elements/TimeFlag'
 
 // TODO add right click menu for actions, including keyboard shortcut information
-export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, onDelete, onEdit }) {
-    const { id, label, time, done } = task
+export default function TaskItem({ index, task, toggleDone, toggleActive, blockKeys, onDelete, onEdit, startTracking, stopTracking, runningTaskId, trackedSeconds }) {
+    const { id, label, trackedTime, time, done, estimate, finishedTimestamp, possibleEstimate } = task
+    const isTracking = id === runningTaskId
     const [mouseOver, setMouseOver] = useState(false)
+    const isActive = estimate
 
     useEffect(() => {
         if (!mouseOver || blockKeys) return
@@ -17,19 +22,38 @@ export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, on
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [mouseOver, task, id, toggleDone, toggleActive, blockKeys])
 
+    const handleTimeTracking = () => {
+        const nowTracking = !isTracking
+        if (nowTracking) {
+            startTracking(id)
+        } else {
+            stopTracking()
+        }
+    }
+
     return (
-        <>
+        <div className={`group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid grid-cols-[80%_20%] gap-2 items-center
+        ${isTracking ? 'bg-gradient-softer' : ''}`}>
             <div className='group task-item flex justify-between'
                 onMouseEnter={() => setMouseOver(true)}
                 onMouseLeave={() => setMouseOver(false)}
                 onClick={() => onEdit(id)}>
                 <Checkbox id={id} onToggle={toggleDone} checked={done} />
+                {/* label */}
                 <span className={(done ? 'line-through text-text-muted' : 'text-text-primary')
-                    + ' select-none'}>
+                    + ' select-none w-full'}>
                     {label}
                 </span>
                 <div className='flex gap-2 items-center'>
-                    <span className='w-14 bg-border-soft text-text-primary px-1 rounded-sm text-sm select-none'>{time} min</span>
+                    {/* Time */}
+                    {!finishedTimestamp &&
+                        <PlayBtn id={'toggleTracking_' + id}
+                            onClick={handleTimeTracking}
+                            showAlways={isActive && index === 0}
+                            active={isTracking} />}
+                    <TimeFlag tracked={(trackedTime || 0) + (isTracking ? trackedSeconds : 0)}
+                        time={time} isTracking={isTracking} />
+                    {/* Delete */}
                     <span className='opacity-0 group-hover:opacity-100 transition-opacity duration-(--dur-fast) ease-bounce text-text-muted
                                     hover:text-text-primary'
                         onClick={(e) => {
@@ -40,6 +64,12 @@ export default function TaskItem({ task, toggleDone, toggleActive, blockKeys, on
                     </span>
                 </div>
             </div>
-        </>
+            {possibleEstimate &&
+                <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(possibleEstimate)}</div>}
+            {estimate &&
+                <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
+            {finishedTimestamp &&
+                <div className='w-20 text-text-muted/70 group-hover:text-text-secondary flex items-center justify-center text-center'>{formatClockTime(finishedTimestamp)}</div>}
+        </div>
     )
 }

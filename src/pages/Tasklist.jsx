@@ -11,10 +11,10 @@ export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [taskTime, setTaskTime] = useState(20)
-    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions } = useTasks(newTask, taskTime)
+    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds } = useTasks(newTask, taskTime)
     const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
     const editingTaskActive = taskList.find(t => t.id === editingTaskId)
-    const [inputActive, setInputActive] = useState(false)  
+    const [inputActive, setInputActive] = useState(false)
 
     const taskNameInputRef = useRef(null)
 
@@ -29,14 +29,16 @@ export default function Tasklist() {
 
     const taskActionBundle = {
         ...taskActions,
+        runningTaskId,
+        trackedSeconds,
         blockKeys: inputActive,
         onEdit: setEditingTaskId,
     }
 
     return (
-        <div id='taskList'>
+        <div id='taskList' className='w-full lg:w-1/2 xl:w-[40%] min-w-150'>
             <p className='headerDark'>Tasks</p>
-            <div className='flex flex-col gap-2 max-w-md mx-auto'>
+            <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
                 <div id='inputArea' className='flex gap-2'>
                     <Input
                         ref={taskNameInputRef}
@@ -58,18 +60,19 @@ export default function Tasklist() {
                     />
                 </div>
                 {/* Time display + Bar */}
-                <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} />
-                {/* Inactive Tasks */}
+                <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} />
+                {/* 💤 Inactive Tasks */}
                 {/* Todo move to side component when implemented */}
                 {inactiveTasks.length > 0 && (
                     <CollapsableDiv
-                        label={`Inactive tasks (${inactiveTasks.length})`}>
+                        label={`Inactive tasks (${inactiveTasks.length})`}
+                        collapseAction={updateActionTime}>
                         <TaskGroup tasks={inactiveTasks} {...taskActionBundle} />
                     </CollapsableDiv>
                 )}
-                {/* Active Tasks */}
+                {/* ⚡ Active Tasks */}
                 <TaskGroup tasks={openTasks} {...taskActionBundle} />
-                {/* Finished Tasks */}
+                {/* ✅ Finished Tasks */}
                 {finishedTasks.length > 0 && (
                     <CollapsableDiv
                         label={`Finished tasks (${finishedTasks.length})`}>
