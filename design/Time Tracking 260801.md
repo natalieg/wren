@@ -87,12 +87,12 @@ should only be checked if 'activeTasks' list is empty
 ---
 time tracking shows the following logical misalign:
 
-- [ ] if i start tracking a tsak, the start time should ALWAYS be the current time / the estimated finished should orient on that minus 'time left'
+- [x] if i start tracking a tsak, the start time should ALWAYS be the current time / the estimated finished should orient on that minus 'time left'
 - [x] show running seconds on the current task
 - [x] stylefix: single source of thruth for the current tracked item
 - [x] second display fix, leading zero
-- [ ] numbers should not 'wobble' around while the tracker is running
-- [ ] bug: tracked number is not displayed on new 'tracking' task, only after i switched to another tsk and then back again
+
+- [x] bug: tracked number is not displayed on new 'tracking' task, only after i switched to another tsk and then back again
 
 **#2 (live ticking display) needs that exact same TODO closed** — once `runningTaskId`/`trackedSeconds` reach `TaskItem`, the number to show isn't new state either, it's derived: `task.trackedTime` (already flushed) plus, only if this task is the one running, the live `trackedSeconds` on top. `TimeFlag` already takes a `tracked` prop in seconds — feed it that combined total instead of raw `trackedTime`.
 

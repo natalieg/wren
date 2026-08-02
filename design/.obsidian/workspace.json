@@ -4,12 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "fa59b5adf7aebf82",
+        "id": "a92349433446861b",
         "type": "tabs",
-        "dimension": 69.98730964467005,
         "children": [
           {
-            "id": "fdab91320715a567",
+            "id": "78f175928f107674",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -21,40 +20,22 @@
               "icon": "lucide-file",
               "title": "_Today"
             }
-          }
-        ]
-      },
-      {
-        "id": "a92349433446861b",
-        "type": "tabs",
-        "dimension": 30.01269035532995,
-        "children": [
-          {
-            "id": "78f175928f107674",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "data-architecture.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "data-architecture"
-            }
           },
           {
             "id": "8ffd1d2fe2a13789",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "day-planning.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "day-planning"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -218,18 +199,63 @@
       "bases:Create new base": false
     }
   },
-  "active": "fdab91320715a567",
+  "floating": {
+    "id": "e1037c732dca8e74",
+    "type": "floating",
+    "children": [
+      {
+        "id": "e3867d91b27790c9",
+        "type": "window",
+        "children": [
+          {
+            "id": "c650e6f4f5d6838b",
+            "type": "tabs",
+            "children": [
+              {
+                "id": "fdab91320715a567",
+                "type": "leaf",
+                "state": {
+                  "type": "markdown",
+                  "state": {
+                    "file": "Thoughts.md",
+                    "mode": "source",
+                    "source": false
+                  },
+                  "icon": "lucide-file",
+                  "title": "Thoughts"
+                }
+              }
+            ]
+          }
+        ],
+        "direction": "vertical",
+        "x": -1100,
+        "y": 132,
+        "width": 1103,
+        "height": 992,
+        "maximize": true,
+        "zoom": 0
+      }
+    ]
+  },
+  "active": "78f175928f107674",
   "lastOpenFiles": [
+    "Thoughts.md",
+    "_ROADMAP.md",
+    "_Today.md",
+    "data-architecture.md",
+    "day-planning.md",
+    "Untitled.md",
+    "Time Tracking 260801.md",
+    "Shape.md",
     "_ROADMAP.md.tmp.128544.29299d9a496e",
     "_ROADMAP.md.tmp.128544.05b80d424b5f",
     "_ROADMAP.md.tmp.128544.3dcad21d793e",
     "_ROADMAP.md.tmp.128544.1542ce43edf5",
-    "Time Tracking 260801.md",
     "Time Tracking.md",
     "_ROADMAP.md.tmp.128544.c41359904737",
     "_ROADMAP.md.tmp.128544.cfd320df60f6",
     "2026-07-31.md",
-    "_Today.md",
     "_ROADMAP.md.tmp.117216.0ad1eb7f16dd",
     "decisions.md.tmp.117216.015a7fbfa61c",
     "wren-idle-konzept.md",
@@ -238,17 +264,12 @@
     "life-balance.md",
     "Pasted image 20260727211428.png",
     "Untitled.base",
-    "Thoughts.md",
-    "_ROADMAP.md",
-    "day-planning.md",
     "tasklist.md",
     "Refactoring Tasks.md",
-    "_ROADMAP.md.tmp.99680.48d257fc88af",
     "books.md",
     "2026-07-27.md",
     "decisions.md",
     "🟡 Phase 1 — Daylist MVP (home page revival) — working.md",
-    "data-architecture.md",
     "html/HTML TEST.md"
   ]
 }
