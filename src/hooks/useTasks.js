@@ -16,6 +16,7 @@ function useTasks(newTask = "", taskTime = 20) {
     const [runningTaskId, setRunningTaskId] = useState(null)
     const [trackedSeconds, setTrackedSeconds] = useState(0)
     const trackedSecondsRef = useRef(0)
+    const trackingStartTime = useRef(null)
 
     // keeps a live, always-current mirror of trackedSeconds for code that
     // can't rely on the render-scoped closure (flushTrackedTime, called from intervals)
@@ -29,10 +30,24 @@ function useTasks(newTask = "", taskTime = 20) {
 
     useEffect(() => {
         if (!runningTaskId) return
+        trackingStartTime.current = Date.now()
         const interval = setInterval(() => {
-            setTrackedSeconds(prevTrackedSeconds => prevTrackedSeconds + 1)
+            const elapsed = Math.floor((Date.now() - trackingStartTime.current) / 1000)
+            setTrackedSeconds(elapsed)
         }, 1000)
         return () => clearInterval(interval)
+    }, [runningTaskId])
+
+    // Visibility Listener
+    useEffect(() => {
+        if (!runningTaskId) return
+        const onVisible = () => {
+            if (document.visibilityState === 'visible' && trackingStartTime.current) {
+                setTrackedSeconds(Math.floor((Date.now() - trackingStartTime.current) / 1000))
+            }
+        }
+        document.addEventListener('visibilitychange', onVisible)
+        return () => document.removeEventListener('visibilitychange', onVisible)
     }, [runningTaskId])
 
     // Resets the 'startedAt' timestamp if it's the next day
@@ -83,13 +98,14 @@ function useTasks(newTask = "", taskTime = 20) {
     }
 
     const flushTrackedTime = () => {
-        if (!runningTaskId) return
-        const secondsToFlush = trackedSecondsRef.current
+        if (!runningTaskId || !trackingStartTime.current) return
+        const secondsToFlush = Math.floor((Date.now() - trackingStartTime.current) / 1000)
         setTaskList(currentTaskList => currentTaskList.map(task => {
             if (task.id !== runningTaskId) return task
-            const newTrackedTime = (task.trackedTime || 0) + secondsToFlush
-            return { ...task, trackedTime: newTrackedTime }
+            return { ...task, trackedTime: (task.trackedTime || 0) + secondsToFlush }
         }))
+        // Session-Reset: neue Baseline
+        trackingStartTime.current = Date.now()
         setTrackedSeconds(0)
     }
 
@@ -105,12 +121,7 @@ function useTasks(newTask = "", taskTime = 20) {
     const startTracking = (id) => {
         if (runningTaskId) {
             flushTrackedTime()
-            // sortedActiveTasks() always pulls whichever task is running to
-            // the very front for display, regardless of stored position — so
-            // the outgoing task just needs to lead the "everyone else" pool,
-            // and it naturally lands right after the new task once displayed.
-            // functional update: must build on flushTrackedTime's taskList
-            // change above, not the stale outer `taskList` closure.
+            // sortedActiveTasks() always pulls whichever task is running to top
             setTaskList(currentTaskList => {
                 const outgoingTask = currentTaskList.find(t => t.id === runningTaskId)
                 const rest = currentTaskList.filter(t => t.id !== runningTaskId)
@@ -143,8 +154,7 @@ function useTasks(newTask = "", taskTime = 20) {
 
     const handleFieldChange = (id, field, value) => {
         setTaskList(taskList.map(t => t.id === id ? { ...t, [field]: value } : t))
-        // parking the currently-tracked task via the edit modal should stop
-        // tracking too, same safety net toggleActive already has
+        // parking the currently-tracked task via the edit modal should stop tracking too
         if (field === 'active' && value === false && id === runningTaskId) {
             setRunningTaskId(null)
             flushTrackedTime()
@@ -153,6 +163,10 @@ function useTasks(newTask = "", taskTime = 20) {
     }
 
     const handleDeleteTask = (id) => {
+        if (id === runningTaskId) {
+            setRunningTaskId(null)
+            flushTrackedTime()
+        }
         setTaskList(taskList.filter(t => t.id !== id))
         updateActionTime()
     }
@@ -196,16 +210,14 @@ function useTasks(newTask = "", taskTime = 20) {
             return Date.now()
         }
         const remaining = isOverEstimate ? 0 : task.time * 60 - trackedOrElapsed
-        return runningTime + remaining * 1000
+        // return runningTime + remaining * 1000
+        // eslint-disable-next-line react-hooks/purity -- display-only
+        return (isRunning ? Date.now() : runningTime) + remaining * 1000
     }
 
     // sorts running task to the front LATER should be changable in user settings
     const sortedActiveTasks = () => {
-        if (!runningTaskId) return activeTasks
         const runningTask = activeTasks.find(t => t.id === runningTaskId)
-        // runningTaskId can point at a task that isn't in activeTasks (e.g.
-        // parked while tracking, before the fixes above) — fall back rather
-        // than putting `undefined` at the front and breaking every estimate
         if (!runningTask) return activeTasks
         const otherActiveTasks = activeTasks.filter(t => t.id !== runningTaskId)
         return [runningTask, ...otherActiveTasks]
@@ -219,11 +231,14 @@ function useTasks(newTask = "", taskTime = 20) {
 
 
     // add 'possibleEstimate' timestamp to each task, anchored after the last
-    // active task's estimate (or baseTime, when nothing's active — the reduce
-    // above leaves runningTime unchanged in that case)
+    // active task's estimate or baseTime if no task is active
     const inactiveTasks = taskList.filter(t => !t.done && !t.active).map((task) => {
-        return { ...task, possibleEstimate: new Date(openTasksResult.runningTime + task.time * 60000) }
+        const remaining = Math.max(task.time * 60 - (task.trackedTime || 0), 0)
+        // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
+        const sourceTime = Math.max(openTasksResult.runningTime, Date.now())
+        return { ...task, possibleEstimate: new Date(sourceTime + remaining * 1000) }
     })
+
 
     // TODO: return runningTaskId, trackedSeconds so components can show the running state
     return { taskList, openTasks: openTasksResult.list, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds }

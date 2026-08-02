@@ -11,13 +11,14 @@
 	- [x] 'estimate' for inactive tasks, those are handled parallel not acc
 	- [x] **Questions**: Start timer (on hover? ▶ symbol on task card?) 
 	- [ ] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
-	- [ ] Timebar on top should hold the time of all finished tasks + current elapsed time
 	- [x] make current 'running' task card bigger than others [other style solution found]
 	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode'
 		- [ ] update time display [current/planned]
 		- [ ] add the 'track time' btn 
 		- [ ] make it possibel to edit the 'tracked time'
-	- [x] it should be possible to switch tasks, even when they are not finished, when the user starts on another card, the old timer should stop
+	- [x] it should be possible to switch tasks, even when they are not finished, when the user 
+	starts on another card, the old timer should stop
+	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
 - [ ] DND
 
