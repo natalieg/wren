@@ -199,50 +199,11 @@
       "bases:Create new base": false
     }
   },
-  "floating": {
-    "id": "e1037c732dca8e74",
-    "type": "floating",
-    "children": [
-      {
-        "id": "e3867d91b27790c9",
-        "type": "window",
-        "children": [
-          {
-            "id": "c650e6f4f5d6838b",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "fdab91320715a567",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Thoughts.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "Thoughts"
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": -1100,
-        "y": 132,
-        "width": 1103,
-        "height": 992,
-        "maximize": true,
-        "zoom": 0
-      }
-    ]
-  },
   "active": "78f175928f107674",
   "lastOpenFiles": [
     "Thoughts.md",
-    "_ROADMAP.md",
     "_Today.md",
+    "_ROADMAP.md",
     "data-architecture.md",
     "day-planning.md",
     "Untitled.md",

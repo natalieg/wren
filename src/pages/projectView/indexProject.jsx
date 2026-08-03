@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import DocWrapper from '../../components/DocWrapper'
 import dark1 from '../../assets/img/dark1.jpg'
 import ProjectPanel from './ProjectPanel'

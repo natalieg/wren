@@ -1,6 +1,5 @@
 
-- [x] BUGFIX: adding a nonvalid number in the 'time' filed blocks it with NAN, should just become 0 instead
-- [x] #bugfix Tracker / estimate don't run correctly when another tab is opened
+- [ ] #Bug wenn ich innerhalb der app den reiter wechsel, springt der timer raus
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
 - [ ] Micro History of all tracked tasks, with Current date on top [[Shape]]

@@ -5,3 +5,6 @@ export const formatTime = (minutes) =>
 // Accepts a Date or an ISO string (localStorage round-trips Dates as strings).
 export const formatClockTime = (date) =>
     new Date(date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })
+
+export const formatDate = (date) =>
+    new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })

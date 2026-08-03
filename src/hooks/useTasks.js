@@ -1,6 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 
-
+// HINT (background timer fix): this hook currently only gets called inside
+// Tasklist.jsx, which only renders on the '/' route — so react-router
+// unmounts it (killing runningTaskId, the interval, trackingStartTime) every
+// time you navigate to another page. Fix: call this hook exactly ONCE, above
+// <Routes> (see App.jsx), so it never unmounts on route change. See
+// TasksContext.jsx for the wiring.
+//
+// That move means `newTask`/`taskTime` can no longer be closed-over hook
+// params — they're Tasklist's local input-field state, and App.jsx doesn't
+// have them. See the handleAddTask HINT below for the required signature change.
+// (left as-is for now so the file keeps compiling until you do that refactor)
 function useTasks(newTask = "", taskTime = 20) {
     const [taskList, setTaskList] = useState(() => {
         try {
@@ -87,6 +97,14 @@ function useTasks(newTask = "", taskTime = 20) {
             setRunningTaskId(null)
             flushTrackedTime()
         }
+        // HINT: this is the ONE place done/undone flips, so it's the right spot
+        // for history too:
+        //   - isNowDone === true  -> addToHistory(...) (useHistory)
+        //   - isNowDone === false -> removeFromHistory(id)
+        // Grab the updated task from newTaskList (not the stale `task` above) so
+        // history gets the fresh finishedTimestamp/trackedTime.
+        // Watch out: if a task gets toggled done -> undone -> done again, you'll
+        // add it to history twice unless addToHistory dedupes by task id.
     }
 
     const toggleActive = (id) => {
@@ -145,6 +163,11 @@ function useTasks(newTask = "", taskTime = 20) {
     }
 
 
+    // HINT (background timer fix, part 2): once useTasks() moves above <Routes>,
+    // this needs to become handleAddTask(label, time) — real params instead of
+    // closing over the `newTask`/`taskTime` hook args above (which go away).
+    // Update the call site in Tasklist.jsx accordingly (it already passes both
+    // as args today, they're just currently ignored — see Tasklist.jsx HINT).
     const handleAddTask = () => {
         if (newTask?.trim() === '') return
         const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
