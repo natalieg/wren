@@ -14,7 +14,7 @@
 @theme {
   --color-gold: #ffc858;
   --color-border: #84622d;
-  --titleFont: 'Cinzel Decorative', serif;
+  --font-title: 'Cinzel Decorative', serif;
   --surface: #ffffff;
   --color-main1: rgba(113, 77, 91);
   --drop-shadow-glow-gold: 0 0 2px var(--color-gold);
@@ -109,7 +109,7 @@
 }
 
 .header {
-  font-family: var(--titleFont);
+  font-family: var(--font-title);
   font-weight: 50;
   font-style: normal;
   font-size: 3em;
@@ -137,7 +137,7 @@
 
 /* todo maybe delete when themes are implemented?? */
 .headerDark {
-  font-family: var(--titleFont);
+  font-family: var(--font-title);
   font-weight: 50;
   font-style: normal;
   font-size: 3em;

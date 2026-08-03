@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import useHistory from './useHistory'
 
-// HINT (background timer fix): this hook currently only gets called inside
+// TODO HINT (background timer fix): this hook currently only gets called inside
 // Tasklist.jsx, which only renders on the '/' route — so react-router
 // unmounts it (killing runningTaskId, the interval, trackingStartTime) every
 // time you navigate to another page. Fix: call this hook exactly ONCE, above
@@ -12,6 +13,7 @@ import { useState, useEffect, useRef } from 'react'
 // have them. See the handleAddTask HINT below for the required signature change.
 // (left as-is for now so the file keeps compiling until you do that refactor)
 function useTasks(newTask = "", taskTime = 20) {
+    const { addToHistory, removeFromHistory } = useHistory()
     const [taskList, setTaskList] = useState(() => {
         try {
             const savedTasks = localStorage.getItem('tasks')
@@ -90,6 +92,11 @@ function useTasks(newTask = "", taskTime = 20) {
         const newTaskList = taskList.map((task) => {
             if (task.id !== id) return task
             const isNowDone = !task.done
+            if (isNowDone) {
+                addToHistory({ ...task, done: true, finishedTimestamp: new Date() })
+            } else {
+                removeFromHistory(id)
+            }
             return { ...task, done: isNowDone, finishedTimestamp: isNowDone ? new Date() : null }
         })
         setTaskList(newTaskList)
@@ -97,14 +104,6 @@ function useTasks(newTask = "", taskTime = 20) {
             setRunningTaskId(null)
             flushTrackedTime()
         }
-        // HINT: this is the ONE place done/undone flips, so it's the right spot
-        // for history too:
-        //   - isNowDone === true  -> addToHistory(...) (useHistory)
-        //   - isNowDone === false -> removeFromHistory(id)
-        // Grab the updated task from newTaskList (not the stale `task` above) so
-        // history gets the fresh finishedTimestamp/trackedTime.
-        // Watch out: if a task gets toggled done -> undone -> done again, you'll
-        // add it to history twice unless addToHistory dedupes by task id.
     }
 
     const toggleActive = (id) => {
@@ -146,7 +145,13 @@ function useTasks(newTask = "", taskTime = 20) {
                 return [outgoingTask, ...rest]
             })
         }
-        setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ? { ...t, active: true } : t))
+        setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ?
+            {
+                ...t,
+                active: true,
+                startedAt: t.startedAt || new Date(),
+            }
+            : t))
         setNewActionTime(new Date())
         setRunningTaskId(id)
     }
