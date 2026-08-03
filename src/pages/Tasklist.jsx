@@ -35,6 +35,13 @@ export default function Tasklist() {
         onEdit: setEditingTaskId,
     }
 
+    const handleTaskTimeChange = (e) => {
+        const value = parseInt(e.target.value)
+        if (!isNaN(value)) {
+            setTaskTime(value)
+        }
+    }
+
     return (
         <div id='taskList' className='w-full lg:w-1/2 xl:w-[40%] min-w-150'>
             <p className='headerDark'>Tasks</p>
@@ -51,9 +58,10 @@ export default function Tasklist() {
                     />
                     <Input
                         placeholder="Time"
+                        type='number'
                         width='w-20'
                         value={taskTime}
-                        onChange={(e) => setTaskTime(parseInt(e.target.value))}
+                        onChange={handleTaskTimeChange}
                         onKeyDown={handleKeyDown}
                         onFocus={() => setInputActive(true)}
                         onBlur={() => setInputActive(false)}
