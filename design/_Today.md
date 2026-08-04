@@ -6,7 +6,7 @@
 - [ ] "Activate All" for the parking area
 - [ ] #backlog als neue liste introducen
 - [ ] [Badge] sum of parked items
-- [ ] Micro History of all tracked tasks, with Current date on top [[Shape]]
+- [x] Micro History of all tracked tasks, with Current date on top [[Shape]]
 - [ ] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area
 - [ ] [[Time Tracking 260801]] ( MVP) 
 	- [ ] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
