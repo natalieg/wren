@@ -52,7 +52,8 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
                             showAlways={isActive && index === 0}
                             active={isTracking} />}
                     <TimeFlag tracked={(trackedTime || 0) + (isTracking ? trackedSeconds : 0)}
-                        time={time} isTracking={isTracking} />
+                        time={time} isTracking={isTracking} 
+                        isFinished={!!finishedTimestamp} />
                     {/* Delete */}
                     <span className='opacity-0 group-hover:opacity-100 transition-opacity duration-(--dur-fast) ease-bounce text-text-muted
                                     hover:text-text-primary'
