@@ -1,22 +1,18 @@
 
-- [ ] #Bug wenn ich innerhalb der app den reiter wechsel, springt der timer raus
+- [x] #Bug wenn ich innerhalb der app den reiter wechsel, springt der timer raus
+- [ ] mini card for 'activ tracking task' that shows up when looking at other pages
+- [ ] #update time bereich on top zeigt immernoch die geschaetzte zeit, nicht die tracked time bei 'x done'
+- [ ] #graphic bei finished task sollten nur minuten angezeigt werden ohne sekunden, bei unter 1min vllt evaluieren ob die est time statt dessen eingetragen wird 
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
 - [ ] Micro History of all tracked tasks, with Current date on top [[Shape]]
 - [ ] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area
 - [ ] [[Time Tracking 260801]] ( MVP) 
-	- [x] show 'started' time in timeCard
-	- [x] show 'estimated time' for each active task
-	- [x] 'estimate' for inactive tasks, those are handled parallel not acc
-	- [x] **Questions**: Start timer (on hover? ▶ symbol on task card?) 
 	- [ ] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
-	- [x] make current 'running' task card bigger than others [other style solution found]
 	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode'
 		- [ ] update time display [current/planned]
 		- [ ] add the 'track time' btn 
 		- [ ] make it possibel to edit the 'tracked time'
-	- [x] it should be possible to switch tasks, even when they are not finished, when the user 
-	starts on another card, the old timer should stop
 	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
 - [ ] DND

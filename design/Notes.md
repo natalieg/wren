@@ -1,0 +1,1 @@
+If the sidebar ever needs to show task related information, we need to pull the context further up

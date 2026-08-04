@@ -7,13 +7,6 @@ import { GlyphBorder } from '../components/elements/GlyphBorder'
 export default function History() {
     const { history } = useHistory()
 
-    //debug log
-    console.log('History:', history)
-
-    // TODO: history should already come back newest-first from useHistory
-    // (see the TODOs in useHistory.js) — remove this comment once you've
-    // verified that's actually true, don't just trust it blindly
-
     const allTime = (tasks) => {
         return tasks.reduce((total, task) => total + (parseInt(task.trackedTime / 60) || task.time), 0)
     }
@@ -46,28 +39,6 @@ export default function History() {
                         </div>
                     </GlyphBorder>
                 ))}
-                {/*{history.map(entry => {
-                    // TODO 1: total time for the day — sum entry.tasks[].trackedTime.
-                    // WATCH OUT: trackedTime is stored in SECONDS (see flushTrackedTime
-                    // in useTasks.js), but formatTime() expects MINUTES — convert
-                    // before formatting or the numbers will be 60x too big.
-
-                    // TODO 2: start/end of day — see the OPEN QUESTION comment at the
-                    // top of useHistory.js, you still need to decide how this is
-                    // derived before you can render it here.
-
-                    return (
-                        <div key={entry.date}>
-                            {/* TODO 3: entry header row — [date] [total time] [start–end]
-                                e.g. formatDate(entry.date) / formatTime(totalMinutes) /
-                                formatClockTime(start) + ' - ' + formatClockTime(end) */}
-
-                {/* TODO 4: one row per task — [label] [trackedTime], same
-                                seconds->minutes conversion as TODO 1 applies here too */}
-                {/* {entry.tasks.map(task => (
-                                <div key={task.id}>{task.label}</div>
-                            ))} */}
-
             </div>
         </DocWrapper>
     )

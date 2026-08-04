@@ -1,18 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import useHistory from './useHistory'
 
-// TODO HINT (background timer fix): this hook currently only gets called inside
-// Tasklist.jsx, which only renders on the '/' route — so react-router
-// unmounts it (killing runningTaskId, the interval, trackingStartTime) every
-// time you navigate to another page. Fix: call this hook exactly ONCE, above
-// <Routes> (see App.jsx), so it never unmounts on route change. See
-// TasksContext.jsx for the wiring.
-//
-// That move means `newTask`/`taskTime` can no longer be closed-over hook
-// params — they're Tasklist's local input-field state, and App.jsx doesn't
-// have them. See the handleAddTask HINT below for the required signature change.
-// (left as-is for now so the file keeps compiling until you do that refactor)
-function useTasks(newTask = "", taskTime = 20) {
+function useTasks() {
     const { addToHistory, removeFromHistory } = useHistory()
     const [taskList, setTaskList] = useState(() => {
         try {
@@ -88,18 +77,17 @@ function useTasks(newTask = "", taskTime = 20) {
         }
     }
 
+    //toggles done and add/remove from history
     const toggleDone = (id) => {
-        const newTaskList = taskList.map((task) => {
-            if (task.id !== id) return task
-            const isNowDone = !task.done
-            if (isNowDone) {
-                addToHistory({ ...task, done: true, finishedTimestamp: new Date() })
-            } else {
-                removeFromHistory(id)
-            }
-            return { ...task, done: isNowDone, finishedTimestamp: isNowDone ? new Date() : null }
-        })
-        setTaskList(newTaskList)
+        const task = taskList.find(t => t.id === id)
+        const isNowDone = !task.done
+        const updatedTask = { ...task, done: isNowDone, finishedTimestamp: isNowDone ? new Date() : null }
+        if (isNowDone) {
+            addToHistory(updatedTask)
+        } else {
+            removeFromHistory(id)
+        }
+        setTaskList(taskList.map(t => t.id === id ? updatedTask : t))
         if (id === runningTaskId) {
             setRunningTaskId(null)
             flushTrackedTime()
@@ -167,16 +155,10 @@ function useTasks(newTask = "", taskTime = 20) {
         setRunningTaskId(null)
     }
 
-
-    // HINT (background timer fix, part 2): once useTasks() moves above <Routes>,
-    // this needs to become handleAddTask(label, time) — real params instead of
-    // closing over the `newTask`/`taskTime` hook args above (which go away).
-    // Update the call site in Tasklist.jsx accordingly (it already passes both
-    // as args today, they're just currently ignored — see Tasklist.jsx HINT).
-    const handleAddTask = () => {
-        if (newTask?.trim() === '') return
+    const handleAddTask = (label, time) => {
+        if (label?.trim() === '') return
         const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
-        setTaskList([...taskList, { id: newId, label: newTask, time: taskTime, active: true, done: false }])
+        setTaskList([...taskList, { id: newId, label, time, active: true, done: false }])
         updateActionTime()
     }
 
@@ -267,8 +249,6 @@ function useTasks(newTask = "", taskTime = 20) {
         return { ...task, possibleEstimate: new Date(sourceTime + remaining * 1000) }
     })
 
-
-    // TODO: return runningTaskId, trackedSeconds so components can show the running state
     return { taskList, openTasks: openTasksResult.list, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds }
 }
 
