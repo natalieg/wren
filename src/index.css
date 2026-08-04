@@ -37,6 +37,7 @@
   /* Border */
   --border-soft: var(--plum-200, #e6d9f0);
   --border-strong: #cba3ff;
+  --border-dark: #a56bff;
   --border-w: 1.5px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -99,13 +100,17 @@
   gap: 8px;
   padding: 10px 12px;
   background: var(--color-surface);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+
+.task-border {
   border: var(--border-w) solid var(--color-border-soft);
   border-radius: var(--radius-md);
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
-  &:hover {
-    transform: translateX(1px);
-    box-shadow: var(--shadow-glow-accent);
-  }
+}
+
+.task-hover:hover {
+  transform: translateX(1px);
+  box-shadow: var(--shadow-glow-accent);
 }
 
 .header {

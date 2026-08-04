@@ -34,7 +34,7 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
     return (
         <div className={`group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid grid-cols-[80%_20%] gap-2 items-center
         ${isTracking ? 'bg-gradient-softer' : ''}`}>
-            <div className='group task-item flex justify-between'
+            <div className='group task-item task-border task-hover flex justify-between'
                 onMouseEnter={() => setMouseOver(true)}
                 onMouseLeave={() => setMouseOver(false)}
                 onClick={() => onEdit(id)}>
@@ -70,6 +70,19 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
                 <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
             {finishedTimestamp &&
                 <div className='w-20 text-text-muted/70 group-hover:text-text-secondary flex items-center justify-center text-center'>{formatClockTime(finishedTimestamp)}</div>}
+        </div>
+    )
+}
+
+export function TaskItemViewOnly({ task, isTracking, trackedSeconds, onToggleTracking }) {
+    const { label, trackedTime, time } = task
+    return (
+        <div className="task-item flex justify-between items-center gap-2">
+            <span className="select-none">{label}</span>
+            <div className="flex gap-2 items-center">
+                <PlayBtn onClick={onToggleTracking} active={isTracking} showAlways />
+                <TimeFlag tracked={(trackedTime || 0) + (isTracking ? trackedSeconds : 0)} time={time} isTracking={isTracking} />
+            </div>
         </div>
     )
 }
