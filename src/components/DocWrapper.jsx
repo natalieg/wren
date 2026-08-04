@@ -1,9 +1,9 @@
-import React from 'react'
+export default function DocWrapper({ className, style, background, children, header }) {
 
-export default function DocWrapper({ className, style, background, children }) {
     return (
         <div className={`${className} h-full p-4 flex flex-col items-center`}
-            style={{ background: background || '#694159', ...style }}>
+            style={{ backgroundColor: background || 'var(--color-bg-base)', ...style }}>
+            {header && <div className="headerDark">{header}</div>}
             {children}
         </div>
     )

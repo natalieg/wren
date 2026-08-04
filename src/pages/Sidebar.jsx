@@ -1,7 +1,5 @@
-import React from 'react'
 import SidebarButton from '../components/elements/SidebarButton'
 import flowers1 from '../assets/img/flowers1.jpg'
-import mandala from '../assets/img/mandala1.png'
 
 export default function Sidebar({ className }) {
     return (
@@ -31,6 +29,8 @@ export default function Sidebar({ className }) {
                 </div>
             </div>
             <SidebarButton to="/">Home</SidebarButton>
+            <SidebarButton to="/history">History</SidebarButton>
+            <br/>
             <SidebarButton to="/project">Projects</SidebarButton>
         </div>
     )

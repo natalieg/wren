@@ -22,6 +22,20 @@
             }
           },
           {
+            "id": "ba12f0f247d43874",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_Today.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "_Today"
+            }
+          },
+          {
             "id": "8ffd1d2fe2a13789",
             "type": "leaf",
             "state": {
@@ -35,7 +49,8 @@
               "title": "day-planning"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -110,7 +125,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "data-architecture.md",
+                "file": "_Today.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +135,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Rückverweise auf data-architecture"
+              "title": "Backlinks"
             }
           },
           {
@@ -185,8 +200,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -199,53 +213,15 @@
       "bases:Create new base": false
     }
   },
-  "floating": {
-    "id": "e1037c732dca8e74",
-    "type": "floating",
-    "children": [
-      {
-        "id": "e3867d91b27790c9",
-        "type": "window",
-        "children": [
-          {
-            "id": "c650e6f4f5d6838b",
-            "type": "tabs",
-            "children": [
-              {
-                "id": "fdab91320715a567",
-                "type": "leaf",
-                "state": {
-                  "type": "markdown",
-                  "state": {
-                    "file": "Thoughts.md",
-                    "mode": "source",
-                    "source": false
-                  },
-                  "icon": "lucide-file",
-                  "title": "Thoughts"
-                }
-              }
-            ]
-          }
-        ],
-        "direction": "vertical",
-        "x": -1100,
-        "y": 132,
-        "width": 1103,
-        "height": 992,
-        "maximize": true,
-        "zoom": 0
-      }
-    ]
-  },
-  "active": "78f175928f107674",
+  "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.160368.74d282842118",
+    "Notes.md",
+    "_Today.md",
     "Thoughts.md",
     "_ROADMAP.md",
-    "_Today.md",
     "data-architecture.md",
     "day-planning.md",
-    "Untitled.md",
     "Time Tracking 260801.md",
     "Shape.md",
     "_ROADMAP.md.tmp.128544.29299d9a496e",

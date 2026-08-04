@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
+import useHistory from './useHistory'
 
-
-function useTasks(newTask = "", taskTime = 20) {
+function useTasks() {
+    const { addToHistory, removeFromHistory } = useHistory()
     const [taskList, setTaskList] = useState(() => {
         try {
             const savedTasks = localStorage.getItem('tasks')
@@ -76,13 +77,17 @@ function useTasks(newTask = "", taskTime = 20) {
         }
     }
 
+    //toggles done and add/remove from history
     const toggleDone = (id) => {
-        const newTaskList = taskList.map((task) => {
-            if (task.id !== id) return task
-            const isNowDone = !task.done
-            return { ...task, done: isNowDone, finishedTimestamp: isNowDone ? new Date() : null }
-        })
-        setTaskList(newTaskList)
+        const task = taskList.find(t => t.id === id)
+        const isNowDone = !task.done
+        const updatedTask = { ...task, done: isNowDone, finishedTimestamp: isNowDone ? new Date() : null }
+        if (isNowDone) {
+            addToHistory(updatedTask)
+        } else {
+            removeFromHistory(id)
+        }
+        setTaskList(taskList.map(t => t.id === id ? updatedTask : t))
         if (id === runningTaskId) {
             setRunningTaskId(null)
             flushTrackedTime()
@@ -128,7 +133,13 @@ function useTasks(newTask = "", taskTime = 20) {
                 return [outgoingTask, ...rest]
             })
         }
-        setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ? { ...t, active: true } : t))
+        setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ?
+            {
+                ...t,
+                active: true,
+                startedAt: t.startedAt || new Date(),
+            }
+            : t))
         setNewActionTime(new Date())
         setRunningTaskId(id)
     }
@@ -144,11 +155,10 @@ function useTasks(newTask = "", taskTime = 20) {
         setRunningTaskId(null)
     }
 
-
-    const handleAddTask = () => {
-        if (newTask?.trim() === '') return
+    const handleAddTask = (label, time) => {
+        if (label?.trim() === '') return
         const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
-        setTaskList([...taskList, { id: newId, label: newTask, time: taskTime, active: true, done: false }])
+        setTaskList([...taskList, { id: newId, label, time, active: true, done: false }])
         updateActionTime()
     }
 
@@ -239,8 +249,6 @@ function useTasks(newTask = "", taskTime = 20) {
         return { ...task, possibleEstimate: new Date(sourceTime + remaining * 1000) }
     })
 
-
-    // TODO: return runningTaskId, trackedSeconds so components can show the running state
     return { taskList, openTasks: openTasksResult.list, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds }
 }
 

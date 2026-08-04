@@ -1,17 +1,28 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useContext } from 'react'
 import Input from '../components/elements/Input'
 import TaskGroup from '../components/tasks/TaskGroup'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
 import Modal from '../components/elements/Modal'
 import CollapsableDiv from '../components/CollapsableDiv'
-import useTasks from '../hooks/useTasks'
 import TimeProgress from '../components/TimeProgress'
+import TasksContext from '../context/TasksContext'
 
 export default function Tasklist() {
     const [newTask, setNewTask] = useState('')
     const [editingTaskId, setEditingTaskId] = useState(null)
     const [taskTime, setTaskTime] = useState(20)
-    const { taskList, openTasks, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds } = useTasks(newTask, taskTime)
+    const {
+        taskList,
+        openTasks,
+        inactiveTasks,
+        finishedTasks,
+        taskActions,
+        startedAt,
+        updateActionTime,
+        runningTaskId,
+        trackedSeconds
+    } = useContext(TasksContext)
+
     const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
     const editingTaskActive = taskList.find(t => t.id === editingTaskId)
     const [inputActive, setInputActive] = useState(false)

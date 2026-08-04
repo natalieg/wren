@@ -14,7 +14,7 @@
 @theme {
   --color-gold: #ffc858;
   --color-border: #84622d;
-  --titleFont: 'Cinzel Decorative', serif;
+  --font-title: 'Cinzel Decorative', serif;
   --surface: #ffffff;
   --color-main1: rgba(113, 77, 91);
   --drop-shadow-glow-gold: 0 0 2px var(--color-gold);
@@ -37,6 +37,7 @@
   /* Border */
   --border-soft: var(--plum-200, #e6d9f0);
   --border-strong: #cba3ff;
+  --border-dark: #a56bff;
   --border-w: 1.5px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -99,17 +100,21 @@
   gap: 8px;
   padding: 10px 12px;
   background: var(--color-surface);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+
+.task-border {
   border: var(--border-w) solid var(--color-border-soft);
   border-radius: var(--radius-md);
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
-  &:hover {
-    transform: translateX(1px);
-    box-shadow: var(--shadow-glow-accent);
-  }
+}
+
+.task-hover:hover {
+  transform: translateX(1px);
+  box-shadow: var(--shadow-glow-accent);
 }
 
 .header {
-  font-family: var(--titleFont);
+  font-family: var(--font-title);
   font-weight: 50;
   font-style: normal;
   font-size: 3em;
@@ -137,7 +142,7 @@
 
 /* todo maybe delete when themes are implemented?? */
 .headerDark {
-  font-family: var(--titleFont);
+  font-family: var(--font-title);
   font-weight: 50;
   font-style: normal;
   font-size: 3em;
