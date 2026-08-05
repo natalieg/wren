@@ -7,6 +7,7 @@ import Modal from '../elements/Modal'
 import TaskEditModalBody from './TaskEditModalBody'
 
 // TODO add right click menu for actions, including keyboard shortcut information
+// TODO add context menu for backlog actions
 export default function TaskItem({ index, task, toggleDone, toggleActive, handleFieldChange, blockKeys, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, editingTaskId, setEditingTaskId }) {
     const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
     const done = task.list === 'done'
@@ -24,10 +25,14 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, handle
             if (e.key === 'c' && task.list !== 'done') toggleDone(id) // marks task done
             if (e.key === 'a' && task.list !== 'active') toggleActive(id) // marks task active
             if (e.key === 'p' && task.list === 'active') toggleActive(id) // marks task inactive
+            //Backlog
+            if(e.key === '1' && task.list === 'backlog') handleFieldChange(id, 'backlog', { ...task.backlog, bucket: 'nextUp' })
+            if(e.key === '2' && task.list === 'backlog') handleFieldChange(id, 'backlog', { ...task.backlog, bucket: 'nextWeek' })
+            if(e.key === '3' && task.list === 'backlog') handleFieldChange(id, 'backlog', { ...task.backlog, bucket: 'someday' })
         }
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [mouseOver, task, id, toggleDone, toggleActive, blockKeys])
+    }, [mouseOver, task, id, toggleDone, toggleActive, blockKeys, handleFieldChange])
 
     const handleTimeTracking = () => {
         const nowTracking = !isTracking

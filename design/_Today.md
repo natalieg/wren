@@ -7,7 +7,7 @@
 ## rest
 
 - [ ] change time in history if minutes are bigger than 60
-- [ ] #editModal  edit "tracked" time
+- [ ] #editModal  edit "tracked" time / reset tracked time 
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
 - [ ] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area
