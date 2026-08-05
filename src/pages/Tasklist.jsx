@@ -15,7 +15,6 @@ export default function Tasklist() {
         updateActionTime,
         runningTaskId,
         trackedSeconds,
-        editingTaskId
     } = useContext(TasksContext)
 
     const { handleAddTask, deleteAllFinishedTasks } = taskActions
@@ -24,7 +23,6 @@ export default function Tasklist() {
         ...taskActions,
         runningTaskId,
         trackedSeconds,
-        editingTaskId,
     }
 
     return (

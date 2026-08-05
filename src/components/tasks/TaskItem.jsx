@@ -2,19 +2,13 @@ import Checkbox from '../elements/Checkbox'
 import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
-import Modal from '../elements/Modal'
-import TaskEditModalBody from './TaskEditModalBody'
 
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
-export default function TaskItem({ index, task, toggleDone, toggleActive, handleFieldChange, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, editingTaskId, setEditingTaskId }) {
+export default function TaskItem({ index, task, toggleDone, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
     const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
     const done = task.list === 'done'
     const isTracking = id === runningTaskId
-    // lives above this component (see useTasks.js) — a task can move to a different
-    // TaskGroup (active/backlog, bucket A/B) while its modal is open, which would
-    // unmount/remount TaskItem and wipe out any locally-held "am I editing" state
-    const isEditing = editingTaskId === id
     const isActive = estimate
 
     const handleTimeTracking = () => {
@@ -66,15 +60,6 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, handle
                 <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
             {finishedTimestamp &&
                 <div className='w-20 text-text-muted/70 group-hover:text-text-secondary flex items-center justify-center text-center'>{formatClockTime(finishedTimestamp)}</div>}
-            {isEditing &&
-                <Modal title='edit task' width='w-120' onClose={() => setEditingTaskId(null)}>
-                    <TaskEditModalBody
-                        task={task}
-                        handleChange={handleFieldChange}
-                        toggleDone={toggleDone}
-                        toggleActive={toggleActive}
-                        closeModal={() => setEditingTaskId(null)} />
-                </Modal>}
         </div>
     )
 }
