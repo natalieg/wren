@@ -58,14 +58,14 @@ export default function Backlog() {
 
   return (
     <DocWrapper header='Backlog' className='w-full lg:w-1/2 xl:w-[40%] min-w-150 mx-auto'>
-      <div className='flex gap-2 max-w-[95%] mx-auto mb-4'>
+      <div className='flex w-full gap-2 mx-auto mb-4 '>
+        <MultiSwitchFlag options={bucketOptions} value={bucket} onChange={setBucket}
+          onSubmit={() => taskInputRef.current?.submit()} rounded='rounded-md' width='w-26' />
         <TaskInput id='backlog'
           ref={taskInputRef}
           onSubmit={handleSubmit}
           changeInputActive={() => { }}
         />
-        <MultiSwitchFlag options={bucketOptions} value={bucket} onChange={setBucket}
-          onSubmit={() => taskInputRef.current?.submit()} rounded='rounded-md' />
       </div>
       <div className='flex flex-col mx-auto w-full'>
         {renderBucketSection('nextUp', true)}
