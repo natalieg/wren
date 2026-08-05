@@ -1,101 +1,56 @@
-import { useState, useRef, useContext } from 'react'
-import Input from '../components/elements/Input'
+import { useContext } from 'react'
 import TaskGroup from '../components/tasks/TaskGroup'
-import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
-import Modal from '../components/elements/Modal'
 import CollapsableDiv from '../components/CollapsableDiv'
 import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
+import TaskInput from '../components/tasks/TaskInput'
 
 export default function Tasklist() {
-    const [newTask, setNewTask] = useState('')
-    const [editingTaskId, setEditingTaskId] = useState(null)
-    const [taskTime, setTaskTime] = useState(20)
     const {
-        taskList,
         openTasks,
-        inactiveTasks,
+        nextUpTasks,
         finishedTasks,
         taskActions,
         startedAt,
         updateActionTime,
         runningTaskId,
-        trackedSeconds
+        trackedSeconds,
     } = useContext(TasksContext)
 
-    const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
-    const editingTaskActive = taskList.find(t => t.id === editingTaskId)
-    const [inputActive, setInputActive] = useState(false)
-
-    const taskNameInputRef = useRef(null)
-
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            handleAddTask(newTask, taskTime)
-            setNewTask('')
-            setTaskTime(20)
-            taskNameInputRef.current?.focus()
-        }
-    }
+    const { handleAddTask, deleteAllFinishedTasks } = taskActions
 
     const taskActionBundle = {
         ...taskActions,
         runningTaskId,
         trackedSeconds,
-        blockKeys: inputActive,
-        onEdit: setEditingTaskId,
-    }
-
-    const handleTaskTimeChange = (e) => {
-        const value = parseInt(e.target.value)
-        if (!isNaN(value)) {
-            setTaskTime(value)
-        }
     }
 
     return (
         <div id='taskList' className='w-full lg:w-1/2 xl:w-[40%] min-w-150'>
             <p className='headerDark'>Tasks</p>
             <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
-                <div id='inputArea' className='flex gap-2'>
-                    <Input
-                        ref={taskNameInputRef}
-                        placeholder="Add a new task..."
-                        value={newTask}
-                        onChange={(e) => setNewTask(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        onFocus={() => setInputActive(true)}
-                        onBlur={() => setInputActive(false)}
-                    />
-                    <Input
-                        placeholder="Time"
-                        type='number'
-                        width='w-20'
-                        value={taskTime}
-                        onChange={handleTaskTimeChange}
-                        onKeyDown={handleKeyDown}
-                        onFocus={() => setInputActive(true)}
-                        onBlur={() => setInputActive(false)}
-                    />
-                </div>
+                <TaskInput
+                    id='main'
+                    onSubmit={handleAddTask}
+                />
                 {/* Time display + Bar */}
                 <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} />
-                {/* 💤 Inactive Tasks */}
+                {/* 💤 Next up (backlog, 'nextUp' bucket) */}
                 {/* Todo move to side component when implemented */}
-                {inactiveTasks.length > 0 && (
+                {nextUpTasks.length > 0 && (
                     <CollapsableDiv
-                        label={`Inactive tasks (${inactiveTasks.length})`}
+                        label={`Next up (${nextUpTasks.length})`}
                         collapseAction={updateActionTime}>
-                        <TaskGroup tasks={inactiveTasks} {...taskActionBundle} />
+                        <TaskGroup tasks={nextUpTasks} {...taskActionBundle} showEstimate={true} />
                     </CollapsableDiv>
                 )}
                 {/* ⚡ Active Tasks */}
-                <TaskGroup tasks={openTasks} {...taskActionBundle} />
+                <TaskGroup tasks={openTasks} {...taskActionBundle} showEstimate={true} />
                 {/* ✅ Finished Tasks */}
                 {finishedTasks.length > 0 && (
                     <CollapsableDiv
                         label={`Finished tasks (${finishedTasks.length})`}>
-                        <TaskGroup tasks={finishedTasks} {...taskActionBundle} />
+                        <TaskGroup tasks={finishedTasks} {...taskActionBundle} showEstimate={true} />
                         <button id='deleteAllFinishedBtn'
                             className={`softButton mt-4 min-w-40 w-1/2 mx-auto block`}
                             disabled={finishedTasks.length === 0}
@@ -105,14 +60,6 @@ export default function Tasklist() {
                     </CollapsableDiv>
                 )}
             </div>
-            {editingTaskActive &&
-                <Modal title='edit task' width='w-120' onClose={() => setEditingTaskId(null)}>
-                    <TaskEditModalBody
-                        task={editingTaskActive}
-                        handleChange={handleFieldChange}
-                        closeModal={() => setEditingTaskId(null)} />
-                </Modal>
-            }
         </div>
     )
 }

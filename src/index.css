@@ -32,6 +32,7 @@
   /* Gradient */
   --background-image-gradient-main: linear-gradient(135deg, #a56bff, #f7719e);
   --background-image-gradient-softer: linear-gradient(135deg, #c095ff, #ff85ae);
+  --background-image-gradient-mutewarm: linear-gradient(135deg, #e6d9f0, #dcaaf0);
   --background-image-gradient-muted: linear-gradient(135deg, #e6d9f0, #f5e6ff);
   --background-image-gradient-success: linear-gradient(135deg, #3ab890, #c4f379);
   /* Border */

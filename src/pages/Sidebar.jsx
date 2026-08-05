@@ -1,9 +1,10 @@
 import SidebarButton from '../components/elements/SidebarButton'
 import flowers1 from '../assets/img/flowers1.jpg'
+import { version } from '../../package.json'
 
 export default function Sidebar({ className }) {
     return (
-        <div className={`${className} sidebar flex flex-col gap-2 p-4`}
+        <div className={`${className} sidebar flex flex-col gap-1 p-4`}
             style={{
                 background: `
                 linear-gradient(299deg,rgba(42, 123, 155, 1) 0%, 
@@ -23,12 +24,13 @@ export default function Sidebar({ className }) {
                     <span className='text-2xl transform -translate-y-1 -ml-4'>✨</span>
                     <p className="text-center text-gold"
                         style={{ fontFamily: 'Cinzel', fontSize: '1.5rem' }}>
-                        Wren
-
+                        Wren <span style={{ fontSize: '1rem' }}>{version}</span>
                     </p>
                 </div>
             </div>
             <SidebarButton to="/">Home</SidebarButton>
+            {/* //TODO */}
+            <SidebarButton to="/backlog">Backlog</SidebarButton>
             <SidebarButton to="/history">History</SidebarButton>
             <br/>
             <SidebarButton to="/project">Projects</SidebarButton>

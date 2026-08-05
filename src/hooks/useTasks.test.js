@@ -8,26 +8,25 @@ describe('useTasks', () => {
     })
 
     it('adds a task', () => {
-        const { result } = renderHook(() => useTasks('Write tests', 15))
+        const { result } = renderHook(() => useTasks())
 
         act(() => {
-            result.current.taskActions.handleAddTask()
+            result.current.taskActions.handleAddTask('Write tests', 15)
         })
 
         expect(result.current.taskList).toHaveLength(1)
         expect(result.current.taskList[0]).toMatchObject({
             label: 'Write tests',
             time: 15,
-            done: false,
-            active: true,
+            list: 'active',
         })
     })
 
     it('marks a task done', () => {
-        const { result } = renderHook(() => useTasks('Write tests', 15))
+        const { result } = renderHook(() => useTasks())
 
         act(() => {
-            result.current.taskActions.handleAddTask()
+            result.current.taskActions.handleAddTask('Write tests', 15)
         })
         const id = result.current.taskList[0].id
 
@@ -35,9 +34,124 @@ describe('useTasks', () => {
             result.current.taskActions.toggleDone(id)
         })
 
-        expect(result.current.taskList[0].done).toBe(true)
+        expect(result.current.taskList[0].list).toBe('done')
         expect(result.current.finishedTasks).toHaveLength(1)
         expect(result.current.openTasks).toHaveLength(0)
+    })
+
+    it('un-marking done restores the task to its previous list', () => {
+        const { result } = renderHook(() => useTasks())
+        act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
+        const id = result.current.taskList[0].id
+
+        act(() => { result.current.taskActions.toggleActive(id) }) // park it first
+        act(() => { result.current.taskActions.toggleDone(id) })
+        expect(result.current.taskList[0].list).toBe('done')
+
+        act(() => { result.current.taskActions.toggleDone(id) }) // undo
+        expect(result.current.taskList[0].list).toBe('backlog')
+    })
+
+    describe('legacy data migration', () => {
+        it('migrates a legacy active task (active: true, done: false)', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Legacy active', time: 15, active: true, done: false }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({ list: 'active' })
+            expect(result.current.taskList[0].backlog).toBeUndefined()
+            expect(result.current.taskList[0].active).toBeUndefined()
+            expect(result.current.taskList[0].done).toBeUndefined()
+        })
+
+        it('migrates a legacy parked task (active: false, done: false) into backlog/nextUp', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Legacy parked', time: 15, active: false, done: false }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'nextUp' },
+            })
+        })
+
+        it('migrates a legacy finished task (done: true) regardless of its active value', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Legacy finished, was parked', time: 15, active: false, done: true, finishedTimestamp: '2026-08-01T00:00:00.000Z' }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({ list: 'done' })
+            expect(result.current.taskList[0].backlog).toBeUndefined()
+        })
+
+        it('defaults a pre-parking legacy task with no active field at all to active', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'From before parking existed', time: 15, done: false }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({ list: 'active' })
+        })
+
+        it('leaves already-migrated tasks untouched (idempotent, keeps a non-default bucket)', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Already new shape', time: 15, list: 'backlog', backlog: { bucket: 'someday', activationDate: null } }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'someday' },
+            })
+        })
+    })
+
+    describe('backlog', () => {
+        it('parks a task into the backlog with a default nextUp bucket', () => {
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
+            const id = result.current.taskList[0].id
+
+            act(() => { result.current.taskActions.toggleActive(id) })
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'nextUp' },
+            })
+            expect(result.current.nextUpTasks).toHaveLength(1)
+            expect(result.current.backlogTasks).toHaveLength(1)
+        })
+
+        it('adds a task straight into the someday bucket, excluded from nextUpTasks', () => {
+            const { result } = renderHook(() => useTasks())
+
+            act(() => {
+                result.current.taskActions.handleAddTask('Someday idea', 30, { list: 'backlog', bucket: 'someday' })
+            })
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'someday' },
+            })
+            expect(result.current.backlogTasks).toHaveLength(1)
+            expect(result.current.nextUpTasks).toHaveLength(0)
+        })
+
+        it('pulling a backlog task back to active clears its bucket', () => {
+            const { result } = renderHook(() => useTasks())
+            act(() => {
+                result.current.taskActions.handleAddTask('Someday idea', 30, { list: 'backlog', bucket: 'someday' })
+            })
+            const id = result.current.taskList[0].id
+
+            act(() => { result.current.taskActions.toggleActive(id) })
+
+            expect(result.current.taskList[0].list).toBe('active')
+            expect(result.current.taskList[0].backlog).toBeUndefined()
+        })
     })
 
     describe('time tracking', () => {
@@ -50,8 +164,8 @@ describe('useTasks', () => {
         })
 
         it('ticks trackedSeconds once per second while a task is running', () => {
-            const { result } = renderHook(() => useTasks('Write tests', 10))
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.startTracking(id) })
@@ -62,8 +176,8 @@ describe('useTasks', () => {
         })
 
         it('flushes tracked time into the task on stop, exactly once', () => {
-            const { result } = renderHook(() => useTasks('Write tests', 10))
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.startTracking(id) })
@@ -76,15 +190,11 @@ describe('useTasks', () => {
         })
 
         it('flushes the previous task before switching to a new one', () => {
-            const { result, rerender } = renderHook(
-                ({ newTask, taskTime }) => useTasks(newTask, taskTime),
-                { initialProps: { newTask: 'Task A', taskTime: 10 } }
-            )
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
             const idA = result.current.taskList[0].id
 
-            rerender({ newTask: 'Task B', taskTime: 10 })
-            act(() => { result.current.taskActions.handleAddTask() })
+            act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
             const idB = result.current.taskList.find(t => t.id !== idA).id
 
             act(() => { result.current.taskActions.startTracking(idA) })
@@ -106,8 +216,8 @@ describe('useTasks', () => {
         it("anchors the running task's estimate to now once it goes over its own time budget", () => {
             vi.setSystemTime(new Date('2026-08-01T12:00:00Z'))
 
-            const { result } = renderHook(() => useTasks('Write tests', 1)) // 1-minute task
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks()) // 1-minute task
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 1) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.startTracking(id) })

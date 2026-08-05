@@ -1,19 +1,36 @@
 import { useState, useEffect, useRef } from 'react'
 import useHistory from './useHistory'
 
+// migrates legacy active/done booleans to the single 'list' enum, once, on load
+// later remove at some point when all legacy tasks are gone
+function normalizeTask(t) {
+    if (t.list) return t
+    const list = t.done ? 'done' : t.active === false ? 'backlog' : 'active'
+    const { active: _active, done: _done, ...rest } = t
+    return {
+        ...rest,
+        list,
+        ...(list === 'backlog' ? { backlog: { bucket: 'nextUp', activationDate: null } } : {})
+    }
+}
+
 function useTasks() {
     const { addToHistory, removeFromHistory } = useHistory()
+    // lives here, not as local state on TaskItem — a task can move between different
+    // TaskGroup instances (active/backlog, bucket A/B) while its modal is open, which
+    // unmounts/remounts the TaskItem and would wipe locally-held "am I editing" state
+    const [editingTaskId, setEditingTaskId] = useState(null)
     const [taskList, setTaskList] = useState(() => {
         try {
             const savedTasks = localStorage.getItem('tasks')
-            return savedTasks ? JSON.parse(savedTasks) : []
+            return savedTasks ? JSON.parse(savedTasks).map(normalizeTask) : []
         } catch (e) {
             console.error('Failed to load tasks from localStorage:', e)
             return []
         }
     })
     const [newActionTime, setNewActionTime] = useState(null)
-    const activeTasks = taskList.filter(t => t.active && !t.done)
+    const activeTasks = taskList.filter(t => t.list === 'active')
     const [runningTaskId, setRunningTaskId] = useState(null)
     const [trackedSeconds, setTrackedSeconds] = useState(0)
     const trackedSecondsRef = useRef(0)
@@ -80,8 +97,10 @@ function useTasks() {
     //toggles done and add/remove from history
     const toggleDone = (id) => {
         const task = taskList.find(t => t.id === id)
-        const isNowDone = !task.done
-        const updatedTask = { ...task, done: isNowDone, finishedTimestamp: isNowDone ? new Date() : null }
+        const isNowDone = task.list !== 'done'
+        const updatedTask = isNowDone
+            ? { ...task, list: 'done', previousList: task.list, finishedTimestamp: new Date() }
+            : { ...task, list: task.previousList || 'active', previousList: undefined, finishedTimestamp: null }
         if (isNowDone) {
             addToHistory(updatedTask)
         } else {
@@ -94,8 +113,14 @@ function useTasks() {
         }
     }
 
+    // parks a task to the backlog (default 'nextUp' bucket) or pulls it back to active
     const toggleActive = (id) => {
-        setTaskList(taskList.map(t => t.id === id ? { ...t, active: !t.active } : t))
+        setTaskList(taskList.map(t => {
+            if (t.id !== id) return t
+            return t.list === 'active'
+                ? { ...t, list: 'backlog', backlog: { bucket: 'nextUp', activationDate: null } }
+                : { ...t, list: 'active', backlog: undefined }
+        }))
         if (id === runningTaskId) {
             setRunningTaskId(null)
             flushTrackedTime()
@@ -136,7 +161,8 @@ function useTasks() {
         setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ?
             {
                 ...t,
-                active: true,
+                list: 'active',
+                backlog: undefined,
                 startedAt: t.startedAt || new Date(),
             }
             : t))
@@ -155,20 +181,20 @@ function useTasks() {
         setRunningTaskId(null)
     }
 
-    const handleAddTask = (label, time) => {
-        if (label?.trim() === '') return
+    // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
+    const handleAddTask = (label, time, { list = 'active', bucket } = {}) => {
+        if (!label?.trim()) return
         const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
-        setTaskList([...taskList, { id: newId, label, time, active: true, done: false }])
+        const newTask = { id: newId, label, time, list }
+        if (list === 'backlog') {
+            newTask.backlog = { bucket: bucket || 'nextUp', activationDate: null }
+        }
+        setTaskList([...taskList, newTask])
         updateActionTime()
     }
 
     const handleFieldChange = (id, field, value) => {
         setTaskList(taskList.map(t => t.id === id ? { ...t, [field]: value } : t))
-        // parking the currently-tracked task via the edit modal should stop tracking too
-        if (field === 'active' && value === false && id === runningTaskId) {
-            setRunningTaskId(null)
-            flushTrackedTime()
-        }
         updateActionTime()
     }
 
@@ -182,7 +208,7 @@ function useTasks() {
     }
 
     const deleteAllFinishedTasks = () => {
-        setTaskList(taskList.filter(t => !t.done))
+        setTaskList(taskList.filter(t => t.list !== 'done'))
     }
 
     const taskActions = {
@@ -194,10 +220,10 @@ function useTasks() {
         deleteAllFinishedTasks,
         startTracking,
         stopTracking,
-
+        setEditingTaskId,
     }
 
-    const finishedTasks = taskList.filter(t => t.done)
+    const finishedTasks = taskList.filter(t => t.list === 'done')
 
     //baseTime is either [startedAt], [last finished task], or [new task created time] if no tasks are active
     // guard against legacy finished tasks with no/invalid finishedTimestamp — one
@@ -220,7 +246,6 @@ function useTasks() {
             return Date.now()
         }
         const remaining = isOverEstimate ? 0 : task.time * 60 - trackedOrElapsed
-        // return runningTime + remaining * 1000
         // eslint-disable-next-line react-hooks/purity -- display-only
         return (isRunning ? Date.now() : runningTime) + remaining * 1000
     }
@@ -242,14 +267,18 @@ function useTasks() {
 
     // add 'possibleEstimate' timestamp to each task, anchored after the last
     // active task's estimate or baseTime if no task is active
-    const inactiveTasks = taskList.filter(t => !t.done && !t.active).map((task) => {
+    // 'nextUp' bucket only — mirrors the old parked-tasks list shown inline on the Tasklist page
+    const nextUpTasks = taskList.filter(t => t.list === 'backlog' && (t.backlog?.bucket ?? 'nextUp') === 'nextUp').map((task) => {
         const remaining = Math.max(task.time * 60 - (task.trackedTime || 0), 0)
         // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
         const sourceTime = Math.max(openTasksResult.runningTime, Date.now())
         return { ...task, possibleEstimate: new Date(sourceTime + remaining * 1000) }
     })
 
-    return { taskList, openTasks: openTasksResult.list, inactiveTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds }
+    // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
+    const backlogTasks = taskList.filter(t => t.list === 'backlog')
+
+    return { taskList, openTasks: openTasksResult.list, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
 }
 
 export default useTasks

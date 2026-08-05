@@ -1,26 +1,15 @@
-import { useEffect, useState } from 'react'
 import Checkbox from '../elements/Checkbox'
 import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
 
 // TODO add right click menu for actions, including keyboard shortcut information
-export default function TaskItem({ index, task, toggleDone, toggleActive, blockKeys, onDelete, onEdit, startTracking, stopTracking, runningTaskId, trackedSeconds }) {
-    const { id, label, trackedTime, time, done, estimate, finishedTimestamp, possibleEstimate } = task
+// TODO add context menu for backlog actions
+export default function TaskItem({ index, task, toggleDone, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
+    const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
+    const done = task.list === 'done'
     const isTracking = id === runningTaskId
-    const [mouseOver, setMouseOver] = useState(false)
     const isActive = estimate
-
-    useEffect(() => {
-        if (!mouseOver || blockKeys) return
-        const handleKeyDown = (e) => {
-            if (e.key === 'c' && !task.done) toggleDone(id) // marks task done
-            if (e.key === 'a' && !task.active) toggleActive(id) // marks task active
-            if (e.key === 'p' && task.active) toggleActive(id) // marks task inactive
-        }
-        window.addEventListener('keydown', handleKeyDown)
-        return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [mouseOver, task, id, toggleDone, toggleActive, blockKeys])
 
     const handleTimeTracking = () => {
         const nowTracking = !isTracking
@@ -32,12 +21,12 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
     }
 
     return (
-        <div className={`group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid grid-cols-[80%_20%] gap-2 items-center
+        <div className={`${showEstimate && 'grid-cols-[80%_20%]'} group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid  gap-2 items-center
         ${isTracking ? 'bg-gradient-softer' : ''}`}>
             <div className='group task-item task-border task-hover flex justify-between'
-                onMouseEnter={() => setMouseOver(true)}
-                onMouseLeave={() => setMouseOver(false)}
-                onClick={() => onEdit(id)}>
+                data-task-id={id}
+                data-task-context='tasks'
+                onClick={() => setEditingTaskId(id)}>
                 <Checkbox id={id} onToggle={toggleDone} checked={done} />
                 {/* label */}
                 <span className={(done ? 'line-through text-text-muted' : 'text-text-primary')
@@ -52,7 +41,7 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
                             showAlways={isActive && index === 0}
                             active={isTracking} />}
                     <TimeFlag tracked={(trackedTime || 0) + (isTracking ? trackedSeconds : 0)}
-                        time={time} isTracking={isTracking} 
+                        time={time} isTracking={isTracking}
                         isFinished={!!finishedTimestamp} />
                     {/* Delete */}
                     <span className='opacity-0 group-hover:opacity-100 transition-opacity duration-(--dur-fast) ease-bounce text-text-muted

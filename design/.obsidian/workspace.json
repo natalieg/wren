@@ -84,7 +84,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#editPanel",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -105,7 +105,8 @@
               "title": "Lesezeichen"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -215,7 +216,18 @@
   },
   "active": "ba12f0f247d43874",
   "lastOpenFiles": [
-    "_ROADMAP.md.tmp.160368.74d282842118",
+    "_Shortcuts.md.tmp.199040.ce4f3f52bb54",
+    "_Today.md.tmp.199040.1eb11aa1ab85",
+    "_Today.md.tmp.199040.8aaab4e4c700",
+    "_Shortcuts.md.tmp.199040.b3392c5c444a",
+    "_Today.md.tmp.199040.f8ee63f43244",
+    "_Shortcuts.md",
+    "_Shortcuts.md.tmp.199040.5b0310a82be8",
+    "data-architecture.md.tmp.23392.983d95d88ec3",
+    "life-balance.md.tmp.23392.e8e81135fad6",
+    "decisions.md.tmp.23392.010e86d51a83",
+    "decisions.md.tmp.23392.7936ae86ba90",
+    "_ROADMAP.md.tmp.23392.bdfb5acb8f7b",
     "Notes.md",
     "_Today.md",
     "Thoughts.md",
@@ -224,22 +236,12 @@
     "day-planning.md",
     "Time Tracking 260801.md",
     "Shape.md",
-    "_ROADMAP.md.tmp.128544.29299d9a496e",
-    "_ROADMAP.md.tmp.128544.05b80d424b5f",
-    "_ROADMAP.md.tmp.128544.3dcad21d793e",
-    "_ROADMAP.md.tmp.128544.1542ce43edf5",
     "Time Tracking.md",
-    "_ROADMAP.md.tmp.128544.c41359904737",
-    "_ROADMAP.md.tmp.128544.cfd320df60f6",
     "2026-07-31.md",
-    "_ROADMAP.md.tmp.117216.0ad1eb7f16dd",
-    "decisions.md.tmp.117216.015a7fbfa61c",
     "wren-idle-konzept.md",
-    "decisions.md.tmp.117216.34a439ccf944",
     "Untitled.canvas",
     "life-balance.md",
     "Pasted image 20260727211428.png",
-    "Untitled.base",
     "tasklist.md",
     "Refactoring Tasks.md",
     "books.md",

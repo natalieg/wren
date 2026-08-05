@@ -4,7 +4,7 @@ Status: raw product thinking, not sourced from a design canvas — captured dire
 
 ## The core idea
 
-Natalie's own framing: there are many things she'd like to do (work, exercise, cleaning, drawing, journaling…) but treating them all as the same kind of "task" causes friction — the "I need to do everything" pattern. Reframing as **life areas** rather than one flat list, and preferring **week balance over day balance**, since daily consistency on everything is often unrealistic but a week has more slack to actually balance across areas.
+there are many things I'd like to do (work, exercise, cleaning, drawing, journaling…) but treating them all as the same kind of "task" causes friction — the "I need to do everything" pattern. Reframing as **life areas** rather than one flat list, and preferring **week balance over day balance**, since daily consistency on everything is often unrealistic but a week has more slack to actually balance across areas.
 
 Relationship to the other design docs: [tasklist.md](tasklist.md) is the working single-list CRUD piece (already built); [day-planning.md](day-planning.md) is about a single day's capacity/composition (sourced from the design canvas). This doc sits a layer above both — it's about task *types* and a *weekly*, not daily, balancing lens.
 
@@ -12,10 +12,10 @@ Relationship to the other design docs: [tasklist.md](tasklist.md) is the working
 
 - **General tasklist:** one-off must-do items (a specific commissioned artwork, tax paperwork, etc.) — this is what already exists (`Tasklist.jsx`).
 - **Project-related tasks:** tasks tied to an actual Wren project (the project/subproject tree already sketched in `dummyData.js` / `ProjectPanel.jsx`) — not connected to the tasklist at all yet.
-- **Recurring tasks:** things meant to repeat — flagged as "the bigger problem" in Natalie's own words, since most daily-recurrence goals aren't realistically achievable every single day, and a rigid recurring model would just generate guilt/broken streaks instead of helping.
+- **Recurring tasks:** things meant to repeat — flagged as "the bigger problem", since most daily-recurrence goals aren't realistically achievable every single day, and a rigid recurring model would just generate guilt/broken streaks instead of helping.
 - **Growing habit** (a recurring sub-type): starts deliberately small (e.g. 5 min/day) and is meant to grow over time — an easier on-ramp than committing to the "full" version of a habit from day one.
 
-## Example life areas (concrete, from Natalie's own list)
+## Example life areas (concrete, from own list)
 
 - Work — needs 3–6 hours, varies by day.
 - Exercise — wants daily; a natural "growing habit" candidate.
@@ -29,7 +29,7 @@ Once tasks have types (above), tagging each with a life `area` (short for life a
 
 ## Habits — priority, deliberately simpler than Areas (2026-07-28)
 
-Natalie flagged "habits" as a near-future priority, explicitly wanting it to carry *less* complexity than the full Areas system (bands, week-balance math, etc. — see below). Not yet designed how "simple habits" and "growing habit" (task type, above) and "Areas" all relate to each other — worth resolving before building any of them, so habits don't end up needing a redesign once Areas lands, the same trap Areas-before-stats was built to avoid (see `ROADMAP.md` Phase 3).
+"habits" as a near-future priority, explicitly wanting it to carry *less* complexity than the full Areas system (bands, week-balance math, etc. — see below). Not yet designed how "simple habits" and "growing habit" (task type, above) and "Areas" all relate to each other — worth resolving before building any of them, so habits don't end up needing a redesign once Areas lands, the same trap Areas-before-stats was built to avoid (see `ROADMAP.md` Phase 5).
 
 ## Archive vs. delete (2026-07-25, refined 2026-07-28)
 
@@ -64,7 +64,7 @@ Source: same Claude Design canvas project as `day-planning.md` (`8a763246-ab75-4
 ## Open questions / not designed yet
 
 - How "week balance" actually gets computed or displayed — no design exists for this at all yet.
-- How growing-habit tasks track and communicate growth — does the target auto-increase, does she bump it manually, on what cadence?
+- How growing-habit tasks track and communicate growth — does the target auto-increase, do I bump it manually, on what cadence?
 - How life areas relate to Wren's existing project/subproject data model — same concept, adjacent, or unrelated?
 - Whether this needs its own UI surface (a "week" view distinct from "day") or folds into the existing project/task views.
 - Archive vs. delete: what does "archived" even look like in the UI — a filter toggle, a separate view, nothing visible at all?

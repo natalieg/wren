@@ -1,15 +1,18 @@
 
-- [x] #Bug wenn ich innerhalb der app den reiter wechsel, springt der timer raus
-- [x] mini card for 'activ tracking task' that shows up when looking at other pages
-- [x] #update time bereich on top zeigt immernoch die geschaetzte zeit, nicht die tracked time bei 'x done'
-- [x] #graphic bei finished task sollten nur minuten angezeigt werden ohne sekunden, bei unter 1min vllt evaluieren ob die est time statt dessen eingetragen wird 
+## backlog v 0.3.0
+- [x] #design polish current 'next up/etc' flag in #editModal
+- [x] change 'MultiSwitchFlag' with keys <- and -> should be able to trigger those when [active] but also [mouseOver] 
+- [x] change task bucket with [mouseOver] and num key, correlating to bucket number (1 to 0, 2 to 1 etc)
+- [ ] decision: should task modal stay open, when backlog task is set 'active'? currently closing because this task no longer exists in backlog, but could be confusing. this could be some exception state
+## rest
+
+- [ ] change time in history if minutes are bigger than 60
+- [ ] #editModal  edit "tracked" time / reset tracked time 
 - [ ] "Activate All" for the parking area
-- [ ] #backlog als neue liste introducen
 - [ ] [Badge] sum of parked items
-- [ ] Micro History of all tracked tasks, with Current date on top [[Shape]]
-- [ ] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area
+- [x] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area — fixed by resolving the hovered task via `elementFromPoint` at keydown time instead of cached hover state, see [[_Shortcuts]]
 - [ ] [[Time Tracking 260801]] ( MVP) 
-	- [ ] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
+	- [x] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
 	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode'
 		- [ ] update time display [current/planned]
 		- [ ] add the 'track time' btn 
@@ -17,6 +20,11 @@
 	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
 - [ ] DND
+- [ ] first #rollover #automation : 'next up' should become active after planned time, 'finishedTask' autodelete (its ok now that they have the history page)
+- [ ] #rollover backlog 'next week' items: 
+	- [ ] when a task is set to 'next week' it gets an 'activation date' (default 7 days from now, if the task is created on monday, it will activate next monday)
+	- [ ] activation date can be edited in modal 
+	- [ ] #later user can set in #settings what the default behaviour is 
 - [ ] delete tasks from #history
 - [ ] delete whole entry from #history 
 
