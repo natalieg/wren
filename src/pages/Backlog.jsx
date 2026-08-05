@@ -43,6 +43,7 @@ export default function Backlog() {
             <div className='flex-1 min-w-0'>
               <TaskGroup tasks={[t]} {...taskActions} showEstimate={false} />
             </div>
+            {/* LATEr remove when dnd is integrated */}
             {index > 0 &&
               <button type='button' onClick={() => shiftBucket(t, -1)}
                 className='px-1 text-text-muted hover:text-text-primary cursor-pointer'>▲</button>}
@@ -67,7 +68,7 @@ export default function Backlog() {
           onSubmit={() => taskInputRef.current?.submit()} rounded='rounded-md' />
       </div>
       <div className='flex flex-col mx-auto w-full'>
-        {renderBucketSection('nextUp', false)}
+        {renderBucketSection('nextUp', true)}
         {renderBucketSection('nextWeek', true)}
         {renderBucketSection('someday', true)}
       </div>
