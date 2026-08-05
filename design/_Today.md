@@ -2,7 +2,7 @@
 ## backlog v 0.3.0
 - [x] #design polish current 'next up/etc' flag in #editModal
 - [ ] change 'MultiSwitchFlag' with keys <- and -> should be able to trigger those when [active] but also [mouseOver] 
-- [ ] change task bucket with [mouseOver] and num key, correlating to bucket number (1 to 0, 2 to 1 etc)
+- [x] change task bucket with [mouseOver] and num key, correlating to bucket number (1 to 0, 2 to 1 etc)
 - [ ] decision: should task modal stay open, when backlog task is set 'active'? currently closing because this task no longer exists in backlog, but could be confusing. this could be some exception state
 ## rest
 
@@ -10,9 +10,9 @@
 - [ ] #editModal  edit "tracked" time / reset tracked time 
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
-- [ ] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area
+- [x] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area — fixed by resolving the hovered task via `elementFromPoint` at keydown time instead of cached hover state, see [[_Shortcuts]]
 - [ ] [[Time Tracking 260801]] ( MVP) 
-	- [ ] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
+	- [x] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
 	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode'
 		- [ ] update time display [current/planned]
 		- [ ] add the 'track time' btn 

@@ -17,7 +17,6 @@ export default function Backlog() {
   const { backlogTasks, taskActions, editingTaskId } = useContext(TasksContext)
   const { handleAddTask, handleFieldChange } = taskActions
   const [bucket, setBucket] = useState('nextUp')
-  const [inputActive, setInputActive] = useState(false)
   const taskInputRef = useRef(null)
 
   const handleSubmit = (name, time) => {
@@ -42,7 +41,7 @@ export default function Backlog() {
         {tasks.map(t => (
           <div key={t.id} className='flex items-center gap-1'>
             <div className='flex-1 min-w-0'>
-              <TaskGroup tasks={[t]} {...taskActions} blockKeys={inputActive} editingTaskId={editingTaskId} showEstimate={false} />
+              <TaskGroup tasks={[t]} {...taskActions} editingTaskId={editingTaskId} showEstimate={false} />
             </div>
             {/* LATEr remove when dnd is integrated */}
             {index > 0 &&
@@ -65,7 +64,6 @@ export default function Backlog() {
         <TaskInput id='backlog'
           ref={taskInputRef}
           onSubmit={handleSubmit}
-          changeInputActive={setInputActive}
         />
       </div>
       <div className='flex flex-col mx-auto w-full'>

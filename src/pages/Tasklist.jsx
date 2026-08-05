@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useContext } from 'react'
 import TaskGroup from '../components/tasks/TaskGroup'
 import CollapsableDiv from '../components/CollapsableDiv'
 import TimeProgress from '../components/TimeProgress'
@@ -19,14 +19,12 @@ export default function Tasklist() {
     } = useContext(TasksContext)
 
     const { handleAddTask, deleteAllFinishedTasks } = taskActions
-    const [inputActive, setInputActive] = useState(false)
 
     const taskActionBundle = {
         ...taskActions,
         runningTaskId,
         trackedSeconds,
         editingTaskId,
-        blockKeys: inputActive,
     }
 
     return (
@@ -36,7 +34,6 @@ export default function Tasklist() {
                 <TaskInput
                     id='main'
                     onSubmit={handleAddTask}
-                    changeInputActive={setInputActive}
                 />
                 {/* Time display + Bar */}
                 <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} />

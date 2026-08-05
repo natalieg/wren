@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import Checkbox from '../elements/Checkbox'
 import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
@@ -8,31 +7,15 @@ import TaskEditModalBody from './TaskEditModalBody'
 
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
-export default function TaskItem({ index, task, toggleDone, toggleActive, handleFieldChange, blockKeys, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, editingTaskId, setEditingTaskId }) {
+export default function TaskItem({ index, task, toggleDone, toggleActive, handleFieldChange, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, editingTaskId, setEditingTaskId }) {
     const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
     const done = task.list === 'done'
     const isTracking = id === runningTaskId
-    const [mouseOver, setMouseOver] = useState(false)
     // lives above this component (see useTasks.js) — a task can move to a different
     // TaskGroup (active/backlog, bucket A/B) while its modal is open, which would
     // unmount/remount TaskItem and wipe out any locally-held "am I editing" state
     const isEditing = editingTaskId === id
     const isActive = estimate
-
-    useEffect(() => {
-        if (!mouseOver || blockKeys) return
-        const handleKeyDown = (e) => {
-            if (e.key === 'c' && task.list !== 'done') toggleDone(id) // marks task done
-            if (e.key === 'a' && task.list !== 'active') toggleActive(id) // marks task active
-            if (e.key === 'p' && task.list === 'active') toggleActive(id) // marks task inactive
-            //Backlog
-            if(e.key === '1' && task.list === 'backlog') handleFieldChange(id, 'backlog', { ...task.backlog, bucket: 'nextUp' })
-            if(e.key === '2' && task.list === 'backlog') handleFieldChange(id, 'backlog', { ...task.backlog, bucket: 'nextWeek' })
-            if(e.key === '3' && task.list === 'backlog') handleFieldChange(id, 'backlog', { ...task.backlog, bucket: 'someday' })
-        }
-        window.addEventListener('keydown', handleKeyDown)
-        return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [mouseOver, task, id, toggleDone, toggleActive, blockKeys, handleFieldChange])
 
     const handleTimeTracking = () => {
         const nowTracking = !isTracking
@@ -47,8 +30,8 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, handle
         <div className={`${showEstimate && 'grid-cols-[80%_20%]'} group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid  gap-2 items-center
         ${isTracking ? 'bg-gradient-softer' : ''}`}>
             <div className='group task-item task-border task-hover flex justify-between'
-                onMouseEnter={() => setMouseOver(true)}
-                onMouseLeave={() => setMouseOver(false)}
+                data-task-id={id}
+                data-task-context='tasks'
                 onClick={() => setEditingTaskId(id)}>
                 <Checkbox id={id} onToggle={toggleDone} checked={done} />
                 {/* label */}

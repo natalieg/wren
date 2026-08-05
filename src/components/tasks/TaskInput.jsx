@@ -4,7 +4,6 @@ import Input from '../elements/Input'
 const TaskInput = forwardRef(function TaskInput({
     id,
     onSubmit,
-    changeInputActive,
 }, ref) {
     const [taskTime, setTaskTime] = useState(20)
     const [taskName, setTaskName] = useState('')
@@ -41,8 +40,6 @@ const TaskInput = forwardRef(function TaskInput({
                 value={taskName}
                 onChange={(e) => setTaskName(e.target.value)}
                 onKeyDown={handleKeyDown}
-                onFocus={() => changeInputActive(true)}
-                onBlur={() => changeInputActive(false)}
             />
             <Input
                 placeholder="Time"
@@ -51,8 +48,6 @@ const TaskInput = forwardRef(function TaskInput({
                 value={taskTime}
                 onChange={handleTaskTimeChange}
                 onKeyDown={handleKeyDown}
-                onFocus={() => changeInputActive(true)}
-                onBlur={() => changeInputActive(false)}
             />
         </div>
     )
