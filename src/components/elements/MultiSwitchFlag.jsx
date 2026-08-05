@@ -9,10 +9,22 @@ export default function MultiSwitchFlag({ options, value, onChange, onSubmit, wi
   }
 
   // Enter submits when an onSubmit is wired up (e.g. Backlog's input row), otherwise
-  // just cycles like a click. Space always cycles, never submits.
+  // just cycles like a click. Space always cycles, never submits. Left/right mirror
+  // click direction: right = step forward (like left click), left = step backward
+  // (like right click/context menu).
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && onSubmit) {
       onSubmit()
+      return
+    }
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      step(1)
+      return
+    }
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      step(-1)
       return
     }
     if (e.key !== 'Enter' && e.key !== ' ') return
@@ -30,7 +42,12 @@ export default function MultiSwitchFlag({ options, value, onChange, onSubmit, wi
       tabIndex={0}
       onClick={() => step(1)}
       onContextMenu={(e) => { e.preventDefault(); step(-1) }}
-      onKeyDown={handleKeyDown}>
+      onKeyDown={handleKeyDown}
+      // hovering focuses the element so the same keydown handler used for
+      // keyboard-focus users (Enter/Space/arrows) also works on mouseOver,
+      // without needing a separate hover-tracked listener
+      onMouseEnter={(e) => e.currentTarget.focus()}
+      onMouseLeave={(e) => e.currentTarget.blur()}>
       {current.emoji}
       {current.label}
     </div>

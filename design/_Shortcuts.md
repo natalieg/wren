@@ -21,6 +21,20 @@ approach.
 | `3` | Move to backlog bucket: Someday | task is in backlog |
 | `space` | Start/stop time tracking | task isn't done — works from the backlog too, pulls the task into 'active' |
 
+## `MultiSwitchFlag` (Backlog bucket switch)
+
+Not part of the hover-resolution system above — it's a single persistent control
+(never unmounts mid-interaction), so a plain hover-focuses-the-element trick is
+enough: `onMouseEnter` calls `.focus()`, which makes the existing keyboard handler
+fire on hover too, no separate listener needed. See `src/components/elements/MultiSwitchFlag.jsx`.
+
+| Key | Effect |
+|---|---|
+| `→` | Step forward (same direction as left click) |
+| `←` | Step backward (same direction as right click / context menu) |
+| `space` | Step forward |
+| `Enter` | Submit if wired up (e.g. Backlog's input row), otherwise step forward |
+
 ## Future contexts
 
 New views that show tasks (Projects, Recurring, …) can reuse a key with different

@@ -1,7 +1,7 @@
 
 ## backlog v 0.3.0
 - [x] #design polish current 'next up/etc' flag in #editModal
-- [ ] change 'MultiSwitchFlag' with keys <- and -> should be able to trigger those when [active] but also [mouseOver] 
+- [x] change 'MultiSwitchFlag' with keys <- and -> should be able to trigger those when [active] but also [mouseOver] 
 - [x] change task bucket with [mouseOver] and num key, correlating to bucket number (1 to 0, 2 to 1 etc)
 - [ ] decision: should task modal stay open, when backlog task is set 'active'? currently closing because this task no longer exists in backlog, but could be confusing. this could be some exception state
 ## rest
