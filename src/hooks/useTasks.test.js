@@ -18,8 +18,7 @@ describe('useTasks', () => {
         expect(result.current.taskList[0]).toMatchObject({
             label: 'Write tests',
             time: 15,
-            done: false,
-            active: true,
+            list: 'active',
         })
     })
 
@@ -35,9 +34,67 @@ describe('useTasks', () => {
             result.current.taskActions.toggleDone(id)
         })
 
-        expect(result.current.taskList[0].done).toBe(true)
+        expect(result.current.taskList[0].list).toBe('done')
         expect(result.current.finishedTasks).toHaveLength(1)
         expect(result.current.openTasks).toHaveLength(0)
+    })
+
+    it('un-marking done restores the task to its previous list', () => {
+        const { result } = renderHook(() => useTasks('Write tests', 15))
+        act(() => { result.current.taskActions.handleAddTask() })
+        const id = result.current.taskList[0].id
+
+        act(() => { result.current.taskActions.toggleActive(id) }) // park it first
+        act(() => { result.current.taskActions.toggleDone(id) })
+        expect(result.current.taskList[0].list).toBe('done')
+
+        act(() => { result.current.taskActions.toggleDone(id) }) // undo
+        expect(result.current.taskList[0].list).toBe('backlog')
+    })
+
+    describe('backlog', () => {
+        it('parks a task into the backlog with a default nextUp bucket', () => {
+            const { result } = renderHook(() => useTasks('Write tests', 15))
+            act(() => { result.current.taskActions.handleAddTask() })
+            const id = result.current.taskList[0].id
+
+            act(() => { result.current.taskActions.toggleActive(id) })
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'nextUp' },
+            })
+            expect(result.current.nextUpTasks).toHaveLength(1)
+            expect(result.current.backlogTasks).toHaveLength(1)
+        })
+
+        it('adds a task straight into the someday bucket, excluded from nextUpTasks', () => {
+            const { result } = renderHook(() => useTasks())
+
+            act(() => {
+                result.current.taskActions.handleAddTask('Someday idea', 30, { list: 'backlog', bucket: 'someday' })
+            })
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'someday' },
+            })
+            expect(result.current.backlogTasks).toHaveLength(1)
+            expect(result.current.nextUpTasks).toHaveLength(0)
+        })
+
+        it('pulling a backlog task back to active clears its bucket', () => {
+            const { result } = renderHook(() => useTasks())
+            act(() => {
+                result.current.taskActions.handleAddTask('Someday idea', 30, { list: 'backlog', bucket: 'someday' })
+            })
+            const id = result.current.taskList[0].id
+
+            act(() => { result.current.taskActions.toggleActive(id) })
+
+            expect(result.current.taskList[0].list).toBe('active')
+            expect(result.current.taskList[0].backlog).toBeUndefined()
+        })
     })
 
     describe('time tracking', () => {

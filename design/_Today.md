@@ -1,12 +1,8 @@
 
-- [x] #Bug wenn ich innerhalb der app den reiter wechsel, springt der timer raus
-- [x] mini card for 'activ tracking task' that shows up when looking at other pages
-- [x] #update time bereich on top zeigt immernoch die geschaetzte zeit, nicht die tracked time bei 'x done'
-- [x] #graphic bei finished task sollten nur minuten angezeigt werden ohne sekunden, bei unter 1min vllt evaluieren ob die est time statt dessen eingetragen wird 
+- [ ] #design polish current 'next up/etc' flag in #editModal
+- [ ] #editModal  edit "tracked" time
 - [ ] "Activate All" for the parking area
-- [ ] #backlog als neue liste introducen
 - [ ] [Badge] sum of parked items
-- [x] Micro History of all tracked tasks, with Current date on top [[Shape]]
 - [ ] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area
 - [ ] [[Time Tracking 260801]] ( MVP) 
 	- [ ] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
@@ -17,6 +13,7 @@
 	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
 - [ ] DND
+- [ ] first #rollover #automation : 'next up' should become active after planned time, 'finishedTask' autodelete (its ok now that they have the history page)
 - [ ] delete tasks from #history
 - [ ] delete whole entry from #history 
 

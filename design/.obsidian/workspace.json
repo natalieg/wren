@@ -84,7 +84,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#editPanel",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -105,7 +105,8 @@
               "title": "Lesezeichen"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "horizontal",
@@ -213,8 +214,11 @@
       "bases:Create new base": false
     }
   },
-  "active": "935f51364ca1f8c9",
+  "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.153664.d7cc497f4787",
+    "_ROADMAP.md.tmp.153664.0b7d16874a42",
+    "_Today.md.tmp.153664.d76829f4f138",
     "Notes.md",
     "_ROADMAP.md.tmp.160368.74d282842118",
     "_Today.md",
@@ -233,9 +237,7 @@
     "_ROADMAP.md.tmp.128544.cfd320df60f6",
     "2026-07-31.md",
     "_ROADMAP.md.tmp.117216.0ad1eb7f16dd",
-    "decisions.md.tmp.117216.015a7fbfa61c",
     "wren-idle-konzept.md",
-    "decisions.md.tmp.117216.34a439ccf944",
     "Untitled.canvas",
     "life-balance.md",
     "Pasted image 20260727211428.png",

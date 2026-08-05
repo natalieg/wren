@@ -123,9 +123,8 @@ The smallest possible slice of `design/wren-idle-konzept.md`, deliberately scope
 - task can be split if user can only handle x subtasks for the day into a new bundle for tomorrow or parking  
 - tasks holds 'created date' 
 	- can display how many days you've been procrastinating a task. this is ony true for tasks that are either in 'active' or 'parking', if a task is put into backlog this 'prcorastination days' resets on new planning
-- Move tasks from parking into backlog:
-	- (before i wasnt sure if i want backlog AND parking, but i think parking is more for the day itself, backlog is for long term planning and idea dumping)
-	- offer re-evaluation:
+- ~~Move tasks from parking into backlog: (before i wasnt sure if i want backlog AND parking, but i think parking is more for the day itself, backlog is for long term planning and idea dumping)~~ — resolved 2026-08-05: parking *is* backlog now, `nextUp` bucket specifically (see Phase 6). No separate migration step needed.
+	- Still open — offer re-evaluation:
 		- is important?
 		- has deadline? 
 		- think about this in a month? (gets some kind of alert )
@@ -162,10 +161,11 @@ Check if there are more features in  [[day-planning]]
 
 ### 🟡 Phase 6 — Parking / active tasks, more Task handling
 - ✅ 2026-07-29: `active` field (defaults `true` on creation), toggle via edit modal or hover shortcuts (`a` activate, `p` park). `TaskGroup.jsx` extracted; parked tasks sit in their own collapsible section.
+- ✅ 2026-08-05: Backlog MVP — new `/backlog` route. Task data model consolidated from independent `active`/`done` booleans into a single `list: 'active'|'done'|'backlog'` enum plus a `backlog: {bucket, activationDate}` object (buckets: `nextUp`/`nextWeek`/`someday`; `activationDate` reserved for future auto-activation, unused so far). Legacy tasks migrate to the new shape on load. The Daylist's inline preview (was `inactiveTasks`, now `nextUpTasks`) only shows the `nextUp` bucket; `nextWeek`/`someday` live exclusively on the Backlog page. New shared components: `TaskInput` (name+time entry, reused by both Daylist and Backlog) and `SwitchFlag` (click/right-click cycles through an options array — powers both the bucket picker on add and, now, the edit modal). Bucket reassignment ships two ways for now: quick-and-dirty ▲/▼ shift arrows per task on the Backlog page (index-bound, not drag-and-drop), and the same `SwitchFlag` bucket picker inside the edit modal once a task is parked.
 - 🔷 Open: move the parked-tasks panel from above the active list to beside it (collapsible sidebar) — the original ask, deferred since the MVP works without it.
 - #taskSplitting split longer tasks into smaller sections, allowing the user to move those into the next x days or into the parking area 
 	- could have functions like: split this `4h tasks` into `4 bites` and schedule them for the next `4 days` 
-- #question should there be a different 'backlock' for tasks that are not yet 'in the queue' but rather long term planning eg `next week, next month etc` BUT those should be suggested when actual time passes, unlike sunsama where this doesnt really mean anything. 
+- ~~#question should there be a different 'backlock' for tasks that are not yet 'in the queue' but rather long term planning eg `next week, next month etc` BUT those should be suggested when actual time passes, unlike sunsama where this doesnt really mean anything.~~ — answered 2026-08-05: yes, that's the Backlog MVP above (`nextWeek`/`someday` buckets). The "suggested when time actually passes" part is what `activationDate` is reserved for — not wired up yet.
 
 ### Phase 7 — Projects MVP (timing not decided)
 A first, deliberately simpler version of "projects" than Natalie's original fuller design idea. A real pain point — this was the whole reason the last redesign attempt started — but explicitly acknowledged as not a small session. Revisit *when*, together, once Phases 2–6 give a better sense of how tasks and projects should actually connect (see `design/life-balance.md`'s "project-related tasks" type).
