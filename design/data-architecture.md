@@ -14,7 +14,7 @@ Not the storage limit — the shape of what Wren needs to *do* with the data:
 - **ManicTime import** (`ROADMAP.md` future ideas) needs something running server-side to reconcile external data on a schedule — can't do that from a closed browser tab.
 - **Durability.** Clearing browser data currently loses everything. Acceptable for a scratch list; not once it's months of balance history actually worth protecting.
 
-None of that is live yet — realistically this becomes relevant around **ROADMAP Phase 4–5** (day split / projects), not before.
+None of that is live yet — realistically this becomes relevant around **ROADMAP Phase 10 & 13** (day split / projects), not before.
 
 ## The decision: Python + FastAPI, not a hosted BaaS
 

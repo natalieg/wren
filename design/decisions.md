@@ -27,9 +27,9 @@ Only the first, narrow piece of this is built (`startedAt` persisted to localSto
 
 Estimated finish time per task ("Task 1 20min" → "12:30") displayed as a separate field to the *right* of the task row, not folded into `TaskItem` itself — two visually distinct boxes per row, e.g. `[ Task 1  20min ]  [ 12:30 ]`.
 
-Why, in Natalie's own reasoning:
+Why:
 - Times stacking in their own column read far easier than times embedded inline in each row — a column of numbers scans faster than the same numbers scattered across rows.
-- This is a cheap way to simulate a low-level "timeline" (this is `ROADMAP.md` Phase 5's projected-finish-time concept, pulled forward) without building the real timeline visualization yet (`design/day-planning.md` sketch 1j, "soft timeline rail" — still not needed for this).
+- This is a cheap way to simulate a low-level "timeline" (this is `ROADMAP.md` Phase 2's projected-finish-time concept, pulled forward) without building the real timeline visualization yet (`design/day-planning.md` sketch 1j, "soft timeline rail" — still not needed for this).
 - A show/hide toggle at the top removes it from view entirely when she doesn't want it.
 
 **Not decided yet, on purpose:** the actual layout/display mechanism (how the second field sits next to `TaskItem` without breaking the current row layout). Explicitly deferred to when this is actually built, not decided now.

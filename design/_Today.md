@@ -1,5 +1,12 @@
 
-- [ ] #design polish current 'next up/etc' flag in #editModal
+## backlog v 0.3.0
+- [x] #design polish current 'next up/etc' flag in #editModal
+- [ ] change 'MultiSwitchFlag' with keys <- and -> should be able to trigger those when [active] but also [mouseOver] 
+- [ ] change task bucket with [mouseOver] and num key, correlating to bucket number (1 to 0, 2 to 1 etc)
+- [ ] decision: should task modal stay open, when backlog task is set 'active'? currently closing because this task no longer exists in backlog, but could be confusing. this could be some exception state
+## rest
+
+- [ ] change time in history if minutes are bigger than 60
 - [ ] #editModal  edit "tracked" time
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
@@ -14,6 +21,10 @@
 	- [ ] numbers should not 'wobble' around while the tracker is running
 - [ ] DND
 - [ ] first #rollover #automation : 'next up' should become active after planned time, 'finishedTask' autodelete (its ok now that they have the history page)
+- [ ] #rollover backlog 'next week' items: 
+	- [ ] when a task is set to 'next week' it gets an 'activation date' (default 7 days from now, if the task is created on monday, it will activate next monday)
+	- [ ] activation date can be edited in modal 
+	- [ ] #later user can set in #settings what the default behaviour is 
 - [ ] delete tasks from #history
 - [ ] delete whole entry from #history 
 
