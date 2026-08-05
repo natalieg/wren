@@ -8,10 +8,10 @@ describe('useTasks', () => {
     })
 
     it('adds a task', () => {
-        const { result } = renderHook(() => useTasks('Write tests', 15))
+        const { result } = renderHook(() => useTasks())
 
         act(() => {
-            result.current.taskActions.handleAddTask()
+            result.current.taskActions.handleAddTask('Write tests', 15)
         })
 
         expect(result.current.taskList).toHaveLength(1)
@@ -23,10 +23,10 @@ describe('useTasks', () => {
     })
 
     it('marks a task done', () => {
-        const { result } = renderHook(() => useTasks('Write tests', 15))
+        const { result } = renderHook(() => useTasks())
 
         act(() => {
-            result.current.taskActions.handleAddTask()
+            result.current.taskActions.handleAddTask('Write tests', 15)
         })
         const id = result.current.taskList[0].id
 
@@ -40,8 +40,8 @@ describe('useTasks', () => {
     })
 
     it('un-marking done restores the task to its previous list', () => {
-        const { result } = renderHook(() => useTasks('Write tests', 15))
-        act(() => { result.current.taskActions.handleAddTask() })
+        const { result } = renderHook(() => useTasks())
+        act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
         const id = result.current.taskList[0].id
 
         act(() => { result.current.taskActions.toggleActive(id) }) // park it first
@@ -54,8 +54,8 @@ describe('useTasks', () => {
 
     describe('backlog', () => {
         it('parks a task into the backlog with a default nextUp bucket', () => {
-            const { result } = renderHook(() => useTasks('Write tests', 15))
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.toggleActive(id) })
@@ -107,8 +107,8 @@ describe('useTasks', () => {
         })
 
         it('ticks trackedSeconds once per second while a task is running', () => {
-            const { result } = renderHook(() => useTasks('Write tests', 10))
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.startTracking(id) })
@@ -119,8 +119,8 @@ describe('useTasks', () => {
         })
 
         it('flushes tracked time into the task on stop, exactly once', () => {
-            const { result } = renderHook(() => useTasks('Write tests', 10))
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.startTracking(id) })
@@ -133,15 +133,11 @@ describe('useTasks', () => {
         })
 
         it('flushes the previous task before switching to a new one', () => {
-            const { result, rerender } = renderHook(
-                ({ newTask, taskTime }) => useTasks(newTask, taskTime),
-                { initialProps: { newTask: 'Task A', taskTime: 10 } }
-            )
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
             const idA = result.current.taskList[0].id
 
-            rerender({ newTask: 'Task B', taskTime: 10 })
-            act(() => { result.current.taskActions.handleAddTask() })
+            act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
             const idB = result.current.taskList.find(t => t.id !== idA).id
 
             act(() => { result.current.taskActions.startTracking(idA) })
@@ -163,8 +159,8 @@ describe('useTasks', () => {
         it("anchors the running task's estimate to now once it goes over its own time budget", () => {
             vi.setSystemTime(new Date('2026-08-01T12:00:00Z'))
 
-            const { result } = renderHook(() => useTasks('Write tests', 1)) // 1-minute task
-            act(() => { result.current.taskActions.handleAddTask() })
+            const { result } = renderHook(() => useTasks()) // 1-minute task
+            act(() => { result.current.taskActions.handleAddTask('Write tests', 1) })
             const id = result.current.taskList[0].id
 
             act(() => { result.current.taskActions.startTracking(id) })

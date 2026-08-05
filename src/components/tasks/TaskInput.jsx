@@ -1,21 +1,29 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import Input from '../elements/Input'
 
-export default function TaskInput({
+const TaskInput = forwardRef(function TaskInput({
     id,
     onSubmit,
     changeInputActive,
-}) {
+}, ref) {
     const [taskTime, setTaskTime] = useState(20)
     const [taskName, setTaskName] = useState('')
     const taskNameInputRef = useRef(null)
 
-    const handleKeyDown = (e) => {
-        if (e.key !== 'Enter') return
+    const submit = () => {
         onSubmit(taskName, taskTime)
         setTaskName('')
         setTaskTime(20)
         taskNameInputRef.current?.focus()
+    }
+
+    // lets siblings (e.g. MultiSwitchFlag's Enter handler) trigger a submit
+    // without needing to know taskName/taskTime — that state stays private here
+    useImperativeHandle(ref, () => ({ submit }))
+
+    const handleKeyDown = (e) => {
+        if (e.key !== 'Enter') return
+        submit()
     }
 
     const handleTaskTimeChange = (e) => {
@@ -48,4 +56,6 @@ export default function TaskInput({
             />
         </div>
     )
-}
+})
+
+export default TaskInput

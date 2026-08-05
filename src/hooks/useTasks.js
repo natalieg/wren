@@ -179,8 +179,7 @@ function useTasks() {
 
     // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
     const handleAddTask = (label, time, { list = 'active', bucket } = {}) => {
-        console.log('handleAddTask', label, time, list, bucket)
-        if (label?.trim() === '') return
+        if (!label?.trim()) return
         const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
         const newTask = { id: newId, label, time, list }
         if (list === 'backlog') {
