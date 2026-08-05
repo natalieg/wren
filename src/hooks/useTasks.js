@@ -16,6 +16,10 @@ function normalizeTask(t) {
 
 function useTasks() {
     const { addToHistory, removeFromHistory } = useHistory()
+    // lives here, not as local state on TaskItem — a task can move between different
+    // TaskGroup instances (active/backlog, bucket A/B) while its modal is open, which
+    // unmounts/remounts the TaskItem and would wipe locally-held "am I editing" state
+    const [editingTaskId, setEditingTaskId] = useState(null)
     const [taskList, setTaskList] = useState(() => {
         try {
             const savedTasks = localStorage.getItem('tasks')
@@ -216,7 +220,7 @@ function useTasks() {
         deleteAllFinishedTasks,
         startTracking,
         stopTracking,
-
+        setEditingTaskId,
     }
 
     const finishedTasks = taskList.filter(t => t.list === 'done')
@@ -274,7 +278,7 @@ function useTasks() {
     // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
     const backlogTasks = taskList.filter(t => t.list === 'backlog')
 
-    return { taskList, openTasks: openTasksResult.list, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds }
+    return { taskList, openTasks: openTasksResult.list, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
 }
 
 export default useTasks

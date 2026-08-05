@@ -3,13 +3,19 @@ import Checkbox from '../elements/Checkbox'
 import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
+import Modal from '../elements/Modal'
+import TaskEditModalBody from './TaskEditModalBody'
 
 // TODO add right click menu for actions, including keyboard shortcut information
-export default function TaskItem({ index, task, toggleDone, toggleActive, blockKeys, onDelete, onEdit, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate }) {
+export default function TaskItem({ index, task, toggleDone, toggleActive, handleFieldChange, blockKeys, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, editingTaskId, setEditingTaskId }) {
     const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
     const done = task.list === 'done'
     const isTracking = id === runningTaskId
     const [mouseOver, setMouseOver] = useState(false)
+    // lives above this component (see useTasks.js) — a task can move to a different
+    // TaskGroup (active/backlog, bucket A/B) while its modal is open, which would
+    // unmount/remount TaskItem and wipe out any locally-held "am I editing" state
+    const isEditing = editingTaskId === id
     const isActive = estimate
 
     useEffect(() => {
@@ -38,7 +44,7 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
             <div className='group task-item task-border task-hover flex justify-between'
                 onMouseEnter={() => setMouseOver(true)}
                 onMouseLeave={() => setMouseOver(false)}
-                onClick={() => onEdit(id)}>
+                onClick={() => setEditingTaskId(id)}>
                 <Checkbox id={id} onToggle={toggleDone} checked={done} />
                 {/* label */}
                 <span className={(done ? 'line-through text-text-muted' : 'text-text-primary')
@@ -72,6 +78,15 @@ export default function TaskItem({ index, task, toggleDone, toggleActive, blockK
                 <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
             {finishedTimestamp &&
                 <div className='w-20 text-text-muted/70 group-hover:text-text-secondary flex items-center justify-center text-center'>{formatClockTime(finishedTimestamp)}</div>}
+            {isEditing &&
+                <Modal title='edit task' width='w-120' onClose={() => setEditingTaskId(null)}>
+                    <TaskEditModalBody
+                        task={task}
+                        handleChange={handleFieldChange}
+                        toggleDone={toggleDone}
+                        toggleActive={toggleActive}
+                        closeModal={() => setEditingTaskId(null)} />
+                </Modal>}
         </div>
     )
 }

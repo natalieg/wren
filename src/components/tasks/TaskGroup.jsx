@@ -1,6 +1,6 @@
 import TaskItem from './TaskItem'
 
-export default function TaskGroup({ tasks, toggleDone, toggleActive, onDelete, onEdit, blockKeys, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate }) {
+export default function TaskGroup({ tasks, toggleDone, toggleActive, onDelete, handleFieldChange, blockKeys, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, editingTaskId, setEditingTaskId }) {
     return (
         <div className='flex flex-col'>
             {tasks.map((t, index) => (
@@ -11,14 +11,16 @@ export default function TaskGroup({ tasks, toggleDone, toggleActive, onDelete, o
                     toggleDone={toggleDone}
                     toggleActive={toggleActive}
                     onDelete={onDelete}
+                    handleFieldChange={handleFieldChange}
                     startTracking={startTracking}
                     stopTracking={stopTracking}
                     // states from useTasks through Tasklist
                     runningTaskId={runningTaskId}
                     trackedSeconds={trackedSeconds}
+                    editingTaskId={editingTaskId}
+                    setEditingTaskId={setEditingTaskId}
                     // from Tasklist
                     blockKeys={blockKeys}
-                    onEdit={onEdit}
                     showEstimate={showEstimate}
                 />
             ))}

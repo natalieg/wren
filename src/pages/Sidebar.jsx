@@ -1,5 +1,6 @@
 import SidebarButton from '../components/elements/SidebarButton'
 import flowers1 from '../assets/img/flowers1.jpg'
+import { version } from '../../package.json'
 
 export default function Sidebar({ className }) {
     return (
@@ -23,8 +24,7 @@ export default function Sidebar({ className }) {
                     <span className='text-2xl transform -translate-y-1 -ml-4'>✨</span>
                     <p className="text-center text-gold"
                         style={{ fontFamily: 'Cinzel', fontSize: '1.5rem' }}>
-                        Wren
-
+                        Wren <span style={{ fontSize: '1rem' }}>{version}</span>
                     </p>
                 </div>
             </div>

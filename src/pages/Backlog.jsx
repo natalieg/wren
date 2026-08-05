@@ -14,7 +14,7 @@ import { bucketOptions } from '../utils/buckets'
 // TODO add shortcuts eg numbers for buckets 
 export default function Backlog() {
   // backlogTasks: flat list of list==='backlog' tasks, no time/estimate calc (not needed here)
-  const { backlogTasks, taskActions } = useContext(TasksContext)
+  const { backlogTasks, taskActions, editingTaskId } = useContext(TasksContext)
   const { handleAddTask, handleFieldChange } = taskActions
   const [bucket, setBucket] = useState('nextUp')
   const taskInputRef = useRef(null)
@@ -41,7 +41,7 @@ export default function Backlog() {
         {tasks.map(t => (
           <div key={t.id} className='flex items-center gap-1'>
             <div className='flex-1 min-w-0'>
-              <TaskGroup tasks={[t]} {...taskActions} showEstimate={false} />
+              <TaskGroup tasks={[t]} {...taskActions} editingTaskId={editingTaskId} showEstimate={false} />
             </div>
             {/* LATEr remove when dnd is integrated */}
             {index > 0 &&

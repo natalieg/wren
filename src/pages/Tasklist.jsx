@@ -1,16 +1,12 @@
 import { useState, useContext } from 'react'
 import TaskGroup from '../components/tasks/TaskGroup'
-import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
-import Modal from '../components/elements/Modal'
 import CollapsableDiv from '../components/CollapsableDiv'
 import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
 import TaskInput from '../components/tasks/TaskInput'
 
 export default function Tasklist() {
-    const [editingTaskId, setEditingTaskId] = useState(null)
     const {
-        taskList,
         openTasks,
         nextUpTasks,
         finishedTasks,
@@ -18,19 +14,19 @@ export default function Tasklist() {
         startedAt,
         updateActionTime,
         runningTaskId,
-        trackedSeconds
+        trackedSeconds,
+        editingTaskId
     } = useContext(TasksContext)
 
-    const { handleAddTask, handleFieldChange, deleteAllFinishedTasks } = taskActions
-    const editingTaskActive = taskList.find(t => t.id === editingTaskId)
+    const { handleAddTask, deleteAllFinishedTasks } = taskActions
     const [inputActive, setInputActive] = useState(false)
 
     const taskActionBundle = {
         ...taskActions,
         runningTaskId,
         trackedSeconds,
+        editingTaskId,
         blockKeys: inputActive,
-        onEdit: setEditingTaskId,
     }
 
     return (
@@ -69,16 +65,6 @@ export default function Tasklist() {
                     </CollapsableDiv>
                 )}
             </div>
-            {editingTaskActive &&
-                <Modal title='edit task' width='w-120' onClose={() => setEditingTaskId(null)}>
-                    <TaskEditModalBody
-                        task={editingTaskActive}
-                        handleChange={handleFieldChange}
-                        toggleDone={taskActions.toggleDone}
-                        toggleActive={taskActions.toggleActive}
-                        closeModal={() => setEditingTaskId(null)} />
-                </Modal>
-            }
         </div>
     )
 }
