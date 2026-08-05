@@ -52,6 +52,63 @@ describe('useTasks', () => {
         expect(result.current.taskList[0].list).toBe('backlog')
     })
 
+    describe('legacy data migration', () => {
+        it('migrates a legacy active task (active: true, done: false)', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Legacy active', time: 15, active: true, done: false }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({ list: 'active' })
+            expect(result.current.taskList[0].backlog).toBeUndefined()
+            expect(result.current.taskList[0].active).toBeUndefined()
+            expect(result.current.taskList[0].done).toBeUndefined()
+        })
+
+        it('migrates a legacy parked task (active: false, done: false) into backlog/nextUp', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Legacy parked', time: 15, active: false, done: false }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'nextUp' },
+            })
+        })
+
+        it('migrates a legacy finished task (done: true) regardless of its active value', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Legacy finished, was parked', time: 15, active: false, done: true, finishedTimestamp: '2026-08-01T00:00:00.000Z' }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({ list: 'done' })
+            expect(result.current.taskList[0].backlog).toBeUndefined()
+        })
+
+        it('defaults a pre-parking legacy task with no active field at all to active', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'From before parking existed', time: 15, done: false }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({ list: 'active' })
+        })
+
+        it('leaves already-migrated tasks untouched (idempotent, keeps a non-default bucket)', () => {
+            localStorage.setItem('tasks', JSON.stringify([
+                { id: 1, label: 'Already new shape', time: 15, list: 'backlog', backlog: { bucket: 'someday', activationDate: null } }
+            ]))
+            const { result } = renderHook(() => useTasks())
+
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'someday' },
+            })
+        })
+    })
+
     describe('backlog', () => {
         it('parks a task into the backlog with a default nextUp bucket', () => {
             const { result } = renderHook(() => useTasks())
