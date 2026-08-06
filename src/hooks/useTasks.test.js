@@ -87,13 +87,19 @@ describe('useTasks', () => {
             expect(result.current.taskList[0].backlog).toBeUndefined()
         })
 
-        it('defaults a pre-parking legacy task with no active field at all to active', () => {
+        it('migrates a pre-parking legacy task with no active field at all to backlog, not active', () => {
+            // the old UI's filter was `t.active && !t.done` / `!t.done && !t.active` — any
+            // falsy `active` (including missing/undefined) displayed as parked, so a task
+            // from before the `active` field existed must migrate the same way, not to 'active'
             localStorage.setItem('tasks', JSON.stringify([
                 { id: 1, label: 'From before parking existed', time: 15, done: false }
             ]))
             const { result } = renderHook(() => useTasks())
 
-            expect(result.current.taskList[0]).toMatchObject({ list: 'active' })
+            expect(result.current.taskList[0]).toMatchObject({
+                list: 'backlog',
+                backlog: { bucket: 'nextUp' },
+            })
         })
 
         it('leaves already-migrated tasks untouched (idempotent, keeps a non-default bucket)', () => {

@@ -5,7 +5,10 @@ import useHistory from './useHistory'
 // later remove at some point when all legacy tasks are gone
 function normalizeTask(t) {
     if (t.list) return t
-    const list = t.done ? 'done' : t.active === false ? 'backlog' : 'active'
+    // old UI treated any falsy `active` as parked (t.active && !t.done), not just
+    // literal false — tasks from before the `active` field existed (pre-2026-07-29)
+    // have active: undefined and were shown as parked, so this must match that, not === false
+    const list = t.done ? 'done' : !t.active ? 'backlog' : 'active'
     const { active: _active, done: _done, ...rest } = t
     return {
         ...rest,
