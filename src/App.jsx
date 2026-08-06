@@ -5,6 +5,7 @@ import Main from './pages/Main'
 import IndexProject from './pages/projectView/indexProject'
 import Backlog from './pages/Backlog'
 import History from './pages/History'
+import Settings from './pages/Settings'
 import TasksProvider from './context/TasksProvider'
 import FloatingTaskPanel from './components/FloatingTaskPanel'
 
@@ -20,6 +21,7 @@ function App() {
             <Route path='/backlog' element={<Backlog />} />
             <Route path='/history' element={<History />} />
             <Route path='/project' element={<IndexProject />} />
+            <Route path='/settings' element={<Settings />} />
           </Routes>
         </div>
         <FloatingTaskPanel />

@@ -158,6 +158,44 @@ describe('useTasks', () => {
             expect(result.current.taskList[0].list).toBe('active')
             expect(result.current.taskList[0].backlog).toBeUndefined()
         })
+
+        it('activating a backlog task lands it at the end of the list, not its old spot', () => {
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
+            act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
+            const idA = result.current.taskList[0].id
+            const idB = result.current.taskList[1].id
+
+            act(() => { result.current.taskActions.toggleActive(idA) }) // park A
+            act(() => { result.current.taskActions.toggleActive(idA) }) // re-activate A
+
+            expect(result.current.openTasks.map(t => t.id)).toEqual([idB, idA])
+        })
+
+        it('parking a task keeps it in-place (only activation repositions)', () => {
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
+            act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
+            const idA = result.current.taskList[0].id
+
+            act(() => { result.current.taskActions.toggleActive(idA) }) // park A
+
+            expect(result.current.taskList[0].id).toBe(idA)
+        })
+    })
+
+    describe('pushToBottom', () => {
+        it('moves an active task to the end of the active list', () => {
+            const { result } = renderHook(() => useTasks())
+            act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
+            act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
+            act(() => { result.current.taskActions.handleAddTask('Task C', 10) })
+            const [idA, idB, idC] = result.current.taskList.map(t => t.id)
+
+            act(() => { result.current.taskActions.pushToBottom(idA) })
+
+            expect(result.current.openTasks.map(t => t.id)).toEqual([idB, idC, idA])
+        })
     })
 
     describe('time tracking', () => {

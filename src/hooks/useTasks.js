@@ -116,14 +116,20 @@ function useTasks() {
         }
     }
 
-    // parks a task to the backlog (default 'nextUp' bucket) or pulls it back to active
+    // parks a task to the backlog (default 'nextUp' bucket) or pulls it back to active.
+    // activating lands the task at the end of the list instead of its old queue spot —
+    // parking stays in-place, only activation repositions
     const toggleActive = (id) => {
-        setTaskList(taskList.map(t => {
-            if (t.id !== id) return t
-            return t.list === 'active'
-                ? { ...t, list: 'backlog', backlog: { bucket: 'nextUp', activationDate: null } }
-                : { ...t, list: 'active', backlog: undefined }
-        }))
+        setTaskList(currentTaskList => {
+            const task = currentTaskList.find(t => t.id === id)
+            if (task.list === 'active') {
+                return currentTaskList.map(t => t.id === id
+                    ? { ...t, list: 'backlog', backlog: { bucket: 'nextUp', activationDate: null } }
+                    : t)
+            }
+            const rest = currentTaskList.filter(t => t.id !== id)
+            return [...rest, { ...task, list: 'active', backlog: undefined }]
+        })
         if (id === runningTaskId) {
             setRunningTaskId(null)
             flushTrackedTime()
@@ -214,6 +220,15 @@ function useTasks() {
         setTaskList(taskList.filter(t => t.list !== 'done'))
     }
 
+    // manual reorder ahead of real drag & drop — moves one task to the end of the list
+    const pushToBottom = (id) => {
+        setTaskList(currentTaskList => {
+            const task = currentTaskList.find(t => t.id === id)
+            if (!task) return currentTaskList
+            return [...currentTaskList.filter(t => t.id !== id), task]
+        })
+    }
+
     const taskActions = {
         toggleDone,
         toggleActive,
@@ -221,6 +236,7 @@ function useTasks() {
         onDelete: handleDeleteTask,
         handleFieldChange,
         deleteAllFinishedTasks,
+        pushToBottom,
         startTracking,
         stopTracking,
         setEditingTaskId,
