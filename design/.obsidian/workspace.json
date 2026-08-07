@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_ROADMAP.md",
+                "file": "_Today.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_ROADMAP"
+              "title": "_Today"
             }
           },
           {
@@ -125,7 +125,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_ROADMAP.md",
+                "file": "_Today.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -215,22 +215,21 @@
   },
   "active": "ba12f0f247d43874",
   "lastOpenFiles": [
-    "_ROADMAP.md.tmp.28788.c108407f9d32",
-    "references-inventory.md",
-    "references-inventory.md.tmp.28788.9774035839c5",
-    "design-system.md",
-    "design-system.md.tmp.28788.a718259b0f2e",
     "working-agreement.md",
+    "references-inventory.md",
+    "design-system.md",
+    "_ROADMAP.md",
+    "_ROADMAP.md.tmp.28788.c108407f9d32",
+    "references-inventory.md.tmp.28788.9774035839c5",
+    "design-system.md.tmp.28788.a718259b0f2e",
     "working-agreement.md.tmp.28788.d23e97690b7f",
     "_Today.md",
-    "_ROADMAP.md",
     "_Today.md.tmp.28788.6403b41b9eab",
     "_Today.md.tmp.28788.341efa31d33c",
     "_Today.md.tmp.28788.a540e244db41",
     "_ROADMAP.md.tmp.28788.f8edde522955",
     "_ROADMAP.md.tmp.28788.389b7e9966a1",
     "_ROADMAP.md.tmp.28788.68d9d24f1629",
-    "_Today.md.tmp.171684.67968f95b5d9",
     "Shortcuts.md",
     "_Shortcuts.md",
     "Notes.md",
