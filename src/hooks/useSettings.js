@@ -1,25 +1,11 @@
 import { useState, useEffect } from 'react'
-
-const DEFAULT_SETTINGS = {
-    rolloverHour: 4,
-    rolloverActive: true,
-}
+import { SETTINGS_STORAGE_KEY, loadSettings } from '../utils/settings'
 
 function useSettings() {
-    const [settings, setSettings] = useState(() => {
-        try {
-            const saved = localStorage.getItem('settings')
-            // merges over defaults so a new setting added later still gets a
-            // sane value for anyone with an older settings object already saved
-            return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS
-        } catch (e) {
-            console.error('Failed to load settings from localStorage:', e)
-            return DEFAULT_SETTINGS
-        }
-    })
+    const [settings, setSettings] = useState(loadSettings)
 
     useEffect(() => {
-        localStorage.setItem('settings', JSON.stringify(settings))
+        localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
     }, [settings])
 
     const updateSetting = (key, value) => {

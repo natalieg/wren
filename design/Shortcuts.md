@@ -15,7 +15,7 @@ approach.
 |---|---|---|
 | `c` | Mark task done | task isn't already done |
 | `a` | Mark task active | task isn't already active |
-| `p` | Park task (mark inactive) | task is active |
+| `b` | Move task to Backlog (mark inactive) | task is active |
 | `1` | Move to backlog bucket: Next up | task is in backlog |
 | `2` | Move to backlog bucket: Next week | task is in backlog |
 | `3` | Move to backlog bucket: Someday | task is in backlog |

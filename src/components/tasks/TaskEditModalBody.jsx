@@ -4,11 +4,12 @@ import Checkbox from '../elements/Checkbox'
 import SwitchTag from '../elements/SwitchTag'
 import MultiSwitchFlag from '../elements/MultiSwitchFlag'
 import { bucketOptions } from '../../utils/buckets'
+import { DONE, ACTIVE, BACKLOG } from '../../utils/constants'
 
 export default function TaskEditModalBody({ task, handleChange, toggleDone, toggleActive, closeModal }) {
     const { id, label, time } = task
-    const done = task.list === 'done'
-    const isBacklog = task.list === 'backlog'
+    const done = task.list === DONE
+    const isBacklog = task.list === BACKLOG
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -27,11 +28,11 @@ export default function TaskEditModalBody({ task, handleChange, toggleDone, togg
                     {/* active/inactive */}
                     <SwitchTag label1='active' label2='inactive'
                         onClick={() => toggleActive(id)}
-                        active={task.list === 'active'} />
+                        active={task.list === ACTIVE} />
                         {/* bucket [next up, next week, someday...] */}
                     {isBacklog &&
                         <MultiSwitchFlag options={bucketOptions} value={task.backlog?.bucket} width='w-28'
-                            onChange={(bucket) => handleChange(id, 'backlog', { ...task.backlog, bucket })} />}
+                            onChange={(bucket) => handleChange(id, BACKLOG, { ...task.backlog, bucket })} />}
                 </div>
                 <div className='flex gap-2 items-start'>
                     <div className='pt-2'>

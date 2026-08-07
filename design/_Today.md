@@ -1,11 +1,15 @@
 
-## backlog v 0.3.0
-- [x] #design polish current 'next up/etc' flag in #editModal
-- [x] change 'MultiSwitchFlag' with keys <- and -> should be able to trigger those when [active] but also [mouseOver] 
-- [x] change task bucket with [mouseOver] and num key, correlating to bucket number (1 to 0, 2 to 1 etc)
-- [ ] decision: should task modal stay open, when backlog task is set 'active'? currently closing because this task no longer exists in backlog, but could be confusing. this could be some exception state
+## rollover branch — before merging to main
+- [x] review everything that changed on this branch with a clear head tomorrow, understand it, not just push it
+- [x] changed p to b for 'backlog' instead of 'parking'
+- [x] use constant for keywords like 'nextUp'
+- [ ] git push
+- [ ] fix: `useHistory.js`'s day-grouping uses plain `toDateString()`, not rollover-aware — should use `logicalDayString(date, rolloverHour)` like `useTasks.js` does, so a task finished before the rollover hour still files under "yesterday" in History
+- [ ] manual 'reset starting time' action — fits the rollover/time-shenanigans theme, deliberately not automated, just a user-triggered reset
 ## rest
 
+- [ ] settings: default task time 
+- [ ] duplicate task with [d] > bonus: add number to duplication [eg task2 if task was doubled], ideally it can count up numbering or add [1] at the end
 - [ ] change time in history if minutes are bigger than 60
 - [ ] #editModal  edit "tracked" time / reset tracked time 
 - [ ] "Activate All" for the parking area
@@ -39,13 +43,40 @@
 		- [ ] alt: define 'standart task' to extract eg 'standart task for this project is 10 pages for 2h', when the task is marked 'done' on the tasklist, the user gets a popup to confirm the output, the new sum is added to the project (or updated, depending if this is an accumulative goal or not)
 	- [ ] custom unit - unit per hour / hour per unit whatever way is better
 - [ ] bar on taskitem or 
+- [ ] mini gamification: 
+	- [ ] collect coins for each x that you not started gaming that day *or paused gaming* 
+	- [ ] 'buy' gaming time from a repdefined pool of time 
+	- [ ] 'gaming cards' are visible on the list but other color `eg red`
+- [ ] optional: 'rest time' bar, shows the time between tasks, can be connected to a thing 'eg, gaming, procrastinating, talking etc' or a task (the task will then either be created or gets the time that passed)
 
 
-## Later:
+## Later/Thoughts/sortme:
 
 - [ ] #small Sort last checked task to top
 	- [ ] give tasks a [finishedTimestamp], sort by that. this timestamp is need in the future anyway
 - [ ]  #sidepanel #parking space evaluate if  could be at the side of the main list, collapsable, maybe dragging tasks into today but also with shortcut, maybe right arrow -> (if parking is left lol)
+- [ ] real time log per task, right now the tracked time is just accumulated, muddying the 'real' tracked time per day
+- [ ] 'preset' start Time, this is useful when the user plans something for the day, that they want to start at a certain point, to see how realistic the day planning is [this could also be a default in the settings] #prerequisit is 'start time' editable
+- [ ] soft 'deadline' per task for the day, can be useful to keep track if tasks are handled in the right time slot. indication could be:
+	- goal: 13:00
+	- until 1h left: estimate finish time is green
+	- until 30min left: orange/yellow
+	- goaltime is over: red
+- #Project task shapes:
+	- example: for projects, the shape is always the same. goal are x pages, each page needs:
+		- rough sketch
+		- clean sketch
+		- lineart
+		- color
+		- finish
+		- export ... etc
+	- so it would be great if we could create a 'template' for each project (also save those in a library for later use, eg for other comics?)
+	- the user can display both modes, reasoning: some artists like to work page to page, eg webtoon artists, print artists might prefer the 'all rough sketches first' etc
+		- both displays always available:
+			- display could be every page as master task, with ⬜⬜⬜ boxes/dots displaying the progress for each page
+			- OR every step as a master task with same progress ⬜⬜⬜ etc 
+			- benefit: user can always see the progress of the whole pages/phase
+			- usability: next box is only unlocked if the prev phase is finished, this could also be set as conditional/nonconditional in the template (eg, pages are not really force connected, while linearts always need sketches first, tho usually one works linear, but sometimes it happens that one is able to finish page 20 before they finish page 19)
 
 #### Integrate in Roadmap:
 

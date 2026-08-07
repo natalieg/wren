@@ -84,7 +84,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#editPanel",
+                "query": "",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -105,8 +105,7 @@
               "title": "Lesezeichen"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "horizontal",
@@ -214,8 +213,9 @@
       "bases:Create new base": false
     }
   },
-  "active": "ba12f0f247d43874",
+  "active": "935f51364ca1f8c9",
   "lastOpenFiles": [
+    "_Today.md.tmp.171684.67968f95b5d9",
     "Shortcuts.md.tmp.171684.7c46606b00ff",
     "Shortcuts.md",
     "_Shortcuts.md",
@@ -228,7 +228,6 @@
     "data-architecture.md.tmp.23392.983d95d88ec3",
     "life-balance.md.tmp.23392.e8e81135fad6",
     "decisions.md.tmp.23392.010e86d51a83",
-    "decisions.md.tmp.23392.7936ae86ba90",
     "Notes.md",
     "_Today.md",
     "Thoughts.md",
