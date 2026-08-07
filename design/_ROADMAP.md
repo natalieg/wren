@@ -43,7 +43,6 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-04: fixed the timer stopping on in-app navigation — `useTasks()` was only mounted inside `Tasklist.jsx` (route `/`), so switching to `/history` or `/project` unmounted it and killed `runningTaskId`/the interval. Lifted the hook into a single `TasksProvider`/`TasksContext` instantiation wrapping the whole app in `App.jsx`, consumed via `useContext` instead of per-page hook calls.
 - ✅ 2026-08-04: `FloatingTaskPanel.jsx` — a draggable (Pointer Events), position-persisted mini panel mirroring the currently-tracked task on every page except Home. Uses a new view-only `TaskItemViewOnly` variant (label + `TimeFlag` + play/pause only, no edit/delete) exported alongside `TaskItem`.
 - ✅ 2026-08-07: `formatTime` renders `1h` / `1h 30m` — whole hours used to emit a trailing space. This fixed the two tests that had been failing on every run for weeks; the suite is fully green again, which matters more than the formatting itself (a permanently-red suite trains you to ignore it).
-- Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### 🔷 Phase 3 — Drag-and-drop
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
@@ -104,6 +103,7 @@ The smallest possible slice of `design/wren-idle-konzept.md`, deliberately scope
 		- is important?
 		- has deadline? 
 		- think about this in a month? (gets some kind of alert )
+- natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### Phase 10 — Day Planning extendet
 Check if there are more features in  [[day-planning]]
@@ -189,4 +189,4 @@ Originally: recreate this roadmap as a Wren project object and retire this file.
 ## Open questions (revisit together)
 - `sporteinheiten-tracker.html` vs `-v2.html` — same thing, keep only v2?
 - Any of the 17 reference apps already dead/unused and safe to just delete now rather than migrate?
-- ~~Which single tracker/planner is causing the most day-to-day friction right now~~ — answered: parking/inactive tasks (2026-07-29), which is why Phase 12 jumped the queue.
+- How easy would it be to extract a desktop version of Wren? 
