@@ -8,6 +8,16 @@
 	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
 
+## Trello integration
+- [ ] trello task abhaken, 
+	- [ ] karte bekommt checkbox, 
+	- [ ] beim abhaken landet es direkt in 'finished' -
+- [ ] trello karte zu einem 'wren task' transformieren. 
+	- [ ] wenn ich den abschliesse, beende ich auch die trello karte (abhaken) 
+	- [ ] verwandelte karten koennten leicht anders gefaerbt sein und 
+	- [ ] sollten in 'in progress/nextup' sein, je nacheem ob backlog oder 'active'  
+- [ ] karten verschieben ueber pfeile, ich hab immerhin immernoch kein dnd xD,,
+
 ## rest
 
 - [ ] settings: default task time
