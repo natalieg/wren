@@ -12,9 +12,15 @@ export const API_KEY = '6d3b754dfc44547c737dd8b7c9505ab8'
 export const AUTHORIZE_URL =
     `https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&name=Wren&key=${API_KEY}`
 
-export const EMPTY_CREDENTIALS = {
+// the shared board everyone works on, so a new user only has to fetch a token.
+// It stays a normal field in the UI and is overridable — this is a default,
+// not a lock, and pointing the page at another board must keep working.
+// default only — the board field still overrides it
+export const DEFAULT_BOARD_ID = 'IWBbpRCV'
+
+export const DEFAULT_CREDENTIALS = {
     token: '',
-    boardId: '',
+    boardId: DEFAULT_BOARD_ID,
 }
 
 // reads field by field rather than spreading the parsed object, so an older
@@ -23,13 +29,13 @@ export const EMPTY_CREDENTIALS = {
 export function loadCredentials() {
     try {
         const saved = localStorage.getItem(TRELLO_STORAGE_KEY)
-        if (!saved) return EMPTY_CREDENTIALS
+        if (!saved) return DEFAULT_CREDENTIALS
 
         const { token, boardId } = JSON.parse(saved)
-        return { token: token ?? '', boardId: boardId ?? '' }
+        return { token: token ?? '', boardId: boardId || DEFAULT_BOARD_ID }
     } catch (e) {
         console.error('Failed to load Trello credentials from localStorage:', e)
-        return EMPTY_CREDENTIALS
+        return DEFAULT_CREDENTIALS
     }
 }
 
