@@ -87,6 +87,12 @@ function useTasks() {
     }
   })
 
+  const resetStartedAt = () => {
+    const fresh = new Date()
+    setStartedAt(fresh)
+    localStorage.setItem('startedAt', fresh.toISOString())
+  }
+
   // once per mount, checks whether the logical day (rollover-hour-shifted, not
   // midnight) has moved on since the last recorded startedAt. If so: resets
   // startedAt, and — unless disabled in settings — promotes 'nextUp' backlog
@@ -323,7 +329,7 @@ function useTasks() {
   // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
   const backlogTasks = taskList.filter(t => t.list === BACKLOG)
 
-  return { taskList, openTasks: openTasksResult.list, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
+  return { taskList, openTasks: openTasksResult.list, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
 }
 
 export default useTasks
