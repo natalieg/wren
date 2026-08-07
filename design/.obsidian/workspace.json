@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Today.md",
+                "file": "_ROADMAP.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_Today"
+              "title": "_ROADMAP"
             }
           },
           {
@@ -125,7 +125,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_Today.md",
+                "file": "_ROADMAP.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -213,25 +213,28 @@
       "bases:Create new base": false
     }
   },
-  "active": "935f51364ca1f8c9",
+  "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.28788.c108407f9d32",
+    "references-inventory.md",
+    "references-inventory.md.tmp.28788.9774035839c5",
+    "design-system.md",
+    "design-system.md.tmp.28788.a718259b0f2e",
+    "working-agreement.md",
+    "working-agreement.md.tmp.28788.d23e97690b7f",
+    "_Today.md",
+    "_ROADMAP.md",
+    "_Today.md.tmp.28788.6403b41b9eab",
+    "_Today.md.tmp.28788.341efa31d33c",
+    "_Today.md.tmp.28788.a540e244db41",
+    "_ROADMAP.md.tmp.28788.f8edde522955",
+    "_ROADMAP.md.tmp.28788.389b7e9966a1",
+    "_ROADMAP.md.tmp.28788.68d9d24f1629",
     "_Today.md.tmp.171684.67968f95b5d9",
-    "Shortcuts.md.tmp.171684.7c46606b00ff",
     "Shortcuts.md",
     "_Shortcuts.md",
-    "_Shortcuts.md.tmp.199040.ce4f3f52bb54",
-    "_Today.md.tmp.199040.1eb11aa1ab85",
-    "_Today.md.tmp.199040.8aaab4e4c700",
-    "_Shortcuts.md.tmp.199040.b3392c5c444a",
-    "_Today.md.tmp.199040.f8ee63f43244",
-    "_Shortcuts.md.tmp.199040.5b0310a82be8",
-    "data-architecture.md.tmp.23392.983d95d88ec3",
-    "life-balance.md.tmp.23392.e8e81135fad6",
-    "decisions.md.tmp.23392.010e86d51a83",
     "Notes.md",
-    "_Today.md",
     "Thoughts.md",
-    "_ROADMAP.md",
     "data-architecture.md",
     "day-planning.md",
     "Time Tracking 260801.md",

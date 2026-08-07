@@ -1,23 +1,16 @@
 
 ## rollover branch — before merging to main
-- [x] review everything that changed on this branch with a clear head tomorrow, understand it, not just push it
-- [x] changed p to b for 'backlog' instead of 'parking'
-- [x] use constant for keywords like 'nextUp'
-- [x] git push
-- [x] fix: `useHistory.js`'s day-grouping uses plain `toDateString()`, not rollover-aware — should use `logicalDayString(date, rolloverHour)` like `useTasks.js` does, so a task finished before the rollover hour still files under "yesterday" in History
-- [x] change time in history if minutes are bigger than 60
-- [ ] manual 'reset starting time' action — fits the rollover/time-shenanigans theme, deliberately not automated, just a user-triggered reset
+- [ ] merge to main (branch is green: 48/48 tests, lint clean, prod build ok)
+
 ## rest
 
-- [ ] settings: default task time 
+- [ ] settings: default task time
 - [ ] duplicate task with [d] > bonus: add number to duplication [eg task2 if task was doubled], ideally it can count up numbering or add [1] at the end
 
 - [ ] #editModal  edit "tracked" time / reset tracked time 
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
-- [x] #Bug multi action 'b' only parks one item because the 'mouseOver' event doesnt fire if the mouse 'stays' in the same position after one task is transfered to the parking area — fixed by resolving the hovered task via `elementFromPoint` at keydown time instead of cached hover state, see [[_Shortcuts]]
 - [ ] [[Time Tracking 260801]] ( MVP) 
-	- [x] shortcut [space] to toggle active timer (same behaviour, only activate when mouse over)
 	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode'
 		- [ ] update time display [current/planned]
 		- [ ] add the 'track time' btn 
@@ -25,7 +18,6 @@
 	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
 - [ ] DND
-- [ ] first #rollover #automation : 'next up' should become active after planned time, 'finishedTask' autodelete (its ok now that they have the history page)
 - [ ] #rollover backlog 'next week' items: 
 	- [ ] when a task is set to 'next week' it gets an 'activation date' (default 7 days from now, if the task is created on monday, it will activate next monday)
 	- [ ] activation date can be edited in modal 
@@ -57,7 +49,6 @@
 	- [ ] give tasks a [finishedTimestamp], sort by that. this timestamp is need in the future anyway
 - [ ]  #sidepanel #parking space evaluate if  could be at the side of the main list, collapsable, maybe dragging tasks into today but also with shortcut, maybe right arrow -> (if parking is left lol)
 - [ ] real time log per task, right now the tracked time is just accumulated, muddying the 'real' tracked time per day
-- [ ] 'preset' start Time, this is useful when the user plans something for the day, that they want to start at a certain point, to see how realistic the day planning is [this could also be a default in the settings] #prerequisit is 'start time' editable
 - [ ] soft 'deadline' per task for the day, can be useful to keep track if tasks are handled in the right time slot. indication could be:
 	- goal: 13:00
 	- until 1h left: estimate finish time is green
