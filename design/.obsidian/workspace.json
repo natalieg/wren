@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_ROADMAP.md",
+                "file": "_Today.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_ROADMAP"
+              "title": "_Today"
             }
           },
           {
@@ -125,7 +125,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_ROADMAP.md",
+                "file": "_Today.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -215,13 +215,13 @@
   },
   "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_ROADMAP.md",
     "working-agreement.md.tmp.42400.0197bc7a246d",
     "working-agreement.md.tmp.42400.537da117fde2",
     "_Today.md",
     "working-agreement.md",
     "references-inventory.md",
     "design-system.md",
-    "_ROADMAP.md",
     "_ROADMAP.md.tmp.28788.c108407f9d32",
     "references-inventory.md.tmp.28788.9774035839c5",
     "design-system.md.tmp.28788.a718259b0f2e",
@@ -230,7 +230,6 @@
     "_Today.md.tmp.28788.341efa31d33c",
     "_Today.md.tmp.28788.a540e244db41",
     "_ROADMAP.md.tmp.28788.f8edde522955",
-    "_ROADMAP.md.tmp.28788.389b7e9966a1",
     "Shortcuts.md",
     "_Shortcuts.md",
     "Notes.md",

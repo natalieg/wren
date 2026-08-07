@@ -1,22 +1,19 @@
-
-## rollover branch — before merging to main
-- [ ] merge to main (branch is green: 48/48 tests, lint clean, prod build ok)
-
-## rest
-
-- [ ] settings: default task time
-- [ ] duplicate task with [d] > bonus: add number to duplication [eg task2 if task was doubled], ideally it can count up numbering or add [1] at the end
-
+## Task Modal 'Time Feature'
 - [ ] #editModal  edit "tracked" time / reset tracked time 
-- [ ] "Activate All" for the parking area
-- [ ] [Badge] sum of parked items
-- [ ] [[Time Tracking 260801]] ( MVP) 
+- [ ] - [ ] [[Time Tracking 260801]] ( MVP) 
 	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode'
 		- [ ] update time display [current/planned]
 		- [ ] add the 'track time' btn 
 		- [ ] make it possibel to edit the 'tracked time'
 	- [ ] for 'inactive Tasks' and maybe 'active' to style the 'estimate' time differently, or hide it completely, if the elapsed time is larger than planned 
 	- [ ] numbers should not 'wobble' around while the tracker is running
+
+## rest
+
+- [ ] settings: default task time
+- [ ] duplicate task with [d] > bonus: add number to duplication [eg task2 if task was doubled], ideally it can count up numbering or add [1] at the end
+- [ ] "Activate All" for the parking area
+- [ ] [Badge] sum of parked items
 - [ ] DND
 - [ ] #rollover backlog 'next week' items: 
 	- [ ] when a task is set to 'next week' it gets an 'activation date' (default 7 days from now, if the task is created on monday, it will activate next monday)
