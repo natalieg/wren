@@ -87,7 +87,15 @@ function useTasks() {
     })
   }
 
-  const { startedAt, resetStartedAt } = useDayActions({ onRollover: promoteNextUpTasks })
+  // deletes finished tasks on rollOver if the autoDeleteFinished setting is enabled
+  const deleteFinishedTasksOnRollover = () => {
+    if (!loadSettings().autoDeleteFinished) return
+    setTaskList(currentTaskList => currentTaskList.filter(t => t.list !== DONE))
+  }
+
+  const { startedAt, resetStartedAt } = useDayActions({
+    onRollover: () => { promoteNextUpTasks(); deleteFinishedTasksOnRollover(); }
+  })
 
   const updateActionTime = () => {
     if (activeTasks.length === 0) {

@@ -6,6 +6,7 @@ export const DEFAULT_SETTINGS = {
     // parsed into a real timestamp in useDayActions, nowhere else
     defaultStartTime: '09:00',
     rolloverActive: true,
+    autoDeleteFinished: false,
 }
 
 // merges over defaults so a new setting added later still gets a sane value

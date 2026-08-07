@@ -226,6 +226,34 @@ describe('useTasks', () => {
       expect(untouched.list).toBe(BACKLOG) // someday isn't touched by rollover
     })
 
+    it('deletes finished tasks on rollover when autoDeleteFinished is enabled', () => {
+      vi.setSystemTime(new Date('2026-08-06T10:00:00'))
+      localStorage.setItem('startedAt', new Date('2026-08-05T10:00:00').toISOString())
+      localStorage.setItem('settings', JSON.stringify({ rolloverHour: 4, autoDeleteFinished: true }))
+      localStorage.setItem('tasks', JSON.stringify([
+        { id: 1, label: 'Finished yesterday', time: 15, list: DONE, finishedTimestamp: '2026-08-05T12:00:00.000Z' },
+        { id: 2, label: 'Still open', time: 15, list: ACTIVE },
+      ]))
+
+      const { result } = renderHook(() => useTasks())
+
+      expect(result.current.taskList.map(t => t.id)).toEqual([2])
+      expect(result.current.finishedTasks).toHaveLength(0)
+    })
+
+    it('keeps finished tasks on rollover when autoDeleteFinished is disabled', () => {
+      vi.setSystemTime(new Date('2026-08-06T10:00:00'))
+      localStorage.setItem('startedAt', new Date('2026-08-05T10:00:00').toISOString())
+      localStorage.setItem('settings', JSON.stringify({ rolloverHour: 4, autoDeleteFinished: false }))
+      localStorage.setItem('tasks', JSON.stringify([
+        { id: 1, label: 'Finished yesterday', time: 15, list: DONE, finishedTimestamp: '2026-08-05T12:00:00.000Z' },
+      ]))
+
+      const { result } = renderHook(() => useTasks())
+
+      expect(result.current.finishedTasks).toHaveLength(1)
+    })
+
     it('does not promote anything when rolloverActive is disabled in settings', () => {
       vi.setSystemTime(new Date('2026-08-06T10:00:00'))
       localStorage.setItem('startedAt', new Date('2026-08-05T10:00:00').toISOString())

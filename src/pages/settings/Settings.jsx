@@ -1,8 +1,8 @@
 import DocWrapper from '../../components/DocWrapper'
 import useSettings from '../../hooks/useSettings'
-import Checkbox from '../../components/elements/Checkbox'
 import InputRow from './InputRow'
 import { hourToTimeValue, timeValueToHour } from '../../utils/rollover'
+import CheckboxRow from './CheckboxRow'
 
 export default function Settings() {
   const { settings, updateSetting } = useSettings()
@@ -28,15 +28,17 @@ export default function Settings() {
           value={hourToTimeValue(settings.rolloverHour)}
           onChange={(e) => updateSetting('rolloverHour', timeValueToHour(e.target.value))} />
         {/* Default start time */}
-        <InputRow  id='defaultStartTime' label='Default start time' type='time'
+        <InputRow id='defaultStartTime' label='Default start time' type='time'
           value={settings.defaultStartTime}
           onChange={(e) => updateSetting('defaultStartTime', e.target.value)} />
-
-        <div className='flex items-center gap-2'>
-          <Checkbox id='rolloverActive' checked={settings.rolloverActive}
-            onToggle={() => updateSetting('rolloverActive', !settings.rolloverActive)} />
-          <label htmlFor='rolloverActive'>Auto-activate &apos;Next up&apos; tasks at rollover</label>
-        </div>
+        {/* Check: Task Rollover */}
+        <CheckboxRow id='rolloverActive' checked={settings.rolloverActive}
+          onToggle={() => updateSetting('rolloverActive', !settings.rolloverActive)}
+          label="Auto-activate &apos;Next up&apos; tasks at rollover" />
+        {/* Check: Finished Task Deletion */}
+        <CheckboxRow id='autoDeleteFinished' checked={settings.autoDeleteFinished}
+          onToggle={() => updateSetting('autoDeleteFinished', !settings.autoDeleteFinished)}
+          label="Auto-delete finished tasks at rollover" />
 
         <div className='mt-4 pt-4 border-t border-border-soft'>
           <p className='text-xs text-text-muted mb-2'>Developer</p>
