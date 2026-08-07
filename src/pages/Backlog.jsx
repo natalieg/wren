@@ -6,8 +6,10 @@ import MultiSwitchFlag from '../components/elements/MultiSwitchFlag'
 import TaskGroup from '../components/tasks/TaskGroup'
 import { Divider } from '../components/elements/Divider'
 import { bucketOptions } from '../utils/buckets'
+import { BACKLOG, NEXTUP, NEXTWEEK, SOMEDAY } from '../utils/constants'
+
 /**
- * current Buckets: 'nextUp', 'nextWeek', 'someday'
+ * current Buckets: NEXTUP, NEXTWEEK, SOMEDAY
  * later: 'nextMonth', 'nextQuarter',
  * @returns
  */
@@ -16,11 +18,11 @@ export default function Backlog() {
   // backlogTasks: flat list of list==='backlog' tasks, no time/estimate calc (not needed here)
   const { backlogTasks, taskActions } = useContext(TasksContext)
   const { handleAddTask, handleFieldChange } = taskActions
-  const [bucket, setBucket] = useState('nextUp')
+  const [bucket, setBucket] = useState(NEXTUP)
   const taskInputRef = useRef(null)
 
   const handleSubmit = (name, time) => {
-    handleAddTask(name, time, { list: 'backlog', bucket })
+    handleAddTask(name, time, { list: BACKLOG, bucket })
   }
 
   // LATER change once DND is implemented
@@ -28,7 +30,7 @@ export default function Backlog() {
     const index = bucketOptions.findIndex(o => o.value === task.backlog.bucket)
     const nextIndex = index + direction
     if (nextIndex < 0 || nextIndex >= bucketOptions.length) return
-    handleFieldChange(task.id, 'backlog', { ...task.backlog, bucket: bucketOptions[nextIndex].value })
+    handleFieldChange(task.id, BACKLOG, { ...task.backlog, bucket: bucketOptions[nextIndex].value })
   }
 
   const renderBucketSection = (bucketValue, showDivider) => {
@@ -67,9 +69,9 @@ export default function Backlog() {
         />
       </div>
       <div className='flex flex-col mx-auto w-full'>
-        {renderBucketSection('nextUp', true)}
-        {renderBucketSection('nextWeek', true)}
-        {renderBucketSection('someday', true)}
+        {renderBucketSection(NEXTUP, true)}
+        {renderBucketSection(NEXTWEEK, true)}
+        {renderBucketSection(SOMEDAY, true)}
       </div>
     </DocWrapper>
   )

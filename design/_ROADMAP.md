@@ -2,41 +2,8 @@
 
 A living, working document — not a spec. Update phase status as we go instead of re-planning from scratch each session.
 
-## The vision
-
-Right now daily life runs across Sunsama, ClickUp, a handful of pomodoro apps, and ~17 standalone single-page mini-apps in `references/` (trackers, planners, curricula). ClickUp stays for work. Everything else — private planning, habit/practice tracking, day structure, procrastination help — should eventually live in **Wren**.
-
-This is a slow build alongside freelance work and art practice, not a sprint. Small, reviewable increments beat big rewrites.
-
-## Working agreement
-
-- **Max 3 file changes per unprompted batch.** Anything bigger stops and asks first.
-- Work through `references/` one file at a time. Delete a reference file only once its useful parts are actually migrated in — never preemptively.
-- Prefer incremental visible progress (something you can look at / use each session) over long invisible groundwork.
-- **Shells vs. implementation:** Claude can rough in empty/skeleton structure (new component files, routing, folder layout) without asking first. Actual implementation (data model, logic, persistence) gets designed together before it's written.
-- **Daily quest:** when there's a natural next coding step, offer it as a self-implement quest with hints, not finished code — the point is to keep dev skills warm, not just to ship fast.
-- This project has stalled before (multiple times, always by restarting from scratch on a new project instead of continuing an old one). The explicit goal this round is to **rework what's already here**, not start over. If a "maybe we should just rebuild this part" temptation comes up, flag it explicitly rather than just doing it.
-
-## Design system
-
-Imported (read-only, not yet applied) from the Claude Design MCP project **"Wren Design System"**. Full source of truth lives there — this is just the summary:
-
-- **Direction:** the old dark mauve/teal/near-black scaffold is being replaced with a **light-default**, "90s-retro witchy pastel" theme. Dark theme stays available (`[data-theme]`), just not default anymore.
-- **Palette:** violet primary, gold secondary (kept from the old brand), mint/peach/pink/sky as playful gamification accents, plum-tinted neutrals.
-- **Type:** Cinzel Decorative (display/logo only), Cinzel (nav/headings, small doses), **Quicksand** (all body text — the actual readability fix), VT323 (retro-mono, stat counters/timers/window-chrome only).
-- **Signature motif:** `RetroWindow` — a 90s-OS dialog (title bar, window controls) for gentle, low-pressure procrastination-help nudges. Voice: warm, second person, never scolding.
-- **Delivered components:** Button, Card, Divider, Badge, ProgressBar, Checkbox, Input, Switch, NavItem, Tabs, RetroWindow — plus click-through mockups of Sidebar, TodayView, WeekView, ProjectsView built against Wren's actual shape.
-
-## Reference apps inventory
-
-Not yet deeply read — titles/rough grouping only, confirm details when each is actually tackled.
-
-| Group | Files |
-|---|---|
-| Day/task planning | `tagesliste.html`, `dayplan-picnic.html` |
-| Goals & curricula | `goals.html`, `challenge.html`, `dti-challenge.html`, `proko-curriculum.html`, `proko-curriculum-anatomy.html`, `artplan.html`, `botanical-30-days.html` |
-| Habit/practice trackers | `sport-tracker.html`, `sporteinheiten-tracker.html` + `-v2.html` (v2 may supersede v1 — confirm), `croquis-tracker.html`, `elvanse_tracker.html`, `mwi-tracker.html` |
-| Misc | `bookstack.html` (reading), `klavier_wochenplan_v2/v3.html` (piano weekly plan) |
+Context that used to live here, moved out 2026-08-07 to keep this file to phases only:
+`design/working-agreement.md` (vision + how we work) · `design/design-system.md` · `design/references-inventory.md`
 
 ## Phases
 
@@ -75,6 +42,7 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-04: History page (`useHistory.js`, `/history` route) — finished tasks archive into a separate `history` localStorage entry (grouped by day, newest first) so they survive deletion from the active task list. Hooked into `toggleDone`, not deletion: a task enters history the moment it's marked done, leaves again if un-done.
 - ✅ 2026-08-04: fixed the timer stopping on in-app navigation — `useTasks()` was only mounted inside `Tasklist.jsx` (route `/`), so switching to `/history` or `/project` unmounted it and killed `runningTaskId`/the interval. Lifted the hook into a single `TasksProvider`/`TasksContext` instantiation wrapping the whole app in `App.jsx`, consumed via `useContext` instead of per-page hook calls.
 - ✅ 2026-08-04: `FloatingTaskPanel.jsx` — a draggable (Pointer Events), position-persisted mini panel mirroring the currently-tracked task on every page except Home. Uses a new view-only `TaskItemViewOnly` variant (label + `TimeFlag` + play/pause only, no edit/delete) exported alongside `TaskItem`.
+- ✅ 2026-08-07: `formatTime` renders `1h` / `1h 30m` — whole hours used to emit a trailing space. This fixed the two tests that had been failing on every run for weeks; the suite is fully green again, which matters more than the formatting itself (a permanently-red suite trains you to ignore it).
 - Next up: natural time input parsing ("15m"/"1h" → minutes) for add + edit — time/date math is a spot Claude helps directly, not hints-only (see `feedback_workflow` memory).
 
 ### 🔷 Phase 3 — Drag-and-drop
@@ -170,6 +138,8 @@ Check if there are more features in  [[day-planning]]
 ### 🟡 Phase 12 — Parking / active tasks, more Task handling
 - ✅ 2026-07-29: `active` field (defaults `true` on creation), toggle via edit modal or hover shortcuts (`a` activate, `p` park). `TaskGroup.jsx` extracted; parked tasks sit in their own collapsible section.
 - ✅ 2026-08-05: Backlog MVP — new `/backlog` route. Task data model consolidated from independent `active`/`done` booleans into a single `list: 'active'|'done'|'backlog'` enum plus a `backlog: {bucket, activationDate}` object (buckets: `nextUp`/`nextWeek`/`someday`; `activationDate` reserved for future auto-activation, unused so far). Legacy tasks migrate to the new shape on load. The Daylist's inline preview (was `inactiveTasks`, now `nextUpTasks`) only shows the `nextUp` bucket; `nextWeek`/`someday` live exclusively on the Backlog page. New shared components: `TaskInput` (name+time entry, reused by both Daylist and Backlog) and `SwitchFlag` (click/right-click cycles through an options array — powers both the bucket picker on add and, now, the edit modal). Bucket reassignment ships two ways for now: quick-and-dirty ▲/▼ shift arrows per task on the Backlog page (index-bound, not drag-and-drop), and the same `SwitchFlag` bucket picker inside the edit modal once a task is parked.
+- ✅ 2026-08-07: rollover automation — the day boundary is a configurable hour now (default 4am, picked as a time nobody's actually working) instead of midnight. Crossing it runs day actions: `nextUp` tasks auto-activate, treating that bucket as "for tomorrow", and finished tasks optionally auto-delete (safe because they're already archived in History). Both are individually switchable in settings. A new day also starts at the later of *now* and a configurable default start time, so planning at 08:00 still cascades estimates from 09:00 — with a manual reset for when reality diverges. Day logic lives in `useDayActions.js` (owns `startedAt`, the boundary check, the reset); what happens to *tasks* on rollover is passed in as `onRollover`, so task logic stays in `useTasks`. History groups by the same logical day, so a task finished at 02:00 still files under the previous day.
+- ✅ 2026-08-07: list and bucket names moved to `utils/constants.js` — no raw `'backlog'`/`'nextUp'` strings left in the app code. Hover shortcuts extended and documented in `design/Shortcuts.md`: `b` parks (was `p`, renamed to match the backlog wording), `1`/`2`/`3` set buckets, `↓` pushes a task to the bottom, `space` toggles tracking.
 - 🔷 Open: move the parked-tasks panel from above the active list to beside it (collapsible sidebar) — the original ask, deferred since the MVP works without it.
 - #taskSplitting split longer tasks into smaller sections, allowing the user to move those into the next x days or into the parking area 
 	- could have functions like: split this `4h tasks` into `4 bites` and schedule them for the next `4 days` 
@@ -195,7 +165,8 @@ Work through the habit-tracker group, then the goals/curricula group, one at a t
 	- interesting balancing challenge: could a single project have meaningful goals for each step? eg 'comic' yeargoal 100pages, quarter 25 pages etc. could be displayed in the current project progress as well as the planning view 
 	- are things on track? should things be re-evaluated? 
 
-### Phase 17 — User Settings
+### 🟡 Phase 17 — User Settings
+- ✅ 2026-08-07: settings page exists (`/settings`, deliberately understated link at the bottom of the sidebar). `useSettings` for the reactive page, plus a plain `loadSettings()` for the three call sites that read settings from effects/callbacks and therefore can't use a hook. Live so far: rollover hour, default start time, auto-activate `nextUp`, auto-delete finished.
 - With more tabs and functionality potential, there is a real need to have tabs/features optional for a user
 - small settings too like tracking behaviour, default sort etc
 

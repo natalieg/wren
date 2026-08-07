@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom'
 import SidebarButton from '../components/elements/SidebarButton'
 import flowers1 from '../assets/img/flowers1.jpg'
 import { version } from '../../package.json'
@@ -34,6 +35,10 @@ export default function Sidebar({ className }) {
             <SidebarButton to="/history">History</SidebarButton>
             <br/>
             <SidebarButton to="/project">Projects</SidebarButton>
+            <NavLink to="/settings"
+                className="mt-auto text-center text-xs text-white/60 hover:text-white/90 py-1 transition-colors duration-200">
+                Settings
+            </NavLink>
         </div>
     )
 }

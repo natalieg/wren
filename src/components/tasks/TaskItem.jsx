@@ -2,12 +2,13 @@ import Checkbox from '../elements/Checkbox'
 import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
+import { DONE } from '../../utils/constants'
 
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
 export default function TaskItem({ index, task, toggleDone, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
     const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
-    const done = task.list === 'done'
+    const done = task.list === DONE
     const isTracking = id === runningTaskId
     const isActive = estimate
 

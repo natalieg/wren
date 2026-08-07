@@ -10,8 +10,8 @@ describe('formatTime', () => {
         expect(formatTime(60)).toBe('1h')
     })
 
-    it('formats hours with leftover minutes as "XhYm"', () => {
-        expect(formatTime(90)).toBe('1h30m')
+    it('formats hours with leftover minutes as "Xh Ym"', () => {
+        expect(formatTime(90)).toBe('1h 30m')
     })
 
     it('formats zero as "0m"', () => {
