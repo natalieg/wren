@@ -5,7 +5,7 @@ import Main from './pages/Main'
 import IndexProject from './pages/projectView/indexProject'
 import Backlog from './pages/Backlog'
 import History from './pages/History'
-import Settings from './pages/Settings'
+import Settings from './pages/settings/Settings'
 import TasksProvider from './context/TasksProvider'
 import FloatingTaskPanel from './components/FloatingTaskPanel'
 

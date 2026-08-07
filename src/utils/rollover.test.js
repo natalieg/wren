@@ -1,5 +1,23 @@
 import { describe, it, expect } from 'vitest'
-import { logicalDayString } from './rollover'
+import { logicalDayString, hourToTimeValue, timeValueToHour } from './rollover'
+
+describe('hour <-> time value', () => {
+    it('pads single-digit hours for the time input', () => {
+        expect(hourToTimeValue(4)).toBe('04:00')
+        expect(hourToTimeValue(13)).toBe('13:00')
+        expect(hourToTimeValue(0)).toBe('00:00')
+    })
+
+    it('drops minutes coming back, which is what keeps the field hours-only', () => {
+        expect(timeValueToHour('04:00')).toBe(4)
+        expect(timeValueToHour('04:37')).toBe(4)
+        expect(timeValueToHour('00:59')).toBe(0)
+    })
+
+    it('round-trips a typed value back onto the full hour', () => {
+        expect(hourToTimeValue(timeValueToHour('09:45'))).toBe('09:00')
+    })
+})
 
 describe('logicalDayString', () => {
     it('treats a time before the rollover hour as still belonging to the previous day', () => {

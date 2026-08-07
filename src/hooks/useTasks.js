@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import useHistory from './useHistory'
 import { loadSettings } from '../utils/settings'
-import { logicalDayString } from '../utils/rollover'
+import useDayActions from './useDayActions'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
@@ -74,45 +74,9 @@ function useTasks() {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [runningTaskId])
 
-  // just loads whatever's saved (or now) — the actual rollover/day-boundary check
-  // happens once on mount below, since it needs to update taskList too
-  // LATER add manual reset
-  const [startedAt, setStartedAt] = useState(() => {
-    try {
-      const saved = localStorage.getItem('startedAt')
-      return saved ? new Date(saved) : new Date()
-    } catch (e) {
-      console.error('Failed to load startedAt from localStorage:', e)
-      return new Date()
-    }
-  })
-
-  const resetStartedAt = () => {
-    const fresh = new Date()
-    setStartedAt(fresh)
-    localStorage.setItem('startedAt', fresh.toISOString())
-  }
-
-  // once per mount, checks whether the logical day (rollover-hour-shifted, not
-  // midnight) has moved on since the last recorded startedAt. If so: resets
-  // startedAt, and — unless disabled in settings — promotes 'nextUp' backlog
-  // tasks to active, treating that bucket as "for tomorrow" per the settings page
-  useEffect(() => {
-    const { rolloverHour, rolloverActive } = loadSettings()
-    const saved = localStorage.getItem('startedAt')
-    const savedDate = saved ? new Date(saved) : null
-
-    if (savedDate && logicalDayString(savedDate, rolloverHour) === logicalDayString(new Date(), rolloverHour)) {
-      return // still the same logical day, nothing to do
-    }
-
-    const fresh = new Date()
-    setStartedAt(fresh)
-    localStorage.setItem('startedAt', fresh.toISOString())
-
-    if (!savedDate) return // very first-ever load, nothing to promote yet
-    if (!rolloverActive) return
-
+  // nextUp -> active on a new day, gated by the rolloverActive setting
+  const promoteNextUpTasks = () => {
+    if (!loadSettings().rolloverActive) return
     setTaskList(currentTaskList => {
       const toPromote = currentTaskList.filter(t =>
         t.list === BACKLOG && (t.backlog?.bucket ?? NEXTUP) === NEXTUP)
@@ -121,7 +85,9 @@ function useTasks() {
       const promoted = toPromote.map(t => ({ ...t, list: ACTIVE, backlog: undefined }))
       return [...rest, ...promoted]
     })
-  }, [])
+  }
+
+  const { startedAt, resetStartedAt } = useDayActions({ onRollover: promoteNextUpTasks })
 
   const updateActionTime = () => {
     if (activeTasks.length === 0) {

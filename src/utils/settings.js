@@ -2,6 +2,9 @@ export const SETTINGS_STORAGE_KEY = 'settings'
 
 export const DEFAULT_SETTINGS = {
     rolloverHour: 4,
+    // 'HH:mm' — the format <input type='time'> reads and writes natively,
+    // parsed into a real timestamp in useDayActions, nowhere else
+    defaultStartTime: '09:00',
     rolloverActive: true,
 }
 
