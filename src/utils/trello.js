@@ -1,18 +1,32 @@
 export const TRELLO_STORAGE_KEY = 'trelloCredentials'
 
+// identifies the app "Wren" to Trello, not a person — it is the same for
+// everyone and deliberately not a secret, exactly like every Power-Up ships
+// its key in the browser. The per-person half is the token, which is why that
+// one never gets committed and is asked for in the UI instead.
+// app identity, shared by all users — not a secret
+export const API_KEY = '6d3b754dfc44547c737dd8b7c9505ab8'
+
+// hand this to anyone who should use the Trello page: they click allow and
+// Trello hands them their own token to paste into Wren
+export const AUTHORIZE_URL =
+    `https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&name=Wren&key=${API_KEY}`
+
 export const EMPTY_CREDENTIALS = {
-    apiKey: '',
     token: '',
     boardId: '',
 }
 
-// key and token live in localStorage only — they are personal credentials and
-// must never end up in the repo, so there is no default value to fall back on
-// no defaults here on purpose: credentials are per-person, never committed
+// reads field by field rather than spreading the parsed object, so an older
+// saved shape (which also carried an apiKey) drops its dead fields on load
+// only known fields survive — older saves carried an apiKey too
 export function loadCredentials() {
     try {
         const saved = localStorage.getItem(TRELLO_STORAGE_KEY)
-        return saved ? { ...EMPTY_CREDENTIALS, ...JSON.parse(saved) } : EMPTY_CREDENTIALS
+        if (!saved) return EMPTY_CREDENTIALS
+
+        const { token, boardId } = JSON.parse(saved)
+        return { token: token ?? '', boardId: boardId ?? '' }
     } catch (e) {
         console.error('Failed to load Trello credentials from localStorage:', e)
         return EMPTY_CREDENTIALS
@@ -23,8 +37,8 @@ export function saveCredentials(credentials) {
     localStorage.setItem(TRELLO_STORAGE_KEY, JSON.stringify(credentials))
 }
 
-export function hasCredentials({ apiKey, token, boardId }) {
-    return Boolean(apiKey && token && boardId)
+export function hasCredentials({ token, boardId }) {
+    return Boolean(token && boardId)
 }
 
 // a full board URL (trello.com/b/IWBbpRCV/wren) carries the id in its second
@@ -50,12 +64,12 @@ function assertOk(response) {
 // one request returns every open list with its open cards already nested,
 // so rendering the whole board needs no follow-up calls per list
 // single call — lists come back with their cards inside
-export async function fetchBoardLists({ apiKey, token, boardId }) {
+export async function fetchBoardLists({ token, boardId }) {
     const params = new URLSearchParams({
         cards: 'open',
         card_fields: 'name,due,shortUrl',
         fields: 'name',
-        key: apiKey,
+        key: API_KEY,
         token,
     })
 
@@ -67,12 +81,12 @@ export async function fetchBoardLists({ apiKey, token, boardId }) {
 
 // appends to the bottom of the list; callers reload the board afterwards
 // instead of splicing the new card into state by hand
-export async function createCard({ apiKey, token }, { listId, name }) {
+export async function createCard({ token }, { listId, name }) {
     const params = new URLSearchParams({
         idList: listId,
         name,
         pos: 'bottom',
-        key: apiKey,
+        key: API_KEY,
         token,
     })
 

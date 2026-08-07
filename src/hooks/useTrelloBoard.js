@@ -5,7 +5,7 @@ import { fetchBoardLists } from '../utils/trello'
  * Loads the open lists (with their cards) of one board.
  * status: 'idle' — no credentials yet | 'loading' | 'ready' | 'error'
  */
-function useTrelloBoard({ apiKey, token, boardId }) {
+function useTrelloBoard({ token, boardId }) {
     const [result, setResult] = useState({ requestId: null, lists: [], error: null })
     const [reloadCount, setReloadCount] = useState(0)
 
@@ -15,8 +15,8 @@ function useTrelloBoard({ apiKey, token, boardId }) {
     // the id the last response carried tells us whether we are still waiting,
     // so 'loading' never has to be written into state from inside the effect
     // null while credentials are incomplete
-    const requestId = apiKey && token && boardId
-        ? `${apiKey}|${token}|${boardId}|${reloadCount}`
+    const requestId = token && boardId
+        ? `${token}|${boardId}|${reloadCount}`
         : null
 
     useEffect(() => {
@@ -25,7 +25,7 @@ function useTrelloBoard({ apiKey, token, boardId }) {
         // a late response from previous credentials must not overwrite newer ones
         let cancelled = false
 
-        fetchBoardLists({ apiKey, token, boardId })
+        fetchBoardLists({ token, boardId })
             .then(data => {
                 if (!cancelled) setResult({ requestId, lists: data, error: null })
             })
@@ -34,7 +34,7 @@ function useTrelloBoard({ apiKey, token, boardId }) {
             })
 
         return () => { cancelled = true }
-    }, [requestId, apiKey, token, boardId])
+    }, [requestId, token, boardId])
 
     const status = !requestId ? 'idle'
         : result.requestId !== requestId ? 'loading'

@@ -27,7 +27,7 @@ export default function Trello() {
       <TrelloSetup credentials={credentials} onSave={handleSave} />
 
       {status === 'idle' &&
-        <p className='text-text-muted'>Trag Key, Token und Board oben ein.</p>}
+        <p className='text-text-muted'>Trag Token und Board oben ein.</p>}
 
       {status === 'loading' &&
         <p className='text-text-muted'>Lade Board …</p>}

@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
 import Input from '../../components/elements/Input'
-import { hasCredentials, parseBoardId } from '../../utils/trello'
+import { hasCredentials, parseBoardId, AUTHORIZE_URL } from '../../utils/trello'
 
 const FIELDS = [
-  { name: 'apiKey', label: 'API Key', type: 'password' },
   { name: 'token', label: 'Token', type: 'password' },
   { name: 'boardId', label: 'Board-ID oder Board-URL', type: 'text' },
 ]
@@ -40,6 +39,13 @@ export default function TrelloSetup({ credentials, onSave }) {
         </button>
 
         <p className='text-text-muted text-xs'>
+          Noch kein Token?{' '}
+          <a href={AUTHORIZE_URL} target='_blank' rel='noreferrer' className='underline'>
+            Bei Trello holen
+          </a>
+          {' '}— erlauben klicken, Token kopieren, hier einfügen.
+        </p>
+        <p className='text-text-muted text-xs'>
           Bleibt nur in diesem Browser (localStorage) und wird nie mitgeschickt außer an Trello.
         </p>
       </form>
@@ -49,7 +55,6 @@ export default function TrelloSetup({ credentials, onSave }) {
 
 TrelloSetup.propTypes = {
   credentials: PropTypes.shape({
-    apiKey: PropTypes.string,
     token: PropTypes.string,
     boardId: PropTypes.string,
   }).isRequired,
