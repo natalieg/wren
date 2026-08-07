@@ -3,14 +3,15 @@
 - [x] review everything that changed on this branch with a clear head tomorrow, understand it, not just push it
 - [x] changed p to b for 'backlog' instead of 'parking'
 - [x] use constant for keywords like 'nextUp'
-- [ ] git push
-- [ ] fix: `useHistory.js`'s day-grouping uses plain `toDateString()`, not rollover-aware — should use `logicalDayString(date, rolloverHour)` like `useTasks.js` does, so a task finished before the rollover hour still files under "yesterday" in History
+- [x] git push
+- [x] fix: `useHistory.js`'s day-grouping uses plain `toDateString()`, not rollover-aware — should use `logicalDayString(date, rolloverHour)` like `useTasks.js` does, so a task finished before the rollover hour still files under "yesterday" in History
+- [x] change time in history if minutes are bigger than 60
 - [ ] manual 'reset starting time' action — fits the rollover/time-shenanigans theme, deliberately not automated, just a user-triggered reset
 ## rest
 
 - [ ] settings: default task time 
 - [ ] duplicate task with [d] > bonus: add number to duplication [eg task2 if task was doubled], ideally it can count up numbering or add [1] at the end
-- [ ] change time in history if minutes are bigger than 60
+
 - [ ] #editModal  edit "tracked" time / reset tracked time 
 - [ ] "Activate All" for the parking area
 - [ ] [Badge] sum of parked items
