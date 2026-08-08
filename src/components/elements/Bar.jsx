@@ -7,9 +7,12 @@ const BAR_COLORS = {
 }
 
 export default function Bar({ percent, color = 'accent', freestyle, overflowEffect = false }) {
+    // callers divide by a task's planned time, which is NaN while the field is
+    // being cleared and Infinity at 0 — both would emit an invalid CSS width
+    const safePercent = Number.isFinite(percent) ? Math.max(percent, 0) : 0
     return (
-        <div className={`bar ${percent > 100 && overflowEffect ? 'shadow-glow-intense' : ''}`}>
-            <span className='bar-fill' style={{ width: `${percent}%`, background: freestyle || BAR_COLORS[color] }}></span>
+        <div className={`bar ${safePercent > 100 && overflowEffect ? 'shadow-glow-intense' : ''}`}>
+            <span className='bar-fill' style={{ width: `${safePercent}%`, background: freestyle || BAR_COLORS[color] }}></span>
         </div>
     )
 }

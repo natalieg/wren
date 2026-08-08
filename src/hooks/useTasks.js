@@ -3,6 +3,7 @@ import useHistory from './useHistory'
 import { loadSettings } from '../utils/settings'
 import useDayActions from './useDayActions'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
+import { minutesToSeconds } from '../utils/formatTime'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -268,13 +269,14 @@ function useTasks() {
   const calculateEstimateFinishTime = (task, runningTime) => {
     const isRunning = task.id === runningTaskId
     const trackedOrElapsed = (task.trackedTime || 0) + (isRunning ? trackedSeconds : 0)
-    const isOverEstimate = trackedOrElapsed > task.time * 60
+    const estimateSeconds = minutesToSeconds(task.time)
+    const isOverEstimate = trackedOrElapsed > estimateSeconds
     // if the task is running and over estimate, return current time
     if (isOverEstimate && isRunning) {
       // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
       return Date.now()
     }
-    const remaining = isOverEstimate ? 0 : task.time * 60 - trackedOrElapsed
+    const remaining = isOverEstimate ? 0 : estimateSeconds - trackedOrElapsed
     // eslint-disable-next-line react-hooks/purity -- display-only
     return (isRunning ? Date.now() : runningTime) + remaining * 1000
   }
@@ -298,7 +300,7 @@ function useTasks() {
   // active task's estimate or baseTime if no task is active
   // 'nextUp' bucket only — mirrors the old parked-tasks list shown inline on the Tasklist page
   const nextUpTasks = taskList.filter(t => t.list === BACKLOG && (t.backlog?.bucket ?? NEXTUP) === NEXTUP).map((task) => {
-    const remaining = Math.max(task.time * 60 - (task.trackedTime || 0), 0)
+    const remaining = Math.max(minutesToSeconds(task.time) - (task.trackedTime || 0), 0)
     // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
     const sourceTime = Math.max(openTasksResult.runningTime, Date.now())
     return { ...task, possibleEstimate: new Date(sourceTime + remaining * 1000) }

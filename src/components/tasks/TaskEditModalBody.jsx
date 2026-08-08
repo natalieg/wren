@@ -28,10 +28,9 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
    }
 
    const handleTrackedTimeChange = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      const newTrackedTime = parseInt(minutesToSeconds(e.target.value))
-      handleFieldChange(id, 'trackedTime', newTrackedTime)
+      // parse first, then convert — the other way round relied on '5' * 60 coercing
+      const minutes = parseInt(e.target.value) || 0
+      handleFieldChange(id, 'trackedTime', minutesToSeconds(minutes))
    }
 
    return (
@@ -61,7 +60,7 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                {/* Progress Bar, tracked Time  */}
                {(thisTrackedTime > 0 || isRunning) &&
                   <div className='my-2'>
-                     <Bar percent={thisTrackedTime / (time * 60) * 100} overflowEffect={true} />
+                     <Bar percent={thisTrackedTime / minutesToSeconds(time) * 100} overflowEffect={true} />
                   </div>
                }
             </div>
@@ -99,7 +98,7 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                      width='w-14'
                      padding='px-2 py-0.5'
                      value={time}
-                     onChange={(e) => handleFieldChange(id, 'time', parseInt(e.target.value))}
+                     onChange={(e) => handleFieldChange(id, 'time', parseInt(e.target.value) || 0)}
                      onKeyDown={handleKeyDown}
                      backgroundColor={isRunning ? (isTrackedMoreThanPlanned ? 'bg-red-200' : 'bg-green-200') : ''}
                   />

@@ -1,17 +1,20 @@
-import { formatTimeWithSeconds, secondsToMinutes, formatTime } from '../../utils/formatTime.js'
+import { formatTimeWithSeconds, secondsToMinutes, formatTime, effectiveMinutes } from '../../utils/formatTime.js'
 
 const style = 'w-20 bg-border-soft text-text-primary px-1 rounded-sm select-none text-center leading-none py-1 flex items-center justify-center'
 
 export default function TimeFlag({ tracked, time, isTracking, isFinished }) {
    const show = isTracking || tracked > 0
    const formatedTime = formatTimeWithSeconds(tracked)
-   const finishedFormatTime = formatTime(parseInt(tracked/60))
    const formatedTracked = show ? <span>{formatedTime} ▴ </span> : ""
 
-   // if tracked < 1min, it shows the estimate time LATER evaluate if user can change this behaviour in settings [also in TimeProgress]
-   const finishedFormat = secondsToMinutes(tracked) > 0
-      ? <span className='font-bold text-text-secondary'>{finishedFormatTime}</span>
-      : <span className='text-text-muted'>{formatTime(time)}</span>
+   // effectiveMinutes picks the number (tracked, or the estimate below 1min) —
+   // this only decides how it's styled. LATER evaluate if user can change this in settings
+   const hasTrackedMinutes = secondsToMinutes(tracked) > 0
+   const finishedFormat = (
+      <span className={hasTrackedMinutes ? 'font-bold text-text-secondary' : 'text-text-muted'}>
+         {formatTime(effectiveMinutes(tracked, time))}
+      </span>
+   )
 
    return (
       <div className={`${style} text-sm `}>

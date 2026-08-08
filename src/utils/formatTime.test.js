@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatTime, formatClockTime } from './formatTime'
+import { formatTime, formatClockTime, formatTimeWithSeconds, effectiveMinutes } from './formatTime'
 
 describe('formatTime', () => {
     it('formats minutes under an hour as "Xm"', () => {
@@ -16,6 +16,44 @@ describe('formatTime', () => {
 
     it('formats zero as "0m"', () => {
         expect(formatTime(0)).toBe('0m')
+    })
+})
+
+describe('formatTimeWithSeconds', () => {
+    it('zero-pads the seconds below ten', () => {
+        expect(formatTimeWithSeconds(5)).toBe('0:05')
+    })
+
+    it('keeps the same "m:ss" shape under a minute', () => {
+        expect(formatTimeWithSeconds(45)).toBe('0:45')
+    })
+
+    it('keeps the same shape across the minute boundary — no format flip', () => {
+        expect(formatTimeWithSeconds(59)).toBe('0:59')
+        expect(formatTimeWithSeconds(60)).toBe('1:00')
+        expect(formatTimeWithSeconds(61)).toBe('1:01')
+    })
+
+    it('formats whole minutes with ":00", not a bare minute count', () => {
+        expect(formatTimeWithSeconds(300)).toBe('5:00')
+    })
+})
+
+describe('effectiveMinutes', () => {
+    it('uses the tracked time once there is a full minute of it', () => {
+        expect(effectiveMinutes(305, 25)).toBe(5)
+    })
+
+    it('falls back to the estimate below a full minute', () => {
+        expect(effectiveMinutes(45, 25)).toBe(25)
+    })
+
+    it('treats exactly 60s as tracked — the edge case the old copies disagreed on', () => {
+        expect(effectiveMinutes(60, 25)).toBe(1)
+    })
+
+    it('falls back to the estimate when trackedTime is missing on a legacy task', () => {
+        expect(effectiveMinutes(undefined, 25)).toBe(25)
     })
 })
 

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import TrelloCardInput from './TrelloCardInput'
+import { formatDate } from '../../utils/formatTime'
 
 export default function TrelloList({ list, onCreateCard }) {
   const cards = list.cards ?? []
@@ -20,7 +21,7 @@ export default function TrelloList({ list, onCreateCard }) {
               </a>
               {card.due &&
                 <span className='text-text-muted ml-2'>
-                  {new Date(card.due).toLocaleDateString()}
+                  {formatDate(card.due)}
                 </span>}
             </li>
           ))}
