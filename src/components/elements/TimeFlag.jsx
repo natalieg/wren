@@ -25,10 +25,11 @@ export default function TimeFlag({ tracked, time, isTracking, isFinished }) {
 }
 
 // only renders tracked time
+// LATER decide if this is needed / we have the new comp 'LabeledField' [09.08.2026]
 export function TimeFlagTracking({ tracked, onClick }) {
    const formatedTime = formatTimeWithSeconds(tracked)
    return (
-      <div className={`${style} h-8`} onClick={onClick}>
+      <div className={`${style} h-6.5`} onClick={onClick}>
          {formatedTime}
       </div>
    )

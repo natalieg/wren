@@ -86,6 +86,28 @@
   transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
 
+/* Slim variant — font-size and radius have to live here, not as Tailwind utilities:
+   .input is unlayered CSS and therefore beats anything in @layer utilities, so a
+   text-sm class on an .input element would simply be ignored. Padding is safe as a
+   utility because .input doesn't set any. Must stay below .input — same specificity,
+   source order decides. */
+.input-slim {
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Read-only twin of .input — same box metrics, badge look instead of a field.
+   Keeping the metrics identical is the point: swapping a field to view mode and
+   back must not shift the layout. Same layer reasoning as .input-slim above. */
+.input-view {
+  border-color: transparent;
+  background: var(--color-border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
 .input:focus {
   border-color: var(--color-accent-primary);
   box-shadow: var(--shadow-glow-accent);

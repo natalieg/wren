@@ -10,11 +10,11 @@
 	- [ ] numbers should not 'wobble' around while the tracker is running
 		- [x] the seconds-hiccup (stall, then jump by 2) is fixed — ticks aim at the second boundary now
 		- [ ] rest: does the width still jump when the digit count changes? tabular-nums / fixed width would fix that
-- [ ] optimize styling of timefields in modal
+- [x] optimize styling of timefields in modal
 - [ ] [space] should toggle tracking inside the modal too
 	- [ ] heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
-- [ ] Bar should move on seconds too
-- [ ] Labels for the input fields - maybe new component with label up top, input below
+- [x] Bar should move on seconds too
+- [x] Labels for the input fields - maybe new component with label up top, input below
 - [ ] Time general: can we have the running time in the tab header, so we know that a timer is active or is this not possible? or a massive work around? 
 
 - [ ] sort finished tasks by timestamp
