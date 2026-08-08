@@ -40,14 +40,7 @@ function useTasks() {
   const activeTasks = taskList.filter(t => t.list === ACTIVE)
   const [runningTaskId, setRunningTaskId] = useState(null)
   const [trackedSeconds, setTrackedSeconds] = useState(0)
-  const trackedSecondsRef = useRef(0)
   const trackingStartTime = useRef(null)
-
-  // keeps a live, always-current mirror of trackedSeconds for code that
-  // can't rely on the render-scoped closure (flushTrackedTime, called from intervals)
-  useEffect(() => {
-    trackedSecondsRef.current = trackedSeconds
-  }, [trackedSeconds])
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(taskList))
@@ -149,13 +142,15 @@ function useTasks() {
 
   const flushTrackedTime = () => {
     if (!runningTaskId || !trackingStartTime.current) return
-    const secondsToFlush = Math.floor((Date.now() - trackingStartTime.current) / 1000)
+    const elapsedMs = Date.now() - trackingStartTime.current
+    const secondsToFlush = Math.floor(elapsedMs / 1000)
     setTaskList(currentTaskList => currentTaskList.map(task => {
       if (task.id !== runningTaskId) return task
       return { ...task, trackedTime: (task.trackedTime || 0) + secondsToFlush }
     }))
-    // Session-Reset: neue Baseline
-    trackingStartTime.current = Date.now()
+    // Session-Reset: neue Baseline, um die angefangene Sekunde zurückversetzt —
+    // sonst verfällt der Rest bei jedem Flush und die Uhr geht pro 5min bis zu 1s nach
+    trackingStartTime.current = Date.now() - (elapsedMs % 1000)
     setTrackedSeconds(0)
   }
 

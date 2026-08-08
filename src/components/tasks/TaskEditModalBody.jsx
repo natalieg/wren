@@ -100,7 +100,7 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                      value={time}
                      onChange={(e) => handleFieldChange(id, 'time', parseInt(e.target.value) || 0)}
                      onKeyDown={handleKeyDown}
-                     backgroundColor={isRunning ? (isTrackedMoreThanPlanned ? 'bg-red-200' : 'bg-green-200') : ''}
+                     backgroundColor={isRunning ? (isTrackedMoreThanPlanned ? 'bg-failure-light' : 'bg-success-light') : ''}
                   />
                </div>
             </div>

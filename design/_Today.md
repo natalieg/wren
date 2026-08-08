@@ -24,15 +24,15 @@
 	- [ ] **w** for **next week**
 	- [ ] **b** for **backlog**
 
-## Open bugs — from the modal review 2026-08-08
+## ✅ Open bugs — from the modal review 2026-08-08
 - [x] 1. `trackedTime` is `undefined` on pre-tracking tasks → `undefined + 0` = NaN in `TaskEditModalBody` (lines 16, 68, 74). Shows "NaNm", warns on `value={NaN}`, gives `Bar` a `width: NaN%`. Everywhere else guards it as `(trackedTime || 0)`. Barely any such tasks left, but cheap to close
 - [x] 2. the estimate fallback in `TimeFlag` is dead — it used to test a *number* (`0` falsy → fall back to the estimate), now it tests the *string* from `formatTimeWithSeconds`, and `"0"` is truthy. A finished task with no tracked time shows a bold "0" instead of its estimate. Test `tracked > 0` instead
 - [x] 3. `Textarea` lost its background: `background` was removed from `.input` in index.css and replaced by the new `backgroundColor` prop on `Input` — `Textarea` uses the same class but not the prop. Invisible right now because it sits on white, still wants a fallback
 - [x] 4. `formatTimeWithSeconds` is one shape now (`m:ss` throughout, no flip at the minute boundary); finished tasks go through `formatTime` for whole minutes
-- [ ] 5.`bg-red-200` / `bg-green-200` in the modal are raw Tailwind colours — the rest of the app runs on tokens. `--color-success` exists, a `--color-warning` doesn't yet ▶ **left open on purpose: needs a design decision on the warning colour, not a mechanical fix**
+- [x] 5.`bg-red-200` / `bg-green-200` in the modal are raw Tailwind colours — the rest of the app runs on tokens. `--color-success` exists, a `--color-warning` doesn't yet ▶ **left open on purpose: needs a design decision on the warning colour, not a mechanical fix**
 - [x] 6. `parseInt(minutesToSeconds(...))` argument order + the no-op `preventDefault`
 - [x] 7. `Bar` sanitises `percent` itself now (NaN/Infinity → 0), and the planned-time input no longer writes NaN
-- [ ] 8. #small the 5min failsafe flush drops the part-second (`Math.floor` + baseline reset to `Date.now()`) — up to 1s lost per flush. Cosmetic, one line: offset the new baseline by the remainder
+- [x] 8. #small the 5min failsafe flush drops the part-second (`Math.floor` + baseline reset to `Date.now()`) — up to 1s lost per flush. Cosmetic, one line: offset the new baseline by the remainder
 
 ### Unit consistency pass — done 2026-08-08
 *`/60` and `*60` were scattered over 8 places, and the "tracked time, or the estimate below 1min" rule was written out 4× with two different thresholds.*

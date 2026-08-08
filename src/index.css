@@ -28,7 +28,10 @@
   --color-accent-primary: #863bff;
   --color-accent-soft: #c8b3e986;
   --color-accent-muted: #d5bdee;
+  --color-failure: #e042ab;
+  --color-failure-light: #f5a4da;
   --color-success: #3ab890;
+  --color-success-light: #a6ebd5;
   /* Gradient */
   --background-image-gradient-main: linear-gradient(135deg, #a56bff, #f7719e);
   --background-image-gradient-softer: linear-gradient(135deg, #c095ff, #ff85ae);
