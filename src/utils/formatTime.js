@@ -7,10 +7,11 @@ export const formatTime = (minutes) => {
 }
 
 export const formatTimeWithSeconds = (seconds) => {
-    if (seconds < 60) return `${seconds}`
+    if (seconds < 10) return `00:0${seconds}`
+    if (seconds < 60) return `00:${seconds}`
     const minutes = Math.floor(seconds / 60)
     const leftoverSeconds = seconds % 60
-    return leftoverSeconds ? `${minutes}:${String(leftoverSeconds).padStart(2, '0')}` : `${minutes}m`
+    return leftoverSeconds ? `${minutes}:${String(leftoverSeconds).padStart(2, '0')}` : `${minutes}:00`
 }
 
 export const secondsToMinutes = (seconds) => Math.floor(seconds / 60)

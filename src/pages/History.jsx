@@ -36,7 +36,7 @@ export default function History() {
                 <p key={task.id}
                   className={taskStyle}>
                   <span>{task.label} </span>
-                  <span>{parseInt(task.trackedTime / 60) || task.time} </span>
+                  <span>{formatTime(parseInt(task.trackedTime / 60) || task.time)} </span>
                 </p>
               ))}
             </div>

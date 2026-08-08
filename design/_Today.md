@@ -19,8 +19,8 @@
 
 ## Open bugs — from the modal review 2026-08-08
 - [x] 1. `trackedTime` is `undefined` on pre-tracking tasks → `undefined + 0` = NaN in `TaskEditModalBody` (lines 16, 68, 74). Shows "NaNm", warns on `value={NaN}`, gives `Bar` a `width: NaN%`. Everywhere else guards it as `(trackedTime || 0)`. Barely any such tasks left, but cheap to close
-- [ ] 2. the estimate fallback in `TimeFlag` is dead — it used to test a *number* (`0` falsy → fall back to the estimate), now it tests the *string* from `formatTimeWithSeconds`, and `"0"` is truthy. A finished task with no tracked time shows a bold "0" instead of its estimate. Test `tracked > 0` instead
-- [ ] 3. `Textarea` lost its background: `background` was removed from `.input` in index.css and replaced by the new `backgroundColor` prop on `Input` — `Textarea` uses the same class but not the prop. Invisible right now because it sits on white, still wants a fallback
+- [x] 2. the estimate fallback in `TimeFlag` is dead — it used to test a *number* (`0` falsy → fall back to the estimate), now it tests the *string* from `formatTimeWithSeconds`, and `"0"` is truthy. A finished task with no tracked time shows a bold "0" instead of its estimate. Test `tracked > 0` instead
+- [x] 3. `Textarea` lost its background: `background` was removed from `.input` in index.css and replaced by the new `backgroundColor` prop on `Input` — `Textarea` uses the same class but not the prop. Invisible right now because it sits on white, still wants a fallback
 - [ ] 4. `formatTimeWithSeconds` returns three different shapes (`"45"` / `"5m"` / `"5:05"`), so the display flips format every full minute while running. Split by purpose instead of overloading one function: always-`mm:ss` for the running stopwatch, minutes-only for finished tasks
 - [ ] 5.`bg-red-200` / `bg-green-200` in the modal are raw Tailwind colours — the rest of the app runs on tokens. `--color-success` exists, a `--color-warning` doesn't yet
 - [ ] 6.`parseInt(minutesToSeconds(e.target.value))` has the arguments the wrong way round (×60 first, then parse). Works by string coercion, still confusing. The `e.preventDefault()` in that `onChange` does nothing

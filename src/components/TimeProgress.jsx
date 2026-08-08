@@ -8,7 +8,7 @@ export default function TimeProgress({ openTasks, finishedTasks, startedAt, rese
 
   // if tracked < 1min, it shows the estimate time LATER evaluate if user can change this behaviour in settings [also in TimeFlag]
   const totalTimeDone = finishedTasks.reduce((sum, task) => {
-    return sum + (parseInt(task.trackedTime > 60 ? (task.trackedTime / 60) : task.time) || 0);
+    return sum + (parseInt(task.trackedTime >= 60 ? (task.trackedTime / 60) : task.time) || 0);
   }, 0);
 
   const totalTimePlanned = totalTimeDone + totalTimeLeft;
