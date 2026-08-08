@@ -6,9 +6,9 @@ const BAR_COLORS = {
     muted: 'var(--color-text-muted)',
 }
 
-export default function Bar({ percent, color = 'accent', freestyle }) {
+export default function Bar({ percent, color = 'accent', freestyle, overflowEffect = false }) {
     return (
-        <div className='bar'>
+        <div className={`bar ${percent > 100 && overflowEffect ? 'shadow-glow-intense' : ''}`}>
             <span className='bar-fill' style={{ width: `${percent}%`, background: freestyle || BAR_COLORS[color] }}></span>
         </div>
     )

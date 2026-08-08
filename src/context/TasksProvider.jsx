@@ -30,10 +30,10 @@ function TasksProvider({ children }) {
         {editingTask &&
             <Modal title='edit task' width='w-120' onClose={() => taskActions.setEditingTaskId(null)}>
                 <TaskEditModalBody
+                    isRunning={editingTask.id === TasksContextValue.runningTaskId}
+                    trackedSeconds={TasksContextValue.trackedSeconds}
                     task={editingTask}
-                    handleChange={taskActions.handleFieldChange}
-                    toggleDone={taskActions.toggleDone}
-                    toggleActive={taskActions.toggleActive}
+                    taskActions={taskActions}
                     closeModal={() => taskActions.setEditingTaskId(null)} />
             </Modal>}
     </TasksContext.Provider>

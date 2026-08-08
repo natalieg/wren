@@ -33,7 +33,7 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
 3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
-   - 🔷 Edit modal doesn't reflect time-tracking fields yet — and could double as a "focus mode" showing a tracking bar for the running task (2026-08-01: "especially neat for the modal").
+   - ✅ 2026-08-08: edit modal reflects time-tracking fields (below). The "focus mode" half of this idea (2026-08-01: "especially neat for the modal") is still open — the bar and live display exist now, the mode around them doesn't.
    - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
    - ✅ 2026-08-01: starting tracking on an inactive task now also sets it `active`; parking the running task via the edit modal now also stops tracking; `sortedActiveTasks` falls back gracefully if `runningTaskId` ever points at a task outside `activeTasks`.
@@ -43,10 +43,18 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-04: fixed the timer stopping on in-app navigation — `useTasks()` was only mounted inside `Tasklist.jsx` (route `/`), so switching to `/history` or `/project` unmounted it and killed `runningTaskId`/the interval. Lifted the hook into a single `TasksProvider`/`TasksContext` instantiation wrapping the whole app in `App.jsx`, consumed via `useContext` instead of per-page hook calls.
 - ✅ 2026-08-04: `FloatingTaskPanel.jsx` — a draggable (Pointer Events), position-persisted mini panel mirroring the currently-tracked task on every page except Home. Uses a new view-only `TaskItemViewOnly` variant (label + `TimeFlag` + play/pause only, no edit/delete) exported alongside `TaskItem`.
 - ✅ 2026-08-07: `formatTime` renders `1h` / `1h 30m` — whole hours used to emit a trailing space. This fixed the two tests that had been failing on every run for weeks; the suite is fully green again, which matters more than the formatting itself (a permanently-red suite trains you to ignore it).
+- ✅ 2026-08-08: time tracking in the edit modal — live tracked time, play/pause, progress bar (glow once past planned). Editable in minutes while stopped; while running the input swaps to a read-only display, so a typed value can't collide with the 5min flush. Transforms moved from `TimeFlag` into `formatTime.js`; modal gets the whole `taskActions` bundle now. Shift+Enter = newline in the label.
+- ✅ 2026-08-08: fixed the tracking hiccup (seconds stalled, then jumped by 2 — seen live). `setInterval(…, 1000)` drifts across the second boundary until one second never renders; now a self-rescheduling `setTimeout` aimed at the next boundary. Display-only, the value was always correct.
+
+### PUSHED UP: Habits/Recurring MVP
 
 ### 🔷 Phase 3 — Drag-and-drop
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
 - 🔷 Drag-and-drop via `dnd-kit` for manual task reordering (flagged 2026-08-01, still wanted soon).
+
+### Trello integration cont.
+- move cards
+- transform to tasks
 
 ### 🔷 Phase 4 — Dark mode
 Pulled forward out of Phase 14's shell restyle (2026-08-06) — waiting until then risks every component built in between (Areas, gamification tab) needing dark-mode styling retrofitted later, which compounds into real pain. Design system already spec'd dual-theme via `[data-theme]` (see Design system section above); this phase is just wiring it up app-wide, not new design work.

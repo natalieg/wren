@@ -6,6 +6,16 @@ export const formatTime = (minutes) => {
     return leftoverMinutes ? `${hours}h ${leftoverMinutes}m` : `${hours}h`
 }
 
+export const formatTimeWithSeconds = (seconds) => {
+    if (seconds < 60) return `${seconds}`
+    const minutes = Math.floor(seconds / 60)
+    const leftoverSeconds = seconds % 60
+    return leftoverSeconds ? `${minutes}:${String(leftoverSeconds).padStart(2, '0')}` : `${minutes}m`
+}
+
+export const secondsToMinutes = (seconds) => Math.floor(seconds / 60)
+export const minutesToSeconds = (minutes) => minutes * 60
+
 // German 24h clock, e.g. 14:05 — no AM/PM, colon separator.
 // Accepts a Date or an ISO string (localStorage round-trips Dates as strings).
 export const formatClockTime = (date) =>
@@ -13,3 +23,4 @@ export const formatClockTime = (date) =>
 
 export const formatDate = (date) =>
     new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+

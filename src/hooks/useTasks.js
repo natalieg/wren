@@ -52,14 +52,18 @@ function useTasks() {
     localStorage.setItem('tasks', JSON.stringify(taskList))
   }, [taskList])
 
+  // ticks aligned to the second boundary, not every 1000ms — avoids drift
   useEffect(() => {
     if (!runningTaskId) return
     trackingStartTime.current = Date.now()
-    const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - trackingStartTime.current) / 1000)
-      setTrackedSeconds(elapsed)
-    }, 1000)
-    return () => clearInterval(interval)
+    let timeout
+    const tick = () => {
+      const elapsedMs = Date.now() - trackingStartTime.current
+      setTrackedSeconds(Math.floor(elapsedMs / 1000))
+      timeout = setTimeout(tick, 1000 - (elapsedMs % 1000))
+    }
+    timeout = setTimeout(tick, 1000)
+    return () => clearTimeout(timeout)
   }, [runningTaskId])
 
   // Visibility Listener

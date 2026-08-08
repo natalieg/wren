@@ -44,6 +44,7 @@
   --radius-md: 10px;
   --radius-pill: 999px;
   --shadow-glow-accent: 0 0 12px color-mix(in srgb, #a56bff 45%, transparent);
+  --shadow-glow-intense: 2px 2px 14px color-mix(in srgb, #a56bff 45%, #e042ab 45%);
   /* animation */
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
@@ -76,7 +77,6 @@
 .input {
   font-size: 1rem;
   color: var(--color-text-primary);
-  background: var(--color-surface);
   border: var(--border-w) solid var(--color-border-soft);
   border-radius: var(--radius-md);
   outline: none;

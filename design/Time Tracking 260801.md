@@ -99,3 +99,56 @@ time tracking shows the following logical misalign:
 **#1 is the real design question, and I think it actually resolves the other pending TODO at the same time.** Right now every active task's `estimate` comes from the cascade reduce (`baseTime + cumulative queue time`) — fine for tasks that haven't started, but once a task is _actually_ being tracked, it has better ground truth: real time spent so far. So instead of bolting "set a start-time on click" onto `startTracking`, what if the running task's `estimate` is computed differently inside the reduce — `now + timeLeft` (its own real remaining time) instead of the generic `runningTime + task.time` — and everything _after_ it in the queue just cascades off that? That's the same "sort running task to front" TODO already sitting in the file, just paired with a special-cased formula for that one element. No new anchor-tracking needed in `startTracking` at all.
 
 Want to sit with #1 a bit more, or is that framing enough to run with?
+
+---
+
+## 08.08.2026 Modal Time Tracking
+
+Tests grün (48), Lint hat nur die vorher schon vorhandenen Warnings. Struktur gefällt mir — `taskActions` als Bündel statt vier Einzelprops, Transforms in `formatTime`, und du hast den Edit-während-Tracking-Konflikt gelöst indem der Input zum `TimeFlagTracking` wird. Sauber.
+
+Vier echte Bugs hab ich gefunden:
+
+## 1. `trackedTime` ist `undefined` bei Alt-Tasks → NaN-Kaskade
+
+`normalizeTask` setzt kein `trackedTime`, und deployte Tasks von vor dem Tracking haben das Feld nicht. In [TaskEditModalBody.jsx:16](vscode-webview://03q77kj5bpaalpdpvlgqn6nmf44b2n7c76kccm6jo56vp73c7t9u/src/components/tasks/TaskEditModalBody.jsx#L16) rechnest du ungeschützt:
+
+```js
+const formatedTrackedTime = secondsToMinutes(trackedTime + (isRunning ? trackedSeconds : 0))
+```
+
+`undefined + 0` → `NaN`. Folgen: `TimeFlagTracking` zeigt **„NaNm"**, das Input kriegt `value={NaN}` (React-Warning), und `Bar` bekommt `width: NaN%`. TaskItem macht es überall als `(trackedTime || 0)` — hier fehlt es an drei Stellen (Zeile 16, 68, 74).
+
+## 2. Der Estimate-Fallback in TimeFlag ist tot
+
+```js
+const formatedTime = formatTimeWithSeconds(tracked)
+const finishedFormat = formatedTime ? ... : <span>{time}</span>
+```
+
+Vorher war `trackedMinutes` eine **Zahl** — `0` ist falsy, also griff der Fallback. Jetzt ist es ein **String**, und `formatTimeWithSeconds(0)` gibt `"0"` zurück — truthy. Der Fallback greift nie mehr. Ein fertiger Task ohne Tracking zeigt jetzt fett **„0"** statt dem Estimate, genau gegen den Kommentar direkt drüber. Fix: auf `tracked > 0` prüfen statt auf den String.
+
+## 3. Die Textarea hat ihren Hintergrund verloren
+
+Du hast `background: var(--color-surface)` aus `.input` in [index.css:79](vscode-webview://03q77kj5bpaalpdpvlgqn6nmf44b2n7c76kccm6jo56vp73c7t9u/src/index.css#L79) rausgenommen und stattdessen `backgroundColor = 'bg-surface'` als Default in `Input` gesetzt. [Textarea.jsx:10](vscode-webview://03q77kj5bpaalpdpvlgqn6nmf44b2n7c76kccm6jo56vp73c7t9u/src/components/elements/Textarea.jsx#L10) nutzt aber dieselbe `.input`-Klasse und kennt den neuen Prop nicht → sie ist jetzt transparent. Entweder Textarea denselben Prop geben oder das `background` in der CSS lassen.
+
+## 4. Die Bar erscheint beim falschen Task
+
+```js
+{(formatedTrackedTime || trackedSeconds) > 0 && <Bar ... />}
+```
+
+`trackedSeconds` ist global — es gehört immer dem _laufenden_ Task. Öffnest du das Modal von Task B während Task A läuft, ist `formatedTrackedTime` 0, es fällt auf A's `trackedSeconds` durch, und B kriegt eine leere Bar angezeigt. Gemeint war vermutlich `formatedTrackedTime > 0` (das `trackedSeconds` steckt ja schon drin).
+
+---
+
+## Kleinkram
+
+**`formatTimeWithSeconds` hat drei Ausgabeformate:** `"45"` unter einer Minute, `"5m"` bei glatten Minuten, `"5:05"` sonst. Beim laufenden Timer springt die Anzeige also jede Minute einmal kurz ins `m`-Format und wieder zurück. Wenn's eine Stoppuhr sein soll: immer `mm:ss`.
+
+**`bg-red-200` / `bg-green-200`** in [TaskEditModalBody.jsx:94](vscode-webview://03q77kj5bpaalpdpvlgqn6nmf44b2n7c76kccm6jo56vp73c7t9u/src/components/tasks/TaskEditModalBody.jsx#L94) sind rohe Tailwind-Farben — der Rest der App läuft komplett über deine Tokens. Du hast `--color-success` schon, ein `--color-warning` fehlt noch.
+
+**Argument-Reihenfolge vertauscht:** `parseInt(minutesToSeconds(e.target.value))` — erst mal 60, dann parsen. Funktioniert durch String-Coercion zufällig, gemeint ist `minutesToSeconds(parseInt(...))`. Und das `e.preventDefault()` in einem `onChange` macht nichts.
+
+**`percent` wird NaN** wenn du das Planned-Time-Feld leerst (`parseInt('')` → NaN). Das war vorher schon so, fällt jetzt nur durch die Bar auf.
+
+Soll ich 1–4 fixen?

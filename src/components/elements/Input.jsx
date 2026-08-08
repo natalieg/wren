@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 
-const Input = forwardRef(function Input({ id, placeholder = '...', value, type = 'text', onChange, onKeyDown, width = 'w-full', onFocus, onBlur, minValue = 0, step, padding='px-2 py-2', className = '',
+const Input = forwardRef(function Input({ id, placeholder = '...', value, type = 'text', onChange, onKeyDown, onFocus,  onBlur, minValue = 0, step,
+  width = 'w-full', padding = 'px-2 py-2', backgroundColor = 'bg-surface', className = '',
 }, ref) {
   return (
     <input
@@ -13,7 +14,7 @@ const Input = forwardRef(function Input({ id, placeholder = '...', value, type =
       value={value}
       onChange={onChange}
       onKeyDown={onKeyDown}
-      className={`input ${width} ${padding} ${className}`}
+      className={`input ${width} ${padding} ${backgroundColor} ${className}`}
       onFocus={onFocus}
       onBlur={onBlur}
     />
