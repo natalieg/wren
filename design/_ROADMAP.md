@@ -36,6 +36,7 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
    - ✅ 2026-08-08: edit modal reflects time-tracking fields (below). The "focus mode" half of this idea (2026-08-01: "especially neat for the modal") is still open — the bar and live display exist now, the mode around them doesn't.
    - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
+   - `TimeFlagTracking` has been unused since `LabeledField` took over the modal badge (2026-08-09) — kept for now, drop it if nothing claims it.
    - ✅ 2026-08-01: starting tracking on an inactive task now also sets it `active`; parking the running task via the edit modal now also stops tracking; `sortedActiveTasks` falls back gracefully if `runningTaskId` ever points at a task outside `activeTasks`.
    - ✅ 2026-08-01: legacy finished tasks missing `finishedTimestamp` no longer poison `baseTime` — invalid timestamps are filtered out of the `Math.max` instead of trusting every record has one. Hit live on the deployed site, fixed and pushed same day.
    - ✅ 2026-08-01: pausing the running task now stays at the top instead of dropping back to its stored position — `stopTracking()` persists the same front-of-list reorder `startTracking()`'s switch already did.
@@ -45,6 +46,9 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-07: `formatTime` renders `1h` / `1h 30m` — whole hours used to emit a trailing space. This fixed the two tests that had been failing on every run for weeks; the suite is fully green again, which matters more than the formatting itself (a permanently-red suite trains you to ignore it).
 - ✅ 2026-08-08: time tracking in the edit modal — live tracked time, play/pause, progress bar (glow once past planned). Editable in minutes while stopped; while running the input swaps to a read-only display, so a typed value can't collide with the 5min flush. Transforms moved from `TimeFlag` into `formatTime.js`; modal gets the whole `taskActions` bundle now. Shift+Enter = newline in the label.
 - ✅ 2026-08-08: fixed the tracking hiccup (seconds stalled, then jumped by 2 — seen live). `setInterval(…, 1000)` drifts across the second boundary until one second never renders; now a self-rescheduling `setTimeout` aimed at the next boundary. Display-only, the value was always correct.
+- ✅ 2026-08-08: unit cleanup — new `effectiveMinutes()` holds the "tracked time, or the estimate below 1min" rule that used to be written out four times with two different thresholds. `secondsToMinutes`/`minutesToSeconds` everywhere instead of hand-rolled `/60`. Plus the eight bugs from the modal review; details in `_Today.md`.
+- ✅ 2026-08-08: tests now gate the deploy — `build` runs `vitest run` first, so a red suite means Vercel keeps the last working version live. GitHub Actions runs lint + tests on every branch as the early warning. Caught a real failure the same evening (`@testing-library/dom` is a peer dep since RTL v16 and wasn't declared).
+- ✅ 2026-08-09: `LabeledField` replaces the modal's inline input/badge swap — one component, `viewOnly` renders the value as a read-only badge on identical box metrics, so nothing shifts when the timer starts. `slim` variant on `Input`; both share their padding via `inputStyles.js`. First component tests in the project (`TimeFlag.test.jsx`).
 
 ### PUSHED UP: Habits/Recurring MVP
 

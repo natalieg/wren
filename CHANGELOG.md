@@ -2,6 +2,15 @@
 
 Informal — versions map to Phase milestones in `design/_ROADMAP.md`, not a formal release process. Minor bump when a phase hits its MVP threshold, patch bump for smaller steps in between.
 
+## 0.5.0 — 2026-08-09
+- Trello board as a Wren page (`/trello`, `src/pages/trello/`, `utils/trello.js`) — read-only view of the shared board's lists and cards, plus creating a card per list. Auth is the shared app key baked in; each person fetches their own Trello token once and pastes it in. The board id is a default, not a lock.
+- Time tracking in the edit modal: live tracked time, play/pause, progress bar that glows once you pass the planned time. Tracked time is editable in minutes while stopped and read-only while the timer runs, so a typed value can't collide with the failsafe flush.
+- Fixed the tracking "hiccup" — seconds occasionally stalled then jumped by 2. Timer ticks now aim at the next second boundary instead of firing every 1000ms.
+- `LabeledField` — labelled inputs with an optional read-only badge mode on identical box metrics, so switching modes doesn't shift the layout. `slim` variant on `Input`.
+- Shift+Enter makes a newline in a task label; plain Enter closes the modal.
+- One rule for "tracked time, or the estimate below a minute" (`effectiveMinutes`) instead of four copies with two different thresholds. Time unit conversions go through `secondsToMinutes`/`minutesToSeconds` everywhere.
+- Tests gate the deploy: `npm run build` runs the suite first, so a red test keeps the last working version live. GitHub Actions runs lint + tests on every branch.
+
 ## 0.4.0 — 2026-08-07
 - Settings MVP (`/settings`, `useSettings.js`, `utils/settings.js`) — persisted settings object in localStorage, merged over `DEFAULT_SETTINGS` on load so later-added settings get a sane value for existing users. `InputRow`/`CheckboxRow` rows.
 - Configurable rollover hour (`utils/rollover.js`) — the day boundary shifts off midnight, so e.g. 3:59am still counts as yesterday. History groups finished tasks by logical day.
