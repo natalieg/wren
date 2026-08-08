@@ -54,6 +54,10 @@
   /* typography */
   --font-body: 'Quicksand', sans-serif;
   --font-retro: 'VT323', monospace;
+  /* live numbers only — Quicksand has no tabular figures, so a ticking clock
+     jitters in it. Nunito is its closest sibling and does bring them.
+     If digits still dance, swap to Inter (also loaded): --font-num: 'Inter', sans-serif */
+  --font-num: 'Nunito', 'Inter', sans-serif;
   /* shadow (depends on --shadow-color + --border-strong) */
   --shadow-color: 220 40% 30%;
   --shadow-window: 0 6px 0 var(--border-strong), 0 8px 20px hsl(var(--shadow-color) / .25);
@@ -91,6 +95,14 @@
    text-sm class on an .input element would simply be ignored. Padding is safe as a
    utility because .input doesn't set any. Must stay below .input — same specificity,
    source order decides. */
+/* Opt-in for live, ticking numbers — not for static text. The font swap is the
+   point: `tabular-nums` needs a face that actually ships tabular figures, and the
+   body font doesn't. See --font-num for the fallback if these still jitter. */
+.tnum {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
 .input-slim {
   font-size: 0.875rem;
   border-radius: var(--radius-sm);
@@ -106,6 +118,8 @@
   align-items: center;
   justify-content: center;
   user-select: none;
+  /* same-width digits, so a live value doesn't jitter as digits change */
+  font-variant-numeric: tabular-nums;
 }
 
 .input:focus {

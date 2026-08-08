@@ -1,22 +1,7 @@
 
 
-## Task Modal 'Time Feature'
-*🤖 Done and synced to roadmap Phase 2 (2026-08-08/09): tracked time in the modal, the 8 review bugs, the unit consistency pass, `LabeledField` + `slim`, and tests gating the deploy. Only the open bits are left below.*
-- [ ] [[Time Tracking 260801]] ( MVP) 
-	- [ ] '**popup modal**' could be an opportunity for a simple 'focus mode' — 🤖 the bar and live display exist, the *mode* around them doesn't
-	- [ ] numbers should not 'wobble' around while the tracker is running
-		- [x] 🤖 the seconds-hiccup (stall, then jump by 2) is fixed — ticks aim at the second boundary now
-		- [ ] 🤖 rest: does the width still jump when the digit count changes? tabular-nums / fixed width would fix that
-- [ ] [space] should toggle tracking inside the modal too
-	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
-- [ ] Time general: can we have the running time in the tab header, so we know that a timer is active or is this not possible? or a massive work around? 
-
-- [ ] sort finished tasks by timestamp
-- [ ] show timestamps in history?
-- [ ] keybinds change : 
-	- [ ] **t** for **next up** [tomorrow] 
-	- [ ] **w** for **next week**
-	- [ ] **b** for **backlog**
+## ▶ NOW: DnD (Phase 3)
+*🤖 Time feature is parked below — 0.5.0 is merged and live, it can rest. Warm-up if needed: the keybind change further down (t/w/b), ~10 min.*
 
 ## 🤖 DnD mini-roadmap (Phase 3) — planned 2026-08-08
 *two sessions. the data model is already done: order = array order in `taskList`, persisted as-is. no `order` field, no sort index, no migration. `pushToBottom` is already a reorder — DnD only changes **which** index gets written.*
@@ -51,6 +36,23 @@
 ### Explicitly NOT in this phase
 - [ ] real `priority: 1|2|3` field — different feature (sortable, filterable). manual order already *is* the priority in Wren, DnD doesn't produce a priority field
 - [ ] dragging across pages (Tasklist ↔ Backlog)
+
+## Task Modal 'Time Feature' — parked
+*🤖 The MVP shipped in 0.5.0. What's left here is polish, nothing blocking.*
+- [ ] [[Time Tracking 260801]] ( MVP) 
+	- [x] '**popup modal**' could be an opportunity for a simple 'focus mode' — 🤖 done: modal open, running timer and bar visible, one task in front of you. No separate app mode, that was never the idea
+	- [x] numbers should not 'wobble' around while the tracker is running — 🤖 done: second-boundary ticks + `.tnum` (Nunito), `TimeFlag` widened to `w-24`
+- [x] Time general: running time in the tab header — 🤖 done, `useTabTitle.js`
+- [ ] [space] should toggle tracking inside the modal too
+	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
+- [ ] 🤖 maximise the modal for a proper focus view — the `□` in the window chrome is still decoration. Details in the roadmap's Future ideas
+
+- [ ] sort finished tasks by timestamp
+- [ ] show timestamps in history?
+- [ ] keybinds change : 
+	- [ ] **t** for **next up** [tomorrow] 
+	- [ ] **w** for **next week**
+	- [ ] **b** for **backlog**
 
 ## Trello integration
 - [ ] trello task abhaken, 

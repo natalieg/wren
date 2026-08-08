@@ -33,7 +33,7 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
 3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
-   - ✅ 2026-08-08: edit modal reflects time-tracking fields (below). The "focus mode" half of this idea (2026-08-01: "especially neat for the modal") is still open — the bar and live display exist now, the mode around them doesn't.
+   - ✅ 2026-08-08: edit modal reflects time-tracking fields (below) — which also covers the "focus mode" idea from 2026-08-01 
    - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
    - `TimeFlagTracking` has been unused since `LabeledField` took over the modal badge (2026-08-09) — kept for now, drop it if nothing claims it.
@@ -49,6 +49,8 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-08: unit cleanup — new `effectiveMinutes()` holds the "tracked time, or the estimate below 1min" rule that used to be written out four times with two different thresholds. `secondsToMinutes`/`minutesToSeconds` everywhere instead of hand-rolled `/60`. Plus the eight bugs from the modal review; details in `_Today.md`.
 - ✅ 2026-08-08: tests now gate the deploy — `build` runs `vitest run` first, so a red suite means Vercel keeps the last working version live. GitHub Actions runs lint + tests on every branch as the early warning. Caught a real failure the same evening (`@testing-library/dom` is a peer dep since RTL v16 and wasn't declared).
 - ✅ 2026-08-09: `LabeledField` replaces the modal's inline input/badge swap — one component, `viewOnly` renders the value as a read-only badge on identical box metrics, so nothing shifts when the timer starts. `slim` variant on `Input`; both share their padding via `inputStyles.js`. First component tests in the project (`TimeFlag.test.jsx`).
+- ✅ 2026-08-09: running task shows in the browser tab (`useTabTitle.js`, `▴ 5:05 · label`), so a backgrounded Wren still says a timer is going. Rides on the existing per-second render, no second timer.
+- ✅ 2026-08-09: the ticking clock stopped jittering. `tabular-nums` alone did nothing — Quicksand has no tabular figures — so live numbers get a `.tnum` class that switches them to Nunito (Inter loaded as the fallback). `TimeFlag` widened to `w-24` for three-digit minutes.
 
 ### PUSHED UP: Habits/Recurring MVP
 
@@ -187,6 +189,10 @@ Originally: recreate this roadmap as a Wren project object and retire this file.
 
 ## Future ideas (captured, not scheduled)
 - **Focus modes:** a day/week "focus" setting (work, habits, balance, catch-up-on-neglected-things, procrastination-support) that changes *how* lists/plans are displayed — while all the underlying metadata of what was actually worked on that day is still tracked regardless of focus. Needs real design thought once there's more than one list type to reflow (post Phase 12). Concrete design exploration for the day-vs-tasklist split now exists — see `design/day-planning.md`; task-type taxonomy (recurring, growing-habit, project-linked) and the week-vs-day balance framing live in `design/life-balance.md`.
+- **Focus session in the task modal** (2026-08-09, not to be confused with the "focus modes" bullet above — that one is about list display). The modal already *is* the focus view: open it, the timer runs, one task in front of you. Two ideas on top:
+	- Maximise it. The window chrome in `Modal.jsx` already draws `_ □ ×` and only `×` does anything, so the affordance exists. Making `□` swap the width is ten lines — the real work is deciding what a big version *shows* (timer and bar large, the rest smaller), which is a second layout, not a scaled one.
+	- `_` minimises into the `FloatingTaskPanel`. Breaks the current rule that the panel doesn't appear on the task page, but "minimise the window and it becomes the little floating one" is worth the exception.
+	- 🟥 Open question, no answer yet: what makes the focus mode actually *get used*? A progress bar toward the estimate can only ever run out — something that accumulates instead would fit the gamification concept's day axis (`wren-idle-konzept.md`: day = EXP & stats, night = expedition). Design constraint if EXP ever derives from tracked time: the modal lets you type a tracked value by hand, so it would need to come from actually-ticked seconds, or hand-editing becomes a cheat button.
 - **ManicTime import:** ManicTime does automated time tracking already. Eventually importing that data would let Wren compare planned vs. actual time use. Not urgent — revisit once Daylist/planning data actually exists to compare against.
 - **Backend/database:** decision already made (not scheduled) — Python + FastAPI + SQLite, chosen deliberately over a hosted option for the learning/career value. Full reasoning and open questions in `design/data-architecture.md`. Realistically relevant around Phase 12–13, not before.
 - **Books tab:** reading as its own feature area (to-read stack, page goals, day-list "continue this book" nudges, reading stats) — see `design/books.md`. Likely successor to `bookstack.html` in `references/`.
