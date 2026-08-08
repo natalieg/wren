@@ -1,7 +1,7 @@
 import DocWrapper from '../components/DocWrapper'
 import Header from '../components/elements/Header'
 import useHistory from '../hooks/useHistory'
-import { formatDate, formatTime } from '../utils/formatTime'
+import { formatDate, formatTime, effectiveMinutes } from '../utils/formatTime'
 
 import { GlyphBorder } from '../components/elements/GlyphBorder'
 
@@ -10,7 +10,7 @@ export default function History() {
   const { history } = useHistory()
 
   const allTime = (tasks) => {
-    const acc = tasks.reduce((total, task) => total + (parseInt(task.trackedTime / 60) || task.time), 0)
+    const acc = tasks.reduce((total, task) => total + effectiveMinutes(task.trackedTime, task.time), 0)
     return formatTime(acc)
   }
 
@@ -36,7 +36,7 @@ export default function History() {
                 <p key={task.id}
                   className={taskStyle}>
                   <span>{task.label} </span>
-                  <span>{parseInt(task.trackedTime / 60) || task.time} </span>
+                  <span>{formatTime(effectiveMinutes(task.trackedTime, task.time))} </span>
                 </p>
               ))}
             </div>

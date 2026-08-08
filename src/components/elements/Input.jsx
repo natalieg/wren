@@ -1,7 +1,10 @@
 import { forwardRef } from 'react'
+import { inputPadding } from './inputStyles'
 
-const Input = forwardRef(function Input({ id, placeholder = '...', value, type = 'text', onChange, onKeyDown, width = 'w-full', onFocus, onBlur, minValue = 0, step, padding='px-2 py-2', className = '',
+const Input = forwardRef(function Input({ id, placeholder = '...', value, type = 'text', onChange, onKeyDown, onFocus,  onBlur, minValue = 0, step,
+  width = 'w-full', padding, backgroundColor = 'bg-surface', slim = false, className = '',
 }, ref) {
+  const resolvedPadding = inputPadding(slim, padding)
   return (
     <input
       id={id}
@@ -13,7 +16,7 @@ const Input = forwardRef(function Input({ id, placeholder = '...', value, type =
       value={value}
       onChange={onChange}
       onKeyDown={onKeyDown}
-      className={`input ${width} ${padding} ${className}`}
+      className={`input ${slim ? 'input-slim' : ''} ${width} ${resolvedPadding} ${backgroundColor} ${className}`}
       onFocus={onFocus}
       onBlur={onBlur}
     />

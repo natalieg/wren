@@ -33,9 +33,10 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
 3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
-   - 🔷 Edit modal doesn't reflect time-tracking fields yet — and could double as a "focus mode" showing a tracking bar for the running task (2026-08-01: "especially neat for the modal").
+   - ✅ 2026-08-08: edit modal reflects time-tracking fields (below). The "focus mode" half of this idea (2026-08-01: "especially neat for the modal") is still open — the bar and live display exist now, the mode around them doesn't.
    - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
+   - `TimeFlagTracking` has been unused since `LabeledField` took over the modal badge (2026-08-09) — kept for now, drop it if nothing claims it.
    - ✅ 2026-08-01: starting tracking on an inactive task now also sets it `active`; parking the running task via the edit modal now also stops tracking; `sortedActiveTasks` falls back gracefully if `runningTaskId` ever points at a task outside `activeTasks`.
    - ✅ 2026-08-01: legacy finished tasks missing `finishedTimestamp` no longer poison `baseTime` — invalid timestamps are filtered out of the `Math.max` instead of trusting every record has one. Hit live on the deployed site, fixed and pushed same day.
    - ✅ 2026-08-01: pausing the running task now stays at the top instead of dropping back to its stored position — `stopTracking()` persists the same front-of-list reorder `startTracking()`'s switch already did.
@@ -43,10 +44,21 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-04: fixed the timer stopping on in-app navigation — `useTasks()` was only mounted inside `Tasklist.jsx` (route `/`), so switching to `/history` or `/project` unmounted it and killed `runningTaskId`/the interval. Lifted the hook into a single `TasksProvider`/`TasksContext` instantiation wrapping the whole app in `App.jsx`, consumed via `useContext` instead of per-page hook calls.
 - ✅ 2026-08-04: `FloatingTaskPanel.jsx` — a draggable (Pointer Events), position-persisted mini panel mirroring the currently-tracked task on every page except Home. Uses a new view-only `TaskItemViewOnly` variant (label + `TimeFlag` + play/pause only, no edit/delete) exported alongside `TaskItem`.
 - ✅ 2026-08-07: `formatTime` renders `1h` / `1h 30m` — whole hours used to emit a trailing space. This fixed the two tests that had been failing on every run for weeks; the suite is fully green again, which matters more than the formatting itself (a permanently-red suite trains you to ignore it).
+- ✅ 2026-08-08: time tracking in the edit modal — live tracked time, play/pause, progress bar (glow once past planned). Editable in minutes while stopped; while running the input swaps to a read-only display, so a typed value can't collide with the 5min flush. Transforms moved from `TimeFlag` into `formatTime.js`; modal gets the whole `taskActions` bundle now. Shift+Enter = newline in the label.
+- ✅ 2026-08-08: fixed the tracking hiccup (seconds stalled, then jumped by 2 — seen live). `setInterval(…, 1000)` drifts across the second boundary until one second never renders; now a self-rescheduling `setTimeout` aimed at the next boundary. Display-only, the value was always correct.
+- ✅ 2026-08-08: unit cleanup — new `effectiveMinutes()` holds the "tracked time, or the estimate below 1min" rule that used to be written out four times with two different thresholds. `secondsToMinutes`/`minutesToSeconds` everywhere instead of hand-rolled `/60`. Plus the eight bugs from the modal review; details in `_Today.md`.
+- ✅ 2026-08-08: tests now gate the deploy — `build` runs `vitest run` first, so a red suite means Vercel keeps the last working version live. GitHub Actions runs lint + tests on every branch as the early warning. Caught a real failure the same evening (`@testing-library/dom` is a peer dep since RTL v16 and wasn't declared).
+- ✅ 2026-08-09: `LabeledField` replaces the modal's inline input/badge swap — one component, `viewOnly` renders the value as a read-only badge on identical box metrics, so nothing shifts when the timer starts. `slim` variant on `Input`; both share their padding via `inputStyles.js`. First component tests in the project (`TimeFlag.test.jsx`).
+
+### PUSHED UP: Habits/Recurring MVP
 
 ### 🔷 Phase 3 — Drag-and-drop
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
 - 🔷 Drag-and-drop via `dnd-kit` for manual task reordering (flagged 2026-08-01, still wanted soon).
+
+### Trello integration cont.
+- move cards
+- transform to tasks
 
 ### 🔷 Phase 4 — Dark mode
 Pulled forward out of Phase 14's shell restyle (2026-08-06) — waiting until then risks every component built in between (Areas, gamification tab) needing dark-mode styling retrofitted later, which compounds into real pain. Design system already spec'd dual-theme via `[data-theme]` (see Design system section above); this phase is just wiring it up app-wide, not new design work.
@@ -182,6 +194,12 @@ Originally: recreate this roadmap as a Wren project object and retire this file.
 - **Text-paste task parser (2026-07-28):** paste a block of free-flowing text, Wren parses discrete tasks out of it. (Framing: "nice to have but it would be REALLY nice to have.") Directly serves an existing workflow — sorting scattered thoughts into structured plans via Claude constantly (this whole roadmap is evidence of that pattern), so this would be automating something already proven useful by hand. Natural fit once the Python/FastAPI backend (`design/data-architecture.md`) exists — paste text → LLM call → structured tasks. Not scheduled.
 - **ADHD Hyperfocus tracking** eg: 'you usually keep up with a habit for x days'
   the idea behind this is not to shame but to show the reality of living with adhd and find some self reflection, maybe even making it easier to accept that interests come and go in bursts. it's ok to retire habits, it's ok to get them back up. what makes you happy in what phase of your life? 
+- **Trello board as a Wren page (2026-08-07, partly built).** Stopgap until real coworking exists — the point is "alles an einem Platz": see the shared board's state without leaving Wren. Lives in `src/pages/trello/` + `src/utils/trello.js` + `useTrelloBoard.js`. Already working: read-only board view (one call returns all lists with their cards nested) and creating a card per list. Auth is API key (shared, it's the app identity, not a secret) + a personal token per person via `trello.com/1/authorize` — nobody shares a token, since one token covers *all* of that person's boards. No backend needed; Trello's API allows CORS. Writes reload the board instead of updating optimistically — one cheap call, and it keeps other people's edits visible. Wishlist, deliberately parked as distraction ("ich glaub das waere grade ablenkung"):
+	- Checkbox per card; ticking it moves the card into the `✅ Finished` list.
+	- Move cards between lists via ▲/▼ arrows — same stopgap pattern the Backlog page already uses, since there's still no drag-and-drop.
+	- **Transform a Trello card into a real Wren task** ("richtig nice und eigentlich auch fire fuer langzeit integration"). Finishing the Wren task also completes the Trello card. Transformed cards get a slightly different colour and land in `📌 In Progress` or `➡️ Next Up` depending on whether they went to the Daylist or the Backlog. Needs a link field on the task (`trelloCardId`) — new task fields must tolerate legacy localStorage records that lack them. This is the one that makes the integration more than a viewer.
+	- Note: the first two are the same primitive — a `moveCard(cardId, targetListId)` call. Build it once and both fall out of it.
+	- **Sync direction — decided 2026-08-07: ownership by label, not real two-way sync.** A card transformed into a Wren task gets a `wren` label in Trello, and the rule is that nobody edits those cards inside Trello ("ich weiss das ich die innerhalb der trello liste nicht anfasse"). Workable because the board has few people on it and it can just be communicated. This removes the expensive half of bidirectional sync — two sides changing one card and needing a winner — and leaves: Trello → Wren for everything unlabelled (already free on reload), Wren → Trello for labelled cards only (one-way, no conflicts). The label also makes the rule visible *in the board*, so the others read it off the card instead of having to remember an agreement. Remaining edge case, worth one `if` and not a system: someone archives or moves a labelled card anyway — on reload, treat a missing or `closed` card as "task unlinked" rather than erroring.
 
 ### 
 

@@ -22,7 +22,7 @@ export function GlyphBorder({
     glyphSize = 20,
     color = "currentColor",
     borderWidth = 1,
-    padding = 32,
+    padding = 12,
     style,
     className = "",
 }) {

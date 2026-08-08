@@ -1,14 +1,15 @@
 import Bar from './elements/Bar'
-import { formatTime, formatClockTime } from '../utils/formatTime'
+import { formatTime, formatClockTime, effectiveMinutes } from '../utils/formatTime'
 
 export default function TimeProgress({ openTasks, finishedTasks, startedAt, resetStartedAt }) {
   const totalTimeLeft = openTasks.reduce((sum, task) => {
     return sum + (parseInt(task.time) || 0);
   }, 0);
 
-  // if tracked < 1min, it shows the estimate time LATER evaluate if user can change this behaviour in settings [also in TimeFlag]
+  // if tracked < 1min it falls back to the estimate — see effectiveMinutes in utils/formatTime
+  // LATER evaluate if user can change this behaviour in settings
   const totalTimeDone = finishedTasks.reduce((sum, task) => {
-    return sum + (parseInt(task.trackedTime > 60 ? (task.trackedTime / 60) : task.time) || 0);
+    return sum + (effectiveMinutes(task.trackedTime, task.time) || 0);
   }, 0);
 
   const totalTimePlanned = totalTimeDone + totalTimeLeft;

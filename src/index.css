@@ -28,7 +28,10 @@
   --color-accent-primary: #863bff;
   --color-accent-soft: #c8b3e986;
   --color-accent-muted: #d5bdee;
+  --color-failure: #e042ab;
+  --color-failure-light: #f5a4da;
   --color-success: #3ab890;
+  --color-success-light: #a6ebd5;
   /* Gradient */
   --background-image-gradient-main: linear-gradient(135deg, #a56bff, #f7719e);
   --background-image-gradient-softer: linear-gradient(135deg, #c095ff, #ff85ae);
@@ -44,6 +47,7 @@
   --radius-md: 10px;
   --radius-pill: 999px;
   --shadow-glow-accent: 0 0 12px color-mix(in srgb, #a56bff 45%, transparent);
+  --shadow-glow-intense: 2px 2px 14px color-mix(in srgb, #a56bff 45%, #e042ab 45%);
   /* animation */
   --ease-out: cubic-bezier(.16, 1, .3, 1);
   --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
@@ -76,11 +80,32 @@
 .input {
   font-size: 1rem;
   color: var(--color-text-primary);
-  background: var(--color-surface);
   border: var(--border-w) solid var(--color-border-soft);
   border-radius: var(--radius-md);
   outline: none;
   transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+
+/* Slim variant — font-size and radius have to live here, not as Tailwind utilities:
+   .input is unlayered CSS and therefore beats anything in @layer utilities, so a
+   text-sm class on an .input element would simply be ignored. Padding is safe as a
+   utility because .input doesn't set any. Must stay below .input — same specificity,
+   source order decides. */
+.input-slim {
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Read-only twin of .input — same box metrics, badge look instead of a field.
+   Keeping the metrics identical is the point: swapping a field to view mode and
+   back must not shift the layout. Same layer reasoning as .input-slim above. */
+.input-view {
+  border-color: transparent;
+  background: var(--color-border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
 }
 
 .input:focus {
