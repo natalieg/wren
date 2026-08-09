@@ -1,7 +1,5 @@
 # Changelog
 
-Informal — versions map to Phase milestones in `design/_ROADMAP.md`, not a formal release process. Minor bump when a phase hits its MVP threshold, patch bump for smaller steps in between.
-
 ## 0.5.0 — 2026-08-09
 - Trello board as a Wren page (`/trello`, `src/pages/trello/`, `utils/trello.js`) — read-only view of the shared board's lists and cards, plus creating a card per list. Auth is the shared app key baked in; each person fetches their own Trello token once and pastes it in. The board id is a default, not a lock.
 - Time tracking in the edit modal: live tracked time, play/pause, progress bar that glows once you pass the planned time. Tracked time is editable in minutes while stopped and read-only while the timer runs, so a typed value can't collide with the failsafe flush.
@@ -41,3 +39,8 @@ Informal — versions map to Phase milestones in `design/_ROADMAP.md`, not a for
 ## 0.1.0 — 2026-07-27
 - Daylist MVP (`/` → `Tasklist.jsx`): add, display, toggle done, delete, "delete all finished," persist to localStorage.
 - Per-task time estimate, done-vs-left `Bar` panel.
+
+---
+
+
+Informal — versions map to Phase milestones in `design/_ROADMAP.md`, not a formal release process. Minor bump when a phase hits its MVP threshold, patch bump for smaller steps in between.

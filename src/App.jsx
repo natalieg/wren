@@ -7,6 +7,7 @@ import Backlog from './pages/Backlog'
 import History from './pages/History'
 import Trello from './pages/trello/Trello'
 import Settings from './pages/settings/Settings'
+import Changelog from './pages/Changelog'
 import TasksProvider from './context/TasksProvider'
 import FloatingTaskPanel from './components/FloatingTaskPanel'
 
@@ -24,6 +25,7 @@ function App() {
             <Route path='/trello' element={<Trello />} />
             <Route path='/project' element={<IndexProject />} />
             <Route path='/settings' element={<Settings />} />
+            <Route path='/changelog' element={<Changelog />} />
           </Routes>
         </div>
         <FloatingTaskPanel />

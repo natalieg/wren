@@ -4,6 +4,8 @@ import flowers1 from '../assets/img/flowers1.jpg'
 import logo from '../assets/img/Logo_Wren.png'
 import { version } from '../../package.json'
 
+const footerLink = "text-center text-xs text-white/60 hover:text-white/90 py-1 transition-colors duration-200"
+
 export default function Sidebar({ className }) {
    return (
       <div className={`${className} sidebar flex flex-col gap-1 p-4`}
@@ -33,10 +35,10 @@ export default function Sidebar({ className }) {
          <SidebarButton to="/trello">Trello</SidebarButton>
          <br />
          {/* <SidebarButton to="/project">[OLD] Projects</SidebarButton> */}
-         <NavLink to="/settings"
-            className="mt-auto text-center text-xs text-white/60 hover:text-white/90 py-1 transition-colors duration-200">
-            Settings
-         </NavLink>
+         <div className="mt-auto flex flex-col">
+            <NavLink to="/settings" className={footerLink}>Settings</NavLink>
+            <NavLink to="/changelog" className={footerLink}>Changelog</NavLink>
+         </div>
       </div>
    )
 }
