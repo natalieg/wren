@@ -4,6 +4,7 @@ import { loadSettings } from '../utils/settings'
 import useDayActions from './useDayActions'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
 import { minutesToSeconds } from '../utils/formatTime'
+import reorderTasks from '../utils/reorderTasks'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -235,6 +236,10 @@ function useTasks() {
     })
   }
 
+  const reorderTaskList = (activeId, overId) => {
+    setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
+  }
+
   const taskActions = {
     toggleDone,
     toggleActive,
@@ -243,6 +248,7 @@ function useTasks() {
     handleFieldChange,
     deleteAllFinishedTasks,
     pushToBottom,
+    reorderTaskList,
     startTracking,
     stopTracking,
     setEditingTaskId,

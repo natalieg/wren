@@ -32,7 +32,7 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-01: real active time tracking — start/stop per task (`PlayBtn`/`TimeFlag`), live ticking, persisted `trackedTime` with a 5min failsafe flush against accidental refresh/close. Switching tasks flushes and stops the old one, and settles it right below the new running task in the list instead of jumping back to its original position. The running task anchors the whole cascade off its own real remaining time, falling back to `now` once it runs over its own estimate. Covered by tests in `useTasks.test.js`. Full model/reasoning: `design/decisions.md`.
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
-3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
+3. ✅ Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
    - ✅ 2026-08-08: edit modal reflects time-tracking fields (below) — which also covers the "focus mode" idea from 2026-08-01 
    - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
@@ -52,11 +52,15 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-09: running task shows in the browser tab (`useTabTitle.js`, `▴ 5:05 · label`), so a backgrounded Wren still says a timer is going. Rides on the existing per-second render, no second timer.
 - ✅ 2026-08-09: the ticking clock stopped jittering. `tabular-nums` alone did nothing — Quicksand has no tabular figures — so live numbers get a `.tnum` class that switches them to Nunito (Inter loaded as the fallback). `TimeFlag` widened to `w-24` for three-digit minutes.
 
-### PUSHED UP: Habits/Recurring MVP
-
-### 🔷 Phase 3 — Drag-and-drop
+### 🟡 Phase 3 — Drag-and-drop
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
-- 🔷 Drag-and-drop via `dnd-kit` for manual task reordering (flagged 2026-08-01, still wanted soon).
+- ✅ 2026-08-09: day list reorders by drag via `dnd-kit`. Order stays "array order in `taskList`" — no `order` field, no migration; the whole translation between a page's filtered slice and the stored array lives in one pure `utils/reorderTasks.js` (13 tests). `DndContext` sits on the *page* (`TaskDndArea.jsx`), `SortableContext` per `TaskGroup`, because a drag can only cross lists inside one shared context.
+- ✅ 2026-08-09: the running task is pinned and undraggable — it renders as its own one-item group outside the drag area, so it never receives a transform. Whole-row dragging with an 8px threshold keeps the click-to-open-modal behaviour intact.
+- 🔷 Next: highlight the list being dragged onto, plus a `DragOverlay`. Has to ship *before* cross-group drops, since the same gesture is a silent no-op today and a real bucket move afterwards.
+- 🔷 Then: Backlog — within a bucket, then across buckets (removes the ▲/▼ shift arrows). `reorderTasks` already detects the cross-group case and returns unchanged; filling that branch in moves no existing lines.
+- 🟥 Open: `KeyboardSensor` would give mouse-free reordering, but it claims Space/Enter on a focused row and Space is already start/stop tracking.
+
+### PUSHED UP: Habits/Recurring MVP
 
 ### Trello integration cont.
 - move cards
@@ -85,6 +89,8 @@ Pulled forward out of Phase 14's shell restyle (2026-08-06) — waiting until th
 
 ### Phase 6 — Simple Export/Import
 Inbetween Broswerstorage and real Database, there is a need to save the json and being able to import it again 
+
+### Project MVP
 
 ### Phase 7 — Recurring Tasks / Habits & Reflection
 - Set Tasks to Recurring [maybe stikc to the name 'habits' for clarity]

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.0 — 2026-08-09
+- Drag and drop on the day list — grab a task anywhere on the row and reorder it. Short clicks still open the edit modal; the checkbox, play and delete buttons keep working.
+- The running task is pinned to the top and can't be dragged or dropped on, so a timer never gets shuffled away mid-session. It stays put when you stop it, too.
+- New order survives a refresh — task order is simply the order in storage, so nothing new had to be saved.
+
 ## 0.5.0 — 2026-08-09
 - Trello board as a Wren page (`/trello`, `src/pages/trello/`, `utils/trello.js`) — read-only view of the shared board's lists and cards, plus creating a card per list. Auth is the shared app key baked in; each person fetches their own Trello token once and pastes it in. The board id is a default, not a lock.
 - Time tracking in the edit modal: live tracked time, play/pause, progress bar that glows once you pass the planned time. Tracked time is editable in minutes while stopped and read-only while the timer runs, so a typed value can't collide with the failsafe flush.

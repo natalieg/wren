@@ -7,42 +7,55 @@
 *two sessions. the data model is already done: order = array order in `taskList`, persisted as-is. no `order` field, no sort index, no migration. `pushToBottom` is already a reorder — DnD only changes **which** index gets written.*
 
 ### Decide first (5 min, before any code)
-- [ ] what happens to `sortedActiveTasks()` while tracking? it pulls the running task to the top, so dragging something above it snaps back
-	- [ ] option A: keep it, running task is simply not draggable / always pinned
+- [x] what happens to `sortedActiveTasks()` while tracking? it pulls the running task to the top, so dragging something above it snaps back
+	- [x] option A: keep it, running task is simply not draggable / always pinned
 	- [ ] option B: pin only until the first manual drag, then respect manual order
 	- [ ] the `// LATER should be changable in user settings` comment on [useTasks.js:282] is exactly this decision
-- [ ] drag handle or whole row? whole row = nicer, but conflicts with the row's `onClick` → modal (solvable, see step 5)
+- [x] drag handle or whole row? whole row = nicer, but conflicts with the row's `onClick` → modal (solvable, see step 5)
 
 ### Session 1 — Tasklist
-- [ ] `npm i @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`
-- [ ] `utils/reorderTasks.js`: pure `reorderTasks(taskList, activeId, overId)` → new array
-	- [ ] **the actual brain-work step.** the page renders `openTasks` (filtered + derived), DnD reports "A over B" in *that* list — both ids have to be found in the full `taskList` and spliced there
-	- [ ] pure function = unit-testable without any DnD. tests: move down, move up, unknown id, tasks of other lists keep their relative position
-- [ ] wire into `useTasks` as `reorderTask(activeId, overId)` → `setTaskList(reorderTasks(...))`, add to the `taskActions` bundle
-	- [ ] no other change in `useTasks` needed — `openTasks`/estimates are derived and recompute on their own
-- [ ] `TaskGroup.jsx`: wrap in `DndContext` + `SortableContext` (`verticalListSortingStrategy`), `onDragEnd` calls `reorderTask`
-- [ ] `TaskItem.jsx`: `useSortable({ id })`, apply `transform`/`transition` to the wrapper
-- [ ] fix drag vs click: `PointerSensor` with `activationConstraint: { distance: 8 }` — below 8px it stays a click and opens the modal
-	- [ ] check Checkbox / PlayBtn / ✕ still work (PlayBtn already does `stopPropagation`)
+- [x] `npm i @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`
+- [x] `utils/reorderTasks.js`: pure `reorderTasks(taskList, activeId, overId)` → new array
+	- [x] **the actual brain-work step.** the page renders `openTasks` (filtered + derived), DnD reports "A over B" in *that* list — both ids have to be found in the full `taskList` and spliced there
+	- [x] pure function = unit-testable without any DnD. tests: move down, move up, unknown id, tasks of other lists keep their relative position
+- [x] wire into `useTasks` as `reorderTask(activeId, overId)` → `setTaskList(reorderTasks(...))`, add to the `taskActions` bundle
+	- [x] no other change in `useTasks` needed — `openTasks`/estimates are derived and recompute on their own
+- [x] `TaskGroup.jsx`: `SortableContext` (`verticalListSortingStrategy`) — the `DndContext` went **one level up** instead, into `TaskDndArea.jsx` on the page ("i never want to write something 'just like this' to sort it out later"). Separate contexts can't drag between each other, so cross-bucket/habit drops need one shared context per page from the start.
+- [x] `TaskItem.jsx`: `useSortable` lives in a `SortableTaskItem` wrapper; the pinned running task renders plain `TaskItem` and never touches dnd-kit
+- [x] fix drag vs click: `PointerSensor` with `activationConstraint: { distance: 8 }` — below 8px it stays a click and opens the modal
+	- [x] Checkbox / PlayBtn / ✕ / modal all still work
 - [ ] `DragOverlay` for the floating preview while dragging
 - [ ] bonus, nearly free with dnd-kit: `KeyboardSensor` → reorder without a mouse
-- [ ] check: is the estimate cascade correct after a drag? and does it still persist after F5?
+	- [ ] 🤖 blocked on a decision, not on code: `KeyboardSensor` grabs Space/Enter on a focused row, and Space is already start/stop tracking ("i would really like to keep space for tracking, i'm open for alternatives tho")
+- [x] persists after F5
+- [ ] check: is the estimate cascade correct after a drag?
+
+### 🤖 Next block — drop feedback (decided 2026-08-09, before session 2)
+*this has to ship **before** cross-group drops, not after: today a drop on the wrong list is a silent no-op, but the same gesture becomes a real bucket move in session 2.*
+- [ ] highlight the list currently being dragged onto ("that does help me a lot")
+	- [ ] `TaskDndArea` tracks `over` via `onDragOver`, resolves its group with `groupKey` (needs a named export from `reorderTasks.js`), each `TaskGroup` compares against its own key
+	- [ ] the same highlight explains the snap-back: no highlight = this drop does nothing
+- [ ] container droppable per `TaskGroup`, so an empty or collapsed list is still a target
+	- [ ] `CollapsableDiv` collapses with `grid-template-rows: 0fr`, it does **not** unmount — collapsed tasks are already live drop targets at zero height. Dropping into a collapsed list is wanted ("sometimes i just want to have things out of my field of vision"), it just needs to be visible that it's happening.
+- [ ] `DragOverlay` belongs in this block too — it's the same "where will this land" problem
+
+### 🤖 Layout: pin the running task above everything (started 2026-08-09)
+- [x] running task renders as its own one-item group, outside `TaskDndArea` — can't be dragged, can't be dropped on
+- [ ] it still sits *below* "Next up" visually; the pin only makes sense once it's above that too
+- [ ] render-split only, never a data change — estimates, history and persistence all need it to stay an ordinary active task
 
 ### Session 2 — Backlog
 - [ ] within a bucket first — same pattern, `backlogTasks` is filtered by bucket per group
 - [ ] only then across buckets: that's reorder **and** a `bucket` field change in one drop. this is the part that makes it two sessions instead of one
-- [ ] decide: do the ▲/▼ arrows stay as a keyboard/touch fallback, or go?
+	- [ ] 🤖 `reorderTasks` already *detects* this case — it returns unchanged when the two group keys differ. Filling that branch in moves zero existing lines.
+- [x] decide: do the ▲/▼ arrows stay as a keyboard/touch fallback, or go? → **go** ("they were always just a sloppy solution as a bridge")
+- [ ] 🤖 blocker to do first: `Backlog.jsx` wraps *every single task* in its own `TaskGroup` so the ▲/▼ buttons can sit beside it. A bucket can't be a sortable list that way — it needs one `TaskGroup` per bucket. Removing the arrows collapses that block to a few lines.
 
-### Explicitly NOT in this phase
-- [ ] real `priority: 1|2|3` field — different feature (sortable, filterable). manual order already *is* the priority in Wren, DnD doesn't produce a priority field
-- [ ] dragging across pages (Tasklist ↔ Backlog)
+- [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
 ## Task Modal 'Time Feature' — parked
 *🤖 The MVP shipped in 0.5.0. What's left here is polish, nothing blocking.*
 - [ ] [[Time Tracking 260801]] ( MVP) 
-	- [x] '**popup modal**' could be an opportunity for a simple 'focus mode' — 🤖 done: modal open, running timer and bar visible, one task in front of you. No separate app mode, that was never the idea
-	- [x] numbers should not 'wobble' around while the tracker is running — 🤖 done: second-boundary ticks + `.tnum` (Nunito), `TimeFlag` widened to `w-24`
-- [x] Time general: running time in the tab header — 🤖 done, `useTabTitle.js`
 - [ ] [space] should toggle tracking inside the modal too
 	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
 - [ ] 🤖 maximise the modal for a proper focus view — the `□` in the window chrome is still decoration. Details in the roadmap's Future ideas
@@ -53,6 +66,8 @@
 	- [ ] **t** for **next up** [tomorrow] 
 	- [ ] **w** for **next week**
 	- [ ] **b** for **backlog**
+
+- [ ] Show 'tracked time' on task in sessions - needs implementation of new 'session started/session ended' timestamps 
 
 ## Trello integration
 - [ ] trello task abhaken, 
