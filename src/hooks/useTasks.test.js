@@ -355,4 +355,44 @@ describe('useTasks', () => {
       expect(result.current.openTasks[0].estimate.getTime()).toBe(Date.now())
     })
   })
+
+  // dragging across the finished line can't be a plain list change — it has to go
+  // through toggleDone, which is what writes finishedTimestamp and the history entry
+  describe('dragging onto and out of the finished list', () => {
+    const addTasks = (result, labels) => {
+      for (const label of labels) {
+        act(() => { result.current.taskActions.handleAddTask(label, 10) })
+      }
+      return labels.map(label => result.current.taskList.find(t => t.id != null && t.label === label).id)
+    }
+
+    it('dropping a task onto a finished one finishes it, with history', () => {
+      const { result } = renderHook(() => useTasks())
+      const [idA, idB] = addTasks(result, ['A', 'B'])
+
+      act(() => { result.current.taskActions.toggleDone(idB) })
+      act(() => { result.current.taskActions.reorderTaskList(idA, idB) })
+
+      expect(result.current.taskList.find(t => t.id === idA)).toMatchObject({ list: DONE })
+      expect(result.current.taskList.find(t => t.id === idA).finishedTimestamp).toBeTruthy()
+      expect(result.current.finishedTasks).toHaveLength(2)
+    })
+
+    // the risky half: toggleDone restores previousList, so the task has to be placed
+    // afterwards or it lands in whichever list it happened to come from
+    it('dropping a finished task onto an active one un-finishes it into that list', () => {
+      const { result } = renderHook(() => useTasks())
+      const [idA, idB] = addTasks(result, ['A', 'B'])
+
+      act(() => { result.current.taskActions.toggleActive(idA) }) // park it, so previousList is backlog
+      act(() => { result.current.taskActions.toggleDone(idA) })
+      expect(result.current.finishedTasks).toHaveLength(1)
+
+      act(() => { result.current.taskActions.reorderTaskList(idA, idB) })
+
+      expect(result.current.taskList.find(t => t.id === idA)).toMatchObject({ list: ACTIVE })
+      expect(result.current.finishedTasks).toHaveLength(0)
+      expect(result.current.openTasks.map(t => t.id)).toContain(idA)
+    })
+  })
 })

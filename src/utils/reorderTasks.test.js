@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import reorderTasks from './reorderTasks'
-import { ACTIVE, BACKLOG, DONE, NEXTUP, NEXTWEEK } from './constants'
+import { ACTIVE, BACKLOG, DONE, NEXTUP, NEXTWEEK, SOMEDAY } from './constants'
 
 const active = (id) => ({ id, label: `task ${id}`, time: 10, list: ACTIVE })
 const backlog = (id, bucket = NEXTUP) => ({
@@ -44,13 +44,61 @@ describe('reorderTasks — leaving everything else alone', () => {
         expect(ids(result)).toEqual([3, 2, 1])
     })
 
-    it('does not reorder across buckets — that is a move, not a reorder', () => {
-        const taskList = [backlog(1), backlog(2, NEXTWEEK)]
+})
+
+describe('reorderTasks — dropping on another list moves the task there', () => {
+    it('takes the target bucket and lands at the drop position', () => {
+        const taskList = [active(1), backlog(2, NEXTWEEK), backlog(3, NEXTWEEK)]
+        const result = reorderTasks(taskList, 1, 3)
+
+        expect(ids(result)).toEqual([2, 1, 3])
+        expect(result[1]).toMatchObject({ id: 1, list: BACKLOG })
+        expect(result[1].backlog.bucket).toBe(NEXTWEEK)
+    })
+
+    it('moves between buckets', () => {
+        const taskList = [backlog(1), backlog(2, SOMEDAY)]
+        const result = reorderTasks(taskList, 1, 2)
+
+        expect(result[0].backlog.bucket).toBe(SOMEDAY)
+        expect(ids(result)).toEqual([1, 2])
+    })
+
+    it('clears the backlog object when the target is the active list', () => {
+        const taskList = [active(1), backlog(2, SOMEDAY)]
+        const result = reorderTasks(taskList, 2, 1)
+
+        expect(result[0]).toMatchObject({ id: 2, list: ACTIVE })
+        expect(result[0].backlog).toBeUndefined()
+    })
+
+    // the date belongs to the task, not to the bucket it happens to sit in
+    it('keeps activationDate across a bucket change', () => {
+        const dated = { ...backlog(1), backlog: { bucket: NEXTUP, activationDate: '2026-08-20' } }
+        const result = reorderTasks([dated, backlog(2, SOMEDAY)], 1, 2)
+
+        expect(result[0].backlog).toEqual({ bucket: SOMEDAY, activationDate: '2026-08-20' })
+    })
+
+    it('leaves tasks of uninvolved lists alone', () => {
+        const taskList = [active(1), active(2), backlog(3, SOMEDAY)]
+        const result = reorderTasks(taskList, 1, 3)
+
+        expect(ids(result)).toEqual([2, 1, 3])
+        expect(result[0]).toBe(taskList[1])
+    })
+})
+
+describe('reorderTasks — done is not a drag transition', () => {
+    // finishing writes a timestamp and a history entry, so toggleDone owns it and
+    // a drop onto the finished list is routed there instead of moving the task here
+    it('refuses a drop onto a finished task', () => {
+        const taskList = [active(1), { ...active(2), list: DONE }]
         expect(reorderTasks(taskList, 1, 2)).toBe(taskList)
     })
 
-    it('does not reorder across lists', () => {
-        const taskList = [active(1), backlog(2)]
+    it('refuses dragging a finished task somewhere else', () => {
+        const taskList = [{ ...active(1), list: DONE }, active(2)]
         expect(reorderTasks(taskList, 1, 2)).toBe(taskList)
     })
 })

@@ -4,6 +4,9 @@
 - Drag and drop on the day list — grab a task anywhere on the row and reorder it. Short clicks still open the edit modal; the checkbox, play and delete buttons keep working.
 - The running task is pinned to the top and can't be dragged or dropped on, so a timer never gets shuffled away mid-session. It stays put when you stop it, too.
 - New order survives a refresh — task order is simply the order in storage, so nothing new had to be saved.
+- Drag a task between lists: onto Next up to park it, back onto the day list to activate it. The target list opens a gap while you drag, so you see where it lands before letting go.
+- Drag a task onto Finished to tick it off, or drag a finished one back out to un-tick it. Both go through the normal finish logic, so the timestamp and the history entry are still written.
+- A floating copy of the task follows the cursor while dragging, and lists that can't take the task mid-drag show a dashed placeholder where it would land.
 
 ## 0.5.0 — 2026-08-09
 - Trello board as a Wren page (`/trello`, `src/pages/trello/`, `utils/trello.js`) — read-only view of the shared board's lists and cards, plus creating a card per list. Auth is the shared app key baked in; each person fetches their own Trello token once and pastes it in. The board id is a default, not a lock.

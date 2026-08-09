@@ -4,7 +4,7 @@ import { loadSettings } from '../utils/settings'
 import useDayActions from './useDayActions'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
 import { minutesToSeconds } from '../utils/formatTime'
-import reorderTasks from '../utils/reorderTasks'
+import reorderTasks, { groupKey } from '../utils/reorderTasks'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -236,7 +236,38 @@ function useTasks() {
     })
   }
 
+  // dropping a task onto the finished list finishes it rather than moving it there —
+  // toggleDone also writes finishedTimestamp and the history entry, which a plain
+  // list change would skip. reorderTasks refuses the transition for the same reason.
   const reorderTaskList = (activeId, overId) => {
+    const activeTask = taskList.find(t => t.id === activeId)
+    const overTask = taskList.find(t => t.id === overId)
+    if (!activeTask || !overTask) return
+
+    // crossing the finished line in either direction runs toggleDone, which is the only
+    // thing that also writes finishedTimestamp and the history entry
+    const wasDone = activeTask.list === DONE
+    if (wasDone !== (overTask.list === DONE)) {
+      toggleDone(activeId)
+      // un-finishing restores previousList, which can be a different list than the one
+      // it was dropped on — so place it afterwards, on the state toggleDone just wrote
+      if (wasDone) {
+        setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
+      }
+      return
+    }
+    setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
+  }
+
+  // mid-drag: the task changes list as soon as it hovers one, so the target opens a gap
+  // under the cursor instead of the task teleporting on drop. Same-list reordering is
+  // left to the drop, and finishing is excluded — hovering must never tick a task off
+  const moveTaskAcrossLists = (activeId, overId) => {
+    const activeTask = taskList.find(t => t.id === activeId)
+    const overTask = taskList.find(t => t.id === overId)
+    if (!activeTask || !overTask) return
+    if (activeTask.list === DONE || overTask.list === DONE) return
+    if (groupKey(activeTask) === groupKey(overTask)) return
     setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
   }
 
@@ -249,6 +280,7 @@ function useTasks() {
     deleteAllFinishedTasks,
     pushToBottom,
     reorderTaskList,
+    moveTaskAcrossLists,
     startTracking,
     stopTracking,
     setEditingTaskId,

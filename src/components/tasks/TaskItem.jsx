@@ -9,8 +9,10 @@ import { DONE } from '../../utils/constants'
 // wraps a row in dnd-kit's sortable. Only rows that are actually sortable render through
 // this — the pinned running task renders TaskItem directly, so it never receives a transform
 export function SortableTaskItem({ task, ...props }) {
+    // the task rides along in data so a list that can't take a live move can still
+    // render a placeholder with the real label on it
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-        useSortable({ id: task.id })
+        useSortable({ id: task.id, data: { task } })
 
     const dragProps = {
         ref: setNodeRef,
@@ -42,7 +44,7 @@ export default function TaskItem({ index, task, toggleDone, onDelete, startTrack
     return (
         <div {...dragProps}
             className={`${showEstimate && 'grid-cols-[80%_20%]'} group task-wrapper hover:bg-accent-soft/30 rounded-md py-1 px-2 grid  gap-2 items-center
-        ${isDragging ? 'opacity-50' : ''}
+        ${isDragging ? 'bg-gradient-mutewarm' : ''}
         ${isTracking ? 'bg-gradient-softer' : ''}`}>
             <div className='group task-item task-border task-hover flex justify-between'
                 data-task-id={id}

@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import TaskGroup from '../components/tasks/TaskGroup'
+import TaskItem from '../components/tasks/TaskItem'
 import TaskDndArea from '../components/tasks/TaskDndArea'
 import CollapsableDiv from '../components/CollapsableDiv'
 import TimeProgress from '../components/TimeProgress'
@@ -19,7 +20,7 @@ export default function Tasklist() {
       resetStartedAt,
    } = useContext(TasksContext)
 
-   const { handleAddTask, deleteAllFinishedTasks, reorderTaskList } = taskActions
+   const { handleAddTask, deleteAllFinishedTasks, reorderTaskList, moveTaskAcrossLists } = taskActions
 
    const taskActionBundle = {
       ...taskActions,
@@ -29,6 +30,13 @@ export default function Tasklist() {
 
    const runningTask = openTasks.find((t) => t.id === runningTaskId)
    const openTasksWithoutRunning = openTasks.filter((t) => t.id !== runningTaskId)
+
+   // the floating copy under the cursor while dragging — same row component, so it can't
+   // drift from how a task actually looks
+   const renderDragOverlay = (id) => {
+      const task = [...openTasks, ...nextUpTasks, ...finishedTasks].find((t) => t.id === id)
+      return task ? <TaskItem task={task} {...taskActionBundle} showEstimate={true} /> : null
+   }
 
 
    return (
@@ -48,7 +56,8 @@ export default function Tasklist() {
 
             {/* every group on the page shares one DndContext — a drag can only cross
             lists inside the same context, which is what buckets/habits will need */}
-            <TaskDndArea onReorder={reorderTaskList}>
+            <TaskDndArea onReorder={reorderTaskList} onMoveAcrossLists={moveTaskAcrossLists}
+               renderDragOverlay={renderDragOverlay}>
                {/* 💤 Next up (backlog, 'nextUp' bucket) */}
                {/* Todo move to side component when implemented */}
                {nextUpTasks.length > 0 && (

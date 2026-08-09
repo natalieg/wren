@@ -4,26 +4,8 @@
 *🤖 Time feature is parked below — 0.5.0 is merged and live, it can rest. Warm-up if needed: the keybind change further down (t/w/b), ~10 min.*
 
 ## 🤖 DnD mini-roadmap (Phase 3) — planned 2026-08-08
-*two sessions. the data model is already done: order = array order in `taskList`, persisted as-is. no `order` field, no sort index, no migration. `pushToBottom` is already a reorder — DnD only changes **which** index gets written.*
-
-### Decide first (5 min, before any code)
-- [x] what happens to `sortedActiveTasks()` while tracking? it pulls the running task to the top, so dragging something above it snaps back
-	- [x] option A: keep it, running task is simply not draggable / always pinned
-	- [ ] option B: pin only until the first manual drag, then respect manual order
-	- [ ] the `// LATER should be changable in user settings` comment on [useTasks.js:282] is exactly this decision
-- [x] drag handle or whole row? whole row = nicer, but conflicts with the row's `onClick` → modal (solvable, see step 5)
 
 ### Session 1 — Tasklist
-- [x] `npm i @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`
-- [x] `utils/reorderTasks.js`: pure `reorderTasks(taskList, activeId, overId)` → new array
-	- [x] **the actual brain-work step.** the page renders `openTasks` (filtered + derived), DnD reports "A over B" in *that* list — both ids have to be found in the full `taskList` and spliced there
-	- [x] pure function = unit-testable without any DnD. tests: move down, move up, unknown id, tasks of other lists keep their relative position
-- [x] wire into `useTasks` as `reorderTask(activeId, overId)` → `setTaskList(reorderTasks(...))`, add to the `taskActions` bundle
-	- [x] no other change in `useTasks` needed — `openTasks`/estimates are derived and recompute on their own
-- [x] `TaskGroup.jsx`: `SortableContext` (`verticalListSortingStrategy`) — the `DndContext` went **one level up** instead, into `TaskDndArea.jsx` on the page ("i never want to write something 'just like this' to sort it out later"). Separate contexts can't drag between each other, so cross-bucket/habit drops need one shared context per page from the start.
-- [x] `TaskItem.jsx`: `useSortable` lives in a `SortableTaskItem` wrapper; the pinned running task renders plain `TaskItem` and never touches dnd-kit
-- [x] fix drag vs click: `PointerSensor` with `activationConstraint: { distance: 8 }` — below 8px it stays a click and opens the modal
-	- [x] Checkbox / PlayBtn / ✕ / modal all still work
 - [ ] `DragOverlay` for the floating preview while dragging
 - [ ] bonus, nearly free with dnd-kit: `KeyboardSensor` → reorder without a mouse
 	- [ ] 🤖 blocked on a decision, not on code: `KeyboardSensor` grabs Space/Enter on a focused row, and Space is already start/stop tracking ("i would really like to keep space for tracking, i'm open for alternatives tho")
@@ -41,8 +23,8 @@
 
 ### 🤖 Layout: pin the running task above everything (started 2026-08-09)
 - [x] running task renders as its own one-item group, outside `TaskDndArea` — can't be dragged, can't be dropped on
-- [ ] it still sits *below* "Next up" visually; the pin only makes sense once it's above that too
-- [ ] render-split only, never a data change — estimates, history and persistence all need it to stay an ordinary active task
+- [x] it still sits *below* "Next up" visually; the pin only makes sense once it's above that too
+- [x] render-split only, never a data change — estimates, history and persistence all need it to stay an ordinary active task
 
 ### Session 2 — Backlog
 - [ ] within a bucket first — same pattern, `backlogTasks` is filtered by bucket per group
@@ -92,8 +74,10 @@
 	- [ ] #later user can set in #settings what the default behaviour is 
 - [ ] delete tasks from #history
 - [ ] delete whole entry from #history 
+- [ ] autsplit tasks that had some tracking from the previous day on rollover 
+- [ ] give tasks put on #nextWeek an activation date 7 days from now #later settings: should it automate to 'monday' or '7 days in future'
 
-![[Pasted image 20260727211428.png]]
+
 
 ## Soon:
 - [ ] MVP #Project 
@@ -137,6 +121,7 @@
 			- OR every step as a master task with same progress ⬜⬜⬜ etc 
 			- benefit: user can always see the progress of the whole pages/phase
 			- usability: next box is only unlocked if the prev phase is finished, this could also be set as conditional/nonconditional in the template (eg, pages are not really force connected, while linearts always need sketches first, tho usually one works linear, but sometimes it happens that one is able to finish page 20 before they finish page 19)
+- if dashed line for every drag: **Yes — and it's genuinely one line.** Just don't pass `onMoveAcrossLists` to `TaskDndArea`. No live move means no list ever receives the real row, so the placeholder rule fires everywhere, and in-list sorting keeps its normal animation either way.
 
 #### Integrate in Roadmap:
 
