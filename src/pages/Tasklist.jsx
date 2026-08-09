@@ -56,6 +56,7 @@ export default function Tasklist() {
 
             {/* every group on the page shares one DndContext — a drag can only cross
             lists inside the same context, which is what buckets/habits will need */}
+            {/* TEST  onMoveAcrossLists={moveTaskAcrossLists} comment out to test visual preference*/}
             <TaskDndArea onReorder={reorderTaskList} onMoveAcrossLists={moveTaskAcrossLists}
                renderDragOverlay={renderDragOverlay}>
                {/* 💤 Next up (backlog, 'nextUp' bucket) */}
