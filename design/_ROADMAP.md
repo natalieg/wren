@@ -56,9 +56,12 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
 - ✅ 2026-08-09: day list reorders by drag via `dnd-kit`. Order stays "array order in `taskList`" — no `order` field, no migration; the whole translation between a page's filtered slice and the stored array lives in one pure `utils/reorderTasks.js` (13 tests). `DndContext` sits on the *page* (`TaskDndArea.jsx`), `SortableContext` per `TaskGroup`, because a drag can only cross lists inside one shared context.
 - ✅ 2026-08-09: the running task is pinned and undraggable — it renders as its own one-item group outside the drag area, so it never receives a transform. Whole-row dragging with an 8px threshold keeps the click-to-open-modal behaviour intact.
-- 🔷 Next: highlight the list being dragged onto, plus a `DragOverlay`. Has to ship *before* cross-group drops, since the same gesture is a silent no-op today and a real bucket move afterwards.
-- 🔷 Then: Backlog — within a bucket, then across buckets (removes the ▲/▼ shift arrows). `reorderTasks` already detects the cross-group case and returns unchanged; filling that branch in moves no existing lines.
+- ✅ 2026-08-09: dragging *between* lists. A drop on another list rewrites `list`/`bucket` (keeping `activationDate`), and `onDragOver` applies it mid-drag so the target opens a gap instead of the task teleporting on release. `DragOverlay` floats a copy under the cursor; lists that can't take a live move show a dashed placeholder instead. Both source and target list outline while dragging.
+- ✅ 2026-08-09: dropping onto Finished ticks a task off, dragging one out un-ticks it. Routed through `toggleDone` rather than a list change, so the timestamp and history entry still happen — `reorderTasks` refuses the `done` transition itself for exactly that reason.
+- 🔷 Next: container droppable per list, so an empty or collapsed list is still a target. Also makes Next up and Finished show themselves while a drag is running.
+- 🔷 Then: Backlog page — one `TaskGroup` per bucket instead of one per task, which removes the ▲/▼ shift arrows. The cross-bucket logic itself already works.
 - 🟥 Open: `KeyboardSensor` would give mouse-free reordering, but it claims Space/Enter on a focused row and Space is already start/stop tracking.
+- 🟥 Open: live gap vs. dashed placeholder everywhere — to be decided after testing the feel with other people. One prop switches it.
 
 ### PUSHED UP: Habits/Recurring MVP
 

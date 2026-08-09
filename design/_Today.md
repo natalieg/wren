@@ -1,37 +1,24 @@
 
 
 ## ▶ NOW: DnD (Phase 3)
-*🤖 Time feature is parked below — 0.5.0 is merged and live, it can rest. Warm-up if needed: the keybind change further down (t/w/b), ~10 min.*
+*🤖 The Tasklist is done and pushed (branch `dragnAndDrop`, 0.6.0): reorder, drag between active/Next up/Finished, live gap, floating preview, dashed placeholder. What's below is what's actually left — finished items deleted, not archived.*
 
-## 🤖 DnD mini-roadmap (Phase 3) — planned 2026-08-08
+### 🤖 Step D — drop zones (next, ~1 session)
+*the last structural piece. One change closes all three of these at once: a container droppable per list, so a list is a target even with nothing in it.*
+- [ ] with no active tasks, nothing can be dropped into the day list — the group renders a zero-height div
+- [ ] collapsed lists: `CollapsableDiv` collapses with `grid-template-rows: 0fr` and does **not** unmount, so its tasks stay live drop targets at zero height. Dropping into a collapsed list is wanted ("sometimes i just want to have things out of my field of vision"), it just has to be visible that it's happening.
+- [ ] show Next up + Finished while a drag is running even when they're empty — "to show the user that they can do more than just sort the list, they can influence the state of the task"
 
-### Session 1 — Tasklist
-- [ ] `DragOverlay` for the floating preview while dragging
-- [ ] bonus, nearly free with dnd-kit: `KeyboardSensor` → reorder without a mouse
-	- [ ] 🤖 blocked on a decision, not on code: `KeyboardSensor` grabs Space/Enter on a focused row, and Space is already start/stop tracking ("i would really like to keep space for tracking, i'm open for alternatives tho")
-- [x] persists after F5
-- [ ] check: is the estimate cascade correct after a drag?
-
-### 🤖 Next block — drop feedback (decided 2026-08-09, before session 2)
-*this has to ship **before** cross-group drops, not after: today a drop on the wrong list is a silent no-op, but the same gesture becomes a real bucket move in session 2.*
-- [ ] highlight the list currently being dragged onto ("that does help me a lot")
-	- [ ] `TaskDndArea` tracks `over` via `onDragOver`, resolves its group with `groupKey` (needs a named export from `reorderTasks.js`), each `TaskGroup` compares against its own key
-	- [ ] the same highlight explains the snap-back: no highlight = this drop does nothing
-- [ ] container droppable per `TaskGroup`, so an empty or collapsed list is still a target
-	- [ ] `CollapsableDiv` collapses with `grid-template-rows: 0fr`, it does **not** unmount — collapsed tasks are already live drop targets at zero height. Dropping into a collapsed list is wanted ("sometimes i just want to have things out of my field of vision"), it just needs to be visible that it's happening.
-- [ ] `DragOverlay` belongs in this block too — it's the same "where will this land" problem
-
-### 🤖 Layout: pin the running task above everything (started 2026-08-09)
-- [x] running task renders as its own one-item group, outside `TaskDndArea` — can't be dragged, can't be dropped on
-- [x] it still sits *below* "Next up" visually; the pin only makes sense once it's above that too
-- [x] render-split only, never a data change — estimates, history and persistence all need it to stay an ordinary active task
+### 🤖 Open, not blocking
+- [ ] A/B the drag feel with friends before deciding: live gap vs. dashed ghost everywhere. Switch is one prop — comment out `onMoveAcrossLists` in `Tasklist.jsx` (marked `TEST` there).
+- [ ] check: is the estimate cascade still correct right after a drag?
+- [ ] `KeyboardSensor` → reorder without a mouse. Blocked on a decision, not on code: it grabs Space/Enter on a focused row and Space is start/stop tracking ("i would really like to keep space for tracking, i'm open for alternatives tho")
 
 ### Session 2 — Backlog
-- [ ] within a bucket first — same pattern, `backlogTasks` is filtered by bucket per group
-- [ ] only then across buckets: that's reorder **and** a `bucket` field change in one drop. this is the part that makes it two sessions instead of one
-	- [ ] 🤖 `reorderTasks` already *detects* this case — it returns unchanged when the two group keys differ. Filling that branch in moves zero existing lines.
-- [x] decide: do the ▲/▼ arrows stay as a keyboard/touch fallback, or go? → **go** ("they were always just a sloppy solution as a bridge")
-- [ ] 🤖 blocker to do first: `Backlog.jsx` wraps *every single task* in its own `TaskGroup` so the ▲/▼ buttons can sit beside it. A bucket can't be a sortable list that way — it needs one `TaskGroup` per bucket. Removing the arrows collapses that block to a few lines.
+*cross-list moves already work — `reorderTasks` rewrites list/bucket on a drop into another group, and it's tested. This is Backlog-page work only.*
+- [ ] 🤖 do first: `Backlog.jsx` wraps *every single task* in its own `TaskGroup` so the ▲/▼ buttons can sit beside it. A bucket can't be a sortable list that way — it needs one `TaskGroup` per bucket.
+- [ ] remove the ▲/▼ arrows ("they were always just a sloppy solution as a bridge") — that collapses the block above to a few lines
+- [ ] wrap the page in `TaskDndArea`, one `TaskGroup` per bucket
 
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
