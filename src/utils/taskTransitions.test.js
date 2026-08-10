@@ -79,6 +79,35 @@ describe('applyListChange', () => {
    })
 })
 
+// recurring.count answers "how many times have I actually done this", so it is tied to
+// finishing a task, not to the rollover that starts the next occurrence
+describe('recurring completion count', () => {
+   const habit = { id: 3, label: 'Yoga', time: 15, list: ACTIVE, recurring: { active: true, id: 'h1' } }
+
+   it('counts a completion when the task is finished', () => {
+      expect(applyListChange(habit, DONE).recurring.count).toBe(1)
+   })
+
+   it('counts up across repeats', () => {
+      const done = applyListChange({ ...habit, recurring: { ...habit.recurring, count: 4 } }, DONE)
+      expect(done.recurring.count).toBe(5)
+   })
+
+   it('takes the completion back when the task is un-ticked', () => {
+      const done = applyListChange(habit, DONE)
+      expect(applyListChange(done, ACTIVE).recurring.count).toBe(0)
+   })
+
+   it('does not go negative on legacy tasks that never had a count', () => {
+      const done = { ...habit, list: DONE, recurring: { active: true, id: 'h1' } }
+      expect(applyListChange(done, ACTIVE).recurring.count).toBe(0)
+   })
+
+   it('leaves non-recurring tasks without the field', () => {
+      expect(applyListChange(activeTask, DONE).recurring).toBeUndefined()
+   })
+})
+
 describe('entersAtEnd', () => {
    it('is true for active — re-joining the queue means joining at the back', () => {
       expect(entersAtEnd(ACTIVE)).toBe(true)

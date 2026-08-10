@@ -6,6 +6,7 @@ import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
 import reorderTasks, { groupKey, isGroupKey } from '../utils/reorderTasks'
 import { applyListChange, entersAtEnd } from '../utils/taskTransitions'
 import calculateEstimates from '../utils/taskEstimates'
+import { newTaskId } from '../utils/taskId'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -55,10 +56,7 @@ function useTasks() {
     localStorage.setItem('tasks', JSON.stringify(taskList))
   }, [taskList])
 
-  // The one way a task changes list. taskTransitions owns what the change means for
-  // the task, this owns the side effects around it — history entry and the timer.
-  // Every entry point (checkbox, edit panel, drag & drop, tracking) routes here, so
-  // none of them can forget half of a transition the way they used to.
+   // moves a task to a different list, applying the transition and cleaning up
   const moveTaskToList = (id, target, opts = {}) => {
     const task = taskList.find(t => t.id === id)
     if (!task || task.list === target) return
@@ -113,8 +111,7 @@ function useTasks() {
   // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
   const handleAddTask = (label, time, { list = ACTIVE, bucket } = {}) => {
     if (!label?.trim()) return
-    const newId = taskList.length > 0 ? Math.max(...taskList.map(t => t.id)) + 1 : 1
-    const newTask = { id: newId, label, time, list }
+    const newTask = { id: newTaskId(), label, time, list }
     if (list === BACKLOG) {
       newTask.backlog = { bucket: bucket || NEXTUP, activationDate: null }
     }
@@ -146,9 +143,7 @@ function useTasks() {
     })
   }
 
-  // dropping a task onto the finished list finishes it rather than moving it there —
-  // only moveTaskToList writes finishedTimestamp and the history entry, so reorderTasks
-  // refuses the transition and it is routed here instead
+  // dropping on finished list finishes it; reorderTasks refuses the transition
   const reorderTaskList = (activeId, overId) => {
     const activeTask = taskList.find(t => t.id === activeId)
     const overTask = taskList.find(t => t.id === overId)
@@ -168,9 +163,7 @@ function useTasks() {
     setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
   }
 
-  // mid-drag: the task changes list as soon as it hovers one, so the target opens a gap
-  // under the cursor instead of the task teleporting on drop. Same-list reordering is
-  // left to the drop, and finishing is excluded — hovering must never tick a task off
+  // mid-drag: opens a gap under cursor; same-list reordering on drop; no finishing on hover
   const moveTaskAcrossLists = (activeId, overId) => {
     const activeTask = taskList.find(t => t.id === activeId)
     const overTask = taskList.find(t => t.id === overId)

@@ -1,9 +1,6 @@
 
 
-## ▶ NOW: DnD (Phase 3) — one decision left
-*🤖 Tasklist and Backlog both drag, reorder, and move between lists. Estimates confirmed correct after a drag. Only the A/B below is still open; `KeyboardSensor` moved to the roadmap's Unsorted Micro Tasks.*
 
-- [ ] **decide the drag feel** — live gap vs. dashed ghost everywhere. Both are running right now on purpose: Tasklist has the live move **off**, Backlog has it **on**, so they can be compared on the same data. Switch is one prop, `onMoveAcrossLists` (marked `TEST` in `Tasklist.jsx`). Then make both pages match.
 
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
@@ -13,7 +10,7 @@
 **Scope: one sentence.** A task marked recurring that gets marked done comes back as active on the next rollover. Daily only — that keeps the rollover check to a single step, no date math.
 
 - [ ] data model, bundled like `backlog` already is:
-	- `recurring: { frame: 'day', every: 1 }`, or `undefined` when it isn't
+	- `recurring: {active: true/false, frame: 'day', every: 1 }`, or `undefined` when it isn't
 	- same legacy-guard habit as everywhere else: `task.recurring?.frame`, never `task.recurring.frame`
 	- `week`/`month` later drop into `frame` without touching the field
 - [ ] `useTasks`: `reactivateRecurringTasks()` in the `onRollover` bundle
@@ -127,6 +124,11 @@
 			- benefit: user can always see the progress of the whole pages/phase
 			- usability: next box is only unlocked if the prev phase is finished, this could also be set as conditional/nonconditional in the template (eg, pages are not really force connected, while linearts always need sketches first, tho usually one works linear, but sometimes it happens that one is able to finish page 20 before they finish page 19)
 - if dashed line for every drag: **Yes — and it's genuinely one line.** Just don't pass `onMoveAcrossLists` to `TaskDndArea`. No live move means no list ever receives the real row, so the placeholder rule fires everywhere, and in-list sorting keeps its normal animation either way.
+
+## ▶ NOW: DnD (Phase 3) — one decision left
+*🤖 Tasklist and Backlog both drag, reorder, and move between lists. Estimates confirmed correct after a drag. Only the A/B below is still open; `KeyboardSensor` moved to the roadmap's Unsorted Micro Tasks.*
+
+- [ ] **decide the drag feel** — live gap vs. dashed ghost everywhere. Both are running right now on purpose: Tasklist has the live move **off**, Backlog has it **on**, so they can be compared on the same data. Switch is one prop, `onMoveAcrossLists` (marked `TEST` in `Tasklist.jsx`). Then make both pages match.
 
 #### Integrate in Roadmap:
 

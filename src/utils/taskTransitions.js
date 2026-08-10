@@ -1,19 +1,24 @@
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from './constants'
 
-// What entering or leaving a list means for the task itself, one block per list.
-// A new list adds its own block and never touches the existing ones — the rules are
-// per-list on purpose, never per from/to pair, or this grows quadratically.
-//
-// enter(task, from, opts) / leave(task, to) both return a task.
-// position: 'end' means entering this list also moves the task to the end of taskList.
+// List transition rules: enter/leave callbacks transform the task.
+// position: 'end' moves task to end of list. recurring.count tracks completions.
+function countCompletion(task, delta) {
+   if (!task.recurring || delta === 0) return task
+   const count = Math.max(0, (task.recurring.count ?? 0) + delta)
+   return { ...task, recurring: { ...task.recurring, count } }
+}
+
 export const listRules = {
    [DONE]: {
-      enter: (t, from) => ({ ...t, previousList: from, finishedTimestamp: new Date() }),
-      leave: (t) => ({ ...t, previousList: undefined, finishedTimestamp: null }),
+      // entering done increments completion count
+      enter: (t, from) => countCompletion(
+         { ...t, previousList: from, finishedTimestamp: new Date() }, 1),
+      // leaving done decrements completion count
+      leave: (t) => countCompletion(
+         { ...t, previousList: undefined, finishedTimestamp: null }, -1),
    },
    [ACTIVE]: {
-      // clearing the bucket is ACTIVE's job, not BACKLOG's: a parked task that gets
-      // finished has to keep its bucket so un-finishing can put it back where it was
+      // ACTIVE clears the bucket
       enter: (t) => ({ ...t, backlog: undefined }),
       position: 'end',
    },
@@ -28,8 +33,7 @@ export const listRules = {
    },
 }
 
-// the single place that knows what a list change does to a task. Pure — the side
-// effects around it (history entry, stopping the timer) live in useTasks
+// Apply list change to task (pure function)
 export function applyListChange(task, target, opts = {}) {
    const from = task.list
    if (from === target) return task
@@ -39,7 +43,7 @@ export function applyListChange(task, target, opts = {}) {
    return next
 }
 
-// position is a list concern, not a task concern, so it can't come out of enter()
+// Check if target list positions task at end
 export function entersAtEnd(target) {
    return listRules[target]?.position === 'end'
 }
