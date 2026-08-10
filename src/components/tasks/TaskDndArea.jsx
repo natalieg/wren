@@ -3,7 +3,9 @@ import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSe
 
 // one DndContext per page, wrapping every TaskGroup on it — dragging between two lists
 // is only possible inside a shared context, so this never belongs in TaskGroup itself.
-export default function TaskDndArea({ onReorder, onMoveAcrossLists, renderDragOverlay, children }) {
+// className styles the wrapper the sections actually sit in — DndContext renders no DOM
+// of its own, so without it there is no element between the page and the lists to space
+export default function TaskDndArea({ onReorder, onMoveAcrossLists, renderDragOverlay, className = 'flex flex-col gap-2', children }) {
     // the id under the cursor right now, only used to render the floating preview
     const [draggedId, setDraggedId] = useState(null)
     // below 8px it stays a click and opens the task modal instead of starting a drag
@@ -34,11 +36,14 @@ export default function TaskDndArea({ onReorder, onMoveAcrossLists, renderDragOv
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
             onDragCancel={() => setDraggedId(null)}>
-            {children}
+            <div className={className}>{children}</div>
             {/* follows the cursor on its own layer, so the preview stays put even when the
                 lists underneath reset it — which is what makes a drop onto 'finished',
                 where no live move happens, stop feeling chopped */}
-            <DragOverlay>
+            {/* no drop animation: it flies the preview to where the row ends up, and a
+                collapsed or reordered target is a zero-height box further down the page,
+                so the task looked like it fell to the bottom instead of landing */}
+            <DragOverlay dropAnimation={null}>
                 {draggedId != null ? renderDragOverlay?.(draggedId) : null}
             </DragOverlay>
         </DndContext>

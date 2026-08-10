@@ -1,8 +1,7 @@
 import { Fragment } from 'react'
 import TaskItem, { SortableTaskItem } from './TaskItem'
-import { useDndContext, useDroppable } from '@dnd-kit/core'
+import { useDndContext } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { groupKey } from '../../utils/reorderTasks'
 
 // stands in for a task a list is about to receive. Lists that accept a live move never
 // show one — the real row is already sitting there — so this only fills the gap for
@@ -19,21 +18,14 @@ function DropPlaceholder({ label }) {
 // one SortableContext per rendered list — its ids are what dnd-kit reports
 // positions against. The DndContext around it lives on the page (TaskDndArea).
 export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
-   // the list itself is a drop target, not just its rows — otherwise an empty or
-   // collapsed list has nothing to hit. Falls back to the key of whatever it holds,
-   // so callers that never go empty don't have to pass anything
-   const listKey = groupId ?? (tasks.length > 0 ? groupKey(tasks[0]) : null)
-   const { setNodeRef } = useDroppable({ id: listKey ?? 'ungrouped', disabled: !listKey })
-
-   // outlines the list a drag can land in, so a refused drop reads as "no outline here"
-   // instead of an unexplained snap back
+   // the drop target and the frame live on TaskDropZone, one level up — a collapsed
+   // section can only be hit from outside its 0fr content row
    const { active, over } = useDndContext()
    const holdsDragged = !!active && tasks.some(t => t.id === active.id)
    const overIndex = over ? tasks.findIndex(t => t.id === over.id) : -1
-   const overList = !!over && over.id === listKey
-   const isDropZone = holdsDragged || overIndex !== -1 || overList
-   // only lists that haven't already received the dragged row need one. A drop on the
-   // bare list means the end of it, so the stand-in goes after the last row
+   const overList = !!over && over.id === groupId
+   // only lists that haven't already received the dragged row need a stand-in. A drop on
+   // the bare list means the end of it, so it goes after the last row
    const placeholderAt = holdsDragged ? -1
       : overIndex !== -1 ? overIndex
          : overList ? tasks.length : -1
@@ -43,10 +35,7 @@ export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, startT
    return (
       <SortableContext items={tasks.filter(t => t.id !== runningTaskId).map(t => t.id)}
          strategy={verticalListSortingStrategy}>
-         <div ref={setNodeRef}
-            className={`flex flex-col rounded-md transition-[outline-color] duration-(--dur-fast)
-            outline-2 outline-offset-4 ${active && tasks.length === 0 ? 'min-h-12' : ''}
-            ${isDropZone ? 'outline-accent-muted bg-accent-soft/30' : 'outline-transparent'}`}>
+         <div className='flex flex-col'>
             {tasks.map((t, index) => {
                // the running task renders unsortable, so no leftover drag transform can
                // displace it once tracking stops and it moves back into the flow

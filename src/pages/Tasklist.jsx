@@ -2,7 +2,8 @@ import { useContext } from 'react'
 import TaskGroup from '../components/tasks/TaskGroup'
 import TaskItem from '../components/tasks/TaskItem'
 import TaskDndArea from '../components/tasks/TaskDndArea'
-import CollapsableDiv from '../components/CollapsableDiv'
+import TaskSection from '../components/tasks/TaskSection'
+import TaskDropZone from '../components/tasks/TaskDropZone'
 import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
 import TaskInput from '../components/tasks/TaskInput'
@@ -59,31 +60,33 @@ export default function Tasklist() {
             lists inside the same context, which is what buckets/habits will need */}
             {/* TEST  onMoveAcrossLists={moveTaskAcrossLists} comment out to test visual preference*/}
             <TaskDndArea onReorder={reorderTaskList} 
-               renderDragOverlay={renderDragOverlay}>
+               renderDragOverlay={renderDragOverlay}
+               className='flex flex-col gap-6'>
                {/* 💤 Next up (backlog, 'nextUp' bucket) */}
                {/* Todo move to side component when implemented */}
-               {nextUpTasks.length > 0 && (
-                  <CollapsableDiv
-                     label={`Next up (${nextUpTasks.length})`}
-                     collapseAction={updateActionTime}>
-                     <TaskGroup tasks={nextUpTasks} groupId={`${BACKLOG}:${NEXTUP}`} {...taskActionBundle} showEstimate={true} />
-                  </CollapsableDiv>
-               )}
+               <TaskSection label='Next up'
+                  tasks={nextUpTasks}
+                  groupId={`${BACKLOG}:${NEXTUP}`}
+                  collapseAction={updateActionTime}
+                  taskActions={taskActionBundle}
+                  showEstimate={true} />
                {/* ⚡ Active Tasks */}
-               <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} />
+               <TaskDropZone groupId={ACTIVE} tasks={openTasksWithoutRunning}>
+                  <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} />
+               </TaskDropZone>
                {/* ✅ Finished Tasks */}
-               {finishedTasks.length > 0 && (
-                  <CollapsableDiv
-                     label={`Finished tasks (${finishedTasks.length})`}>
-                     <TaskGroup tasks={finishedTasks} groupId={DONE} {...taskActionBundle} showEstimate={true} />
-                     <button id='deleteAllFinishedBtn'
-                        className={`softButton mt-4 min-w-40 w-1/2 mx-auto block`}
-                        disabled={finishedTasks.length === 0}
-                        onClick={deleteAllFinishedTasks}>
-                        Delete all finished tasks
-                     </button>
-                  </CollapsableDiv>
-               )}
+               <TaskSection label='Finished tasks'
+                  tasks={finishedTasks}
+                  groupId={DONE}
+                  taskActions={taskActionBundle}
+                  showEstimate={true}>
+                  <button id='deleteAllFinishedBtn'
+                     className={`softButton mt-4 min-w-40 w-1/2 mx-auto block`}
+                     disabled={finishedTasks.length === 0}
+                     onClick={deleteAllFinishedTasks}>
+                     Delete all finished tasks
+                  </button>
+               </TaskSection>
             </TaskDndArea>
          </div>
       </div>
