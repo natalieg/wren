@@ -4,38 +4,11 @@
 
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
-## 🤖 Mini habit feature — daily recurring only (planned 2026-08-09)
-*pulled forward out of Phase 7 deliberately, as a slice, not the phase. Do it on this branch **after** the DnD work is finished — sequential is fine, it was only parallel edits to `useTasks` that would have caused conflicts.*
+## 🤖 Habits — daily recurring (shipped 2026-08-10)
+*the daily-only slice of Phase 7. Marking a task recurring makes it come back as a **new** task after rollover, so the habit outlives its occurrences.*
 
-**Scope: one sentence.** A task marked recurring that gets marked done comes back as active on the next rollover. Daily only — that keeps the rollover check to a single step, no date math.
-
-- [ ] data model, bundled like `backlog` already is:
-	- `recurring: {active: true/false, frame: 'day', every: 1 }`, or `undefined` when it isn't
-	- same legacy-guard habit as everywhere else: `task.recurring?.frame`, never `task.recurring.frame`
-	- `week`/`month` later drop into `frame` without touching the field
-- [ ] `useTasks`: `reactivateRecurringTasks()` in the `onRollover` bundle
-- [ ] UI: mark a task recurring (edit modal is the obvious place, `SwitchFlag` already does this kind of thing)
-
-#### 🤖 two things that will bite
-*decided 2026-08-09: rollover **copies** the finished task into a fresh one rather than resurrecting it — "i'm going to make another one just like that but with a new id, same name, same time estimate, and i'm going to leave your checked task alone". That alone kills the two nastiest traps: no time fields to reset, and no `toggleDone` round trip that would pull yesterday's completion back out of history.*
-- [ ] **order still matters, for the opposite reason.** `onRollover` runs `promoteNextUpTasks()` → `deleteFinishedTasksOnRollover()`. The copy has to be made *before* the delete — not so the task survives, but so there's still something to copy from.
-- [ ] **don't copy twice.** With `autoDeleteFinished` off, yesterday's finished recurring task is still sitting there tomorrow, and would be copied again every single day. Skip the copy when an unfinished task with the same `habitId` already exists.
-
-#### 🤖 `habitId` — the field that makes copies a habit instead of look-alikes
-- [ ] every copy carries the same `habitId`; the id on the *task* stays unique per occurrence
-- [ ] it's what the duplicate guard above checks against
-- [ ] Phase 7 wants "overview fail/success, growth over time" — that's a per-habit question, so without this it needs a migration later. One field now, a filter later.
-
-#### 🤖 switch task ids to `crypto.randomUUID()` — do this first
-- [ ] `Math.max(...taskList.map(t => t.id)) + 1` only looks at the *current* list, so deleting a task frees its id for reuse. With auto-delete-finished on rollover that recycling happens daily, while history keeps old ids forever — so a new task can inherit a dead one's archive entries.
-- [ ] old numeric ids keep working, everything compares with `===`
-- [ ] one catch, same step: `useTaskKeyboardShortcuts` does `Number(hovered.dataset.taskId)`, which breaks on string ids
-- [ ] daily copies make many more tasks, which is what turns this from theoretical into likely
-
-#### 🤖 pre-existing bug, worth fixing while in here
-- [ ] `removeFromHistory(taskId)` filters the id out of **every** day, not just the current one — un-ticking a task deletes its earlier completions too. Fix: scope it to a day, `removeFromHistory(taskId, dayKey)`, reusing the `logicalDayString` `addToHistory` already uses.
-	- [ ] copy-per-day dodges this (unique ids per occurrence), so it's a latent bug, not a blocker
-	- [ ] no change needed to `addToHistory`: it groups by day and dedupes only *within* a day, which is already right
+- [ ] a recurring task parked in `someday` quietly stops producing occurrences — correct, but it means there are now two ways to pause a habit (`recurring.active: false` and parking). The recurring page should show both, or a habit that stopped appearing gets hard to explain later.
+- [ ] `frame` / `every` exist in the data model but only `day` is handled
 
 ## Task Modal 'Time Feature' — parked
 *🤖 The MVP shipped in 0.5.0. What's left here is polish, nothing blocking.*

@@ -92,8 +92,11 @@ Inbetween Broswerstorage and real Database, there is a need to save the json and
 
 ### Project MVP
 
-### Phase 7 — Recurring Tasks / Habits & Reflection
-- 🔷 A daily-only slice is pulled forward (planned 2026-08-09, details in `_Today.md`): a recurring task that gets marked done comes back active on the next rollover. Daily only keeps it to one rollover step with no date math — everything below stays in this phase.
+### 🟡 Phase 7 — Recurring Tasks / Habits & Reflection
+- ✅ 2026-08-10: daily recurring tasks. A finished recurring task is *copied* into a new one on rollover rather than resurrected, so yesterday's completion keeps its tracked time and its history entry. `recurring.id` is the habit, the task id is one occurrence; `recurring.count` is incremented by `listRules[DONE]`, so it counts completions and un-ticking takes one back. Deleting can't end a habit by accident — every delete path replaces a habit whose last task is in the batch, and deleting an *unfinished* one asks first (with "park for tomorrow" as the third option).
+- ✅ 2026-08-10: task ids are `crypto.randomUUID()`. `Math.max + 1` reused the ids of deleted tasks while history keeps them forever, so a new task could inherit an old one's archive — which daily habit copies would have made routine.
+- 🟥 Open: two ways to pause a habit now exist (`recurring.active: false`, or parking it in a bucket). Both are correct; the recurring page needs to show both or a stalled habit is unexplainable.
+- Only `frame: 'day'` is handled — `week`/`month` drop into the same field when this phase proper gets built.
 - Set Tasks to Recurring [maybe stikc to the name 'habits' for clarity]
 - Tab to view all recurring tasks 
 - Set to day/week/month etc

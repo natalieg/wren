@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.0 — 2026-08-10
+- Daily habits. Mark a task recurring (↻ in the edit panel) and it comes back the next day as a fresh task, keeping its name, its planned time and a count of how often you've done it. Yesterday's finished one stays in the list with its tracked time intact.
+- A habit can be paused instead of deleted — switch the ↻ off and it keeps everything, it just stops coming back.
+- Deleting can't end a habit by accident. Clearing out finished tasks always leaves the habit parked for tomorrow, and deleting an unfinished one asks first, with "park for tomorrow" as a third option.
+- Task ids are now unique for good. Previously a deleted task freed its id for reuse, which could let a new task inherit an old one's history entries.
+
 ## 0.6.0 — 2026-08-09
 - Drag and drop on the day list — grab a task anywhere on the row and reorder it. Short clicks still open the edit modal; the checkbox, play and delete buttons keep working.
 - The running task is pinned to the top and can't be dragged or dropped on, so a timer never gets shuffled away mid-session. It stays put when you stop it, too.
