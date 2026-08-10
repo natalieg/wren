@@ -1,48 +1,8 @@
 
-
-## ▶ NOW: DnD (Phase 3)
-*🤖 Time feature is parked below — 0.5.0 is merged and live, it can rest. Warm-up if needed: the keybind change further down (t/w/b), ~10 min.*
-
-## 🤖 DnD mini-roadmap (Phase 3) — planned 2026-08-08
-*two sessions. the data model is already done: order = array order in `taskList`, persisted as-is. no `order` field, no sort index, no migration. `pushToBottom` is already a reorder — DnD only changes **which** index gets written.*
-
-### Decide first (5 min, before any code)
-- [ ] what happens to `sortedActiveTasks()` while tracking? it pulls the running task to the top, so dragging something above it snaps back
-	- [ ] option A: keep it, running task is simply not draggable / always pinned
-	- [ ] option B: pin only until the first manual drag, then respect manual order
-	- [ ] the `// LATER should be changable in user settings` comment on [useTasks.js:282] is exactly this decision
-- [ ] drag handle or whole row? whole row = nicer, but conflicts with the row's `onClick` → modal (solvable, see step 5)
-
-### Session 1 — Tasklist
-- [ ] `npm i @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities`
-- [ ] `utils/reorderTasks.js`: pure `reorderTasks(taskList, activeId, overId)` → new array
-	- [ ] **the actual brain-work step.** the page renders `openTasks` (filtered + derived), DnD reports "A over B" in *that* list — both ids have to be found in the full `taskList` and spliced there
-	- [ ] pure function = unit-testable without any DnD. tests: move down, move up, unknown id, tasks of other lists keep their relative position
-- [ ] wire into `useTasks` as `reorderTask(activeId, overId)` → `setTaskList(reorderTasks(...))`, add to the `taskActions` bundle
-	- [ ] no other change in `useTasks` needed — `openTasks`/estimates are derived and recompute on their own
-- [ ] `TaskGroup.jsx`: wrap in `DndContext` + `SortableContext` (`verticalListSortingStrategy`), `onDragEnd` calls `reorderTask`
-- [ ] `TaskItem.jsx`: `useSortable({ id })`, apply `transform`/`transition` to the wrapper
-- [ ] fix drag vs click: `PointerSensor` with `activationConstraint: { distance: 8 }` — below 8px it stays a click and opens the modal
-	- [ ] check Checkbox / PlayBtn / ✕ still work (PlayBtn already does `stopPropagation`)
-- [ ] `DragOverlay` for the floating preview while dragging
-- [ ] bonus, nearly free with dnd-kit: `KeyboardSensor` → reorder without a mouse
-- [ ] check: is the estimate cascade correct after a drag? and does it still persist after F5?
-
-### Session 2 — Backlog
-- [ ] within a bucket first — same pattern, `backlogTasks` is filtered by bucket per group
-- [ ] only then across buckets: that's reorder **and** a `bucket` field change in one drop. this is the part that makes it two sessions instead of one
-- [ ] decide: do the ▲/▼ arrows stay as a keyboard/touch fallback, or go?
-
-### Explicitly NOT in this phase
-- [ ] real `priority: 1|2|3` field — different feature (sortable, filterable). manual order already *is* the priority in Wren, DnD doesn't produce a priority field
-- [ ] dragging across pages (Tasklist ↔ Backlog)
+- [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
 ## Task Modal 'Time Feature' — parked
-*🤖 The MVP shipped in 0.5.0. What's left here is polish, nothing blocking.*
 - [ ] [[Time Tracking 260801]] ( MVP) 
-	- [x] '**popup modal**' could be an opportunity for a simple 'focus mode' — 🤖 done: modal open, running timer and bar visible, one task in front of you. No separate app mode, that was never the idea
-	- [x] numbers should not 'wobble' around while the tracker is running — 🤖 done: second-boundary ticks + `.tnum` (Nunito), `TimeFlag` widened to `w-24`
-- [x] Time general: running time in the tab header — 🤖 done, `useTabTitle.js`
 - [ ] [space] should toggle tracking inside the modal too
 	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
 - [ ] 🤖 maximise the modal for a proper focus view — the `□` in the window chrome is still decoration. Details in the roadmap's Future ideas
@@ -53,6 +13,11 @@
 	- [ ] **t** for **next up** [tomorrow] 
 	- [ ] **w** for **next week**
 	- [ ] **b** for **backlog**
+
+- [ ] Show 'tracked time' on task in sessions - needs implementation of new 'session started/session ended' timestamps 
+	  eg: [name] tracked time [20m]
+	  session 1 --- [10m] at [1pm]
+	  session 2 --- [10m] at [3pm]
 
 ## Trello integration
 - [ ] trello task abhaken, 
@@ -77,8 +42,10 @@
 	- [ ] #later user can set in #settings what the default behaviour is 
 - [ ] delete tasks from #history
 - [ ] delete whole entry from #history 
+- [ ] autsplit tasks that had some tracking from the previous day on rollover 
+- [ ] give tasks put on #nextWeek an activation date 7 days from now #later settings: should it automate to 'monday' or '7 days in future'
 
-![[Pasted image 20260727211428.png]]
+
 
 ## Soon:
 - [ ] MVP #Project 
@@ -122,6 +89,12 @@
 			- OR every step as a master task with same progress ⬜⬜⬜ etc 
 			- benefit: user can always see the progress of the whole pages/phase
 			- usability: next box is only unlocked if the prev phase is finished, this could also be set as conditional/nonconditional in the template (eg, pages are not really force connected, while linearts always need sketches first, tho usually one works linear, but sometimes it happens that one is able to finish page 20 before they finish page 19)
+- if dashed line for every drag: **Yes — and it's genuinely one line.** Just don't pass `onMoveAcrossLists` to `TaskDndArea`. No live move means no list ever receives the real row, so the placeholder rule fires everywhere, and in-list sorting keeps its normal animation either way.
+
+## ▶ NOW: DnD (Phase 3) — one decision left
+*🤖 Tasklist and Backlog both drag, reorder, and move between lists. Estimates confirmed correct after a drag. Only the A/B below is still open; `KeyboardSensor` moved to the roadmap's Unsorted Micro Tasks.*
+
+- [ ] **decide the drag feel** — live gap vs. dashed ghost everywhere. Both are running right now on purpose: Tasklist has the live move **off**, Backlog has it **on**, so they can be compared on the same data. Switch is one prop, `onMoveAcrossLists` (marked `TEST` in `Tasklist.jsx`). Then make both pages match.
 
 #### Integrate in Roadmap:
 

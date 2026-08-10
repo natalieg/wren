@@ -32,6 +32,14 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
       handleFieldChange(id, 'trackedTime', minutesToSeconds(minutes))
    }
 
+   // TODO check if this method should be put in taskActions, since it is a field change
+   const handleToggleRecurring = () => {
+      const newRecurring = task.recurring?.active
+         ? { ...task.recurring, active: false }
+         : { active: true, interval: 1, unit: 'day', id: task.recurring?.id || crypto.randomUUID() }
+      handleFieldChange(id, 'recurring', newRecurring)
+   }
+
    return (
 
       <div id={`taskEditModalBody_${id}`} className={`flex gap-2`}>
@@ -41,6 +49,11 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                {/* Active/Inactive Tag + bucket, only relevant once parked */}
                <div className='pl-0 -mt-1 flex gap-2 items-center justify-between'>
                   <div className='flex gap-2 items-center'>
+                     {/* Recurring TODO move to a different place in the modal 
+                     - rework modal layout when more settings are here */}
+                     <SwitchTag label1='↻' label2='●'
+                        onClick={handleToggleRecurring}
+                        active={task.recurring?.active} />
                      {/* active/inactive */}
                      <SwitchTag label1='active' label2='inactive'
                         onClick={() => toggleActive(id)}

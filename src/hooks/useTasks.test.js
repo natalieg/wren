@@ -53,6 +53,60 @@ describe('useTasks', () => {
     expect(result.current.taskList[0].list).toBe(BACKLOG)
   })
 
+  // every way out of 'done' has to run the same cleanup. These used to only happen in
+  // toggleDone, so the edit panel's active badge left a stale timestamp and history entry
+  describe('leaving the done list through something other than the checkbox', () => {
+    const readHistory = () => JSON.parse(localStorage.getItem('history') || '[]')
+
+    it('the active badge clears finishedTimestamp and the history entry', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.toggleDone(id) })
+      expect(readHistory()[0].tasks).toHaveLength(1)
+
+      act(() => { result.current.taskActions.toggleActive(id) })
+
+      const task = result.current.taskList[0]
+      expect(task.list).toBe(ACTIVE)
+      expect(task.finishedTimestamp).toBeNull()
+      expect(task.previousList).toBeUndefined()
+      expect(result.current.finishedTasks).toHaveLength(0)
+      expect(readHistory()).toHaveLength(0)
+    })
+
+    it('starting the timer on a finished task un-finishes it the same way', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.toggleDone(id) })
+      act(() => { result.current.taskActions.startTracking(id) })
+
+      const task = result.current.taskList[0]
+      expect(task.list).toBe(ACTIVE)
+      expect(task.finishedTimestamp).toBeNull()
+      expect(readHistory()).toHaveLength(0)
+    })
+
+    it('keeps the bucket across finishing and un-finishing a parked task', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => {
+        result.current.taskActions.handleAddTask('Someday idea', 30, { list: BACKLOG, bucket: SOMEDAY })
+      })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.toggleDone(id) })
+      act(() => { result.current.taskActions.toggleDone(id) })
+
+      expect(result.current.taskList[0]).toMatchObject({
+        list: BACKLOG,
+        backlog: { bucket: SOMEDAY },
+      })
+    })
+  })
+
   describe('legacy data migration', () => {
     it('migrates a legacy active task (active: true, done: false)', () => {
       localStorage.setItem('tasks', JSON.stringify([
@@ -342,6 +396,41 @@ describe('useTasks', () => {
     // exercised by the stop/switch tests above; verified manually by shortening the
     // interval during dev (see conversation 2026-08-01).
 
+    // the transition and the flush both write the task in one handler — if the
+    // transition uses a render snapshot instead of a functional update it wins the
+    // race and the banked seconds are gone
+    it('banks the running timer when the task is finished mid-run', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.startTracking(id) })
+      act(() => { vi.advanceTimersByTime(5000) })
+      act(() => { result.current.taskActions.toggleDone(id) })
+
+      expect(result.current.runningTaskId).toBe(null)
+      expect(result.current.taskList.find(t => t.id === id)).toMatchObject({
+        list: DONE,
+        trackedTime: 5,
+      })
+    })
+
+    it('banks the running timer when the task is parked mid-run', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.startTracking(id) })
+      act(() => { vi.advanceTimersByTime(4000) })
+      act(() => { result.current.taskActions.toggleActive(id) })
+
+      expect(result.current.runningTaskId).toBe(null)
+      expect(result.current.taskList.find(t => t.id === id)).toMatchObject({
+        list: BACKLOG,
+        trackedTime: 4,
+      })
+    })
+
     it("anchors the running task's estimate to now once it goes over its own time budget", () => {
       vi.setSystemTime(new Date('2026-08-01T12:00:00Z'))
 
@@ -353,6 +442,46 @@ describe('useTasks', () => {
       act(() => { vi.advanceTimersByTime(90 * 1000) }) // 90s tracked, over the 60s estimate
 
       expect(result.current.openTasks[0].estimate.getTime()).toBe(Date.now())
+    })
+  })
+
+  // dragging across the finished line can't be a plain list change — it has to go
+  // through toggleDone, which is what writes finishedTimestamp and the history entry
+  describe('dragging onto and out of the finished list', () => {
+    const addTasks = (result, labels) => {
+      for (const label of labels) {
+        act(() => { result.current.taskActions.handleAddTask(label, 10) })
+      }
+      return labels.map(label => result.current.taskList.find(t => t.id != null && t.label === label).id)
+    }
+
+    it('dropping a task onto a finished one finishes it, with history', () => {
+      const { result } = renderHook(() => useTasks())
+      const [idA, idB] = addTasks(result, ['A', 'B'])
+
+      act(() => { result.current.taskActions.toggleDone(idB) })
+      act(() => { result.current.taskActions.reorderTaskList(idA, idB) })
+
+      expect(result.current.taskList.find(t => t.id === idA)).toMatchObject({ list: DONE })
+      expect(result.current.taskList.find(t => t.id === idA).finishedTimestamp).toBeTruthy()
+      expect(result.current.finishedTasks).toHaveLength(2)
+    })
+
+    // the risky half: toggleDone restores previousList, so the task has to be placed
+    // afterwards or it lands in whichever list it happened to come from
+    it('dropping a finished task onto an active one un-finishes it into that list', () => {
+      const { result } = renderHook(() => useTasks())
+      const [idA, idB] = addTasks(result, ['A', 'B'])
+
+      act(() => { result.current.taskActions.toggleActive(idA) }) // park it, so previousList is backlog
+      act(() => { result.current.taskActions.toggleDone(idA) })
+      expect(result.current.finishedTasks).toHaveLength(1)
+
+      act(() => { result.current.taskActions.reorderTaskList(idA, idB) })
+
+      expect(result.current.taskList.find(t => t.id === idA)).toMatchObject({ list: ACTIVE })
+      expect(result.current.finishedTasks).toHaveLength(0)
+      expect(result.current.openTasks.map(t => t.id)).toContain(idA)
     })
   })
 })

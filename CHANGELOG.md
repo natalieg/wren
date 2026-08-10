@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.7.0 — 2026-08-10
+- Daily habits. Mark a task recurring (↻ in the edit panel) and it comes back the next day as a fresh task, keeping its name, its planned time and a count of how often you've done it. Yesterday's finished one stays in the list with its tracked time intact.
+- A habit can be paused instead of deleted — switch the ↻ off and it keeps everything, it just stops coming back.
+- Deleting can't end a habit by accident. Clearing out finished tasks always leaves the habit parked for tomorrow, and deleting an unfinished one asks first, with "park for tomorrow" as a third option.
+- Task ids are now unique for good. Previously a deleted task freed its id for reuse, which could let a new task inherit an old one's history entries.
+
+## 0.6.0 — 2026-08-09
+- Drag and drop on the day list — grab a task anywhere on the row and reorder it. Short clicks still open the edit modal; the checkbox, play and delete buttons keep working.
+- The running task is pinned to the top and can't be dragged or dropped on, so a timer never gets shuffled away mid-session. It stays put when you stop it, too.
+- New order survives a refresh — task order is simply the order in storage, so nothing new had to be saved.
+- Drag a task between lists: onto Next up to park it, back onto the day list to activate it. The target list opens a gap while you drag, so you see where it lands before letting go.
+- Drag a task onto Finished to tick it off, or drag a finished one back out to un-tick it. Both go through the normal finish logic, so the timestamp and the history entry are still written.
+- A floating copy of the task follows the cursor while dragging, and lists that can't take the task mid-drag show a dashed placeholder where it would land.
+- Drop onto a collapsed section and it takes the task without opening — the whole section lights up as a target, so nothing on the page moves while you're holding something.
+- Empty lists can be dropped into too. Next up and Finished stay visible when empty, so there's always somewhere to aim.
+- The Backlog page drags as well: reorder inside a bucket, or drag a task from Next up to Next week or Someday. The ▲/▼ shift arrows are gone, they were only ever a stand-in for this.
+- Fixed: leaving the finished list any way other than the checkbox — the edit panel's active badge, or starting the timer — left the task with its completion time and its history entry intact.
+
 ## 0.5.0 — 2026-08-09
 - Trello board as a Wren page (`/trello`, `src/pages/trello/`, `utils/trello.js`) — read-only view of the shared board's lists and cards, plus creating a card per list. Auth is the shared app key baked in; each person fetches their own Trello token once and pastes it in. The board id is a default, not a lock.
 - Time tracking in the edit modal: live tracked time, play/pause, progress bar that glows once you pass the planned time. Tracked time is editable in minutes while stopped and read-only while the timer runs, so a typed value can't collide with the failsafe flush.

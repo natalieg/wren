@@ -22,8 +22,8 @@ Home route (`/` → `Tasklist.jsx`) — a real, used daily task list. Ship funct
 - ✅ 2026-07-25: delete a task, "delete all finished."
 - ✅ 2026-07-26/27: per-task time estimate, done-vs-left `Bar` panel.
 
-### 🟡 Phase 2 — Task editing & time tracking — polish remaining
-Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop split out into its own phase, 2026-08-06 — see Phase 3 below — since it sat untouched as "step 4" while smaller MVPs kept jumping the queue ahead of it.)
+### ✅ Phase 2 — Task editing & time tracking (closed 2026-08-09)
+   Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop split out into its own phase, 2026-08-06 — see Phase 3 below — since it sat untouched as "step 4" while smaller MVPs kept jumping the queue ahead of it.)
 - ✅ 2026-07-28: finished tasks sort into a collapsible section (`CollapsableDiv.jsx`).
 - ✅ 2026-07-28: `formatTime` extracted to `src/utils/` + unit tested (Vitest set up).
 - ✅ 2026-07-28: fixed a real crash bug (dead `setFinishedTasks`/`setFinishedTasksVisible` refs) — ESLint extension now installed and live in-editor.
@@ -32,11 +32,8 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-01: real active time tracking — start/stop per task (`PlayBtn`/`TimeFlag`), live ticking, persisted `trackedTime` with a 5min failsafe flush against accidental refresh/close. Switching tasks flushes and stops the old one, and settles it right below the new running task in the list instead of jumping back to its original position. The running task anchors the whole cascade off its own real remaining time, falling back to `now` once it runs over its own estimate. Covered by tests in `useTasks.test.js`. Full model/reasoning: `design/decisions.md`.
 1. ✅ Sort finished tasks to bottom, collapsible section.
 2. ✅ Edit task label/time via a popup modal — reasoning in `design/decisions.md`.
-3. 🟡 Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above). Still open:
+3. ✅ Time tracking MVP — ref: `design/day-planning.md` sketch 1e. Real-time start/stop, live display, switching, and the failsafe: done (above).
    - ✅ 2026-08-08: edit modal reflects time-tracking fields (below) — which also covers the "focus mode" idea from 2026-08-01 
-   - Fill-up progress bar for the running task's own card, not just the modal.
-   - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
-   - `TimeFlagTracking` has been unused since `LabeledField` took over the modal badge (2026-08-09) — kept for now, drop it if nothing claims it.
    - ✅ 2026-08-01: starting tracking on an inactive task now also sets it `active`; parking the running task via the edit modal now also stops tracking; `sortedActiveTasks` falls back gracefully if `runningTaskId` ever points at a task outside `activeTasks`.
    - ✅ 2026-08-01: legacy finished tasks missing `finishedTimestamp` no longer poison `baseTime` — invalid timestamps are filtered out of the `Math.max` instead of trusting every record has one. Hit live on the deployed site, fixed and pushed same day.
    - ✅ 2026-08-01: pausing the running task now stays at the top instead of dropping back to its stored position — `stopTracking()` persists the same front-of-list reorder `startTracking()`'s switch already did.
@@ -52,11 +49,18 @@ Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop spli
 - ✅ 2026-08-09: running task shows in the browser tab (`useTabTitle.js`, `▴ 5:05 · label`), so a backgrounded Wren still says a timer is going. Rides on the existing per-second render, no second timer.
 - ✅ 2026-08-09: the ticking clock stopped jittering. `tabular-nums` alone did nothing — Quicksand has no tabular figures — so live numbers get a `.tnum` class that switches them to Nunito (Inter loaded as the fallback). `TimeFlag` widened to `w-24` for three-digit minutes.
 
-### PUSHED UP: Habits/Recurring MVP
-
-### 🔷 Phase 3 — Drag-and-drop
+### 🟡 Phase 3 — Drag-and-drop
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
-- 🔷 Drag-and-drop via `dnd-kit` for manual task reordering (flagged 2026-08-01, still wanted soon).
+- ✅ 2026-08-09: day list reorders by drag via `dnd-kit`. Order stays "array order in `taskList`" — no `order` field, no migration; the whole translation between a page's filtered slice and the stored array lives in one pure `utils/reorderTasks.js` (13 tests). `DndContext` sits on the *page* (`TaskDndArea.jsx`), `SortableContext` per `TaskGroup`, because a drag can only cross lists inside one shared context.
+- ✅ 2026-08-09: the running task is pinned and undraggable — it renders as its own one-item group outside the drag area, so it never receives a transform. Whole-row dragging with an 8px threshold keeps the click-to-open-modal behaviour intact.
+- ✅ 2026-08-09: dragging *between* lists. A drop on another list rewrites `list`/`bucket` (keeping `activationDate`), and `onDragOver` applies it mid-drag so the target opens a gap instead of the task teleporting on release. `DragOverlay` floats a copy under the cursor; lists that can't take a live move show a dashed placeholder instead. Both source and target list outline while dragging.
+- ✅ 2026-08-09: dropping onto Finished ticks a task off, dragging one out un-ticks it. Routed through `toggleDone` rather than a list change, so the timestamp and history entry still happen — `reorderTasks` refuses the `done` transition itself for exactly that reason.
+- ✅ 2026-08-10: unplanned refactor — every list change now routes through a single `moveTaskToList`, with the per-list enter/leave rules in a pure `utils/taskTransitions.js`, so a future state adds a block instead of editing existing ones ("damit man die zwei funcs gezielt angreifen kann… vor allem mit potentiell mehr states in der zukunft"). Fixed the bug that prompted it — un-doning a task via the edit panel's active badge or the play button kept its `finishedTimestamp` and history entry, since only `toggleDone` knew the rules — plus a flush race that dropped tracked seconds when a running task was finished or parked. `useTasks.js` went 377 → 187 lines along the way: `useTimeTracking.js`, `useTaskRollover.js` and a pure `taskEstimates.js` split out of it, +21 tests.
+- ✅ 2026-08-10: drop zones — `TaskDropZone` registers a whole section as one target and frames it, wrapping the header so a *collapsed* list stays droppable without opening. Empty lists render anyway: anything that changes size at drag start invalidates the position dnd-kit measured and leaves the preview hanging off the cursor. Auto-expanding collapsed sections was tried and rejected ("its super confusing and disorienting" — losing your scroll position mid-drag).
+- ✅ 2026-08-10: Backlog page drags — one `TaskGroup` per bucket in its own drop zone, replacing one `TaskGroup` per task and the ▲/▼ shift arrows. Needed no new logic, only page wiring; the cross-bucket rewrite was already there and tested.
+- 🟥 Open, the last one: live gap vs. dashed placeholder everywhere. Both are live on purpose right now — Tasklist without the live move, Backlog with it — so the feel can be compared on the same data. One prop switches it.
+
+### PUSHED UP: Habits/Recurring MVP
 
 ### Trello integration cont.
 - move cards
@@ -86,7 +90,13 @@ Pulled forward out of Phase 14's shell restyle (2026-08-06) — waiting until th
 ### Phase 6 — Simple Export/Import
 Inbetween Broswerstorage and real Database, there is a need to save the json and being able to import it again 
 
-### Phase 7 — Recurring Tasks / Habits & Reflection
+### Project MVP
+
+### 🟡 Phase 7 — Recurring Tasks / Habits & Reflection
+- ✅ 2026-08-10: daily recurring tasks. A finished recurring task is *copied* into a new one on rollover rather than resurrected, so yesterday's completion keeps its tracked time and its history entry. `recurring.id` is the habit, the task id is one occurrence; `recurring.count` is incremented by `listRules[DONE]`, so it counts completions and un-ticking takes one back. Deleting can't end a habit by accident — every delete path replaces a habit whose last task is in the batch, and deleting an *unfinished* one asks first (with "park for tomorrow" as the third option).
+- ✅ 2026-08-10: task ids are `crypto.randomUUID()`. `Math.max + 1` reused the ids of deleted tasks while history keeps them forever, so a new task could inherit an old one's archive — which daily habit copies would have made routine.
+- 🟥 Open: two ways to pause a habit now exist (`recurring.active: false`, or parking it in a bucket). Both are correct; the recurring page needs to show both or a stalled habit is unexplainable.
+- Only `frame: 'day'` is handled — `week`/`month` drop into the same field when this phase proper gets built.
 - Set Tasks to Recurring [maybe stikc to the name 'habits' for clarity]
 - Tab to view all recurring tasks 
 - Set to day/week/month etc
@@ -186,6 +196,12 @@ Work through the habit-tracker group, then the goals/curricula group, one at a t
 
 ### Phase 18 — In-app roadmap view (revised 2026-07-27)
 Originally: recreate this roadmap as a Wren project object and retire this file. Reconsidered — (once planning data lives only in Wren's own storage, Claude can't read or co-edit it directly the way a repo file works in conversation), which breaks the actual point of a *shared, collaborative* roadmap. **`ROADMAP.md` stays the canonical planning doc indefinitely**, regardless of anything else built in Wren itself. If an in-app view ever makes sense, it should be a display/mirror generated from this file, not a replacement that retires it.
+
+### Unsorted Micro Tasks
+ - `KeyboardSensor` for mouse-free reordering (moved out of Phase 3, 2026-08-10). Not blocked on code — it claims Space/Enter on a focused row and Space is already start/stop tracking, which stays.
+ - Fill-up progress bar for the running task's own card, not just the modal.
+   - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
+   - `TimeFlagTracking` has been unused since `LabeledField` took over the modal badge (2026-08-09) — kept for now, drop it if nothing claims it.
 
 ## Future ideas (captured, not scheduled)
 - **Focus modes:** a day/week "focus" setting (work, habits, balance, catch-up-on-neglected-things, procrastination-support) that changes *how* lists/plans are displayed — while all the underlying metadata of what was actually worked on that day is still tracked regardless of focus. Needs real design thought once there's more than one list type to reflow (post Phase 12). Concrete design exploration for the day-vs-tasklist split now exists — see `design/day-planning.md`; task-type taxonomy (recurring, growing-habit, project-linked) and the week-vs-day balance framing live in `design/life-balance.md`.

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import taskShortcuts from '../config/taskShortcuts'
+import { matchesTaskId } from '../utils/taskId'
 
 // Resolves the hovered task via elementFromPoint at keydown time instead of
 // onMouseEnter/onMouseLeave state — those don't refire when a shortcut moves a task
@@ -25,7 +26,7 @@ export default function useTaskKeyboardShortcuts(taskList, actions) {
             const hovered = document.elementFromPoint(x, y)?.closest('[data-task-id]')
             if (!hovered) return
 
-            const task = taskList.find(t => t.id === Number(hovered.dataset.taskId))
+            const task = taskList.find(t => matchesTaskId(t, hovered.dataset.taskId))
             if (!task) return
 
             const shortcut = taskShortcuts.find(s =>
