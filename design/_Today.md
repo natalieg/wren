@@ -1,17 +1,7 @@
 
-
-
-
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
-## 🤖 Habits — daily recurring (shipped 2026-08-10)
-*the daily-only slice of Phase 7. Marking a task recurring makes it come back as a **new** task after rollover, so the habit outlives its occurrences.*
-
-- [ ] a recurring task parked in `someday` quietly stops producing occurrences — correct, but it means there are now two ways to pause a habit (`recurring.active: false` and parking). The recurring page should show both, or a habit that stopped appearing gets hard to explain later.
-- [ ] `frame` / `every` exist in the data model but only `day` is handled
-
 ## Task Modal 'Time Feature' — parked
-*🤖 The MVP shipped in 0.5.0. What's left here is polish, nothing blocking.*
 - [ ] [[Time Tracking 260801]] ( MVP) 
 - [ ] [space] should toggle tracking inside the modal too
 	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
@@ -25,6 +15,9 @@
 	- [ ] **b** for **backlog**
 
 - [ ] Show 'tracked time' on task in sessions - needs implementation of new 'session started/session ended' timestamps 
+	  eg: [name] tracked time [20m]
+	  session 1 --- [10m] at [1pm]
+	  session 2 --- [10m] at [3pm]
 
 ## Trello integration
 - [ ] trello task abhaken, 
