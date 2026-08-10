@@ -53,6 +53,60 @@ describe('useTasks', () => {
     expect(result.current.taskList[0].list).toBe(BACKLOG)
   })
 
+  // every way out of 'done' has to run the same cleanup. These used to only happen in
+  // toggleDone, so the edit panel's active badge left a stale timestamp and history entry
+  describe('leaving the done list through something other than the checkbox', () => {
+    const readHistory = () => JSON.parse(localStorage.getItem('history') || '[]')
+
+    it('the active badge clears finishedTimestamp and the history entry', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.toggleDone(id) })
+      expect(readHistory()[0].tasks).toHaveLength(1)
+
+      act(() => { result.current.taskActions.toggleActive(id) })
+
+      const task = result.current.taskList[0]
+      expect(task.list).toBe(ACTIVE)
+      expect(task.finishedTimestamp).toBeNull()
+      expect(task.previousList).toBeUndefined()
+      expect(result.current.finishedTasks).toHaveLength(0)
+      expect(readHistory()).toHaveLength(0)
+    })
+
+    it('starting the timer on a finished task un-finishes it the same way', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.toggleDone(id) })
+      act(() => { result.current.taskActions.startTracking(id) })
+
+      const task = result.current.taskList[0]
+      expect(task.list).toBe(ACTIVE)
+      expect(task.finishedTimestamp).toBeNull()
+      expect(readHistory()).toHaveLength(0)
+    })
+
+    it('keeps the bucket across finishing and un-finishing a parked task', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => {
+        result.current.taskActions.handleAddTask('Someday idea', 30, { list: BACKLOG, bucket: SOMEDAY })
+      })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.toggleDone(id) })
+      act(() => { result.current.taskActions.toggleDone(id) })
+
+      expect(result.current.taskList[0]).toMatchObject({
+        list: BACKLOG,
+        backlog: { bucket: SOMEDAY },
+      })
+    })
+  })
+
   describe('legacy data migration', () => {
     it('migrates a legacy active task (active: true, done: false)', () => {
       localStorage.setItem('tasks', JSON.stringify([
@@ -341,6 +395,41 @@ describe('useTasks', () => {
     // setInterval firings would. Its actual flush math is the same flushTrackedTime
     // exercised by the stop/switch tests above; verified manually by shortening the
     // interval during dev (see conversation 2026-08-01).
+
+    // the transition and the flush both write the task in one handler — if the
+    // transition uses a render snapshot instead of a functional update it wins the
+    // race and the banked seconds are gone
+    it('banks the running timer when the task is finished mid-run', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.startTracking(id) })
+      act(() => { vi.advanceTimersByTime(5000) })
+      act(() => { result.current.taskActions.toggleDone(id) })
+
+      expect(result.current.runningTaskId).toBe(null)
+      expect(result.current.taskList.find(t => t.id === id)).toMatchObject({
+        list: DONE,
+        trackedTime: 5,
+      })
+    })
+
+    it('banks the running timer when the task is parked mid-run', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.startTracking(id) })
+      act(() => { vi.advanceTimersByTime(4000) })
+      act(() => { result.current.taskActions.toggleActive(id) })
+
+      expect(result.current.runningTaskId).toBe(null)
+      expect(result.current.taskList.find(t => t.id === id)).toMatchObject({
+        list: BACKLOG,
+        trackedTime: 4,
+      })
+    })
 
     it("anchors the running task's estimate to now once it goes over its own time budget", () => {
       vi.setSystemTime(new Date('2026-08-01T12:00:00Z'))

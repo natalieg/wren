@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import useHistory from './useHistory'
-import { loadSettings } from '../utils/settings'
-import useDayActions from './useDayActions'
+import useTimeTracking from './useTimeTracking'
+import useTaskRollover from './useTaskRollover'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
-import { minutesToSeconds } from '../utils/formatTime'
 import reorderTasks, { groupKey, isGroupKey } from '../utils/reorderTasks'
+import { applyListChange, entersAtEnd } from '../utils/taskTransitions'
+import calculateEstimates from '../utils/taskEstimates'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -22,6 +23,10 @@ function normalizeTask(t) {
   }
 }
 
+/** Composition root for everything task-shaped. The pieces that own their own state
+ * or effects are their own hooks (tracking, rollover); the parts that are just
+ * "tasks in, something out" are pure utils (transitions, estimates, reordering).
+ * What stays here is the task list itself, CRUD, and the wiring between them. */
 function useTasks() {
   const { addToHistory, removeFromHistory } = useHistory()
   const [editingTaskId, setEditingTaskId] = useState(null)
@@ -35,192 +40,74 @@ function useTasks() {
     }
   })
   const [newActionTime, setNewActionTime] = useState(null)
-  const activeTasks = taskList.filter(t => t.list === ACTIVE)
-  const [runningTaskId, setRunningTaskId] = useState(null)
-  const [trackedSeconds, setTrackedSeconds] = useState(0)
-  const trackingStartTime = useRef(null)
+
+  const {
+    runningTaskId,
+    trackedSeconds,
+    startTracking: beginTracking,
+    stopTracking,
+    stopIfRunning,
+  } = useTimeTracking(setTaskList)
+
+  const { startedAt, resetStartedAt } = useTaskRollover(setTaskList)
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(taskList))
   }, [taskList])
 
-  // ticks aligned to the second boundary, not every 1000ms — avoids drift
-  useEffect(() => {
-    if (!runningTaskId) return
-    trackingStartTime.current = Date.now()
-    let timeout
-    const tick = () => {
-      const elapsedMs = Date.now() - trackingStartTime.current
-      setTrackedSeconds(Math.floor(elapsedMs / 1000))
-      timeout = setTimeout(tick, 1000 - (elapsedMs % 1000))
-    }
-    timeout = setTimeout(tick, 1000)
-    return () => clearTimeout(timeout)
-  }, [runningTaskId])
+  // The one way a task changes list. taskTransitions owns what the change means for
+  // the task, this owns the side effects around it — history entry and the timer.
+  // Every entry point (checkbox, edit panel, drag & drop, tracking) routes here, so
+  // none of them can forget half of a transition the way they used to.
+  const moveTaskToList = (id, target, opts = {}) => {
+    const task = taskList.find(t => t.id === id)
+    if (!task || task.list === target) return
+    const next = applyListChange(task, target, opts)
 
-  // Visibility Listener
-  useEffect(() => {
-    if (!runningTaskId) return
-    const onVisible = () => {
-      if (document.visibilityState === 'visible' && trackingStartTime.current) {
-        setTrackedSeconds(Math.floor((Date.now() - trackingStartTime.current) / 1000))
-      }
-    }
-    document.addEventListener('visibilitychange', onVisible)
-    return () => document.removeEventListener('visibilitychange', onVisible)
-  }, [runningTaskId])
+    if (task.list === DONE) removeFromHistory(id)
+    // the entry misses seconds still sitting in the running timer — the flush below
+    // can only land on the next render. Known, pre-dates the transition rewrite
+    if (target === DONE) addToHistory(next)
 
-  // listRules 
-  const listRules ={
-   [DONE]: {
-      enter: (t, from) => ({...t, previousList: from, finishedTimestamp: new Date()}),
-      leave: (t) => ({...t, previousList: undefined, finishedTimestamp: null}),
-   },
-   [BACKLOG]: {
-      enter: (t, from, opts) => ({...t, backlog: {bucket: opts.bucket ?? NEXTUP, activationDate: null}}),
-      leave: (t) => ({...t, backlog: undefined}),
-   }
+    setTaskList(currentTaskList => entersAtEnd(target)
+      ? [...currentTaskList.filter(t => t.id !== id), next]
+      : currentTaskList.map(t => t.id === id ? next : t))
+
+    // after setTaskList on purpose: the flush is a functional update and has to land
+    // on top of the transition instead of being overwritten by it
+    stopIfRunning(id)
   }
-
-   const moveTaskToList = (id, target, opts = {}) => {
-      const task = taskList.find(t => t.id === id)
-      if (!task || task.list === target) return
-      const from = task.list
-
-      let next = { ...task, list: target }
-      next = listRules[from]?.leave?.(next) ?? next
-      next = listRules[target]?.enter?.(next, from, opts) ?? next
-
-      if (from === DONE) removeFromHistory(id)
-      if (target === DONE) addToHistory(next)
-      // ...tracking stoppen, setTaskList
-      flushTrackedTime()
-      setTaskList(taskList.map(t => t.id === id ? next : t))
-   }
-
-
-  // nextUp -> active on a new day, gated by the rolloverActive setting
-  const promoteNextUpTasks = () => {
-    if (!loadSettings().rolloverActive) return
-    setTaskList(currentTaskList => {
-      const toPromote = currentTaskList.filter(t =>
-        t.list === BACKLOG && (t.backlog?.bucket ?? NEXTUP) === NEXTUP)
-      if (toPromote.length === 0) return currentTaskList
-      const rest = currentTaskList.filter(t => !toPromote.includes(t))
-      const promoted = toPromote.map(t => ({ ...t, list: ACTIVE, backlog: undefined }))
-      return [...rest, ...promoted]
-    })
-  }
-
-  // deletes finished tasks on rollOver if the autoDeleteFinished setting is enabled
-  const deleteFinishedTasksOnRollover = () => {
-    if (!loadSettings().autoDeleteFinished) return
-    setTaskList(currentTaskList => currentTaskList.filter(t => t.list !== DONE))
-  }
-
-  const { startedAt, resetStartedAt } = useDayActions({
-    onRollover: () => { promoteNextUpTasks(); deleteFinishedTasksOnRollover(); }
-  })
 
   const updateActionTime = () => {
-    if (activeTasks.length === 0) {
+    if (!taskList.some(t => t.list === ACTIVE)) {
       setNewActionTime(new Date())
     }
   }
 
-  //toggles done and add/remove from history
+  // un-finishing goes back to whichever list the task came from, falling back to active
+  // for legacy tasks that never recorded one
   const toggleDone = (id) => {
     const task = taskList.find(t => t.id === id)
-    const isNowDone = task.list !== DONE
-    const updatedTask = isNowDone
-      ? { ...task, list: DONE, previousList: task.list, finishedTimestamp: new Date() }
-      : { ...task, list: task.previousList || ACTIVE, previousList: undefined, finishedTimestamp: null }
-    if (isNowDone) {
-      addToHistory(updatedTask)
-    } else {
-      removeFromHistory(id)
-    }
-    setTaskList(taskList.map(t => t.id === id ? updatedTask : t))
-    if (id === runningTaskId) {
-      setRunningTaskId(null)
-      flushTrackedTime()
-    }
+    if (!task) return
+    if (task.list !== DONE) return moveTaskToList(id, DONE)
+    const back = task.previousList && task.previousList !== DONE ? task.previousList : ACTIVE
+    moveTaskToList(id, back)
   }
 
-  // parks a task to the backlog (default 'nextUp' bucket) or pulls it back to active.
-  // activating lands the task at the end of the list instead of its old queue spot —
-  // parking stays in-place, only activation repositions
+  // parks a task to the backlog or pulls it back to active. Works on a finished task
+  // too — moveTaskToList runs the done cleanup (timestamp, history) on the way out
   const toggleActive = (id) => {
-    setTaskList(currentTaskList => {
-      const task = currentTaskList.find(t => t.id === id)
-      if (task.list === ACTIVE) {
-        return currentTaskList.map(t => t.id === id
-          ? { ...t, list: BACKLOG, backlog: { bucket: NEXTUP, activationDate: null } }
-          : t)
-      }
-      const rest = currentTaskList.filter(t => t.id !== id)
-      return [...rest, { ...task, list: ACTIVE, backlog: undefined }]
-    })
-    if (id === runningTaskId) {
-      setRunningTaskId(null)
-      flushTrackedTime()
-    }
+    const task = taskList.find(t => t.id === id)
+    if (!task) return
+    moveTaskToList(id, task.list === ACTIVE ? BACKLOG : ACTIVE)
   }
 
-  const flushTrackedTime = () => {
-    if (!runningTaskId || !trackingStartTime.current) return
-    const elapsedMs = Date.now() - trackingStartTime.current
-    const secondsToFlush = Math.floor(elapsedMs / 1000)
-    setTaskList(currentTaskList => currentTaskList.map(task => {
-      if (task.id !== runningTaskId) return task
-      return { ...task, trackedTime: (task.trackedTime || 0) + secondsToFlush }
-    }))
-    // Session-Reset: neue Baseline, um die angefangene Sekunde zurückversetzt —
-    // sonst verfällt der Rest bei jedem Flush und die Uhr geht pro 5min bis zu 1s nach
-    trackingStartTime.current = Date.now() - (elapsedMs % 1000)
-    setTrackedSeconds(0)
-  }
-
-  // 'saves' tracked time all 5min to avoid losses
-  useEffect(() => {
-    if (!runningTaskId) return
-    const interval = setInterval(() => {
-      flushTrackedTime()
-    }, 5 * 60 * 1000) // every 5 minutes 
-    return () => clearInterval(interval)
-  }, [runningTaskId])
-
+  // tracking a task implies it is active — the transition runs first so a parked or
+  // finished task gets its list fields cleaned up instead of just being relabelled
   const startTracking = (id) => {
-    if (runningTaskId) {
-      flushTrackedTime()
-      // sortedActiveTasks() always pulls whichever task is running to top
-      setTaskList(currentTaskList => {
-        const outgoingTask = currentTaskList.find(t => t.id === runningTaskId)
-        const rest = currentTaskList.filter(t => t.id !== runningTaskId)
-        return [outgoingTask, ...rest]
-      })
-    }
-    setTaskList(currentTaskList => currentTaskList.map(t => t.id === id ?
-      {
-        ...t,
-        list: ACTIVE,
-        backlog: undefined,
-        startedAt: t.startedAt || new Date(),
-      }
-      : t))
+    moveTaskToList(id, ACTIVE)
+    beginTracking(id)
     setNewActionTime(new Date())
-    setRunningTaskId(id)
-  }
-
-  const stopTracking = () => {
-    flushTrackedTime()
-    // keep the just-stopped task at the top instead of letting it fall
-    setTaskList(currentTaskList => {
-      const stoppedTask = currentTaskList.find(t => t.id === runningTaskId)
-      const rest = currentTaskList.filter(t => t.id !== runningTaskId)
-      return [stoppedTask, ...rest]
-    })
-    setRunningTaskId(null)
   }
 
   // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
@@ -241,11 +128,8 @@ function useTasks() {
   }
 
   const handleDeleteTask = (id) => {
-    if (id === runningTaskId) {
-      setRunningTaskId(null)
-      flushTrackedTime()
-    }
-    setTaskList(taskList.filter(t => t.id !== id))
+    stopIfRunning(id)
+    setTaskList(currentTaskList => currentTaskList.filter(t => t.id !== id))
     updateActionTime()
   }
 
@@ -263,25 +147,22 @@ function useTasks() {
   }
 
   // dropping a task onto the finished list finishes it rather than moving it there —
-  // toggleDone also writes finishedTimestamp and the history entry, which a plain
-  // list change would skip. reorderTasks refuses the transition for the same reason.
+  // only moveTaskToList writes finishedTimestamp and the history entry, so reorderTasks
+  // refuses the transition and it is routed here instead
   const reorderTaskList = (activeId, overId) => {
     const activeTask = taskList.find(t => t.id === activeId)
     const overTask = taskList.find(t => t.id === overId)
     // a drop lands on a row or on a bare list, so overId is a task id or a group key
     if (!activeTask || (!overTask && !isGroupKey(overId))) return
 
-    // crossing the finished line in either direction runs toggleDone, which is the only
-    // thing that also writes finishedTimestamp and the history entry
     const wasDone = activeTask.list === DONE
     const overIsDone = overTask ? overTask.list === DONE : overId === DONE
     if (wasDone !== overIsDone) {
-      toggleDone(activeId)
+      if (overIsDone) return moveTaskToList(activeId, DONE)
       // un-finishing restores previousList, which can be a different list than the one
-      // it was dropped on — so place it afterwards, on the state toggleDone just wrote
-      if (wasDone) {
-        setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
-      }
+      // it was dropped on — so place it afterwards, on the state the transition wrote
+      toggleDone(activeId)
+      setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
       return
     }
     setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
@@ -303,6 +184,7 @@ function useTasks() {
   const taskActions = {
     toggleDone,
     toggleActive,
+    moveTaskToList,
     handleAddTask,
     onDelete: handleDeleteTask,
     handleFieldChange,
@@ -316,62 +198,16 @@ function useTasks() {
   }
 
   const finishedTasks = taskList.filter(t => t.list === DONE)
-
-  //baseTime is either [startedAt], [last finished task], or [new task created time] if no tasks are active
-  // guard against legacy finished tasks with no/invalid finishedTimestamp — one
-  // NaN here would poison the whole Math.max, breaking every estimate
-  const validFinishedTimestamps = finishedTasks
-    .map(t => new Date(t.finishedTimestamp).getTime())
-    .filter(time => !isNaN(time))
-  const baseTime = Math.max(
-    startedAt.getTime(),
-    ...validFinishedTimestamps,
-    newActionTime)
-
-  const calculateEstimateFinishTime = (task, runningTime) => {
-    const isRunning = task.id === runningTaskId
-    const trackedOrElapsed = (task.trackedTime || 0) + (isRunning ? trackedSeconds : 0)
-    const estimateSeconds = minutesToSeconds(task.time)
-    const isOverEstimate = trackedOrElapsed > estimateSeconds
-    // if the task is running and over estimate, return current time
-    if (isOverEstimate && isRunning) {
-      // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
-      return Date.now()
-    }
-    const remaining = isOverEstimate ? 0 : estimateSeconds - trackedOrElapsed
-    // eslint-disable-next-line react-hooks/purity -- display-only
-    return (isRunning ? Date.now() : runningTime) + remaining * 1000
-  }
-
-  // sorts running task to the front LATER should be changable in user settings
-  const sortedActiveTasks = () => {
-    const runningTask = activeTasks.find(t => t.id === runningTaskId)
-    if (!runningTask) return activeTasks
-    const otherActiveTasks = activeTasks.filter(t => t.id !== runningTaskId)
-    return [runningTask, ...otherActiveTasks]
-  }
-
-  const openTasksResult = sortedActiveTasks()?.reduce((acc, task) => {
-    const estimateTime = calculateEstimateFinishTime(task, acc.runningTime)
-    const taskWithEstimate = { ...task, estimate: new Date(estimateTime) }
-    return { runningTime: estimateTime, list: [...acc.list, taskWithEstimate] }
-  }, { runningTime: baseTime, list: [] })
-
-
-  // add 'possibleEstimate' timestamp to each task, anchored after the last
-  // active task's estimate or baseTime if no task is active
-  // 'nextUp' bucket only — mirrors the old parked-tasks list shown inline on the Tasklist page
-  const nextUpTasks = taskList.filter(t => t.list === BACKLOG && (t.backlog?.bucket ?? NEXTUP) === NEXTUP).map((task) => {
-    const remaining = Math.max(minutesToSeconds(task.time) - (task.trackedTime || 0), 0)
-    // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
-    const sourceTime = Math.max(openTasksResult.runningTime, Date.now())
-    return { ...task, possibleEstimate: new Date(sourceTime + remaining * 1000) }
-  })
-
   // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
   const backlogTasks = taskList.filter(t => t.list === BACKLOG)
 
-  return { taskList, openTasks: openTasksResult.list, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
+  const { openTasks, nextUpTasks } = calculateEstimates({
+    taskList, startedAt, newActionTime, runningTaskId, trackedSeconds,
+    // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
+    now: Date.now(),
+  })
+
+  return { taskList, openTasks, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
 }
 
 export default useTasks

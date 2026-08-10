@@ -29,8 +29,6 @@ export default function Tasklist() {
       trackedSeconds,
    }
 
-   console.log('tasklist', openTasks)
-
    const runningTask = openTasks.find((t) => t.id === runningTaskId)
    const openTasksWithoutRunning = openTasks.filter((t) => t.id !== runningTaskId)
 
