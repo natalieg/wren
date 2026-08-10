@@ -1,11 +1,14 @@
+import { useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import ConfirmModal from '../elements/ConfirmModal'
+import { isRecurring } from '../../utils/recurring'
 import Checkbox from '../elements/Checkbox'
 import SimpleTag from '../elements/SimpleTag'
 import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
-import { DONE } from '../../utils/constants'
+import { BACKLOG, DONE, NEXTUP } from '../../utils/constants'
 
 // wraps a row in dnd-kit's sortable. Only rows that are actually sortable render through
 // this — the pinned running task renders TaskItem directly, so it never receives a transform
@@ -27,7 +30,7 @@ export function SortableTaskItem({ task, ...props }) {
 
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
-export default function TaskItem({ index, task, toggleDone, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, dragProps, isDragging }) {
+export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, dragProps, isDragging }) {
    const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
    const done = task.list === DONE
    const isTracking = id === runningTaskId
@@ -40,6 +43,16 @@ export default function TaskItem({ index, task, toggleDone, onDelete, startTrack
       } else {
          stopTracking()
       }
+   }
+
+  // confirm delete for special tasks (recurring) — otherwise delete immediately
+   const [confirmingDelete, setConfirmingDelete] = useState(false)
+   const needsConfirm = isRecurring(task) && !done
+
+   const handleDelete = (e) => {
+      e.stopPropagation()
+      if (needsConfirm) return setConfirmingDelete(true)
+      onDelete(id)
    }
 
    return (
@@ -72,10 +85,7 @@ export default function TaskItem({ index, task, toggleDone, onDelete, startTrack
                {/* Delete */}
                <span className='opacity-0 group-hover:opacity-100 transition-opacity duration-(--dur-fast) ease-bounce text-text-muted
                                     hover:text-text-primary'
-                  onClick={(e) => {
-                     e.stopPropagation()
-                     onDelete(id)
-                  }}>
+                  onClick={handleDelete}>
                   ✕
                </span>
             </div>
@@ -86,6 +96,15 @@ export default function TaskItem({ index, task, toggleDone, onDelete, startTrack
             <div className='w-20 flex items-center justify-center text-center'>{formatClockTime(estimate)}</div>}
          {finishedTimestamp &&
             <div className='w-20 text-text-muted/70 group-hover:text-text-secondary flex items-center justify-center text-center'>{formatClockTime(finishedTimestamp)}</div>}
+         {confirmingDelete &&
+            <ConfirmModal
+               title='delete a habit?'
+               message={`"${label}" is recurring. Deleting it here ends the recurrence — its settings and its ${task.recurring?.count ?? 0} completions go with it.`}
+               confirmLabel='Delete habit'
+               altLabel='Park for tomorrow'
+               onConfirm={() => { setConfirmingDelete(false); onDelete(id) }}
+               onAlt={() => { setConfirmingDelete(false); moveTaskToList(id, BACKLOG, { bucket: NEXTUP }) }}
+               onCancel={() => setConfirmingDelete(false)} />}
       </div>
    )
 }

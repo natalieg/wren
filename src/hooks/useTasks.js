@@ -7,6 +7,7 @@ import reorderTasks, { groupKey, isGroupKey } from '../utils/reorderTasks'
 import { applyListChange, entersAtEnd } from '../utils/taskTransitions'
 import calculateEstimates from '../utils/taskEstimates'
 import { newTaskId } from '../utils/taskId'
+import { reviveOrphanedHabits } from '../utils/recurring'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -124,14 +125,24 @@ function useTasks() {
     updateActionTime()
   }
 
+  // stops tracking and deletes the task, reviving any orphaned habits if it was a recurring task
   const handleDeleteTask = (id) => {
     stopIfRunning(id)
-    setTaskList(currentTaskList => currentTaskList.filter(t => t.id !== id))
+    setTaskList(currentTaskList => {
+      const task = currentTaskList.find(t => t.id === id)
+      const kept = currentTaskList.filter(t => t.id !== id)
+      if (!task) return currentTaskList
+      return [...kept, ...reviveOrphanedHabits(kept, [task], { list: BACKLOG, bucket: NEXTUP })]
+    })
     updateActionTime()
   }
 
   const deleteAllFinishedTasks = () => {
-    setTaskList(taskList.filter(t => t.list !== DONE))
+    setTaskList(currentTaskList => {
+      const kept = currentTaskList.filter(t => t.list !== DONE)
+      const removed = currentTaskList.filter(t => t.list === DONE)
+      return [...kept, ...reviveOrphanedHabits(kept, removed, { list: BACKLOG, bucket: NEXTUP })]
+    })
   }
 
   // manual reorder ahead of real drag & drop — moves one task to the end of the list

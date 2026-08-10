@@ -3,9 +3,7 @@ import TaskItem, { SortableTaskItem } from './TaskItem'
 import { useDndContext } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
-// stands in for a task a list is about to receive. Lists that accept a live move never
-// show one — the real row is already sitting there — so this only fills the gap for
-// lists a task can't be moved into mid-drag, like finished
+// Placeholder for tasks being dragged to lists that can't accept live moves
 function DropPlaceholder({ label }) {
    return (
       <div className='rounded-md py-1 px-2 mb-1 border-2 border-dashed border-accent-muted
@@ -15,30 +13,25 @@ function DropPlaceholder({ label }) {
    )
 }
 
-// one SortableContext per rendered list — its ids are what dnd-kit reports
-// positions against. The DndContext around it lives on the page (TaskDndArea).
-export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
-   // the drop target and the frame live on TaskDropZone, one level up — a collapsed
-   // section can only be hit from outside its 0fr content row
+// SortableContext for drag-and-drop positioning (DndContext is in TaskDndArea)
+export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
+   // Drop target and frame live in TaskDropZone
    const { active, over } = useDndContext()
    const holdsDragged = !!active && tasks.some(t => t.id === active.id)
    const overIndex = over ? tasks.findIndex(t => t.id === over.id) : -1
    const overList = !!over && over.id === groupId
-   // only lists that haven't already received the dragged row need a stand-in. A drop on
-   // the bare list means the end of it, so it goes after the last row
+   // Show placeholder only if dragged task isn't already in this list
    const placeholderAt = holdsDragged ? -1
       : overIndex !== -1 ? overIndex
          : overList ? tasks.length : -1
 
-   // the running task is left out on purpose — it is pinned and non-droppable, and a
-   // non-droppable id inside items desyncs the row-shift math from the drop target
+   // Running task excluded: it's pinned and non-droppable
    return (
       <SortableContext items={tasks.filter(t => t.id !== runningTaskId).map(t => t.id)}
          strategy={verticalListSortingStrategy}>
          <div className='flex flex-col'>
             {tasks.map((t, index) => {
-               // the running task renders unsortable, so no leftover drag transform can
-               // displace it once tracking stops and it moves back into the flow
+               // Running task renders unsortable to avoid displacement
                const Row = t.id === runningTaskId ? TaskItem : SortableTaskItem
                return (
                <Fragment key={t.id}>
@@ -50,6 +43,7 @@ export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, startT
                   // task actions
                   toggleDone={toggleDone}
                   onDelete={onDelete}
+                  moveTaskToList={moveTaskToList}
                   startTracking={startTracking}
                   stopTracking={stopTracking}
                   // states from useTasks through Tasklist

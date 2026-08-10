@@ -3,7 +3,9 @@
  * day — so a counter that reuses freed numbers would let a new task inherit an old one's
  * archive. Existing numeric ids keep working, everything compares them with ===. */
 export function newTaskId() {
-    return crypto.randomUUID()
+    // randomUUID only exists in a secure context, so it is missing over plain http —
+    // e.g. `vite --host` opened on a phone. Without the fallback, adding a task throws
+    return crypto.randomUUID?.() ?? `t-${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
 /** DOM datasets are always strings, so a raw === against a numeric legacy id never

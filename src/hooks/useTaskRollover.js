@@ -2,14 +2,11 @@ import useDayActions from './useDayActions'
 import { loadSettings } from '../utils/settings'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
 import { applyListChange } from '../utils/taskTransitions'
-import { newTaskId } from '../utils/taskId'
+import { isRecurring, nextOccurrence, hasOpenOccurrence, reviveOrphanedHabits } from '../utils/recurring'
 
-/** What a new logical day does to the task list. useDayActions owns *when* a day
- * rolls over and knows nothing about tasks — this is the tasks half of that split,
- * with each of the two effects gated by its own setting. */
-// day rollover, applied to the task list
+// Applies day rollover effects to tasks, gated by their own settings
 function useTaskRollover(setTaskList) {
-  // nextUp -> active on a new day, gated by the rolloverActive setting
+  // Promote nextUp to active, gated by rolloverActive setting
   const promoteNextUpTasks = () => {
     if (!loadSettings().rolloverActive) return
     setTaskList(currentTaskList => {
@@ -21,29 +18,18 @@ function useTaskRollover(setTaskList) {
       return [...rest, ...promoted]
     })
   }
-// recurring tasks: copy finished ones to a new active task, gated by the rolloverRecurring setting
-  const nextOccurrence = (task) => ({
-    id: newTaskId(),
-    label: task.label,
-    time: task.time,
-    list: ACTIVE,
-    recurring: { ...task.recurring },
-  })
-
-  // a new copy of every finished recurring task. The finished one is left exactly as it is
+  // Copy finished recurring tasks to new active tasks (gated by recurring.active)
   const copyRecurringTasks = () => {
     setTaskList(currentTaskList => {
-      // a habit that already has an unfinished task needs no copy
-      const openHabitIds = new Set(currentTaskList
-        .filter(t => t.list !== DONE && t.recurring?.id)
-        .map(t => t.recurring.id))
-
+      const claimed = new Set()
       const copies = []
       for (const task of currentTaskList) {
-        if (task.list !== DONE || !task.recurring?.active) continue
-        if (openHabitIds.has(task.recurring.id)) continue
-        openHabitIds.add(task.recurring.id) // also dedupes several finished days at once
-        copies.push(nextOccurrence(task))
+        if (task.list !== DONE || !isRecurring(task)) continue
+        const habitId = task.recurring.id
+        // Skip if habit has unfinished task or already copied this day
+        if (claimed.has(habitId) || hasOpenOccurrence(currentTaskList, habitId)) continue
+        claimed.add(habitId)
+        copies.push(nextOccurrence(task, { list: ACTIVE }))
       }
 
       if (copies.length === 0) return currentTaskList
@@ -51,15 +37,18 @@ function useTaskRollover(setTaskList) {
     })
   }
 
-  // deletes finished tasks on rollOver if the autoDeleteFinished setting is enabled
+  // Delete finished tasks if autoDeleteFinished is enabled, revive orphaned habits
   const deleteFinishedTasksOnRollover = () => {
     if (!loadSettings().autoDeleteFinished) return
-    setTaskList(currentTaskList => currentTaskList.filter(t => t.list !== DONE))
+    setTaskList(currentTaskList => {
+      const kept = currentTaskList.filter(t => t.list !== DONE)
+      const removed = currentTaskList.filter(t => t.list === DONE)
+      return [...kept, ...reviveOrphanedHabits(kept, removed, { list: BACKLOG, bucket: NEXTUP })]
+    })
   }
 
   return useDayActions({
-    // the copy has to be made before the delete — not so the task survives, but so
-    // there is still something to copy from
+    // Order matters: copy before delete so source tasks exist for copying
     onRollover: () => { promoteNextUpTasks(); copyRecurringTasks(); deleteFinishedTasksOnRollover(); }
   })
 }
