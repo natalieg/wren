@@ -6,6 +6,7 @@ import CollapsableDiv from '../components/CollapsableDiv'
 import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
 import TaskInput from '../components/tasks/TaskInput'
+import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
 
 export default function Tasklist() {
    const {
@@ -27,6 +28,8 @@ export default function Tasklist() {
       runningTaskId,
       trackedSeconds,
    }
+
+   console.log('tasklist', openTasks)
 
    const runningTask = openTasks.find((t) => t.id === runningTaskId)
    const openTasksWithoutRunning = openTasks.filter((t) => t.id !== runningTaskId)
@@ -57,7 +60,7 @@ export default function Tasklist() {
             {/* every group on the page shares one DndContext — a drag can only cross
             lists inside the same context, which is what buckets/habits will need */}
             {/* TEST  onMoveAcrossLists={moveTaskAcrossLists} comment out to test visual preference*/}
-            <TaskDndArea onReorder={reorderTaskList} onMoveAcrossLists={moveTaskAcrossLists}
+            <TaskDndArea onReorder={reorderTaskList} 
                renderDragOverlay={renderDragOverlay}>
                {/* 💤 Next up (backlog, 'nextUp' bucket) */}
                {/* Todo move to side component when implemented */}
@@ -65,16 +68,16 @@ export default function Tasklist() {
                   <CollapsableDiv
                      label={`Next up (${nextUpTasks.length})`}
                      collapseAction={updateActionTime}>
-                     <TaskGroup tasks={nextUpTasks} {...taskActionBundle} showEstimate={true} />
+                     <TaskGroup tasks={nextUpTasks} groupId={`${BACKLOG}:${NEXTUP}`} {...taskActionBundle} showEstimate={true} />
                   </CollapsableDiv>
                )}
                {/* ⚡ Active Tasks */}
-               <TaskGroup tasks={openTasksWithoutRunning} {...taskActionBundle} showEstimate={true} />
+               <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} />
                {/* ✅ Finished Tasks */}
                {finishedTasks.length > 0 && (
                   <CollapsableDiv
                      label={`Finished tasks (${finishedTasks.length})`}>
-                     <TaskGroup tasks={finishedTasks} {...taskActionBundle} showEstimate={true} />
+                     <TaskGroup tasks={finishedTasks} groupId={DONE} {...taskActionBundle} showEstimate={true} />
                      <button id='deleteAllFinishedBtn'
                         className={`softButton mt-4 min-w-40 w-1/2 mx-auto block`}
                         disabled={finishedTasks.length === 0}

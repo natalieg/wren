@@ -4,7 +4,7 @@ import { loadSettings } from '../utils/settings'
 import useDayActions from './useDayActions'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
 import { minutesToSeconds } from '../utils/formatTime'
-import reorderTasks, { groupKey } from '../utils/reorderTasks'
+import reorderTasks, { groupKey, isGroupKey } from '../utils/reorderTasks'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -24,9 +24,6 @@ function normalizeTask(t) {
 
 function useTasks() {
   const { addToHistory, removeFromHistory } = useHistory()
-  // lives here, not as local state on TaskItem — a task can move between different
-  // TaskGroup instances (active/backlog, bucket A/B) while its modal is open, which
-  // unmounts/remounts the TaskItem and would wipe locally-held "am I editing" state
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [taskList, setTaskList] = useState(() => {
     try {
@@ -72,6 +69,35 @@ function useTasks() {
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [runningTaskId])
+
+  // listRules 
+  const listRules ={
+   [DONE]: {
+      enter: (t, from) => ({...t, previousList: from, finishedTimestamp: new Date()}),
+      leave: (t) => ({...t, previousList: undefined, finishedTimestamp: null}),
+   },
+   [BACKLOG]: {
+      enter: (t, from, opts) => ({...t, backlog: {bucket: opts.bucket ?? NEXTUP, activationDate: null}}),
+      leave: (t) => ({...t, backlog: undefined}),
+   }
+  }
+
+   const moveTaskToList = (id, target, opts = {}) => {
+      const task = taskList.find(t => t.id === id)
+      if (!task || task.list === target) return
+      const from = task.list
+
+      let next = { ...task, list: target }
+      next = listRules[from]?.leave?.(next) ?? next
+      next = listRules[target]?.enter?.(next, from, opts) ?? next
+
+      if (from === DONE) removeFromHistory(id)
+      if (target === DONE) addToHistory(next)
+      // ...tracking stoppen, setTaskList
+      flushTrackedTime()
+      setTaskList(taskList.map(t => t.id === id ? next : t))
+   }
+
 
   // nextUp -> active on a new day, gated by the rolloverActive setting
   const promoteNextUpTasks = () => {
@@ -242,12 +268,14 @@ function useTasks() {
   const reorderTaskList = (activeId, overId) => {
     const activeTask = taskList.find(t => t.id === activeId)
     const overTask = taskList.find(t => t.id === overId)
-    if (!activeTask || !overTask) return
+    // a drop lands on a row or on a bare list, so overId is a task id or a group key
+    if (!activeTask || (!overTask && !isGroupKey(overId))) return
 
     // crossing the finished line in either direction runs toggleDone, which is the only
     // thing that also writes finishedTimestamp and the history entry
     const wasDone = activeTask.list === DONE
-    if (wasDone !== (overTask.list === DONE)) {
+    const overIsDone = overTask ? overTask.list === DONE : overId === DONE
+    if (wasDone !== overIsDone) {
       toggleDone(activeId)
       // un-finishing restores previousList, which can be a different list than the one
       // it was dropped on — so place it afterwards, on the state toggleDone just wrote
@@ -265,9 +293,10 @@ function useTasks() {
   const moveTaskAcrossLists = (activeId, overId) => {
     const activeTask = taskList.find(t => t.id === activeId)
     const overTask = taskList.find(t => t.id === overId)
-    if (!activeTask || !overTask) return
-    if (activeTask.list === DONE || overTask.list === DONE) return
-    if (groupKey(activeTask) === groupKey(overTask)) return
+    if (!activeTask || (!overTask && !isGroupKey(overId))) return
+    const overGroup = overTask ? groupKey(overTask) : overId
+    if (activeTask.list === DONE || overGroup === DONE) return
+    if (groupKey(activeTask) === overGroup) return
     setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
   }
 

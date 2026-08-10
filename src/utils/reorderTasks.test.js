@@ -89,6 +89,42 @@ describe('reorderTasks — dropping on another list moves the task there', () =>
     })
 })
 
+// an empty or collapsed list has no row to drop on, so the list itself is a target
+describe('reorderTasks — dropping on a list instead of a row', () => {
+    it('moves a task into an empty list', () => {
+        const taskList = [backlog(1), backlog(2)]
+        const result = reorderTasks(taskList, 1, ACTIVE)
+
+        expect(result[1]).toMatchObject({ id: 1, list: ACTIVE })
+        expect(result[1].backlog).toBeUndefined()
+    })
+
+    it('appends to the end of a list that already has tasks', () => {
+        const taskList = [active(1), active(2), backlog(3, SOMEDAY)]
+        const result = reorderTasks(taskList, 3, ACTIVE)
+
+        expect(ids(result)).toEqual([1, 2, 3])
+        expect(result[2]).toMatchObject({ id: 3, list: ACTIVE })
+    })
+
+    it('moves into a bucket by its group key', () => {
+        const taskList = [active(1), backlog(2, NEXTWEEK)]
+        const result = reorderTasks(taskList, 1, `${BACKLOG}:${SOMEDAY}`)
+
+        expect(result[1].backlog.bucket).toBe(SOMEDAY)
+    })
+
+    it('reads a drop on its own list as "move to the end"', () => {
+        const taskList = [active(1), active(2), active(3)]
+        expect(ids(reorderTasks(taskList, 1, ACTIVE))).toEqual([2, 3, 1])
+    })
+
+    it('ignores an overId that is neither a task nor a list', () => {
+        const taskList = [active(1), active(2)]
+        expect(reorderTasks(taskList, 1, 'not-a-group')).toBe(taskList)
+    })
+})
+
 describe('reorderTasks — done is not a drag transition', () => {
     // finishing writes a timestamp and a history entry, so toggleDone owns it and
     // a drop onto the finished list is routed there instead of moving the task here

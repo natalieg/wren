@@ -34,23 +34,23 @@
 - [ ] `useTasks`: `reactivateRecurringTasks()` in the `onRollover` bundle
 - [ ] UI: mark a task recurring (edit modal is the obvious place, `SwitchFlag` already does this kind of thing)
 
-### 🤖 two things that will bite
+#### 🤖 two things that will bite
 *decided 2026-08-09: rollover **copies** the finished task into a fresh one rather than resurrecting it — "i'm going to make another one just like that but with a new id, same name, same time estimate, and i'm going to leave your checked task alone". That alone kills the two nastiest traps: no time fields to reset, and no `toggleDone` round trip that would pull yesterday's completion back out of history.*
 - [ ] **order still matters, for the opposite reason.** `onRollover` runs `promoteNextUpTasks()` → `deleteFinishedTasksOnRollover()`. The copy has to be made *before* the delete — not so the task survives, but so there's still something to copy from.
 - [ ] **don't copy twice.** With `autoDeleteFinished` off, yesterday's finished recurring task is still sitting there tomorrow, and would be copied again every single day. Skip the copy when an unfinished task with the same `habitId` already exists.
 
-### 🤖 `habitId` — the field that makes copies a habit instead of look-alikes
+#### 🤖 `habitId` — the field that makes copies a habit instead of look-alikes
 - [ ] every copy carries the same `habitId`; the id on the *task* stays unique per occurrence
 - [ ] it's what the duplicate guard above checks against
 - [ ] Phase 7 wants "overview fail/success, growth over time" — that's a per-habit question, so without this it needs a migration later. One field now, a filter later.
 
-### 🤖 switch task ids to `crypto.randomUUID()` — do this first
+#### 🤖 switch task ids to `crypto.randomUUID()` — do this first
 - [ ] `Math.max(...taskList.map(t => t.id)) + 1` only looks at the *current* list, so deleting a task frees its id for reuse. With auto-delete-finished on rollover that recycling happens daily, while history keeps old ids forever — so a new task can inherit a dead one's archive entries.
 - [ ] old numeric ids keep working, everything compares with `===`
 - [ ] one catch, same step: `useTaskKeyboardShortcuts` does `Number(hovered.dataset.taskId)`, which breaks on string ids
 - [ ] daily copies make many more tasks, which is what turns this from theoretical into likely
 
-### 🤖 pre-existing bug, worth fixing while in here
+#### 🤖 pre-existing bug, worth fixing while in here
 - [ ] `removeFromHistory(taskId)` filters the id out of **every** day, not just the current one — un-ticking a task deletes its earlier completions too. Fix: scope it to a day, `removeFromHistory(taskId, dayKey)`, reusing the `logicalDayString` `addToHistory` already uses.
 	- [ ] copy-per-day dodges this (unique ids per occurrence), so it's a latent bug, not a blocker
 	- [ ] no change needed to `addToHistory`: it groups by day and dedupes only *within* a day, which is already right

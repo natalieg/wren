@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "_Today.md",
+                "file": "2026-08-10.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "_Today"
+              "title": "2026-08-10"
             }
           },
           {
@@ -125,7 +125,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_Today.md",
+                "file": "2026-08-10.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -215,6 +215,7 @@
   },
   "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_Today.md",
     "_Today.md.tmp.58784.3cec9879a7a2",
     "_Today.md.tmp.58784.db2cc60a917a",
     "_ROADMAP.md.tmp.58784.3e1ec4373ba5",
@@ -225,9 +226,7 @@
     "_Today.md.tmp.58784.3250e31bf371",
     "_ROADMAP.md.tmp.58784.325a54bb9dfc",
     "_Today.md.tmp.58784.204e03d4fbde",
-    "_Today.md.tmp.58784.ecab36a1f7ab",
     "_ROADMAP.md",
-    "_Today.md",
     "Time Tracking 260801.md",
     "working-agreement.md",
     "references-inventory.md",
@@ -240,7 +239,7 @@
     "day-planning.md",
     "Shape.md",
     "Time Tracking.md",
-    "2026-07-31.md",
+    "2026-08-10.md",
     "wren-idle-konzept.md",
     "Untitled.canvas",
     "life-balance.md",
