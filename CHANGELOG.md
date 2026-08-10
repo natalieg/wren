@@ -7,6 +7,10 @@
 - Drag a task between lists: onto Next up to park it, back onto the day list to activate it. The target list opens a gap while you drag, so you see where it lands before letting go.
 - Drag a task onto Finished to tick it off, or drag a finished one back out to un-tick it. Both go through the normal finish logic, so the timestamp and the history entry are still written.
 - A floating copy of the task follows the cursor while dragging, and lists that can't take the task mid-drag show a dashed placeholder where it would land.
+- Drop onto a collapsed section and it takes the task without opening — the whole section lights up as a target, so nothing on the page moves while you're holding something.
+- Empty lists can be dropped into too. Next up and Finished stay visible when empty, so there's always somewhere to aim.
+- The Backlog page drags as well: reorder inside a bucket, or drag a task from Next up to Next week or Someday. The ▲/▼ shift arrows are gone, they were only ever a stand-in for this.
+- Fixed: leaving the finished list any way other than the checkbox — the edit panel's active badge, or starting the timer — left the task with its completion time and its history entry intact.
 
 ## 0.5.0 — 2026-08-09
 - Trello board as a Wren page (`/trello`, `src/pages/trello/`, `utils/trello.js`) — read-only view of the shared board's lists and cards, plus creating a card per list. Auth is the shared app key baked in; each person fetches their own Trello token once and pastes it in. The board id is a default, not a lock.

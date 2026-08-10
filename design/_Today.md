@@ -1,24 +1,9 @@
 
 
-## ▶ NOW: DnD (Phase 3)
-*🤖 The Tasklist is done and pushed (branch `dragnAndDrop`, 0.6.0): reorder, drag between active/Next up/Finished, live gap, floating preview, dashed placeholder. What's below is what's actually left — finished items deleted, not archived.*
+## ▶ NOW: DnD (Phase 3) — one decision left
+*🤖 Tasklist and Backlog both drag, reorder, and move between lists. Estimates confirmed correct after a drag. Only the A/B below is still open; `KeyboardSensor` moved to the roadmap's Unsorted Micro Tasks.*
 
-### 🤖 Step D — drop zones (next, ~1 session)
-*the last structural piece. One change closes all three of these at once: a container droppable per list, so a list is a target even with nothing in it.*
-- [ ] with no active tasks, nothing can be dropped into the day list — the group renders a zero-height div
-- [ ] collapsed lists: `CollapsableDiv` collapses with `grid-template-rows: 0fr` and does **not** unmount, so its tasks stay live drop targets at zero height. Dropping into a collapsed list is wanted ("sometimes i just want to have things out of my field of vision"), it just has to be visible that it's happening.
-- [ ] show Next up + Finished while a drag is running even when they're empty — "to show the user that they can do more than just sort the list, they can influence the state of the task"
-
-### 🤖 Open, not blocking
-- [ ] A/B the drag feel with friends before deciding: live gap vs. dashed ghost everywhere. Switch is one prop — comment out `onMoveAcrossLists` in `Tasklist.jsx` (marked `TEST` there).
-- [ ] check: is the estimate cascade still correct right after a drag?
-- [ ] `KeyboardSensor` → reorder without a mouse. Blocked on a decision, not on code: it grabs Space/Enter on a focused row and Space is start/stop tracking ("i would really like to keep space for tracking, i'm open for alternatives tho")
-
-### Session 2 — Backlog
-*cross-list moves already work — `reorderTasks` rewrites list/bucket on a drop into another group, and it's tested. This is Backlog-page work only.*
-- [ ] 🤖 do first: `Backlog.jsx` wraps *every single task* in its own `TaskGroup` so the ▲/▼ buttons can sit beside it. A bucket can't be a sortable list that way — it needs one `TaskGroup` per bucket.
-- [ ] remove the ▲/▼ arrows ("they were always just a sloppy solution as a bridge") — that collapses the block above to a few lines
-- [ ] wrap the page in `TaskDndArea`, one `TaskGroup` per bucket
+- [ ] **decide the drag feel** — live gap vs. dashed ghost everywhere. Both are running right now on purpose: Tasklist has the live move **off**, Backlog has it **on**, so they can be compared on the same data. Switch is one prop, `onMoveAcrossLists` (marked `TEST` in `Tasklist.jsx`). Then make both pages match.
 
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 

@@ -56,10 +56,9 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 - ✅ 2026-08-09: dragging *between* lists. A drop on another list rewrites `list`/`bucket` (keeping `activationDate`), and `onDragOver` applies it mid-drag so the target opens a gap instead of the task teleporting on release. `DragOverlay` floats a copy under the cursor; lists that can't take a live move show a dashed placeholder instead. Both source and target list outline while dragging.
 - ✅ 2026-08-09: dropping onto Finished ticks a task off, dragging one out un-ticks it. Routed through `toggleDone` rather than a list change, so the timestamp and history entry still happen — `reorderTasks` refuses the `done` transition itself for exactly that reason.
 - ✅ 2026-08-10: unplanned refactor — every list change now routes through a single `moveTaskToList`, with the per-list enter/leave rules in a pure `utils/taskTransitions.js`, so a future state adds a block instead of editing existing ones ("damit man die zwei funcs gezielt angreifen kann… vor allem mit potentiell mehr states in der zukunft"). Fixed the bug that prompted it — un-doning a task via the edit panel's active badge or the play button kept its `finishedTimestamp` and history entry, since only `toggleDone` knew the rules — plus a flush race that dropped tracked seconds when a running task was finished or parked. `useTasks.js` went 377 → 187 lines along the way: `useTimeTracking.js`, `useTaskRollover.js` and a pure `taskEstimates.js` split out of it, +21 tests.
-- 🔷 Next: container droppable per list, so an empty or collapsed list is still a target. Also makes Next up and Finished show themselves while a drag is running.
-- 🔷 Then: Backlog page — one `TaskGroup` per bucket instead of one per task, which removes the ▲/▼ shift arrows. The cross-bucket logic itself already works.
-- 🟥 Open: `KeyboardSensor` would give mouse-free reordering, but it claims Space/Enter on a focused row and Space is already start/stop tracking.
-- 🟥 Open: live gap vs. dashed placeholder everywhere — to be decided after testing the feel with other people. One prop switches it.
+- ✅ 2026-08-10: drop zones — `TaskDropZone` registers a whole section as one target and frames it, wrapping the header so a *collapsed* list stays droppable without opening. Empty lists render anyway: anything that changes size at drag start invalidates the position dnd-kit measured and leaves the preview hanging off the cursor. Auto-expanding collapsed sections was tried and rejected ("its super confusing and disorienting" — losing your scroll position mid-drag).
+- ✅ 2026-08-10: Backlog page drags — one `TaskGroup` per bucket in its own drop zone, replacing one `TaskGroup` per task and the ▲/▼ shift arrows. Needed no new logic, only page wiring; the cross-bucket rewrite was already there and tested.
+- 🟥 Open, the last one: live gap vs. dashed placeholder everywhere. Both are live on purpose right now — Tasklist without the live move, Backlog with it — so the feel can be compared on the same data. One prop switches it.
 
 ### PUSHED UP: Habits/Recurring MVP
 
@@ -196,6 +195,7 @@ Work through the habit-tracker group, then the goals/curricula group, one at a t
 Originally: recreate this roadmap as a Wren project object and retire this file. Reconsidered — (once planning data lives only in Wren's own storage, Claude can't read or co-edit it directly the way a repo file works in conversation), which breaks the actual point of a *shared, collaborative* roadmap. **`ROADMAP.md` stays the canonical planning doc indefinitely**, regardless of anything else built in Wren itself. If an in-app view ever makes sense, it should be a display/mirror generated from this file, not a replacement that retires it.
 
 ### Unsorted Micro Tasks
+ - `KeyboardSensor` for mouse-free reordering (moved out of Phase 3, 2026-08-10). Not blocked on code — it claims Space/Enter on a focused row and Space is already start/stop tracking, which stays.
  - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.
    - `TimeFlagTracking` has been unused since `LabeledField` took over the modal badge (2026-08-09) — kept for now, drop it if nothing claims it.
