@@ -4,20 +4,23 @@ import TasksContext from '../context/TasksContext'
 import TaskInput from '../components/tasks/TaskInput'
 import MultiSwitchFlag from '../components/elements/MultiSwitchFlag'
 import TaskGroup from '../components/tasks/TaskGroup'
+import TaskItem from '../components/tasks/TaskItem'
+import TaskDndArea from '../components/tasks/TaskDndArea'
+import TaskDropZone from '../components/tasks/TaskDropZone'
 import { Divider } from '../components/elements/Divider'
 import { bucketOptions } from '../utils/buckets'
-import { BACKLOG, NEXTUP, NEXTWEEK, SOMEDAY } from '../utils/constants'
+import { BACKLOG, NEXTUP } from '../utils/constants'
 
 /**
  * current Buckets: NEXTUP, NEXTWEEK, SOMEDAY
  * later: 'nextMonth', 'nextQuarter',
  * @returns
  */
-// TODO add shortcuts eg numbers for buckets 
+// TODO add shortcuts eg numbers for buckets
 export default function Backlog() {
   // backlogTasks: flat list of list==='backlog' tasks, no time/estimate calc (not needed here)
   const { backlogTasks, taskActions } = useContext(TasksContext)
-  const { handleAddTask, handleFieldChange } = taskActions
+  const { handleAddTask, reorderTaskList, moveTaskAcrossLists } = taskActions
   const [bucket, setBucket] = useState(NEXTUP)
   const taskInputRef = useRef(null)
 
@@ -25,36 +28,23 @@ export default function Backlog() {
     handleAddTask(name, time, { list: BACKLOG, bucket })
   }
 
-  // LATER change once DND is implemented
-  const shiftBucket = (task, direction) => {
-    const index = bucketOptions.findIndex(o => o.value === task.backlog.bucket)
-    const nextIndex = index + direction
-    if (nextIndex < 0 || nextIndex >= bucketOptions.length) return
-    handleFieldChange(task.id, BACKLOG, { ...task.backlog, bucket: bucketOptions[nextIndex].value })
+  const renderDragOverlay = (id) => {
+    const task = backlogTasks.find((t) => t.id === id)
+    return task ? <TaskItem task={task} {...taskActions} showEstimate={false} /> : null
   }
 
-  const renderBucketSection = (bucketValue, showDivider) => {
-    const tasks = backlogTasks.filter(t => t.backlog?.bucket === bucketValue)
-    if (tasks.length === 0) return null
-    const index = bucketOptions.findIndex(o => o.value === bucketValue)
+  // every bucket renders whether or not it holds anything — an empty bucket still has to
+  // be a drop target, and a section that only appears once a drag starts would shift the
+  // row dnd-kit just measured (see TaskDropZone)
+  const renderBucketSection = ({ value, label }) => {
+    const tasks = backlogTasks.filter(t => (t.backlog?.bucket ?? NEXTUP) === value)
     return (
-      <>
-        {showDivider && <Divider label={bucketOptions[index]?.label} />}
-        {tasks.map(t => (
-          <div key={t.id} className='flex items-center gap-1'>
-            <div className='flex-1 min-w-0'>
-              <TaskGroup tasks={[t]} {...taskActions} showEstimate={false} />
-            </div>
-            {/* LATEr remove when dnd is integrated */}
-            {index > 0 &&
-              <button type='button' onClick={() => shiftBucket(t, -1)}
-                className='px-1 text-text-muted hover:text-text-primary cursor-pointer'>▲</button>}
-            {index < bucketOptions.length - 1 &&
-              <button type='button' onClick={() => shiftBucket(t, 1)}
-                className='px-1 text-text-muted hover:text-text-primary cursor-pointer'>▼</button>}
-          </div>
-        ))}
-      </>
+      <div key={value} className='flex flex-col gap-4'>
+        <Divider label={label} />
+        <TaskDropZone groupId={`${BACKLOG}:${value}`} tasks={tasks}>
+          <TaskGroup tasks={tasks} groupId={`${BACKLOG}:${value}`} {...taskActions} showEstimate={false} />
+        </TaskDropZone>
+      </div>
     )
   }
 
@@ -68,11 +58,13 @@ export default function Backlog() {
           onSubmit={handleSubmit}
         />
       </div>
-      <div className='flex flex-col mx-auto w-full'>
-        {renderBucketSection(NEXTUP, true)}
-        {renderBucketSection(NEXTWEEK, true)}
-        {renderBucketSection(SOMEDAY, true)}
-      </div>
+      {/* one DndContext for the whole page — dragging between buckets is only possible
+          inside a shared context, and each bucket is its own list */}
+      <TaskDndArea onReorder={reorderTaskList} onMoveAcrossLists={moveTaskAcrossLists}
+        renderDragOverlay={renderDragOverlay}
+        className='flex flex-col mx-auto w-full gap-6'>
+        {bucketOptions.map(renderBucketSection)}
+      </TaskDndArea>
     </DocWrapper>
   )
 }
