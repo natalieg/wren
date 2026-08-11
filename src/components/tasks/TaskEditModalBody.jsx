@@ -53,11 +53,13 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                      - rework modal layout when more settings are here */}
                      <SwitchTag label1='↻' label2='●'
                         onClick={handleToggleRecurring}
-                        active={task.recurring?.active} />
+                        active={task.recurring?.active}
+                        title="Toggle Recurring" />
                      {/* active/inactive */}
                      <SwitchTag label1='active' label2='inactive'
                         onClick={() => toggleActive(id)}
-                        active={isActive} />
+                        active={isActive}
+                        title="Active/Inactive" />
                      {isActive &&
                         <PlayBtn id={'toggleTracking_' + id}
                            backgroundColor={'bg-gradient-mutewarm'}

@@ -1,8 +1,9 @@
-export default function SwitchTag({ label1, label2, onClick, active }) {
+export default function SwitchTag({ label1, label2, onClick, active, title }) {
   // const [isActive, setIsActive] = useState(active)
 
   return (
-    <div className={`${active ? 'bg-gradient-softer shadow-glow-accent' : 'bg-gradient-muted'} 
+    <div title={title} 
+    className={`${active ? 'bg-gradient-softer shadow-glow-accent' : 'bg-gradient-muted'} 
           rounded-pill w-fit capitalize
           px-2 py-1 text-sm cursor-pointer select-none
           hover:bg-gradient-mutewarm`}

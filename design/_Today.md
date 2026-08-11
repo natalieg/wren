@@ -14,6 +14,27 @@
 	- [ ] **w** for **next week**
 	- [ ] **b** for **backlog**
 
+### Project MVP
+- simple project with 
+	- name
+	- active 
+	- deadline
+	- current status: [50 pages]
+	- goal [200 pages]
+	- daily goal [20 pages] -> those could convert to a form of 'habit'
+		- maybe also how many sessions? `4 -> 5p each session`
+		- daily goal could auto calc from deadline, left to goal etc
+		- setting, maybe #later : `possible daily goal states:`
+			- push: do more in the beginning, recalc daily goal after x days/weeks 
+			- medium: do realistic, a bit more to have a buffer to the deadline (eg, the 'real' goal of 20pages per day only works if there is never a sick day etc)
+			- minimum: just do the minimum you need to 'survive' for the deadline, but this holds the risk of not meeting the deadline if user misses a day. calculates daily for best match 
+			- do more during weekdays
+			- work on special days etc
+		- daily goal set by user could display a potential 'finished by' date vs deadline 
+	- time per x `user decision: per page, or per daily goal?
+	- probably #later  visual representation of progress, could be done by a graph that shows bars for each day in color good in time/ slacking
+- Meta Information: shows how much time user needs for all goals that are currently active every day
+
 - [ ] Show 'tracked time' on task in sessions - needs implementation of new 'session started/session ended' timestamps 
 	  eg: [name] tracked time [20m]
 	  session 1 --- [10m] at [1pm]
