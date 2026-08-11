@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1 — 2026-08-11
+- Duplicate tasks with [d], only works on non-recurring Tasks
+- Delete tasks with [x], only works on non-recurring Tasks
+
 ## 0.7.0 — 2026-08-10
 - Daily habits. Mark a task recurring (↻ in the edit panel) and it comes back the next day as a fresh task, keeping its name, its planned time and a count of how often you've done it. Yesterday's finished one stays in the list with its tracked time intact.
 - A habit can be paused instead of deleted — switch the ↻ off and it keeps everything, it just stops coming back.

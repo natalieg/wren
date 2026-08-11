@@ -20,6 +20,20 @@ const taskShortcuts = [
     },
     {
         context: 'tasks',
+        key: 'd',
+        label: 'Duplicate Task',
+        condition: (task) => task.list === ACTIVE && task.recurring?.active !== true, // don't allow copying a recurring task
+        action: (task, actions) => actions.handleCopyTask(task.id),
+    },
+   {
+      context: 'tasks',
+      key: 'x',
+      label: 'Remove Task (delete)',
+      condition: (task) => task.recurring?.active !== true, // don't allow deleting recurring tasks via shortcut
+      action: (task, actions) => actions.onDelete(task.id),
+   },
+    {
+        context: 'tasks',
         key: 'b',
         label: 'Task into backlog (mark inactive)',
         condition: (task) => task.list === ACTIVE,

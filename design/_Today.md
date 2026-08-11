@@ -1,18 +1,14 @@
 
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
 
-## Task Modal 'Time Feature' — parked
-- [ ] [[Time Tracking 260801]] ( MVP) 
-- [ ] [space] should toggle tracking inside the modal too
-	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
-- [ ] 🤖 maximise the modal for a proper focus view — the `□` in the window chrome is still decoration. Details in the roadmap's Future ideas
-
 - [ ] sort finished tasks by timestamp
 - [ ] show timestamps in history?
 - [ ] keybinds change : 
 	- [ ] **t** for **next up** [tomorrow] 
 	- [ ] **w** for **next week**
 	- [ ] **b** for **backlog**
+
+- [ ] contextmenu for tasks (right now we have shortcuts but no communication about what those are)
 
 ### Project MVP
 - simple project with 
@@ -50,6 +46,11 @@
 	- [ ] sollten in 'in progress/nextup' sein, je nacheem ob backlog oder 'active'  
 - [ ] karten verschieben ueber pfeile, ich hab immerhin immernoch kein dnd xD,,
 
+## Task Modal 'Time Feature' — parked
+- [ ] [[Time Tracking 260801]] ( MVP) 
+- [ ] [space] should toggle tracking inside the modal too
+	- [ ] 🤖 heads up, not just "add a handler": `useTaskKeyboardShortcuts` bails out when focus is in an INPUT/TEXTAREA (line 22) and needs a hovered `[data-task-id]` element (line 25) — the modal has neither. And space *must* stay a space inside the textarea, so decide the rule first (e.g. only toggle when no field is focused)
+- [ ] 🤖 maximise the modal for a proper focus view — the `□` in the window chrome is still decoration. Details in the roadmap's Future ideas
 ## rest
 
 - [ ] settings: default task time

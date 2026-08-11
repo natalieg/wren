@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import useHistory from './useHistory'
 import useTimeTracking from './useTimeTracking'
 import useTaskRollover from './useTaskRollover'
@@ -8,6 +8,7 @@ import { applyListChange, entersAtEnd } from '../utils/taskTransitions'
 import calculateEstimates from '../utils/taskEstimates'
 import { newTaskId } from '../utils/taskId'
 import { reviveOrphanedHabits } from '../utils/recurring'
+import { getNextCopyTitle, getPrevCopyIndex } from './useTaskCopie'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -77,11 +78,12 @@ function useTasks() {
     stopIfRunning(id)
   }
 
-  const updateActionTime = () => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const updateActionTime = useCallback(() => {
     if (!taskList.some(t => t.list === ACTIVE)) {
       setNewActionTime(new Date())
     }
-  }
+  })
 
   // un-finishing goes back to whichever list the task came from, falling back to active
   // for legacy tasks that never recorded one
@@ -119,6 +121,26 @@ function useTasks() {
     setTaskList([...taskList, newTask])
     updateActionTime()
   }
+
+  const handleCopyTask = useCallback((id) => {
+    const sourceTask = taskList.find(t => t.id === id)
+    if (!sourceTask) return
+    const copy = {
+      ...sourceTask,
+      label: getNextCopyTitle(sourceTask.label, taskList),
+      id: newTaskId(),
+      trackedTime: 0,
+      finishedTimestamp: undefined,
+      runningTaskId: undefined,
+    }
+    const copyIndex = getPrevCopyIndex(sourceTask.label, taskList)
+    setTaskList(prev => {
+      const next = [...prev]
+      next.splice(copyIndex + 1, 0, copy) // insert below the last copy of the same base name
+      return next
+    })
+    updateActionTime()
+  }, [taskList, updateActionTime])
 
   const handleFieldChange = (id, field, value) => {
     setTaskList(taskList.map(t => t.id === id ? { ...t, [field]: value } : t))
@@ -185,21 +207,22 @@ function useTasks() {
     setTaskList(currentTaskList => reorderTasks(currentTaskList, activeId, overId))
   }
 
-  const taskActions = {
-    toggleDone,
-    toggleActive,
-    moveTaskToList,
-    handleAddTask,
-    onDelete: handleDeleteTask,
-    handleFieldChange,
-    deleteAllFinishedTasks,
-    pushToBottom,
-    reorderTaskList,
-    moveTaskAcrossLists,
-    startTracking,
-    stopTracking,
-    setEditingTaskId,
-  }
+   const taskActions = {
+      toggleDone,
+      toggleActive,
+      moveTaskToList,
+      handleAddTask,
+      handleCopyTask,
+      onDelete: handleDeleteTask,
+      handleFieldChange,
+      deleteAllFinishedTasks,
+      pushToBottom,
+      reorderTaskList,
+      moveTaskAcrossLists,
+      startTracking,
+      stopTracking,
+      setEditingTaskId,
+   }
 
   const finishedTasks = taskList.filter(t => t.list === DONE)
   // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
