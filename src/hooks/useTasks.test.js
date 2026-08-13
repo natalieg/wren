@@ -445,6 +445,88 @@ describe('useTasks', () => {
     })
   })
 
+  describe('break tracking', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    const pauseType = { id: 'break', name: 'break', emoji: '🍵' }
+    const gamingType = { id: 'gaming', name: 'gaming', emoji: '🎮' }
+
+    // regression: beginBreak() only restarts useTracker's clock, it doesn't flush on
+    // its own — switching types without stopping the old one first silently drops
+    // whatever had accumulated since the last flush
+    it('banks the running break type before switching to a different one', () => {
+      const { result } = renderHook(() => useTasks())
+
+      act(() => { result.current.breakActions.startBreak(pauseType) })
+      act(() => { vi.advanceTimersByTime(7000) })
+      act(() => { result.current.breakActions.startBreak(gamingType) })
+
+      expect(result.current.runningBreakId).toBe('gaming')
+      expect(result.current.breakTrackedSeconds).toBe(0)
+      expect(result.current.breakDurations.break).toBe(7)
+    })
+
+    it('logs a history entry for the type being switched away from', () => {
+      const { result } = renderHook(() => useTasks())
+
+      act(() => { result.current.breakActions.startBreak(pauseType) })
+      act(() => { vi.advanceTimersByTime(5000) })
+      act(() => { result.current.breakActions.startBreak(gamingType) })
+
+      const history = JSON.parse(localStorage.getItem('history'))
+      expect(history[0].breaks).toHaveLength(1)
+      expect(history[0].breaks[0]).toMatchObject({ type: 'break', trackedTime: 5 })
+    })
+
+    it('starting a task stops a running break', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.breakActions.startBreak(pauseType) })
+      act(() => { vi.advanceTimersByTime(3000) })
+      act(() => { result.current.taskActions.startTracking(id) })
+
+      expect(result.current.runningBreakId).toBe(null)
+      expect(result.current.runningTaskId).toBe(id)
+      expect(result.current.breakDurations.break).toBe(3)
+    })
+
+    it('starting a break stops a running task', () => {
+      const { result } = renderHook(() => useTasks())
+      act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.startTracking(id) })
+      act(() => { vi.advanceTimersByTime(4000) })
+      act(() => { result.current.breakActions.startBreak(pauseType) })
+
+      expect(result.current.runningTaskId).toBe(null)
+      expect(result.current.runningBreakId).toBe('break')
+      expect(result.current.taskList.find(t => t.id === id).trackedTime).toBe(4)
+    })
+
+    it('todayBreakTime accumulates across sessions, even across different types', () => {
+      const { result } = renderHook(() => useTasks())
+
+      act(() => { result.current.breakActions.startBreak(pauseType) })
+      act(() => { vi.advanceTimersByTime(5000) })
+      act(() => { result.current.breakActions.stopBreak() })
+      expect(result.current.todayBreakTime).toBe(5)
+
+      act(() => { result.current.breakActions.startBreak(gamingType) })
+      act(() => { vi.advanceTimersByTime(6000) })
+      act(() => { result.current.breakActions.stopBreak() })
+      expect(result.current.todayBreakTime).toBe(11)
+    })
+  })
+
   // dragging across the finished line can't be a plain list change — it has to go
   // through toggleDone, which is what writes finishedTimestamp and the history entry
   describe('dragging onto and out of the finished list', () => {

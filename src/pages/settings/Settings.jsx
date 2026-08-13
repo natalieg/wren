@@ -1,11 +1,12 @@
+import { useContext } from 'react'
 import DocWrapper from '../../components/DocWrapper'
-import useSettings from '../../hooks/useSettings'
+import SettingsContext from '../../context/SettingsContext'
 import InputRow from './InputRow'
 import { hourToTimeValue, timeValueToHour } from '../../utils/rollover'
 import CheckboxRow from './CheckboxRow'
 
 export default function Settings() {
-  const { settings, updateSetting } = useSettings()
+  const { settings, updateSetting } = useContext(SettingsContext)
 
   // DEV DEBUG , delete later
   // pushes 'startedAt' 25h into the past (always crosses at least one logical day,
@@ -16,6 +17,13 @@ export default function Settings() {
     const past = new Date(Date.now() - 25 * 60 * 60 * 1000)
     localStorage.setItem('startedAt', past.toISOString())
     window.location.reload()
+  }
+
+  // required types (the generic 'break') ignore the toggle — always enabled
+  const toggleBreakType = (id) => {
+    updateSetting('breakTypes', settings.breakTypes.map(b =>
+      b.id === id && !b.required ? { ...b, enabled: !b.enabled } : b
+    ))
   }
 
   return (
@@ -39,6 +47,18 @@ export default function Settings() {
         <CheckboxRow id='autoDeleteFinished' checked={settings.autoDeleteFinished}
           onToggle={() => updateSetting('autoDeleteFinished', !settings.autoDeleteFinished)}
           label="Auto-delete finished tasks at rollover" />
+
+        <div className='mt-2'>
+          <p className='text-xs text-text-muted mb-2'>Break types</p>
+          <div className='flex gap-2'>
+            {settings.breakTypes.map(breakType => (
+              <CheckboxRow key={breakType.id} id={`breakType-${breakType.id}`}
+                checked={breakType.enabled} disabled={breakType.required}
+                onToggle={() => toggleBreakType(breakType.id)}
+                label={`${breakType.emoji} ${breakType.name}`} />
+            ))}
+          </div>
+        </div>
 
         <div className='mt-4 pt-4 border-t border-border-soft'>
           <p className='text-xs text-text-muted mb-2'>Developer</p>
