@@ -1,7 +1,7 @@
 import React from 'react'
 
 // null default on purpose: it makes "used outside the provider" a loud error in
-// useSettingsContext
-const SettingsContext = React.createContext(null)
+// useHistoryContext
+const HistoryContext = React.createContext(null)
 
-export default SettingsContext
+export default HistoryContext

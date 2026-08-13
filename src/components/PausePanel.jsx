@@ -1,14 +1,19 @@
-import { useContext, useState } from 'react'
-import TasksContext from '../context/TasksContext'
-import SettingsContext from '../context/SettingsContext'
+import { useState } from 'react'
+import useSettingsContext from '../hooks/useSettingsContext'
+import useBreaksContext from '../hooks/useBreaksContext'
+import useTrackingContext from '../hooks/useTrackingContext'
+import useHistoryContext from '../hooks/useHistoryContext'
 import FloatingPanel from './elements/FloatingPanel'
 import EmojiMiniCard from './elements/EmojiMiniCard'
 import { formatTime, formatTimeWithSeconds, secondsToMinutes } from '../utils/formatTime'
 
 export default function PausePanel({ className }) {
    const [miniState, setMiniState] = useState(false)
-   const { settings } = useContext(SettingsContext)
-   const { runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations, breakActions, todayBreakTime } = useContext(TasksContext)
+   const { settings } = useSettingsContext()
+   // display values from the break state, start/stop from the coordinated layer
+   const { runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations } = useBreaksContext()
+   const { startBreak, stopBreak } = useTrackingContext()
+   const { todayBreakTime } = useHistoryContext()
 
    // durations are flushed periodically, not every tick — top up with only the
    // remainder since the last flush, breakDurations already has everything before it
@@ -19,13 +24,11 @@ export default function PausePanel({ className }) {
          duration: (breakDurations[b.id] || 0) + (b.id === runningBreakId ? breakTrackedSeconds : 0),
       }))
    const runningBreakType = breakTypes.find(b => b.id === runningBreakId)
-   // todayBreakTime comes from history (breakTime on today's entry), only written
-   // when a session stops — top up with the whole running session (not just the
-   // since-last-flush remainder) since history has none of it yet
+   // todayBreakTime from history, plus potential running break timer 
    const liveTodayBreakTime = todayBreakTime + (runningBreakId ? runningSessionSeconds : 0)
 
    const toggleBreak = (breakType) =>
-      breakType.id === runningBreakId ? breakActions.stopBreak() : breakActions.startBreak(breakType)
+      breakType.id === runningBreakId ? stopBreak() : startBreak(breakType)
 
    // runningSessionSeconds, not breakTrackedSeconds — this needs to keep counting up
    // past a 5-min flush instead of dropping back to 0

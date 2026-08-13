@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import useHistory from './useHistory'
+import useHistoryContext from './useHistoryContext'
 import useTimeTracking from './useTimeTracking'
-import useBreakTracking from './useBreakTracking'
 import useTaskRollover from './useTaskRollover'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
 import reorderTasks, { groupKey, isGroupKey } from '../utils/reorderTasks'
@@ -32,7 +31,7 @@ function normalizeTask(t) {
  * "tasks in, something out" are pure utils (transitions, estimates, reordering).
  * What stays here is the task list itself, CRUD, and the wiring between them. */
 function useTasks() {
-  const { addToHistory, removeFromHistory, addBreakToHistory, todayBreakTime } = useHistory()
+  const { addToHistory, removeFromHistory } = useHistoryContext()
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [taskList, setTaskList] = useState(() => {
     try {
@@ -54,15 +53,6 @@ function useTasks() {
   } = useTimeTracking(setTaskList)
 
   const { startedAt, resetStartedAt } = useTaskRollover(setTaskList)
-
-  const {
-    runningBreakId,
-    breakTrackedSeconds,
-    runningSessionSeconds,
-    breakDurations,
-    startBreak: beginBreak,
-    stopBreak,
-  } = useBreakTracking({ onBreakFinished: addBreakToHistory })
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(taskList))
@@ -113,24 +103,11 @@ function useTasks() {
     moveTaskToList(id, task.list === ACTIVE ? BACKLOG : ACTIVE)
   }
 
-  // tracking a task implies it is active — the transition runs first so a parked or
-  // finished task gets its list fields cleaned up instead of just being relabelled.
-  // Only one of task/break can run at a time, so starting a task stops a running break.
+  // starts tracking a task, moving it to active if it was parked
   const startTracking = (id) => {
-    if (runningBreakId) stopBreak()
     moveTaskToList(id, ACTIVE)
     beginTracking(id)
     setNewActionTime(new Date())
-  }
-
-  // mirror of startTracking's exclusivity: starting a break stops a running task first.
-  // Also stops a running break of a different type — beginBreak() doesn't flush on its
-  // own, it just restarts useTracker's clock, so switching types without this drops
-  // whatever was accumulated since the last flush instead of banking it.
-  const startBreak = (breakType) => {
-    if (runningTaskId) stopTracking()
-    if (runningBreakId) stopBreak()
-    beginBreak(breakType)
   }
 
   // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
@@ -246,11 +223,6 @@ function useTasks() {
       setEditingTaskId,
    }
 
-   const breakActions = {
-      startBreak,
-      stopBreak,
-   }
-
   const finishedTasks = taskList.filter(t => t.list === DONE)
   // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
   const backlogTasks = taskList.filter(t => t.list === BACKLOG)
@@ -264,7 +236,6 @@ function useTasks() {
   return {
     taskList, openTasks, nextUpTasks, backlogTasks, finishedTasks, taskActions,
     startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId,
-    runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations, breakActions, todayBreakTime,
   }
 }
 

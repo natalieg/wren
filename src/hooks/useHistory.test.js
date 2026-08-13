@@ -72,4 +72,53 @@ describe('useHistory', () => {
 
         expect(result.current.history).toHaveLength(0)
     })
+
+    describe('breakTime', () => {
+        const breakSession = (id, type, trackedTime, finishedTimestamp) =>
+            ({ id, type, name: type, emoji: '🍵', trackedTime, finishedTimestamp })
+
+        it('accumulates across sessions of the day, whatever the type', () => {
+            const { result } = renderHook(() => useHistory())
+
+            act(() => {
+                result.current.addBreakToHistory(breakSession(1, 'break', 300, new Date('2026-08-07T10:00:00')))
+            })
+            act(() => {
+                result.current.addBreakToHistory(breakSession(2, 'gaming', 600, new Date('2026-08-07T14:00:00')))
+            })
+
+            expect(result.current.history[0].breaks).toHaveLength(2)
+            expect(result.current.history[0].breakTime).toBe(900)
+        })
+
+        // the actual bug: sessions logged before breakTime existed left the field
+        // undercounting, and a guard that only filled in a *missing* field never healed it
+        it('recomputes a stale field from breaks[] on load', () => {
+            localStorage.setItem('history', JSON.stringify([{
+                date: 'Fri Aug 07 2026',
+                tasks: [],
+                breaks: [
+                    breakSession(1, 'break', 300, '2026-08-07T10:00:00'),
+                    breakSession(2, 'gaming', 600, '2026-08-07T14:00:00'),
+                ],
+                breakTime: 600, // only counts the session logged after the field was added
+            }]))
+
+            const { result } = renderHook(() => useHistory())
+
+            expect(result.current.history[0].breakTime).toBe(900)
+        })
+
+        it('fills in the field for entries that predate it entirely', () => {
+            localStorage.setItem('history', JSON.stringify([{
+                date: 'Fri Aug 07 2026',
+                tasks: [],
+                breaks: [breakSession(1, 'break', 420, '2026-08-07T10:00:00')],
+            }]))
+
+            const { result } = renderHook(() => useHistory())
+
+            expect(result.current.history[0].breakTime).toBe(420)
+        })
+    })
 })

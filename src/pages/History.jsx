@@ -1,20 +1,14 @@
 import DocWrapper from '../components/DocWrapper'
 import Header from '../components/elements/Header'
-import useHistory from '../hooks/useHistory'
+import useHistoryContext from '../hooks/useHistoryContext'
 import { formatDate, formatTime, effectiveMinutes, secondsToMinutes } from '../utils/formatTime'
 import { GlyphBorder } from '../components/elements/GlyphBorder'
 
 export default function History() {
-   const { history } = useHistory()
-   console.log('History data:', history) // Debugging line to check the history data
+   const { history } = useHistoryContext()
 
    const allTime = (tasks) => {
       const acc = tasks.reduce((total, task) => total + effectiveMinutes(task.trackedTime, task.time), 0)
-      return formatTime(acc)
-   }
-
-   const allBreakTime = (breaks) => {
-      const acc = breaks.reduce((total, breakEntry) => total + secondsToMinutes(breakEntry.trackedTime), 0)
       return formatTime(acc)
    }
 
@@ -35,7 +29,7 @@ export default function History() {
                         className={`${taskStyle} pb-2`}>
                         <span className={badgeStyle}>Tasks: {entry.tasks.length}</span>
                         {/* <span className={badgeStyle}>Breaks: {entry.breaks?.length || 0}</span> */}
-                        <span className={badgeStyle}>🍵 {allBreakTime(entry.breaks || [])}</span>
+                        <span className={badgeStyle}>🍵 {formatTime(secondsToMinutes(entry.breakTime || 0))}</span>
                         <span className={badgeStyle}>Time: {allTime(entry.tasks)}</span>
                      </p>
                      {entry.tasks.map(task => (

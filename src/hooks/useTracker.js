@@ -22,7 +22,6 @@ function useTracker(onFlush) {
     }
     timeout = setTimeout(tick, 1000)
     return () => clearTimeout(timeout)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runningId])
 
   // Visibility Listener
@@ -35,7 +34,6 @@ function useTracker(onFlush) {
     }
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runningId])
 
   const flush = () => {

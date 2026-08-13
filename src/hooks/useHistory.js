@@ -8,12 +8,11 @@ import { loadSettings } from '../utils/settings'
 //     breaks: [{ id, type, name, emoji, trackedTime, finishedTimestamp }, ...] },
 //   { date: '2026-08-02', tasks: [...], breaks: [...] },
 // ]
-// backfills breakTime for entries saved before that field existed — otherwise their
-// breaks[] sessions are silently excluded from every breakTime read, once, forever
+// breaks[] is the log, breakTime is derived from it — so it gets recomputed on every
+// load
 function normalizeBreakTime(entry) {
-  if (entry.breakTime !== undefined) return entry
-  const breakTime = (entry.breaks || []).reduce((total, b) => total + b.trackedTime, 0)
-  return { ...entry, breakTime }
+   const breakTime = (entry.breaks || []).reduce((total, b) => total + b.trackedTime, 0)
+   return entry.breakTime === breakTime ? entry : { ...entry, breakTime }
 }
 
 function useHistory() {
@@ -63,7 +62,6 @@ function useHistory() {
   // every consumer has to redo — tasks don't have this (allTime in History.jsx
   // still reduces tasks[] itself), this is deliberately just for breaks for now
   const addBreakToHistory = (breakEntry) => {
-   console.log('Adding break to history:', breakEntry)
     const settings = loadSettings()
     const dayKey = logicalDayString(new Date(breakEntry.finishedTimestamp), settings.rolloverHour)
     setHistory(currentHistory => {

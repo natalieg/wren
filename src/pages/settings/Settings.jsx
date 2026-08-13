@@ -1,12 +1,11 @@
-import { useContext } from 'react'
 import DocWrapper from '../../components/DocWrapper'
-import SettingsContext from '../../context/SettingsContext'
+import useSettingsContext from '../../hooks/useSettingsContext'
 import InputRow from './InputRow'
 import { hourToTimeValue, timeValueToHour } from '../../utils/rollover'
 import CheckboxRow from './CheckboxRow'
 
 export default function Settings() {
-  const { settings, updateSetting } = useContext(SettingsContext)
+  const { settings, updateSetting } = useSettingsContext()
 
   // DEV DEBUG , delete later
   // pushes 'startedAt' 25h into the past (always crosses at least one logical day,
