@@ -10,6 +10,7 @@ import Settings from './pages/settings/Settings'
 import Changelog from './pages/Changelog'
 import TasksProvider from './context/TasksProvider'
 import FloatingTaskPanel from './components/FloatingTaskPanel'
+import PausePanel from './components/PausePanel'
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
           </Routes>
         </div>
         <FloatingTaskPanel />
+        <PausePanel/>
       </div>
     </TasksProvider>
   )
