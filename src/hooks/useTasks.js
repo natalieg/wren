@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import useHistory from './useHistory'
+import useHistoryContext from './useHistoryContext'
 import useTimeTracking from './useTimeTracking'
 import useTaskRollover from './useTaskRollover'
 import { DONE, ACTIVE, BACKLOG, NEXTUP } from '../utils/constants'
@@ -8,7 +8,9 @@ import { applyListChange, entersAtEnd } from '../utils/taskTransitions'
 import calculateEstimates from '../utils/taskEstimates'
 import { newTaskId } from '../utils/taskId'
 import { reviveOrphanedHabits } from '../utils/recurring'
-import { getNextCopyTitle, getPrevCopyIndex } from './useTaskCopie'
+import { getNextCopyTitle, getPrevCopyIndex } from './useTaskCopy'
+import useTimeAlert from './useTimeAlert'
+import { playFinishedSound } from '../utils/playSound'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -31,7 +33,7 @@ function normalizeTask(t) {
  * "tasks in, something out" are pure utils (transitions, estimates, reordering).
  * What stays here is the task list itself, CRUD, and the wiring between them. */
 function useTasks() {
-  const { addToHistory, removeFromHistory } = useHistory()
+  const { addToHistory, removeFromHistory } = useHistoryContext()
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [taskList, setTaskList] = useState(() => {
     try {
@@ -53,6 +55,8 @@ function useTasks() {
   } = useTimeTracking(setTaskList)
 
   const { startedAt, resetStartedAt } = useTaskRollover(setTaskList)
+  useTimeAlert(taskList, runningTaskId, trackedSeconds)
+
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(taskList))
@@ -67,7 +71,7 @@ function useTasks() {
     if (task.list === DONE) removeFromHistory(id)
     // the entry misses seconds still sitting in the running timer — the flush below
     // can only land on the next render. Known, pre-dates the transition rewrite
-    if (target === DONE) addToHistory(next)
+    if (target === DONE) { addToHistory(next); playFinishedSound() }
 
     setTaskList(currentTaskList => entersAtEnd(target)
       ? [...currentTaskList.filter(t => t.id !== id), next]
@@ -103,8 +107,7 @@ function useTasks() {
     moveTaskToList(id, task.list === ACTIVE ? BACKLOG : ACTIVE)
   }
 
-  // tracking a task implies it is active — the transition runs first so a parked or
-  // finished task gets its list fields cleaned up instead of just being relabelled
+  // starts tracking a task, moving it to active if it was parked
   const startTracking = (id) => {
     moveTaskToList(id, ACTIVE)
     beginTracking(id)
@@ -234,7 +237,10 @@ function useTasks() {
     now: Date.now(),
   })
 
-  return { taskList, openTasks, nextUpTasks, backlogTasks, finishedTasks, taskActions, startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId }
+  return {
+    taskList, openTasks, nextUpTasks, backlogTasks, finishedTasks, taskActions,
+    startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId,
+  }
 }
 
 export default useTasks

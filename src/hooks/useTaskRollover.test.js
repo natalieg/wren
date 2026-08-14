@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import useTasks from './useTasks'
+import HistoryProvider from '../context/HistoryProvider'
 import { ACTIVE, DONE } from '../utils/constants'
 
 // The rollover runs once on mount, when the stored startedAt belongs to an earlier
@@ -35,7 +36,7 @@ const finishedHabit = (overrides = {}) => ({
 const rollOver = () => {
    vi.setSystemTime(new Date('2026-08-11T09:30:00'))
    seedYesterday()
-   return renderHook(() => useTasks())
+   return renderHook(() => useTasks(), { wrapper: HistoryProvider })
 }
 
 const openTaskFor = (result, habitId) =>

@@ -60,6 +60,13 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 - ✅ 2026-08-10: Backlog page drags — one `TaskGroup` per bucket in its own drop zone, replacing one `TaskGroup` per task and the ▲/▼ shift arrows. Needed no new logic, only page wiring; the cross-bucket rewrite was already there and tested.
 - 🟥 Open, the last one: live gap vs. dashed placeholder everywhere. Both are live on purpose right now — Tasklist without the live move, Backlog with it — so the feel can be compared on the same data. One prop switches it.
 
+### 🟡 Break Tracking
+- ✅ 2026-08-13: floating Pause Panel (`PausePanel.jsx`, mirrors `FloatingTaskPanel`) — start/stop a break by type (🍵 break, 🎮 gaming, 🫂 social by default), each with its own running total for the day; break time rolls into History alongside task time.
+- ✅ 2026-08-13/14: break and task tracking split into dedicated contexts (`BreaksProvider`, `HistoryProvider`), with start/stop for both routed through one coordinated layer (`useTrackingContext`) that keeps "only one thing runs at a time" true across tasks *and* breaks.
+- ✅ 2026-08-14: break types are fully optional now — the default 'break' type is no longer forced on. Disabling every type removes the whole panel (no timer, no icon); disabling the type a break is currently running under stops it automatically instead of leaving it ticking unseen.
+- ✅ 2026-08-14: the minimized panel's emoji toggles the running (or last-used) break type directly, instead of only being able to stop one already running.
+- 🔷 Next: a configurable duration per break, with overflow into a red state + sound — mirrors the task time-estimate alert. Presets discussed ("[5] [15] [45] [✎]", no required ∞ slot — no selection *is* unlimited), overflow behaviour intentionally scoped down for v1 (no `+5min` extend, no repeating alert). Not built yet.
+
 ### PUSHED UP: Habits/Recurring MVP
 
 ### Trello integration cont.
@@ -191,6 +198,7 @@ Work through the habit-tracker group, then the goals/curricula group, one at a t
 
 ### 🟡 Phase 17 — User Settings
 - ✅ 2026-08-07: settings page exists (`/settings`, deliberately understated link at the bottom of the sidebar). `useSettings` for the reactive page, plus a plain `loadSettings()` for the three call sites that read settings from effects/callbacks and therefore can't use a hook. Live so far: rollover hour, default start time, auto-activate `nextUp`, auto-delete finished.
+- ✅ 2026-08-13/14: sound settings — a `timerSound` (plays when a running task passes its time estimate) and a fixed `finishedSound` for completed tasks, each independently on/off, plus one `soundVolume` applied everywhere a sound plays. Sounds are real audio files under `assets/sounds/`, catalogued via `utils/sounds.js` (`import.meta.glob`) rather than synthesized tones. `SoundPickerRow` (select + preview button, optional enable checkbox) is shared between the timer-sound picker and the finished-sound toggle — built to take a break sound too once that exists.
 - With more tabs and functionality potential, there is a real need to have tabs/features optional for a user
 - small settings too like tracking behaviour, default sort etc
 

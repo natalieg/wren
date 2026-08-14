@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import useTasks from './useTasks'
+import HistoryProvider from '../context/HistoryProvider'
 import { ACTIVE, BACKLOG, NEXTUP, SOMEDAY, DONE, } from '../utils/constants'
 
 describe('useTasks', () => {
@@ -9,7 +10,7 @@ describe('useTasks', () => {
   })
 
   it('adds a task', () => {
-    const { result } = renderHook(() => useTasks())
+    const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
     act(() => {
       result.current.taskActions.handleAddTask('Write tests', 15)
@@ -24,7 +25,7 @@ describe('useTasks', () => {
   })
 
   it('marks a task done', () => {
-    const { result } = renderHook(() => useTasks())
+    const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
     act(() => {
       result.current.taskActions.handleAddTask('Write tests', 15)
@@ -41,7 +42,7 @@ describe('useTasks', () => {
   })
 
   it('un-marking done restores the task to its previous list', () => {
-    const { result } = renderHook(() => useTasks())
+    const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
     act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
     const id = result.current.taskList[0].id
 
@@ -59,7 +60,7 @@ describe('useTasks', () => {
     const readHistory = () => JSON.parse(localStorage.getItem('history') || '[]')
 
     it('the active badge clears finishedTimestamp and the history entry', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
       const id = result.current.taskList[0].id
 
@@ -77,7 +78,7 @@ describe('useTasks', () => {
     })
 
     it('starting the timer on a finished task un-finishes it the same way', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
       const id = result.current.taskList[0].id
 
@@ -91,7 +92,7 @@ describe('useTasks', () => {
     })
 
     it('keeps the bucket across finishing and un-finishing a parked task', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => {
         result.current.taskActions.handleAddTask('Someday idea', 30, { list: BACKLOG, bucket: SOMEDAY })
       })
@@ -112,7 +113,7 @@ describe('useTasks', () => {
       localStorage.setItem('tasks', JSON.stringify([
         { id: 1, label: 'Legacy active', time: 15, active: true, done: false }
       ]))
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0]).toMatchObject({ list: ACTIVE })
       expect(result.current.taskList[0].backlog).toBeUndefined()
@@ -124,7 +125,7 @@ describe('useTasks', () => {
       localStorage.setItem('tasks', JSON.stringify([
         { id: 1, label: 'Legacy parked', time: 15, active: false, done: false }
       ]))
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0]).toMatchObject({
         list: BACKLOG,
@@ -136,7 +137,7 @@ describe('useTasks', () => {
       localStorage.setItem('tasks', JSON.stringify([
         { id: 1, label: 'Legacy finished, was parked', time: 15, active: false, done: true, finishedTimestamp: '2026-08-01T00:00:00.000Z' }
       ]))
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0]).toMatchObject({ list: DONE })
       expect(result.current.taskList[0].backlog).toBeUndefined()
@@ -149,7 +150,7 @@ describe('useTasks', () => {
       localStorage.setItem('tasks', JSON.stringify([
         { id: 1, label: 'From before parking existed', time: 15, done: false }
       ]))
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0]).toMatchObject({
         list: BACKLOG,
@@ -161,7 +162,7 @@ describe('useTasks', () => {
       localStorage.setItem('tasks', JSON.stringify([
         { id: 1, label: 'Already new shape', time: 15, list: BACKLOG, backlog: { bucket: SOMEDAY, activationDate: null } }
       ]))
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0]).toMatchObject({
         list: BACKLOG,
@@ -172,7 +173,7 @@ describe('useTasks', () => {
 
   describe('backlog', () => {
     it('parks a task into the backlog with a default nextUp bucket', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 15) })
       const id = result.current.taskList[0].id
 
@@ -187,7 +188,7 @@ describe('useTasks', () => {
     })
 
     it('adds a task straight into the someday bucket, excluded from nextUpTasks', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       act(() => {
         result.current.taskActions.handleAddTask('Someday idea', 30, { list: BACKLOG, bucket: SOMEDAY })
@@ -202,7 +203,7 @@ describe('useTasks', () => {
     })
 
     it('pulling a backlog task back to active clears its bucket', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => {
         result.current.taskActions.handleAddTask('Someday idea', 30, { list: BACKLOG, bucket: SOMEDAY })
       })
@@ -215,7 +216,7 @@ describe('useTasks', () => {
     })
 
     it('activating a backlog task lands it at the end of the list, not its old spot', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
       act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
       const idA = result.current.taskList[0].id
@@ -228,7 +229,7 @@ describe('useTasks', () => {
     })
 
     it('parking a task keeps it in-place (only activation repositions)', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
       act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
       const idA = result.current.taskList[0].id
@@ -241,7 +242,7 @@ describe('useTasks', () => {
 
   describe('pushToBottom', () => {
     it('moves an active task to the end of the active list', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
       act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
       act(() => { result.current.taskActions.handleAddTask('Task C', 10) })
@@ -271,7 +272,7 @@ describe('useTasks', () => {
         { id: 2, label: 'Next up idea', time: 15, list: BACKLOG, backlog: { bucket: NEXTUP, activationDate: null } },
       ]))
 
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       const promoted = result.current.taskList.find(t => t.id === 2)
       const untouched = result.current.taskList.find(t => t.id === 1)
@@ -289,7 +290,7 @@ describe('useTasks', () => {
         { id: 2, label: 'Still open', time: 15, list: ACTIVE },
       ]))
 
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList.map(t => t.id)).toEqual([2])
       expect(result.current.finishedTasks).toHaveLength(0)
@@ -303,7 +304,7 @@ describe('useTasks', () => {
         { id: 1, label: 'Finished yesterday', time: 15, list: DONE, finishedTimestamp: '2026-08-05T12:00:00.000Z' },
       ]))
 
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.finishedTasks).toHaveLength(1)
     })
@@ -316,7 +317,7 @@ describe('useTasks', () => {
         { id: 1, label: 'Next up idea', time: 15, list: BACKLOG, backlog: { bucket: NEXTUP, activationDate: null } },
       ]))
 
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0].list).toBe(BACKLOG)
     })
@@ -330,7 +331,7 @@ describe('useTasks', () => {
         { id: 1, label: 'Next up idea', time: 15, list: BACKLOG, backlog: { bucket: NEXTUP, activationDate: null } },
       ]))
 
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 
       expect(result.current.taskList[0].list).toBe(BACKLOG)
       expect(result.current.startedAt.toISOString()).toBe(sameLogicalDayEarlier.toISOString())
@@ -347,7 +348,7 @@ describe('useTasks', () => {
     })
 
     it('ticks trackedSeconds once per second while a task is running', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
       const id = result.current.taskList[0].id
 
@@ -359,7 +360,7 @@ describe('useTasks', () => {
     })
 
     it('flushes tracked time into the task on stop, exactly once', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
       const id = result.current.taskList[0].id
 
@@ -373,7 +374,7 @@ describe('useTasks', () => {
     })
 
     it('flushes the previous task before switching to a new one', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
       const idA = result.current.taskList[0].id
 
@@ -400,7 +401,7 @@ describe('useTasks', () => {
     // transition uses a render snapshot instead of a functional update it wins the
     // race and the banked seconds are gone
     it('banks the running timer when the task is finished mid-run', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
       const id = result.current.taskList[0].id
 
@@ -416,7 +417,7 @@ describe('useTasks', () => {
     })
 
     it('banks the running timer when the task is parked mid-run', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       act(() => { result.current.taskActions.handleAddTask('Write tests', 10) })
       const id = result.current.taskList[0].id
 
@@ -434,7 +435,7 @@ describe('useTasks', () => {
     it("anchors the running task's estimate to now once it goes over its own time budget", () => {
       vi.setSystemTime(new Date('2026-08-01T12:00:00Z'))
 
-      const { result } = renderHook(() => useTasks()) // 1-minute task
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider }) // 1-minute task
       act(() => { result.current.taskActions.handleAddTask('Write tests', 1) })
       const id = result.current.taskList[0].id
 
@@ -456,7 +457,7 @@ describe('useTasks', () => {
     }
 
     it('dropping a task onto a finished one finishes it, with history', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       const [idA, idB] = addTasks(result, ['A', 'B'])
 
       act(() => { result.current.taskActions.toggleDone(idB) })
@@ -470,7 +471,7 @@ describe('useTasks', () => {
     // the risky half: toggleDone restores previousList, so the task has to be placed
     // afterwards or it lands in whichever list it happened to come from
     it('dropping a finished task onto an active one un-finishes it into that list', () => {
-      const { result } = renderHook(() => useTasks())
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
       const [idA, idB] = addTasks(result, ['A', 'B'])
 
       act(() => { result.current.taskActions.toggleActive(idA) }) // park it, so previousList is backlog

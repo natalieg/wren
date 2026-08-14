@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.0 — 2026-08-14
+- **Break** tracking: a floating panel to start/stop breaks by type (🍵 break, 🎮 gaming, 🫂 social ore configured), each tracked separately and rolled into History alongside task time. Types can be turned on/off in Settings. Turning all of them off removes the panel. 
+- Minimized panel shows current break or default break only - can also be used for play/pausing breaks
+- **Sound** settings: pick the sound that plays when a running task passes its time estimate, toggle the finished-task sound on/off, and one volume control that applies to both — each with a preview button.
+- Break and task start/stop now go through one coordinated layer, so starting either one always stops the other.
+
 ## 0.7.1 — 2026-08-11
 - Duplicate tasks with [d], only works on non-recurring Tasks
 - Delete tasks with [x], only works on non-recurring Tasks
