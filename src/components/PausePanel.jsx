@@ -14,6 +14,7 @@ export default function PausePanel({ className }) {
    const { runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations } = useBreaksContext()
    const { startBreak, stopBreak } = useTrackingContext()
    const { todayBreakTime } = useHistoryContext()
+   const [lastActiveType, setLastActiveType] = useState(null)
 
    // durations are flushed periodically, not every tick — top up with only the
    // remainder since the last flush, breakDurations already has everything before it
@@ -27,8 +28,14 @@ export default function PausePanel({ className }) {
    // todayBreakTime from history, plus potential running break timer 
    const liveTodayBreakTime = todayBreakTime + (runningBreakId ? runningSessionSeconds : 0)
 
-   const toggleBreak = (breakType) =>
-      breakType.id === runningBreakId ? stopBreak() : startBreak(breakType)
+   const toggleBreak = (breakType) => {
+      if (breakType.id === runningBreakId) {
+         stopBreak()
+      } else {
+         setLastActiveType(breakType)
+         startBreak(breakType)
+      }
+   }
 
    // runningSessionSeconds, not breakTrackedSeconds — this needs to keep counting up
    // past a 5-min flush instead of dropping back to 0
@@ -37,7 +44,7 @@ export default function PausePanel({ className }) {
    return (
       <FloatingPanel storageKey='floatingPausePanelPosition' width={100} height={70} padding='p-2'
          visible={true} className={className} minimizable={true} handleMinimize={() => setMiniState(!miniState)}>
-         {miniState ? <div onClick={() => setMiniState(false)} className={`${runningBreakType && 'bg-success-light'} cursor-pointer p-1 rounded-md`}>
+         {miniState ? <div onClick={() => toggleBreak(runningBreakType || lastActiveType || breakTypes[0])} className={`${runningBreakType && 'bg-success-light'} cursor-pointer p-1 rounded-md`}>
             {runningTracker}
             <p className='text-2xl'>{runningBreakType?.emoji || '🍵'}</p>
          </div>

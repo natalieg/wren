@@ -8,7 +8,8 @@ import { applyListChange, entersAtEnd } from '../utils/taskTransitions'
 import calculateEstimates from '../utils/taskEstimates'
 import { newTaskId } from '../utils/taskId'
 import { reviveOrphanedHabits } from '../utils/recurring'
-import { getNextCopyTitle, getPrevCopyIndex } from './useTaskCopie'
+import { getNextCopyTitle, getPrevCopyIndex } from './useTaskCopy'
+import useTimeAlert from './useTimeAlert'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -53,6 +54,8 @@ function useTasks() {
   } = useTimeTracking(setTaskList)
 
   const { startedAt, resetStartedAt } = useTaskRollover(setTaskList)
+  useTimeAlert(taskList, runningTaskId, trackedSeconds)
+
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(taskList))
