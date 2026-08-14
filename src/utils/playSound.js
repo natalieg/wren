@@ -1,3 +1,24 @@
+import { getSoundUrl, FINISHED_SOUND_ID } from './sounds'
+import { loadSettings } from './settings'
+
+// single entry point for playing any catalogued sound — keeps volume applied
+// consistently everywhere instead of every call site setting it itself
+export function playSoundById(id) {
+   const audio = new Audio(getSoundUrl(id))
+   audio.volume = loadSettings().soundVolume
+   audio.play()
+}
+
+export function playFinishedSound() {
+   if (!loadSettings().finishedSoundEnabled) return
+   playSoundById(FINISHED_SOUND_ID)
+}
+
+export function playTimerSound() {
+   const { timerSoundEnabled, timerSound } = loadSettings()
+   if (!timerSoundEnabled) return
+   playSoundById(timerSound)
+}
 
 export default function playBeep() {
    const ctx = new AudioContext();

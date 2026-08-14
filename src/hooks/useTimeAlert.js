@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { minutesToSeconds } from '../utils/formatTime'
-import shortBellUrl from '../assets/sounds/shortBell.wav'
+import { playTimerSound } from '../utils/playSound'
 
 export default function useTimeAlert(taskList, runningId, trackedSeconds) {
-   const [audio] = useState(() => new Audio(shortBellUrl))
    const alertedRef = useRef(null)
    useEffect(() => {
       const task = taskList.find(t => t.id === runningId)
@@ -11,9 +10,10 @@ export default function useTimeAlert(taskList, runningId, trackedSeconds) {
       const elapsed = (task.trackedTime || 0) + trackedSeconds
       const isOver = elapsed > minutesToSeconds(task.time)
       if (isOver && alertedRef.current !== runningId) {
-         audio.play()
+         // playTimerSound reads settings fresh each time 
+         playTimerSound()
          alertedRef.current = runningId
       }
       if (!isOver) alertedRef.current = null
-   }, [taskList, runningId, trackedSeconds, audio])
+   }, [taskList, runningId, trackedSeconds])
 }

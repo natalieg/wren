@@ -10,6 +10,7 @@ import { newTaskId } from '../utils/taskId'
 import { reviveOrphanedHabits } from '../utils/recurring'
 import { getNextCopyTitle, getPrevCopyIndex } from './useTaskCopy'
 import useTimeAlert from './useTimeAlert'
+import { playFinishedSound } from '../utils/playSound'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -70,7 +71,7 @@ function useTasks() {
     if (task.list === DONE) removeFromHistory(id)
     // the entry misses seconds still sitting in the running timer — the flush below
     // can only land on the next render. Known, pre-dates the transition rewrite
-    if (target === DONE) addToHistory(next)
+    if (target === DONE) { addToHistory(next); playFinishedSound() }
 
     setTaskList(currentTaskList => entersAtEnd(target)
       ? [...currentTaskList.filter(t => t.id !== id), next]
