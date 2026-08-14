@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { ModalMinimize } from './ModalIcons'
 
-export default function FloatingPanel({ storageKey, width, height, visible = true, children, padding = 0, className = '', minimizable = false, handleMinimize }) {
+export default function FloatingPanel({ storageKey, width, height, visible = true, children, padding = 0, className = '', minimizable = false, handleMinimize, label = '' }) {
    const [position, setPosition] = useState(() => {
       try {
          return JSON.parse(localStorage.getItem(storageKey)) ||
@@ -44,23 +44,25 @@ export default function FloatingPanel({ storageKey, width, height, visible = tru
    const handlePointerUp = (e) => {
       isDragging.current = false
       e.target.releasePointerCapture(e.pointerId)
-   } 
+   }
 
    if (!visible) return null
    return (
       <div className={`bg-white rounded-md overflow-hidden shadow-lg ${className}`}
          style={{ position: 'fixed', left: position.x, top: position.y, }}>
-         <div className={` flex justify-between items-center bg-gradient-softer px-2 w-full cursor-pointer border-b border-dark`
+         <div className={` flex justify-between items-center bg-gradient-softer px-2 w-full cursor-pointer border-b border-dark font-retro select-none`
          }
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}>
-            ⠿
-            {minimizable && <ModalMinimize onMinimize={handleMinimize}/>}
-            </div>
+            <span className='mr-1'>
+               ⠿ {label}
+            </span>
+            {minimizable && <ModalMinimize onMinimize={handleMinimize} />}
+         </div>
          <div className={` ${padding}`}>
             {children}
          </div>
       </div>
-   ) 
+   )
 }

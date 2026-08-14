@@ -43,7 +43,7 @@ export default function PausePanel({ className }) {
 
    return (
       <FloatingPanel storageKey='floatingPausePanelPosition' width={100} height={70} padding='p-2'
-         visible={true} className={className} minimizable={true} handleMinimize={() => setMiniState(!miniState)}>
+         visible={true} className={className} minimizable={true} handleMinimize={() => setMiniState(!miniState)} label={`${miniState ? '': 'Break Time'}`}>
          {miniState ? <div onClick={() => toggleBreak(runningBreakType || lastActiveType || breakTypes[0])} className={`${runningBreakType && 'bg-success-light'} cursor-pointer p-1 rounded-md`}>
             {runningTracker}
             <p className='text-2xl'>{runningBreakType?.emoji || '🍵'}</p>
