@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import useSettingsContext from '../hooks/useSettingsContext'
 import useBreaksContext from '../hooks/useBreaksContext'
 import useTrackingContext from '../hooks/useTrackingContext'
@@ -24,6 +24,16 @@ export default function PausePanel({ className }) {
          ...b,
          duration: (breakDurations[b.id] || 0) + (b.id === runningBreakId ? breakTrackedSeconds : 0),
       }))
+   // disabling the type a break is currently running under shouldn't leave it
+   // ticking away unseen — follow the setting and stop it
+   useEffect(() => {
+      const runningTypeStillEnabled = settings.breakTypes.some(b => b.id === runningBreakId && b.enabled)
+      if (runningBreakId && !runningTypeStillEnabled) stopBreak()
+   }, [runningBreakId, settings.breakTypes, stopBreak])
+
+   // no break types on: the whole panel (and its timer) has nothing to offer
+   if (breakTypes.length === 0) return null
+
    const runningBreakType = breakTypes.find(b => b.id === runningBreakId)
    // todayBreakTime from history, plus potential running break timer 
    const liveTodayBreakTime = todayBreakTime + (runningBreakId ? runningSessionSeconds : 0)

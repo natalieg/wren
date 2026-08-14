@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS = {
     soundVolume: 0.7,
    // LATER users can add own break types through settings 
     breakTypes: [
-        { id: 'break', name: 'break', emoji: '🍵', enabled: true, required: true },
+        { id: 'break', name: 'break', emoji: '🍵', enabled: true },
         { id: 'gaming', name: 'gaming', emoji: '🎮', enabled: false },
         { id: 'social', name: 'social', emoji: '🫂', enabled: false },
     ],

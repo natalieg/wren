@@ -22,10 +22,9 @@ export default function Settings() {
       window.location.reload()
    }
 
-   // required types (the generic 'break') ignore the toggle — always enabled
    const toggleBreakType = (id) => {
       updateSetting('breakTypes', settings.breakTypes.map(b =>
-         b.id === id && !b.required ? { ...b, enabled: !b.enabled } : b
+         b.id === id ? { ...b, enabled: !b.enabled } : b
       ))
    }
 
@@ -59,7 +58,7 @@ export default function Settings() {
                <div className='flex gap-2'>
                   {settings.breakTypes.map(breakType => (
                      <CheckboxRow key={breakType.id} id={`breakType-${breakType.id}`}
-                        checked={breakType.enabled} disabled={breakType.required}
+                        checked={breakType.enabled}
                         onToggle={() => toggleBreakType(breakType.id)}
                         label={`${breakType.emoji} ${breakType.name}`} />
                   ))}
