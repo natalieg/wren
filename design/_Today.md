@@ -5,6 +5,12 @@
 	- [ ] v1 overflow scope: red background + sound once. No `+5min` extend button, no repeating alert yet.
 
 - [ ] simple div/ something playful like a coffee mug / in corner to click for 'take a break', this time is tracked seperately and vs the active time
+- [ ] show running timer in tab with 🍵 for breaks 
+
+- [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
+	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running
+
+
 
 - [ ] sort finished tasks by timestamp
 - [ ] show timestamps in history?

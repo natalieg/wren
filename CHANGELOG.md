@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.1 — 2026-08-15
+- Breaktime shows in Browser Tab
+
 ## 0.8.0 — 2026-08-14
 - **Break** tracking: a floating panel to start/stop breaks by type (🍵 break, 🎮 gaming, 🫂 social ore configured), each tracked separately and rolled into History alongside task time. Types can be turned on/off in Settings. Turning all of them off removes the panel. 
 - Minimized panel shows current break or default break only - can also be used for play/pausing breaks

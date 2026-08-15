@@ -31,8 +31,8 @@ function TasksProvider({ children }) {
         runningTaskId,
     })
 
-    // lives here, not on a page — the tab title has to keep ticking on every route
-    useTabTitle(taskList.find(t => t.id === runningTaskId), trackedSeconds)
+    const runningTask = taskList.find(t => t.id === runningTaskId)
+    useTabTitle((runningTask?.trackedTime || 0) + trackedSeconds, runningTask?.label || '', )
 
     // Modal survives route changes, unlike floating panels
     const location = useLocation()
