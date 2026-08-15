@@ -5,16 +5,23 @@ import useTrackingContext from '../hooks/useTrackingContext'
 import useHistoryContext from '../hooks/useHistoryContext'
 import FloatingPanel from './elements/FloatingPanel'
 import EmojiMiniCard from './elements/EmojiMiniCard'
-import { formatTime, formatTimeWithSeconds, secondsToMinutes } from '../utils/formatTime'
+import { formatTime, secondsToMinutes } from '../utils/formatTime'
+import SwitchRow from './SwitchRow'
+import CountdownTimer from './elements/CountdownTimer'
+import { playBreakSound } from '../utils/playSound'
+
 
 export default function PausePanel({ className }) {
    const [miniState, setMiniState] = useState(false)
    const { settings } = useSettingsContext()
    // display values from the break state, start/stop from the coordinated layer
-   const { runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations } = useBreaksContext()
+   const { runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations, maxBreakTime, setMaxBreakTime } = useBreaksContext()
    const { startBreak, stopBreak } = useTrackingContext()
    const { todayBreakTime } = useHistoryContext()
    const [lastActiveType, setLastActiveType] = useState(null)
+   //TODO make last timeslot editable from here
+   const breakTimes = settings.breakTimes
+   const overFlow = maxBreakTime && runningSessionSeconds > maxBreakTime
 
    // durations are flushed periodically, not every tick — top up with only the
    // remainder since the last flush, breakDurations already has everything before it
@@ -47,13 +54,24 @@ export default function PausePanel({ className }) {
       }
    }
 
+   const toggleBreakTime = (time) => {
+      console.log('max', maxBreakTime, 'time', time)
+      if (maxBreakTime === time) {
+         setMaxBreakTime(false)
+      } else {
+         setMaxBreakTime(time)
+      }
+   }
+
    // runningSessionSeconds, not breakTrackedSeconds — this needs to keep counting up
    // past a 5-min flush instead of dropping back to 0
-   const runningTracker = <p className='text-center font-retro text-2xl'>{formatTimeWithSeconds(runningSessionSeconds)}</p>
+   const runningTracker = <div className='text-center font-retro text-2xl'>
+      <CountdownTimer current={runningSessionSeconds} max={maxBreakTime} playSound={playBreakSound} />
+   </div>
 
    return (
       <FloatingPanel storageKey='floatingPausePanelPosition' width={100} height={70} padding='p-2'
-         visible={true} className={className} minimizable={true} handleMinimize={() => setMiniState(!miniState)} label={`${miniState ? '': 'Break Time'}`}>
+         visible={true} className={className} minimizable={true} handleMinimize={() => setMiniState(!miniState)} label={`${miniState ? '' : 'Break Time'}`}>
          {miniState ? <div onClick={() => toggleBreak(runningBreakType || lastActiveType || breakTypes[0])} className={`${runningBreakType && 'bg-success-light'} cursor-pointer p-1 rounded-md`}>
             {runningTracker}
             <p className='text-2xl'>{runningBreakType?.emoji || '🍵'}</p>
@@ -63,6 +81,9 @@ export default function PausePanel({ className }) {
                {runningBreakType &&
                   runningTracker}
                <p id='todayBreakTime' className='text-center text-gray-500'>{formatTime(secondsToMinutes(liveTodayBreakTime))}</p>
+
+               {/* pre defined break times */}
+               <SwitchRow array={breakTimes} onChange={(item) => toggleBreakTime(item * 60)} onEdit={() => { }} className='mt-2' />
                <div className='flex flex-wrap justify-center gap-2 mt-2'>
                   {breakTypes.map(breakType => (
                      <EmojiMiniCard
@@ -72,7 +93,8 @@ export default function PausePanel({ className }) {
                         subtitle={formatTime(secondsToMinutes(breakType.duration))}
                         emoji={breakType.emoji}
                         active={breakType.id === runningBreakId}
-                        onClick={() => toggleBreak(breakType)} />
+                        onClick={() => toggleBreak(breakType)} 
+                        activeBg={overFlow ? 'bg-gradient-main' : 'bg-gradient-success'}/>
                   ))}
                </div>
             </div>}

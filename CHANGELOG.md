@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.2 — 2026-08-15
+- Predefined Breaktime Limits [5,10,15,20]
+- new Overflow behaviour
+- optional sound when Breaktime ends
+
 ## 0.8.1 — 2026-08-15
 - Breaktime shows in Browser Tab
 

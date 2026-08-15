@@ -27,6 +27,7 @@ function useBreakTracking({ onBreakFinished }) {
    const [breakDurations, setBreakDurations] = useState(loadTodayDurations)
    const [emoji, setEmoji] = useState(null)
    const [label, setLabel] = useState(null)
+   const [maxBreakTime, setMaxBreakTime] = useState(0)
 
    useEffect(() => {
       const today = logicalDayString(new Date(), loadSettings().rolloverHour)
@@ -75,7 +76,7 @@ function useBreakTracking({ onBreakFinished }) {
       setLabel(null)
    }
 
-   return { runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations, startBreak, stopBreak, emoji, label }
+   return { maxBreakTime, setMaxBreakTime, runningBreakId, breakTrackedSeconds, runningSessionSeconds, breakDurations, startBreak, stopBreak, emoji, label }
 }
 
 export default useBreakTracking

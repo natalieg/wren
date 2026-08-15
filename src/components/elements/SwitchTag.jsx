@@ -9,7 +9,7 @@ export default function SwitchTag({ label1, label2, onClick, active, title }) {
           hover:bg-gradient-mutewarm`}
           onClick={onClick}>
       {active && <span className='font-bold'>{label1}</span>}
-      {!active && <span>{label2}</span>}
+      {!active && <span>{label2 || label1}</span>}
     </div>
   )
 }

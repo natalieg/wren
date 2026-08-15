@@ -20,6 +20,12 @@ export function playTimerSound() {
    playSoundById(timerSound)
 }
 
+export function playBreakSound() {
+   const { breakSoundEnabled, breakSound } = loadSettings()
+   if (!breakSoundEnabled) return
+   playSoundById(breakSound)
+}
+
 export default function playBeep() {
    const ctx = new AudioContext();
    const oscillator = ctx.createOscillator();

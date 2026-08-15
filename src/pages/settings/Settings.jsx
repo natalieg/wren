@@ -72,6 +72,12 @@ export default function Settings() {
                options={timerSoundIds} onChange={(value) => updateSetting('timerSound', value)}
                enabled={settings.timerSoundEnabled}
                onToggleEnabled={() => updateSetting('timerSoundEnabled', !settings.timerSoundEnabled)} />
+          
+            {/* Break sound — plays when a running task passes its time estimate */}
+            <SoundPickerRow id='breakSound' label='Break sound' value={settings.breakSound}
+               options={timerSoundIds} onChange={(value) => updateSetting('breakSound', value)}
+               enabled={settings.breakSoundEnabled}
+               onToggleEnabled={() => updateSetting('breakSoundEnabled', !settings.breakSoundEnabled)} />
 
             {/* Finished sound — fixed sound, just toggled on/off */}
             <SoundPickerRow id='finishedSoundEnabled' label='Play sound when a task finishes'
