@@ -45,7 +45,7 @@ export default function Trello() {
           className='text-text-muted text-sm underline cursor-pointer mb-4'>
           Aktualisieren
         </button>
-        <div className='flex gap-4'>
+        <div className='flex gap-4  pb-20'>
           {lists.map(list =>
             <TrelloList key={list.id} list={list} onCreateCard={handleCreateCard} />)}
         </div>
