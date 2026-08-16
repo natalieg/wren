@@ -8,6 +8,8 @@ import { timerSoundIds, FINISHED_SOUND_ID } from '../../utils/sounds'
 import DragBar from '../../components/elements/DragBar'
 import { Divider } from '../../components/elements/Divider'
 import Input from '../../components/elements/Input'
+import DeleteFlag from '../../components/elements/DeleteFlag'
+import Button from '../../components/elements/Button'
 
 export default function Settings() {
    const { settings, updateSetting } = useSettingsContext()
@@ -33,6 +35,20 @@ export default function Settings() {
       const newBreakTimes = [...settings.breakTimes]
       newBreakTimes[index] = parseInt(value, 10)
       updateSetting('breakTimes', newBreakTimes)
+   }
+
+   const addBreakTime = () => {
+      const highestBreakTime = Math.max(...settings.breakTimes)
+      const suggestedNewTime = Math.round(highestBreakTime + highestBreakTime / 2)
+      updateSetting('breakTimes', [...settings.breakTimes, suggestedNewTime])
+   }
+
+   const deleteBreakTime = (index) => {
+      if (settings.breakTimes.length > 1) {
+         const newBreakTimes = [...settings.breakTimes]
+         newBreakTimes.splice(index, 1)
+         updateSetting('breakTimes', newBreakTimes)
+      }
    }
 
    return (
@@ -70,16 +86,20 @@ export default function Settings() {
                         label={`${breakType.emoji} ${breakType.name}`} />
                   ))}
                </div>
-   
+
                <p className='text-xs text-text-muted mt-6'>Default break duration</p>
                <div className='flex flex-wrap items-center gap-2'>
                   {settings.breakTimes.map((breakTime, index) => (
-                     <Input key={index} id={`breakTime-${breakTime}`}
-                        type='number' min={1} max={60} step={1}
-                        width='w-16' 
-                        value={breakTime}
-                        onChange={(e) => updateBreakTime(index, e.target.value)} />
+                     <DeleteFlag key={index} deleteEnabled={settings.breakTimes.length > 1}
+                        onClick={() => deleteBreakTime(index)}>
+                        <Input key={index} id={`breakTime-${breakTime}`} slim
+                           type='number' min={1} step={1}
+                           width='w-16'
+                           value={breakTime}
+                           onChange={(e) => updateBreakTime(index, e.target.value)} />
+                     </DeleteFlag>
                   ))}
+                  <Button label='+' onClick={addBreakTime} className='px-3 py-0.5 text-lg' />
                </div>
             </div>
 

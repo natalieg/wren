@@ -70,11 +70,13 @@ export default function PausePanel({ className }) {
    </div>
 
    return (
-      <FloatingPanel storageKey='floatingPausePanelPosition' width={100} height={70} padding='p-2'
+      <FloatingPanel storageKey='floatingPausePanelPosition' width={100} height={70}
+         padding={miniState ? 'p-0.5' : 'p-2'}
          visible={true} className={className} minimizable={true} handleMinimize={() => setMiniState(!miniState)} label={`${miniState ? '' : 'Break Time'}`}>
-         {miniState ? <div onClick={() => toggleBreak(runningBreakType || lastActiveType || breakTypes[0])} className={`${runningBreakType && 'bg-success-light'} cursor-pointer p-1 rounded-md`}>
+         {miniState ? <div onClick={() => toggleBreak(runningBreakType || lastActiveType || breakTypes[0])} className={`${runningBreakType && (overFlow ? 'bg-failure-light' : 'bg-success-light')} cursor-pointer p-1 rounded-md`}>
             {runningTracker}
-            <p className='text-2xl'>{runningBreakType?.emoji || '🍵'}</p>
+            <p className='text-2xl text-center text-shadow-md text-shadow-black/40 -mt-1 mb-0.5'>
+               {runningBreakType?.emoji || '🍵'}</p>
          </div>
             :
             <div className='flex flex-col'>
@@ -93,8 +95,10 @@ export default function PausePanel({ className }) {
                         subtitle={formatTime(secondsToMinutes(breakType.duration))}
                         emoji={breakType.emoji}
                         active={breakType.id === runningBreakId}
-                        onClick={() => toggleBreak(breakType)} 
-                        activeBg={overFlow ? 'bg-gradient-main' : 'bg-gradient-success'}/>
+                        otherActive={runningBreakId && breakType.id !== runningBreakId}
+                        onClick={() => toggleBreak(breakType)}
+                        success={!overFlow}
+                        activeBg={overFlow ? 'bg-gradient-main' : 'bg-gradient-success'} />
                   ))}
                </div>
             </div>}

@@ -248,6 +248,29 @@
   pointer-events: none;
 }
 
+/* Soft gradient hover: one oversized gradient (muted -> main) sliding into view via
+   background-position, instead of swapping background-image on hover (which can't
+   transition — two different gradients have nothing to interpolate between). */
+.gradientHover {
+  background-image: linear-gradient(135deg,
+    var(--color-border-soft) 0%, #f5e6ff 30%, #a56bff 70%, #f7719e 100%);
+  background-size: 250% 250%;
+  background-position: 0% 0%;
+  transition: background-position 600ms var(--ease-out);
+}
+
+.gradientHover-success {
+  background-image: linear-gradient(135deg,
+    #fff9e6 0%, #e6eefc 30%, #3ab890 70%, #c4f379 100%);
+  background-size: 250% 250%;
+  background-position: 0% 0%;
+  transition: background-position 600ms var(--ease-out);
+}
+
+.gradientHover:hover, .gradientHover-success:hover {
+  background-position: 100% 100%;
+}
+
 .panel {
   background-color: color-mix(in srgb, var(--color-main1) 20%, transparent);
   border: 1px solid var(--color-border);

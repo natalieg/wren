@@ -18,7 +18,7 @@ export default function CountdownTimer({ current, max, playSound }) {
    }, [overFlow, playSound])
 
    return (
-      <div className={`${overFlow ? 'bg-failure/50 rounded-md' : ''}`}>
+      <div className={`${overFlow ? 'bg-failure/50 rounded-md' : ''} px-1`}>
          {overFlow && '+'}{formatTimeWithSeconds(displaySeconds())}</div>
    )
 }
