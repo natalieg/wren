@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS = {
       { id: 'gaming', name: 'gaming', emoji: '🎮', enabled: false },
       { id: 'social', name: 'social', emoji: '🫂', enabled: false },
    ],
-   breakTimes: [1, 10, 15, 20]
+   breakTimes: [5, 10, 15, 20]
 }
 
 // merges over defaults so a new setting added later still gets a sane value

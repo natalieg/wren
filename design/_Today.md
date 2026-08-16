@@ -1,9 +1,11 @@
 
 ## ▶ NOW: Break duration
 - [ ] configurable length per break type, can overflow like tasks do (sound on overrun — maybe a different sound than the task alert)
-	- [ ] presets: `[5] [15] [45] [✎]`, editable, no forced ∞ slot — no selection made *is* already unlimited
-	- [ ] v1 overflow scope: red background + sound once. No `+5min` extend button, no repeating alert yet.
+	- [x] presets: `[5] [15] [45] [✎]`, 
+	- [ ] editable in settings, no forced ∞ slot 
+	- [x] v1 overflow scope: red background + sound once. No `+5min` extend button, no repeating alert yet.
 - [x] show running timer in tab with 🍵 for breaks 
+- [ ] History Overview of Breaktypes & Type
 
 - [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
 	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running
@@ -119,11 +121,6 @@
 			- benefit: user can always see the progress of the whole pages/phase
 			- usability: next box is only unlocked if the prev phase is finished, this could also be set as conditional/nonconditional in the template (eg, pages are not really force connected, while linearts always need sketches first, tho usually one works linear, but sometimes it happens that one is able to finish page 20 before they finish page 19)
 - if dashed line for every drag: **Yes — and it's genuinely one line.** Just don't pass `onMoveAcrossLists` to `TaskDndArea`. No live move means no list ever receives the real row, so the placeholder rule fires everywhere, and in-list sorting keeps its normal animation either way.
-
-## ▶ NOW: DnD (Phase 3) — one decision left
-*🤖 Tasklist and Backlog both drag, reorder, and move between lists. Estimates confirmed correct after a drag. Only the A/B below is still open; `KeyboardSensor` moved to the roadmap's Unsorted Micro Tasks.*
-
-- [ ] **decide the drag feel** — live gap vs. dashed ghost everywhere. Both are running right now on purpose: Tasklist has the live move **off**, Backlog has it **on**, so they can be compared on the same data. Switch is one prop, `onMoveAcrossLists` (marked `TEST` in `Tasklist.jsx`). Then make both pages match.
 
 #### Integrate in Roadmap:
 

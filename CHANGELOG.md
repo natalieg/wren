@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.8.3 — 2026-08-16
+- Change Breaktime max durations in settings
+
 ## 0.8.2 — 2026-08-15
 - Predefined Breaktime Limits [5,10,15,20]
 - new Overflow behaviour

@@ -7,6 +7,7 @@ import SoundPickerRow from './SoundPickerRow'
 import { timerSoundIds, FINISHED_SOUND_ID } from '../../utils/sounds'
 import DragBar from '../../components/elements/DragBar'
 import { Divider } from '../../components/elements/Divider'
+import Input from '../../components/elements/Input'
 
 export default function Settings() {
    const { settings, updateSetting } = useSettingsContext()
@@ -26,6 +27,12 @@ export default function Settings() {
       updateSetting('breakTypes', settings.breakTypes.map(b =>
          b.id === id ? { ...b, enabled: !b.enabled } : b
       ))
+   }
+
+   const updateBreakTime = (index, value) => {
+      const newBreakTimes = [...settings.breakTimes]
+      newBreakTimes[index] = parseInt(value, 10)
+      updateSetting('breakTimes', newBreakTimes)
    }
 
    return (
@@ -63,6 +70,17 @@ export default function Settings() {
                         label={`${breakType.emoji} ${breakType.name}`} />
                   ))}
                </div>
+   
+               <p className='text-xs text-text-muted mt-6'>Default break duration</p>
+               <div className='flex flex-wrap items-center gap-2'>
+                  {settings.breakTimes.map((breakTime, index) => (
+                     <Input key={index} id={`breakTime-${breakTime}`}
+                        type='number' min={1} max={60} step={1}
+                        width='w-16' 
+                        value={breakTime}
+                        onChange={(e) => updateBreakTime(index, e.target.value)} />
+                  ))}
+               </div>
             </div>
 
             <Divider label='Sound' />
@@ -72,7 +90,7 @@ export default function Settings() {
                options={timerSoundIds} onChange={(value) => updateSetting('timerSound', value)}
                enabled={settings.timerSoundEnabled}
                onToggleEnabled={() => updateSetting('timerSoundEnabled', !settings.timerSoundEnabled)} />
-          
+
             {/* Break sound — plays when a running task passes its time estimate */}
             <SoundPickerRow id='breakSound' label='Break sound' value={settings.breakSound}
                options={timerSoundIds} onChange={(value) => updateSetting('breakSound', value)}
