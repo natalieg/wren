@@ -12,3 +12,7 @@ export const BACKLOG = 'backlog'
 export const NEXTUP = 'nextUp'
 export const NEXTWEEK = 'nextWeek'
 export const SOMEDAY = 'someday'
+
+// emotes
+export const UNCHECKED = '🟦'
+export const CHECKED = '✅'

@@ -9,6 +9,7 @@ import { formatClockTime } from '../../utils/formatTime'
 import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
 import { BACKLOG, DONE, NEXTUP } from '../../utils/constants'
+import { CompactCheckboxCount } from '../CheckboxCount'
 
 // wraps a row in dnd-kit's sortable. Only rows that are actually sortable render through
 // this — the pinned running task renders TaskItem directly, so it never receives a transform
@@ -31,7 +32,7 @@ export function SortableTaskItem({ task, ...props }) {
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
 export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, dragProps, isDragging }) {
-   const { id, label, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
+   const { id, label, notes, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
    const done = task.list === DONE
    const isTracking = id === runningTaskId
    const isActive = estimate
@@ -45,7 +46,7 @@ export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskTo
       }
    }
 
-  // confirm delete for special tasks (recurring) — otherwise delete immediately
+   // confirm delete for special tasks (recurring) — otherwise delete immediately
    const [confirmingDelete, setConfirmingDelete] = useState(false)
    const needsConfirm = isRecurring(task) && !done
 
@@ -65,6 +66,7 @@ export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskTo
             data-task-context='tasks'
             onClick={() => setEditingTaskId(id)}>
             <Checkbox id={id} onToggle={toggleDone} checked={done} />
+            {notes && notes?.length > 0 && <CompactCheckboxCount text={notes} />}
             {/* Recurring */}
             {task.recurring?.active && <SimpleTag value="↻" />}
             {/* label */}

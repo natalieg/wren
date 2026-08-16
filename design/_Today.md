@@ -133,4 +133,69 @@
 
 ---
 
-*🤖 = added by Claude, not by me*
+const UNCHECKED = '🟦'
+const CHECKED = '✅'
+
+export function toggleChecklistLine(text, cursorPos) {
+  const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1
+  const lineEnd = text.indexOf('\n', lineStart)
+  const line = text.slice(lineStart, lineEnd === -1 ? text.length : lineEnd)
+
+  const prefix = line.startsWith(UNCHECKED) ? UNCHECKED
+    : line.startsWith(CHECKED) ? CHECKED
+    : null
+  if (!prefix || cursorPos - lineStart > prefix.length + 1) return null
+
+  const newPrefix = prefix === UNCHECKED ? CHECKED : UNCHECKED
+  const newLine = newPrefix + line.slice(prefix.length)
+
+  return {
+    newText: text.slice(0, lineStart) + newLine + text.slice(lineStart + line.length),
+    cursorPos,
+  }
+}
+
+---
+
+
+import { useCallback } from 'react'
+import { toggleChecklistLine } from '../utils/checklistToggle'
+
+export function useEmojiChecklist(textareaRef, value, onChange) {
+  return useCallback((e) => {
+    const el = textareaRef.current
+    if (!el) return
+    const result = toggleChecklistLine(value, el.selectionStart)
+    if (!result) return
+
+    onChange(result.newText)
+    requestAnimationFrame(() => {
+      el.selectionStart = el.selectionEnd = result.cursorPos
+    })
+  }, [textareaRef, value, onChange])
+}
+
+---
+
+
+const notesRef = useRef(null)
+const handleNotesClick = useEmojiChecklist(notesRef, notes, (v) => handleFieldChange(id, 'notes', v))
+
+<textarea
+  ref={notesRef}
+  value={notes}
+  onClick={handleNotesClick}
+  onChange={(e) => handleFieldChange(id, 'notes', e.target.value)}
+  placeholder="Notes"
+/>
+
+------------
+
+export function autoConvertBrackets(text, cursorPosition) {
+   if (text.slice(cursorPosition - 2, cursorPosition) !== '[]') return null
+
+   return {
+      newText: text.slice(0, cursorPosition - 2) + UNCHECKED + ' ' + text.slice(cursorPosition),
+      cursorPosition: cursorPosition - 2 + UNCHECKED.length + 1,
+   }
+}

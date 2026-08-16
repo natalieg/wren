@@ -8,9 +8,10 @@ import PlayBtn from '../elements/PlayBtn'
 import { secondsToMinutes, minutesToSeconds, formatTimeWithSeconds } from '../../utils/formatTime'
 import Bar from '../elements/Bar'
 import LabeledField from '../elements/LabeledField'
+import CheckboxCount from '../CheckboxCount'
 
 export default function TaskEditModalBody({ task, closeModal, isRunning, trackedSeconds, taskActions }) {
-   const { id, label, time, trackedTime = 0 } = task
+   const { id, label, notes, time, trackedTime = 0 } = task
    const { handleFieldChange, toggleDone, toggleActive, startTracking, stopTracking } = taskActions
    const done = task.list === DONE
    const isBacklog = task.list === BACKLOG
@@ -113,13 +114,22 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                <div className='pt-2'>
                   <Checkbox id={id} onToggle={() => toggleDone(id)} checked={done} />
                </div>
-               <Textarea
-                  placeholder="Task description"
-                  value={label}
-                  onChange={(e) => handleFieldChange(id, 'label', e.target.value)}
-                  onKeyDown={handleKeyDown}
-               />
-
+               <div className='flex flex-col gap-2 w-full'>
+                  <Textarea
+                     placeholder="Task description"
+                     value={label}
+                     onChange={(e) => handleFieldChange(id, 'label', e.target.value)}
+                     onKeyDown={handleKeyDown}
+                  />
+                  <label className='text-[14px] ml-2 -mb-2'>Notes</label>
+                  {notes && notes?.length > 0 && <CheckboxCount text={notes}/>}
+                  <Textarea
+                     placeholder="Add SubTasks with []"
+                     value={notes}
+                     onChange={(e) => handleFieldChange(id, 'notes', e.target.value)}
+                     onKeyDown={handleKeyDown}
+                  />
+               </div>
             </div>
          </div>
       </div>

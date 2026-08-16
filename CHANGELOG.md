@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.4 — 2026-08-16
+- "Notes" Textarea in Task Modal
+- Can Add Subtasks in Notes (Current workaround before implementing 'real' subtasks)
+- Subtasks can be added with [], [] transforms into 🟦
+- 🟦✅ can be toggled by click
+- current 'progress' of Subtasks is visible on Tasks and in Modal
+
 ## 0.8.3 — 2026-08-16
 - Change Breaktime max durations in settings
 - default breaktimes can be deleted/added
