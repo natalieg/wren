@@ -2,7 +2,7 @@
 
 ## 0.8.3 — 2026-08-16
 - Change Breaktime max durations in settings
-- default breaktimes can be delted/added
+- default breaktimes can be deleted/added
 - Styling enhancement of pause display
 
 ## 0.8.2 — 2026-08-15

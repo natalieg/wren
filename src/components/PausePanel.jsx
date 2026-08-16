@@ -97,8 +97,7 @@ export default function PausePanel({ className }) {
                         active={breakType.id === runningBreakId}
                         otherActive={runningBreakId && breakType.id !== runningBreakId}
                         onClick={() => toggleBreak(breakType)}
-                        success={!overFlow}
-                        activeBg={overFlow ? 'bg-gradient-main' : 'bg-gradient-success'} />
+                        success={!overFlow}/>
                   ))}
                </div>
             </div>}

@@ -1,8 +1,8 @@
 
 ## ▶ NOW: Break duration
-- [ ] configurable length per break type, can overflow like tasks do (sound on overrun — maybe a different sound than the task alert)
+- [x] configurable length per break type, can overflow like tasks do (sound on overrun — maybe a different sound than the task alert)
 	- [x] presets: `[5] [15] [45] [✎]`, 
-	- [ ] editable in settings, no forced ∞ slot 
+	- [x] editable in settings, no forced ∞ slot 
 	- [x] v1 overflow scope: red background + sound once. No `+5min` extend button, no repeating alert yet.
 - [x] show running timer in tab with 🍵 for breaks 
 - [ ] History Overview of Breaktypes & Type
