@@ -13,16 +13,16 @@ Rough sequencing, not a hard commitment — reorder freely as priorities shift.
 
 Background/reasoning for decisions lives in `design/decisions.md`, not here — keep entries below short and bulleted.
 
-### ✅ Phase 0 — Groundwork (done 2026-07-24)
+### ✅ Phase 0 - Groundwork (done 2026-07-24)
 - Imported and reviewed the Wren Design System (Claude Design MCP).
 - Wrote this roadmap.
-### ✅ Phase 1 — Daylist MVP (home page revival) — working
+### ✅ Phase 1 - Daylist MVP (home page revival) — working
 Home route (`/` → `Tasklist.jsx`) — a real, used daily task list. Ship functional first, reskin later.
 - ✅ 2026-07-24: add, display, toggle done, persist to localStorage — real design-system tokens via Tailwind `@theme`, not inline styles.
 - ✅ 2026-07-25: delete a task, "delete all finished."
 - ✅ 2026-07-26/27: per-task time estimate, done-vs-left `Bar` panel.
 
-### ✅ Phase 2 — Task editing & time tracking (closed 2026-08-09)
+### ✅ Phase 2 - Task editing & time tracking (closed 2026-08-09)
    Build order: tasks-to-bottom → edit → time tracking MVP. (Drag-and-drop split out into its own phase, 2026-08-06 — see Phase 3 below — since it sat untouched as "step 4" while smaller MVPs kept jumping the queue ahead of it.)
 - ✅ 2026-07-28: finished tasks sort into a collapsible section (`CollapsableDiv.jsx`).
 - ✅ 2026-07-28: `formatTime` extracted to `src/utils/` + unit tested (Vitest set up).
@@ -49,7 +49,7 @@ Home route (`/` → `Tasklist.jsx`) — a real, used daily task list. Ship funct
 - ✅ 2026-08-09: running task shows in the browser tab (`useTabTitle.js`, `▴ 5:05 · label`), so a backgrounded Wren still says a timer is going. Rides on the existing per-second render, no second timer.
 - ✅ 2026-08-09: the ticking clock stopped jittering. `tabular-nums` alone did nothing — Quicksand has no tabular figures — so live numbers get a `.tnum` class that switches them to Nunito (Inter loaded as the fallback). `TimeFlag` widened to `w-24` for three-digit minutes.
 
-### 🟡 Phase 3 — Drag-and-drop
+### ✅ Phase 3 - Drag-and-drop
 Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "step 4" of something else.
 - ✅ 2026-08-09: day list reorders by drag via `dnd-kit`. Order stays "array order in `taskList`" — no `order` field, no migration; the whole translation between a page's filtered slice and the stored array lives in one pure `utils/reorderTasks.js` (13 tests). `DndContext` sits on the *page* (`TaskDndArea.jsx`), `SortableContext` per `TaskGroup`, because a drag can only cross lists inside one shared context.
 - ✅ 2026-08-09: the running task is pinned and undraggable — it renders as its own one-item group outside the drag area, so it never receives a transform. Whole-row dragging with an 8px threshold keeps the click-to-open-modal behaviour intact.
@@ -58,27 +58,48 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 - ✅ 2026-08-10: unplanned refactor — every list change now routes through a single `moveTaskToList`, with the per-list enter/leave rules in a pure `utils/taskTransitions.js`, so a future state adds a block instead of editing existing ones ("damit man die zwei funcs gezielt angreifen kann… vor allem mit potentiell mehr states in der zukunft"). Fixed the bug that prompted it — un-doning a task via the edit panel's active badge or the play button kept its `finishedTimestamp` and history entry, since only `toggleDone` knew the rules — plus a flush race that dropped tracked seconds when a running task was finished or parked. `useTasks.js` went 377 → 187 lines along the way: `useTimeTracking.js`, `useTaskRollover.js` and a pure `taskEstimates.js` split out of it, +21 tests.
 - ✅ 2026-08-10: drop zones — `TaskDropZone` registers a whole section as one target and frames it, wrapping the header so a *collapsed* list stays droppable without opening. Empty lists render anyway: anything that changes size at drag start invalidates the position dnd-kit measured and leaves the preview hanging off the cursor. Auto-expanding collapsed sections was tried and rejected ("its super confusing and disorienting" — losing your scroll position mid-drag).
 - ✅ 2026-08-10: Backlog page drags — one `TaskGroup` per bucket in its own drop zone, replacing one `TaskGroup` per task and the ▲/▼ shift arrows. Needed no new logic, only page wiring; the cross-bucket rewrite was already there and tested.
-- 🟥 Open, the last one: live gap vs. dashed placeholder everywhere. Both are live on purpose right now — Tasklist without the live move, Backlog with it — so the feel can be compared on the same data. One prop switches it.
 
-### 🟡 Break Tracking
+### 🟡 Phase 4 - Break Tracking
 - ✅ 2026-08-13: floating Pause Panel (`PausePanel.jsx`, mirrors `FloatingTaskPanel`) — start/stop a break by type (🍵 break, 🎮 gaming, 🫂 social by default), each with its own running total for the day; break time rolls into History alongside task time.
 - ✅ 2026-08-13/14: break and task tracking split into dedicated contexts (`BreaksProvider`, `HistoryProvider`), with start/stop for both routed through one coordinated layer (`useTrackingContext`) that keeps "only one thing runs at a time" true across tasks *and* breaks.
 - ✅ 2026-08-14: break types are fully optional now — the default 'break' type is no longer forced on. Disabling every type removes the whole panel (no timer, no icon); disabling the type a break is currently running under stops it automatically instead of leaving it ticking unseen.
 - ✅ 2026-08-14: the minimized panel's emoji toggles the running (or last-used) break type directly, instead of only being able to stop one already running.
-- 🔷 Next: a configurable duration per break, with overflow into a red state + sound — mirrors the task time-estimate alert. Presets discussed ("[5] [15] [45] [✎]", no required ∞ slot — no selection *is* unlimited), overflow behaviour intentionally scoped down for v1 (no `+5min` extend, no repeating alert). Not built yet.
+- ✅ 2026-08-17: a configurable duration per break, with overflow into a red state + sound — mirrors the task time-estimate alert. Presets discussed ("[5] [15] [45] [✎]", no required ∞ slot — no selection *is* unlimited), defined break lengths can be delted/added
+- ✅ 2026-08-17: History day entries show a color-coded, stacked breakdown of task time vs. each break type (`MultiProgressbar` in `DayEntry.jsx`), with a legend (`DotItem`) and the biggest slice optionally highlighted (`markHighest`).
+- ✅ 2026-08-17: weekly rollup rendered above each week's entries in History (`WeekOverview.jsx`, collapsible, defaults open) — a Mon–Sun bar chart of focus vs. break time per day plus task count, and three stat tiles (total focused, total off-the-clock, break:focus ratio). Pure render over existing history data (`groupHistoryByWeek`/`computeWeekStats` in `utils/weekStats.js`), nothing new persisted.
 
+### 🔷 Phase 5 - Project MVP
+- simple project with 
+	- name
+	- active 
+	- deadline
+	- current status: [50 pages]
+	- goal [200 pages]
+	- daily goal [20 pages] -> those could convert to a form of 'habit'
+		- maybe also how many sessions? `4 -> 5p each session`
+		- daily goal could auto calc from deadline, left to goal etc
+		- setting, maybe #later : `possible daily goal states:`
+			- push: do more in the beginning, recalc daily goal after x days/weeks 
+			- medium: do realistic, a bit more to have a buffer to the deadline (eg, the 'real' goal of 20pages per day only works if there is never a sick day etc)
+			- minimum: just do the minimum you need to 'survive' for the deadline, but this holds the risk of not meeting the deadline if user misses a day. calculates daily for best match 
+			- do more during weekdays
+			- work on special days etc
+		- daily goal set by user could display a potential 'finished by' date vs deadline 
+	- time per x `user decision: per page, or per daily goal?
+	- probably #later  visual representation of progress, could be done by a graph that shows bars for each day in color good in time/ slacking
+- Meta Information: shows how much time user needs for all goals that are currently active every day
 ### PUSHED UP: Habits/Recurring MVP
 
 ### Trello integration cont.
 - move cards
 - transform to tasks
 
-### 🔷 Phase 4 — Dark mode
+### 🔷 Phase x — Dark mode
 Pulled forward out of Phase 14's shell restyle (2026-08-06) — waiting until then risks every component built in between (Areas, gamification tab) needing dark-mode styling retrofitted later, which compounds into real pain. Design system already spec'd dual-theme via `[data-theme]` (see Design system section above); this phase is just wiring it up app-wide, not new design work.
 - 🔷 Implement the `[data-theme]` dark variant across existing components using the tokens already defined in the design system import.
 - Toggle control — placement TBD, likely lands alongside Phase 14's shell restyle.
 
-### 🔷 Phase 5 — Areas
+### 🔷 Phase x — Areas
 - Area Tab 
 	- Create new Area, [Name] 
 		- Optional: Default Effort?
@@ -99,7 +120,7 @@ Inbetween Broswerstorage and real Database, there is a need to save the json and
 
 ### Project MVP
 
-### 🟡 Phase 7 — Recurring Tasks / Habits & Reflection
+### 🟡 Phase x — Recurring Tasks / Habits & Reflection
 - ✅ 2026-08-10: daily recurring tasks. A finished recurring task is *copied* into a new one on rollover rather than resurrected, so yesterday's completion keeps its tracked time and its history entry. `recurring.id` is the habit, the task id is one occurrence; `recurring.count` is incremented by `listRules[DONE]`, so it counts completions and un-ticking takes one back. Deleting can't end a habit by accident — every delete path replaces a habit whose last task is in the batch, and deleting an *unfinished* one asks first (with "park for tomorrow" as the third option).
 - ✅ 2026-08-10: task ids are `crypto.randomUUID()`. `Math.max + 1` reused the ids of deleted tasks while history keeps them forever, so a new task could inherit an old one's archive — which daily habit copies would have made routine.
 - 🟥 Open: two ways to pause a habit now exist (`recurring.active: false`, or parking it in a bucket). Both are correct; the recurring page needs to show both or a stalled habit is unexplainable.
