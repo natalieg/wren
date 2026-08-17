@@ -247,13 +247,14 @@
         "y": 189,
         "width": 600,
         "height": 600,
-        "maximize": true,
+        "maximize": false,
         "zoom": 0
       }
     ]
   },
   "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.46804.deb45e651601",
     "_ROADMAP.md",
     "_Today.md",
     "_ROADMAP.md.tmp.23888.abc1f9476292",

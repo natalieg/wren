@@ -10,6 +10,7 @@ import { Divider } from '../../components/elements/Divider'
 import Input from '../../components/elements/Input'
 import DeleteFlag from '../../components/elements/DeleteFlag'
 import Button from '../../components/elements/Button'
+import ExportImport from './ExportImport'
 
 export default function Settings() {
    const { settings, updateSetting } = useSettingsContext()
@@ -130,7 +131,9 @@ export default function Settings() {
                   onChange={(value) => updateSetting('soundVolume', value)} />
             </div>
 
-            <div className='mt-4 pt-4 border-t border-border-soft'>
+            <ExportImport />
+            {/* DEBUG */}
+            <div className='mt-1 pt-4 border-t border-border-soft'>
                <p className='text-xs text-text-muted mb-2'>Developer</p>
                <button type='button' onClick={simulateRollover}
                   className='softButton'>

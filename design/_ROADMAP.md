@@ -116,8 +116,9 @@ Pulled forward out of Phase 14's shell restyle (2026-08-06) — waiting until th
 `area` (life-balance.md) needs to actually exist as a task field. Turned out to be a shared prerequisite for two different threads at once — life-balance's week/area tracking, and the gamification concept's stat system (task → area → stat, via the activity→stat mapping table in `design/wren-idle-konzept.md`) — so it earned its own phase rather than staying an unscheduled aside. (dependency reasoning, 2026-07-27: build areas *before* wiring anything directly task→stat, or it'd need a redesign once areas land anyway.)
 - 🟥 Open: `area` tag itself, archive-instead-of-delete — see `design/life-balance.md`.
 
-### Phase 6 — Simple Export/Import
+### ✅ Phase 6 — Simple Export/Import (closed 2026-08-18)
 Inbetween Broswerstorage and real Database, there is a need to save the json and being able to import it again 
+- ✅ 2026-08-18: `utils/backup.js` (`exportData`/`importData`) plus a dedicated `ExportImport.jsx` on the Settings page. Export bundles `history`, `tasks`, `settings`, `startedAt` and `trelloCredentials` into one downloadable JSON file; import validates the core keys' shape and asks for confirmation before overwriting localStorage. Deliberately excludes `breakDurations` (resets daily by design) and `gridView` (throwaway UI toggle).
 
 ### Project MVP
 

@@ -39,3 +39,9 @@ export const formatDatePlusName = (date) => {
    const options = { weekday: 'long', month: 'long', day: 'numeric' }
    return d.toLocaleDateString('en-GB', options) // rest of application is in english, day names should match
 }
+
+export const formatDateWithTime = (date) => {
+   const d = new Date(date)
+   const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }
+   return d.toLocaleDateString('de-DE', options)
+}

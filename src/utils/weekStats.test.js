@@ -45,7 +45,7 @@ describe('computeWeekStats', () => {
       expect(stats.days[0]).toMatchObject({ focusedMinutes: 0, breakMinutes: 0, taskCount: 0 })
    })
 
-   it('sums totals and formats the break:focus ratio', () => {
+   it('sums totals and formats the focus:break ratio as percentages', () => {
       const entries = [
          { date: mon.toDateString(), tasks: [{ id: 1, trackedTime: 3600, time: 60 }], breaks: [{ trackedTime: 1800 }] },
       ]
@@ -54,14 +54,14 @@ describe('computeWeekStats', () => {
 
       expect(stats.totalFocusedMinutes).toBe(60)
       expect(stats.totalBreakMinutes).toBe(30)
-      expect(stats.ratioText).toBe('1:2.0')
+      expect(stats.ratioText).toBe('66 ⊹ 33')
    })
 
    it('falls back when there is no break time logged', () => {
       const withFocus = computeWeekStats(mon, [{ date: mon.toDateString(), tasks: [{ id: 1, trackedTime: 0, time: 25 }] }])
-      expect(withFocus.ratioText).toBe('1:∞')
+      expect(withFocus.ratioText).toBe('100%')
 
       const empty = computeWeekStats(mon, [])
-      expect(empty.ratioText).toBe('–:–')
+      expect(empty.ratioText).toBe('–/–')
    })
 })
