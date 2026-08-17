@@ -4,6 +4,7 @@
 - History day entries show a color-coded breakdown of task time vs. each break type, with a legend and the biggest slice highlighted
 - New weekly overview above each week in History — collapsible bar chart of focus vs. break time per day plus task count, and total focused/off-the-clock/break-to-focus stats
 - Fix: Stopping breaks now also updates the 'active Timestamp' which influences how the 'estimate finish Time' is calculated
+- Update behaviour: Floating Task Panel now have the 'done' checkbox and can be 'finished' from anywhere
 
 ## 0.8.4 — 2026-08-16
 - "Notes" Textarea in Task Modal
