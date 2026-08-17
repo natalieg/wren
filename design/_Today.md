@@ -126,3 +126,17 @@
 	- [ ] priority on projects
 	- [ ] [tasks on projects?]
 
+### small Reward Sotre (pre req some gamification, or its just every x tasks or every x minutes of productivity)
+	- play meaningful game for 1h (costs 6 tasks)
+	- one picross
+	- painting (ohuhu)
+	- read 4-6 pages of a TBR book 
+- Store could also give 'random reward' or shelf to buy from
+- in contact with the whole 'gaming issue' maybe taking money away but not sure how good this would feel, balancing is always a question
+### Feature Question
+what kind of feature can i implement that
+- motivates me to do more 'real' things in the morning
+- do exercises first thing
+- do exercsies twice
+- reduce gaming
+- reward me for doing my tasks (especially work)
