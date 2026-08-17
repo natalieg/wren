@@ -5,8 +5,9 @@ describe('buildActivityActions', () => {
     const setup = ({ runningTaskId = null, runningBreakId = null } = {}) => {
         const taskActions = { startTracking: vi.fn(), stopTracking: vi.fn() }
         const breakActions = { startBreak: vi.fn(), stopBreak: vi.fn() }
-        const actions = buildActivityActions({ runningTaskId, runningBreakId, taskActions, breakActions })
-        return { actions, taskActions, breakActions }
+        const updateActionTime = vi.fn()
+        const actions = buildActivityActions({ runningTaskId, runningBreakId, taskActions, breakActions, updateActionTime })
+        return { actions, taskActions, breakActions, updateActionTime }
     }
 
     it('stops a running break before starting a task', () => {
@@ -49,13 +50,22 @@ describe('buildActivityActions', () => {
         expect(taskActions.stopTracking).not.toHaveBeenCalled()
     })
 
-    it('passes the plain stop actions straight through', () => {
-        const { actions, taskActions, breakActions } = setup({ runningTaskId: 'task-1', runningBreakId: 'break' })
+    it('passes stopTracking straight through', () => {
+        const { actions, taskActions } = setup({ runningTaskId: 'task-1' })
 
         actions.stopTracking()
-        actions.stopBreak()
 
         expect(taskActions.stopTracking).toHaveBeenCalledTimes(1)
+    })
+
+    // resuming from a break shouldn't let the idle break time count against task
+    // estimates, so stopping one bumps the same checkpoint editing a task does
+    it('bumps the action-time checkpoint when a break stops', () => {
+        const { actions, breakActions, updateActionTime } = setup({ runningBreakId: 'break' })
+
+        actions.stopBreak()
+
         expect(breakActions.stopBreak).toHaveBeenCalledTimes(1)
+        expect(updateActionTime).toHaveBeenCalledTimes(1)
     })
 })

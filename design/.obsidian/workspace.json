@@ -125,7 +125,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "_Today.md",
+                "file": "_ROADMAP.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -243,8 +243,8 @@
           }
         ],
         "direction": "vertical",
-        "x": -433,
-        "y": 298,
+        "x": -517,
+        "y": 189,
         "width": 600,
         "height": 600,
         "maximize": true,
@@ -252,14 +252,15 @@
       }
     ]
   },
-  "active": "ba12f0f247d43874",
+  "active": "087782a16aefba88",
   "lastOpenFiles": [
+    "_ROADMAP.md.tmp.23888.abc1f9476292",
+    "_Today.md",
+    "Pasted image 20260817003635.png",
+    "Feat Docking Area.md",
     "_Today.md.tmp.26808.9cbb095f81c7",
     "_ROADMAP.md.tmp.26808.1d3f9d17ecf6",
-    "Pasted image 20260817003635.png",
     "_ROADMAP.md",
-    "_Today.md",
-    "Feat Docking Area.md",
     "_ROADMAP.md.tmp.38788.0a0aae22e620",
     "2026-08-10.md",
     "_ROADMAP.md.tmp.38788.226a4729bff5",
@@ -269,7 +270,6 @@
     "_Today.md.tmp.58784.3cec9879a7a2",
     "_Today.md.tmp.58784.db2cc60a917a",
     "_ROADMAP.md.tmp.58784.3e1ec4373ba5",
-    "_Today.md.tmp.58784.a30a478237c6",
     "Time Tracking 260801.md",
     "working-agreement.md",
     "references-inventory.md",

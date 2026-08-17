@@ -14,13 +14,14 @@ function TasksProvider({ children }) {
 
     const tasks = useTasks()
     const breaks = useBreaksContext()
-    const { taskList, editingTaskId, runningTaskId, trackedSeconds } = tasks
+    const { taskList, editingTaskId, runningTaskId, trackedSeconds, setNewActionTime } = tasks
 
     const { startTracking, stopTracking, startBreak, stopBreak } = buildActivityActions({
         runningTaskId,
         runningBreakId: breaks.runningBreakId,
         taskActions: tasks.taskActions,
         breakActions: breaks,
+        setNewActionTime,
     })
 
     const taskActions = { ...tasks.taskActions, startTracking, stopTracking }

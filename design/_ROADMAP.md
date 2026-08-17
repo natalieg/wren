@@ -67,6 +67,7 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 - ✅ 2026-08-17: a configurable duration per break, with overflow into a red state + sound — mirrors the task time-estimate alert. Presets discussed ("[5] [15] [45] [✎]", no required ∞ slot — no selection *is* unlimited), defined break lengths can be delted/added
 - ✅ 2026-08-17: History day entries show a color-coded, stacked breakdown of task time vs. each break type (`MultiProgressbar` in `DayEntry.jsx`), with a legend (`DotItem`) and the biggest slice optionally highlighted (`markHighest`).
 - ✅ 2026-08-17: weekly rollup rendered above each week's entries in History (`WeekOverview.jsx`, collapsible, defaults open) — a Mon–Sun bar chart of focus vs. break time per day plus task count, and three stat tiles (total focused, total off-the-clock, break:focus ratio). Pure render over existing history data (`groupHistoryByWeek`/`computeWeekStats` in `utils/weekStats.js`), nothing new persisted.
+- 🔷 Recurring "break" tasks (2026-08-17): a recurring task (e.g. lunch) that stays visible in the tasklist but is visually distinct, and whose Play/Pause routes to `startBreak(type)`/`stopBreak()` instead of normal task tracking — so it counts as break time, not focused time. Needs no separate duration field of its own; reuses the break type's existing `breakTimes` config, and overrun behavior (red state) already works the same on both sides. Not urgent, but currently annoying to have these tracked as "focused" ("weils halt 'fake' ist haha").
 
 ### 🔷 Phase 5 - Project MVP
 - simple project with 
@@ -227,6 +228,7 @@ Work through the habit-tracker group, then the goals/curricula group, one at a t
 Originally: recreate this roadmap as a Wren project object and retire this file. Reconsidered — (once planning data lives only in Wren's own storage, Claude can't read or co-edit it directly the way a repo file works in conversation), which breaks the actual point of a *shared, collaborative* roadmap. **`ROADMAP.md` stays the canonical planning doc indefinitely**, regardless of anything else built in Wren itself. If an in-app view ever makes sense, it should be a display/mirror generated from this file, not a replacement that retires it.
 
 ### Unsorted Micro Tasks
+ - Word→emoji auto-replace, configurable in Settings (2026-08-17): user-defined list of trigger words that become an emoji (replace or append) while typing, generalizing the `[]` → 🟦 auto-convert already built (`convertBrackets`, `utils/checklistToggle.js`). Purely visual, no click behavior needed like the checklist emojis have — main design question is a word-boundary check so a trigger doesn't fire mid-word. ("immer wenn ich 'wren' in meine todoliste schreibe waere es eigentlich cute wenn ein vogel davor auftaucht")
  - `KeyboardSensor` for mouse-free reordering (moved out of Phase 3, 2026-08-10). Not blocked on code — it claims Space/Enter on a focused row and Space is already start/stop tracking, which stays.
  - Fill-up progress bar for the running task's own card, not just the modal.
    - Rename `time` → `timeLeft` once the data model needs to distinguish planned time from remaining time.

@@ -87,7 +87,7 @@ function useTasks() {
     if (!taskList.some(t => t.list === ACTIVE)) {
       setNewActionTime(new Date())
     }
-  })
+  }) 
 
   // un-finishing goes back to whichever list the task came from, falling back to active
   // for legacy tasks that never recorded one
@@ -239,7 +239,7 @@ function useTasks() {
 
   return {
     taskList, openTasks, nextUpTasks, backlogTasks, finishedTasks, taskActions,
-    startedAt, resetStartedAt, updateActionTime, runningTaskId, trackedSeconds, editingTaskId,
+    startedAt, resetStartedAt, updateActionTime, setNewActionTime, runningTaskId, trackedSeconds, editingTaskId,
   }
 }
 
