@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Divider } from './elements/Divider'
 
-export default function CollapsableDiv({ label, children, collapseAction }) {
-   const [collapsed, setCollapsed] = useState(true)
+export default function CollapsableDiv({ label, children, collapseAction, defaultOpen = false }) {
+   const [collapsed, setCollapsed] = useState(!defaultOpen)
 
    const handleClick = () => {
       setCollapsed(!collapsed)

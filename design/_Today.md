@@ -1,12 +1,6 @@
 
-## ▶ NOW: Break duration
-- [x] configurable length per break type, can overflow like tasks do (sound on overrun — maybe a different sound than the task alert)
-	- [x] presets: `[5] [15] [45] [✎]`, 
-	- [x] editable in settings, no forced ∞ slot 
-	- [x] v1 overflow scope: red background + sound once. No `+5min` extend button, no repeating alert yet.
-- [x] show running timer in tab with 🍵 for breaks 
-- [ ] History Overview of Breaktypes & Type
-- [ ] ![[Pasted image 20260817003635.png|656]]
+- [ ] #Review weekStats.js
+- [ ] #Review WeekOverview.jsx, extract potential general components
 
 - [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
 	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running

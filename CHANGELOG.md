@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.5 — 2026-08-17
+- History day entries show a color-coded breakdown of task time vs. each break type, with a legend and the biggest slice highlighted
+- New weekly overview above each week in History — collapsible bar chart of focus vs. break time per day plus task count, and total focused/off-the-clock/break-to-focus stats
+
 ## 0.8.4 — 2026-08-16
 - "Notes" Textarea in Task Modal
 - Can Add Subtasks in Notes (Current workaround before implementing 'real' subtasks)

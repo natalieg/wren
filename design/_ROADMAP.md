@@ -65,7 +65,8 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 - ✅ 2026-08-14: break types are fully optional now — the default 'break' type is no longer forced on. Disabling every type removes the whole panel (no timer, no icon); disabling the type a break is currently running under stops it automatically instead of leaving it ticking unseen.
 - ✅ 2026-08-14: the minimized panel's emoji toggles the running (or last-used) break type directly, instead of only being able to stop one already running.
 - ✅ 2026-08-17: a configurable duration per break, with overflow into a red state + sound — mirrors the task time-estimate alert. Presets discussed ("[5] [15] [45] [✎]", no required ∞ slot — no selection *is* unlimited), defined break lengths can be delted/added
-- Visalize in History the break durations vs Productive time
+- ✅ 2026-08-17: History day entries show a color-coded, stacked breakdown of task time vs. each break type (`MultiProgressbar` in `DayEntry.jsx`), with a legend (`DotItem`) and the biggest slice optionally highlighted (`markHighest`).
+- ✅ 2026-08-17: weekly rollup rendered above each week's entries in History (`WeekOverview.jsx`, collapsible, defaults open) — a Mon–Sun bar chart of focus vs. break time per day plus task count, and three stat tiles (total focused, total off-the-clock, break:focus ratio). Pure render over existing history data (`groupHistoryByWeek`/`computeWeekStats` in `utils/weekStats.js`), nothing new persisted.
 
 ### 🔷 Phase 5 - Project MVP
 - simple project with 
