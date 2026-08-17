@@ -1,4 +1,3 @@
-// TODO REVIEW
 import { effectiveMinutes, secondsToMinutes } from './formatTime'
 
 const DAY_LABELS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
@@ -37,10 +36,11 @@ function dayStats(entry) {
    return { focusedMinutes, breakMinutes: secondsToMinutes(breakSeconds), taskCount: entry.tasks.length }
 }
 
-// break:focus ratio as "1:X" — X is how many focus-units per one break-unit.
+// gives ratio in percentage
 function formatRatio(focusedMinutes, breakMinutes) {
-   if (breakMinutes <= 0) return focusedMinutes > 0 ? '1:∞' : '–:–'
-   return `1:${(focusedMinutes / breakMinutes).toFixed(1)}`
+   if (breakMinutes <= 0) return focusedMinutes > 0 ? '100%' : '–/–'
+   const sum = focusedMinutes + breakMinutes
+   return `${focusedMinutes / sum * 100 | 0} ⊹ ${breakMinutes / sum * 100 | 0}`
 }
 
 // Stats for one week's worth of history entries, always 7 days (Mon..Sun)
