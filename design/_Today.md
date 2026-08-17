@@ -6,6 +6,7 @@
 	- [x] v1 overflow scope: red background + sound once. No `+5min` extend button, no repeating alert yet.
 - [x] show running timer in tab with 🍵 for breaks 
 - [ ] History Overview of Breaktypes & Type
+- [ ] ![[Pasted image 20260817003635.png|656]]
 
 - [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
 	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running

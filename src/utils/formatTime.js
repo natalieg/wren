@@ -31,3 +31,8 @@ export const formatClockTime = (date) =>
 export const formatDate = (date) =>
    new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
+export const formatDatePlusName = (date) => {
+   const d = new Date(date)
+   const options = { weekday: 'long', month: 'long', day: 'numeric' }
+   return d.toLocaleDateString(undefined, options)
+}
