@@ -111,10 +111,11 @@ export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskTo
    )
 }
 
-export function TaskItemViewOnly({ task, isTracking, trackedSeconds, onToggleTracking }) {
-   const { label, trackedTime, time } = task
+export function TaskItemViewOnly({ task, isTracking, trackedSeconds, onToggleTracking, toggleDone }) {
+   const { label, trackedTime, time, id, done, } = task
    return (
       <div className="task-item flex justify-between items-center gap-2">
+         <Checkbox id={id} onToggle={toggleDone} checked={done} />
          <span className="select-none">{label}</span>
          <div className="flex gap-2 items-center">
             <PlayBtn onClick={onToggleTracking} active={isTracking} showAlways />

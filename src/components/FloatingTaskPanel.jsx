@@ -21,6 +21,7 @@ export default function FloatingTaskPanel() {
                 isTracking={true}
                 trackedSeconds={trackedSeconds}
                 onToggleTracking={taskActions.stopTracking}
+                toggleDone={taskActions.toggleDone}
             />
         </FloatingPanel>
     )
