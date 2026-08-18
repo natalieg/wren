@@ -7,8 +7,10 @@ import VerticalBar from '../../components/elements/VerticalBar'
 export default function WeekOverview({ weekStart, entries }) {
    const stats = computeWeekStats(weekStart, entries)
    const weekEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6)
-   // highest minutes of any day of this week
-   const maxMinutes = Math.max(1, ...stats.days.flatMap(d => [d.focusedMinutes, d.breakMinutes]))
+   // max focus minutes of week
+   const maxFocusMinutes = Math.max(1, ...stats.days.map(d => d.focusedMinutes))
+   // max break minutes of week
+   const maxBreakMinutes = Math.max(1, ...stats.days.map(d => d.breakMinutes))
    const maxFocusDay = stats.days.reduce((max, d) => d.focusedMinutes > max.focusedMinutes ? d : max, stats.days[0])
 
    return (
@@ -17,7 +19,7 @@ export default function WeekOverview({ weekStart, entries }) {
             {stats.days.map(day => (
                <VerticalBar key={day.label} value1={day.focusedMinutes} value2={day.breakMinutes}
                   hover1={formatTime(day.focusedMinutes)} hover2={formatTime(day.breakMinutes)} 
-                  maxValue={maxMinutes} label={day.label} subLabel={day.taskCount || ''} 
+                  maxValue1={maxFocusMinutes} maxValue2={maxBreakMinutes} label={day.label} subLabel={day.taskCount || ''} 
                   markSpecial={day === maxFocusDay} />
             ))}
          </div>
