@@ -247,13 +247,16 @@
         "y": 189,
         "width": 600,
         "height": 600,
-        "maximize": false,
+        "maximize": true,
         "zoom": 0
       }
     ]
   },
   "active": "ba12f0f247d43874",
   "lastOpenFiles": [
+    "_Today.md.tmp.31492.8e9a2886eb3c",
+    "unified-activity-model.md",
+    "unified-activity-model.md.tmp.31492.40615eb505ab",
     "_ROADMAP.md.tmp.46804.deb45e651601",
     "_ROADMAP.md",
     "_Today.md",
@@ -268,8 +271,6 @@
     "_ROADMAP.md.tmp.38788.34f47c1997aa",
     "_Today.md.tmp.38788.728acc3e41d9",
     "_ROADMAP.md.tmp.32740.53362232f4a3",
-    "_Today.md.tmp.58784.3cec9879a7a2",
-    "_Today.md.tmp.58784.db2cc60a917a",
     "Time Tracking 260801.md",
     "working-agreement.md",
     "references-inventory.md",
@@ -291,7 +292,6 @@
     "books.md",
     "2026-07-27.md",
     "decisions.md",
-    "🟡 Phase 1 — Daylist MVP (home page revival) — working.md",
-    "html/HTML TEST.md"
+    "🟡 Phase 1 — Daylist MVP (home page revival) — working.md"
   ]
 }

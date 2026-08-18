@@ -10,7 +10,8 @@ import Bar from '../elements/Bar'
 import LabeledField from '../elements/LabeledField'
 import CheckboxCount from '../CheckboxCount'
 
-export default function TaskEditModalBody({ task, closeModal, isRunning, trackedSeconds, taskActions }) {
+//todo refine 'focus mode' styling
+export default function TaskEditModalBody({ task, closeModal, isRunning, trackedSeconds, taskActions, className, focusMode }) {
    const { id, label, notes, time, trackedTime = 0 } = task
    const { handleFieldChange, toggleDone, toggleActive, startTracking, stopTracking } = taskActions
    const done = task.list === DONE
@@ -43,9 +44,8 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
 
    return (
 
-      <div id={`taskEditModalBody_${id}`} className={`flex gap-2`}>
-
-         <div className='flex flex-col gap-2 w-full'>
+      <div id={`taskEditModalBody_${id}`} className={`flex gap-2 max-w-200 mx-auto px-2 overflow-y-auto ${className || ''} ${focusMode ? 'h-[70vh]' : ''}`}>
+         <div className={`flex flex-col w-full  ${focusMode ? 'gap-8 pt-4' : ' gap-2'}`}>
             <div className='flex flex-col pl-8 gap-1 w-full'>
                {/* Active/Inactive Tag + bucket, only relevant once parked */}
                <div className='pl-0 -mt-1 flex gap-2 items-center justify-between'>
@@ -105,7 +105,8 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                {/* Progress Bar, tracked Time  */}
                {(thisTrackedTime > 0 || isRunning) &&
                   <div className='my-2'>
-                     <Bar percent={thisTrackedTime / minutesToSeconds(time) * 100} overflowEffect={true} />
+                     <Bar percent={thisTrackedTime / minutesToSeconds(time) * 100} overflowEffect={true} 
+                     height={focusMode ? 'h-6' : 'h-2'}/>
                   </div>
                }
             </div>
@@ -122,7 +123,7 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                      onKeyDown={handleKeyDown}
                   />
                   <label className='text-[14px] ml-2 -mb-2'>Notes</label>
-                  {notes && notes?.length > 0 && <CheckboxCount text={notes}/>}
+                  {notes && notes?.length > 0 && <CheckboxCount text={notes} />}
                   <Textarea
                      placeholder="Add SubTasks with []"
                      value={notes}

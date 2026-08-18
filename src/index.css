@@ -329,7 +329,6 @@
 }
 
 .bar {
-  height: 8px;
   width: 100%;
   background: var(--color-border-soft);
   border-radius: var(--radius-pill);

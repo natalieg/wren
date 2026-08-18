@@ -6,7 +6,7 @@ import { ModalMaximize, ModalMinimize, ModalClose } from './ModalIcons'
 const titleBarStyle = { background: 'linear-gradient(135deg, #a56bff, #f7719e)' }
 
 // TODO test
-export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, children }) {
+export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, children, onMinimize, onMaximize }) {
    useEffect(() => {
       const handleKeyDown = (e) => e.key === 'Escape' && onClose?.()
       document.addEventListener('keydown', handleKeyDown)
@@ -23,8 +23,8 @@ export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, chi
                <span>{title}</span>
                <span className='flex gap-1.5'>
                   {/* TODO add real function for min/max */}
-                  {/* <ModalMinimize onMinimize={() => console.log('minimize')} />
-                  <ModalMaximize onMaximize={() => console.log('maximize')} /> */}
+                  {onMinimize && <ModalMinimize onMinimize={onMinimize} />}
+                  {onMaximize && <ModalMaximize onMaximize={onMaximize} />}
                   <ModalClose onClose={onClose} />
                </span>
             </div>
@@ -41,4 +41,6 @@ Modal.propTypes = {
    title: PropTypes.string,
    onClose: PropTypes.func,
    children: PropTypes.node,
+   onMinimize: PropTypes.func,
+   onMaximize: PropTypes.func,
 }

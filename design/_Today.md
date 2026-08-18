@@ -1,6 +1,23 @@
 
-- [ ] #Review weekStats.js
-- [ ] #Review WeekOverview.jsx, extract potential general components
+## 🤖 Unified Activity Refactor (`design/unified-activity-model.md`)
+
+- [ ] 🤖 Phase 1 — add `sessions[]` alongside existing fields (tasks + breaks), don't remove `trackedTime`/`finishedTimestamp` yet
+	- [ ] 🤖 `useTracker.js` records start/stop pairs
+	- [ ] 🤖 `useBreakTracking.js` writes sessions alongside `breakDurations`
+	- [ ] 🤖 `useTasks.js`/`useTimeTracking.js` writes sessions alongside `trackedTime`
+- [ ] 🤖 Phase 2 — point reads at `sessions[]` instead of old fields, one consumer at a time
+	- [ ] 🤖 tracked-time displays (`TimeFlag`, task modal, `PausePanel.jsx`)
+	- [ ] 🤖 History views (`DayEntry.jsx`, `WeekOverview.jsx`, `weekStats.js`)
+	- [ ] 🤖 `breakTimeByType` (`utils/breaks.js`)
+- [ ] 🤖 Phase 3 — merge task + break storage into one `activities` array
+	- [ ] 🤖 lock in the final `Activity` shape (kind, list, sessions, kind-specific fields)
+	- [ ] 🤖 legacy adapter for old `tasks`/`breakDurations`/`history` localStorage keys
+	- [ ] 🤖 merge `TasksProvider`/`BreaksProvider` into one store
+- [ ] 🤖 Phase 4 — history becomes a derived filter over `activities`, not a stored duplicate
+	- [ ] 🤖 delete `addToHistory`/`addBreakToHistory`/`removeFromHistory`
+- [ ] 🤖 Phase 5 — delete legacy fields + adapters once nothing reads them
+	- [ ] 🤖 drop `trackedTime`/`finishedTimestamp`/`breakDurations` key
+
 
 - [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
 	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running

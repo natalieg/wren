@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import TasksContext from './TasksContext'
 import TrackingContext from './TrackingContext'
@@ -11,54 +11,56 @@ import Modal from '../components/elements/Modal'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
 
 function TasksProvider({ children }) {
+   const tasks = useTasks()
+   const breaks = useBreaksContext()
+   const { taskList, editingTaskId, runningTaskId, trackedSeconds, setNewActionTime } = tasks
+   const { startTracking, stopTracking, startBreak, stopBreak } = buildActivityActions({
+      runningTaskId,
+      runningBreakId: breaks.runningBreakId,
+      taskActions: tasks.taskActions,
+      breakActions: breaks,
+      setNewActionTime,
+   })
+   const taskActions = { ...tasks.taskActions, startTracking, stopTracking }
+   const TasksContextValue = { ...tasks, taskActions }
+   const [modalBig, setModalBig] = useState(false)
 
-    const tasks = useTasks()
-    const breaks = useBreaksContext()
-    const { taskList, editingTaskId, runningTaskId, trackedSeconds, setNewActionTime } = tasks
+   useTaskKeyboardShortcuts(taskList, {
+      ...taskActions,
+      runningTaskId,
+   })
 
-    const { startTracking, stopTracking, startBreak, stopBreak } = buildActivityActions({
-        runningTaskId,
-        runningBreakId: breaks.runningBreakId,
-        taskActions: tasks.taskActions,
-        breakActions: breaks,
-        setNewActionTime,
-    })
+   const runningTask = taskList.find(t => t.id === runningTaskId)
+   useTabTitle((runningTask?.trackedTime || 0) + trackedSeconds, runningTask?.label || '',)
 
-    const taskActions = { ...tasks.taskActions, startTracking, stopTracking }
-    const TasksContextValue = { ...tasks, taskActions }
+   // Modal survives route changes, unlike floating panels
+   const location = useLocation()
+   useEffect(() => {
+      taskActions.setEditingTaskId(null)
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- pathname change only
+   }, [location.pathname])
 
-    useTaskKeyboardShortcuts(taskList, {
-        ...taskActions,
-        runningTaskId,
-    })
+   // Find editing task by ID from full taskList
+   const editingTask = taskList.find(t => t.id === editingTaskId)
 
-    const runningTask = taskList.find(t => t.id === runningTaskId)
-    useTabTitle((runningTask?.trackedTime || 0) + trackedSeconds, runningTask?.label || '', )
-
-    // Modal survives route changes, unlike floating panels
-    const location = useLocation()
-    useEffect(() => {
-        taskActions.setEditingTaskId(null)
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- pathname change only
-    }, [location.pathname])
-
-    // Find editing task by ID from full taskList
-    const editingTask = taskList.find(t => t.id === editingTaskId)
-
-    return <TasksContext.Provider value={TasksContextValue}>
-       <TrackingContext.Provider value={{ startTracking, stopTracking, startBreak, stopBreak }}>
-          {children}
-          {editingTask &&
-             <Modal title='edit task' width='w-120' onClose={() => taskActions.setEditingTaskId(null)}>
-                <TaskEditModalBody
-                   isRunning={editingTask.id === runningTaskId}
-                   trackedSeconds={trackedSeconds}
-                   task={editingTask}
-                   taskActions={taskActions}
-                   closeModal={() => taskActions.setEditingTaskId(null)} />
-             </Modal>}
-       </TrackingContext.Provider>
-    </TasksContext.Provider>
+   return <TasksContext.Provider value={TasksContextValue}>
+      <TrackingContext.Provider value={{ startTracking, stopTracking, startBreak, stopBreak }}>
+         {children}
+         {editingTask &&
+            <Modal title={editingTask.label} width={modalBig ? 'w-[90%] h-[80%]' : 'w-120'}
+               onMaximize={() => setModalBig(true)}
+               onMinimize={() => setModalBig(false)}
+               onClose={() => taskActions.setEditingTaskId(null)}>
+               <TaskEditModalBody
+                  isRunning={editingTask.id === runningTaskId}
+                  trackedSeconds={trackedSeconds}
+                  task={editingTask}
+                  taskActions={taskActions}
+                  focusMode={modalBig}
+                  closeModal={() => taskActions.setEditingTaskId(null)} />
+            </Modal>}
+      </TrackingContext.Provider>
+   </TasksContext.Provider>
 }
 
 export default TasksProvider
