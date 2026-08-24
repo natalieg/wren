@@ -18,6 +18,11 @@
 - [ ] 🤖 Phase 5 — delete legacy fields + adapters once nothing reads them
 	- [ ] 🤖 drop `trackedTime`/`finishedTimestamp`/`breakDurations` key
 
+- [ ] copy button in task modal 
+
+- [ ] auto copy new 🟦 subtasks into copied task of the same name family (checkbox directly below notes) 
+	- [ ] mvp: one directional, better: check state etc, but maybe this is only possible for real subtasks?
+- [ ] alt: if a task is checked that has open 🟦 maybe copy the open 🟦 into an automated copy, this should be something to check/uncheck in the modal 
 
 - [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
 	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running
@@ -135,6 +140,22 @@
 			- usability: next box is only unlocked if the prev phase is finished, this could also be set as conditional/nonconditional in the template (eg, pages are not really force connected, while linearts always need sketches first, tho usually one works linear, but sometimes it happens that one is able to finish page 20 before they finish page 19)
 - if dashed line for every drag: **Yes — and it's genuinely one line.** Just don't pass `onMoveAcrossLists` to `TaskDndArea`. No live move means no list ever receives the real row, so the placeholder rule fires everywhere, and in-list sorting keeps its normal animation either way.
 
+ ### dedicated work area
+- dedicated 'work' space, this is for one project only, concentrating on the tasks for that project alone, can be useful for stuff like client projects, to not be distracted by other things
+- can have its own 'time for today' bar at the top, eg i want to work 5h on this project today 
+- has its own pomo session timer
+- can sort through tasks like the user would on the main page, with just project related tasks 
+- list handling - helping the user to decide between different tasks (important, now, small etc)
+- this could in the long run ween me from clickup if it has its own time tracking overview (weekview for this project, time entries can be edited, relate to tasks, also a field for free time entry if its general work on project without tracking a special task)
+
+### reward systems
+- reward for longer work sessions, or general stuff 
+	- eg work has three steps 1h minimum, 4h median, 6-7h 👑
+	- maybe there could be somthing that indicates which state is reached at this point
+	- some collactibles as reward for long long sessions, reaching those special goals
+- could be implemented for almost everything that has recurring needs, areas or projects
+
+
 #### Integrate in Roadmap:
 
 - [ ] Task Priorities 
@@ -157,3 +178,39 @@ what kind of feature can i implement that
 - do exercsies twice
 - reduce gaming
 - reward me for doing my tasks (especially work)
+
+### GAMIFICATION
+
+strong connection to ragnarok online but with a twist
+
+once we have areas, those can double as 'skills' or influence stats rather
+eg yoga gives int and vit
+rorgramming int and dex and so on
+
+you start as an acolyte, you can choose your next class once youre level 12 AND you have the according skills: eg
+20int 
+20dex for aco
+
+20dex
+20 agi for archer and so on
+
+i can use the ragnarok skilltree for further class progressions
+you can progress through multiple skill trees but only after rebirth and the second class costs more skill points or something
+
+gaming, junkfood etc make the chara lose hp
+when the hp is below 20, they cannot earn exp, effectively blocking the user until they change their behaviour 
+
+maybe include sp for class related skills eg 
+blessing from aco : make you earn 20% more exp
+agi from archer: make you gain more 40% exp from exercise activities
+x from dancer: more exp from art related and so on
+
+### Wandering Subtasks
+
+connected to workblock tasks like my 'work for 45 minutes'
+right now, if i doublicate tasks they all get the same subtasks which already helps, and having the top tasks i want to tackle for a project is great
+
+some thoughts: this could also be done in the main project page, that i pin the 'tasks for this week' that i evaluate each week new, unfinished tasks can stay or pushed down to the backlog / with another deadline 
+tasks with a deadline for this week sort themselves automatically into the block
+
+i think if i think of tasks as a bigger picture than just 'task' as to-do, timeblocks themselves are a valid 'task' that dont hold a certain todo themselves but are rather connected to a project or an area and are populated by the tasks that are related to that area. this could also solve the 'how to introduce pomodoro' to the project, as timeblocks themselves can behave like pomodoro workblocks
