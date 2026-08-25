@@ -15,6 +15,11 @@ export function buildActivityActions({ runningTaskId, runningBreakId, taskAction
       if (runningTaskId) taskActions.stopTracking()
       if (runningBreakId) breakActions.stopBreak()
       breakActions.startBreak(breakType)
+      // a planned break duration pushes the estimate cascade out immediately, instead
+      // of leaving it stale until the break actually stops
+      if (breakActions.maxBreakTime) {
+         setNewActionTime(new Date(Date.now() + breakActions.maxBreakTime * 1000))
+      }
    }
 
    //needs to use the newAction time directly instead of the 'update', this should always fire, even if there are tasks 'active'
