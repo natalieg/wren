@@ -9,11 +9,12 @@ import { secondsToMinutes, minutesToSeconds, formatTimeWithSeconds } from '../..
 import Bar from '../elements/Bar'
 import LabeledField from '../elements/LabeledField'
 import CheckboxCount from '../CheckboxCount'
+import CheckboxWithLabel from '../elements/CheckboxWithLabel'
 
 //todo refine 'focus mode' styling
-export default function TaskEditModalBody({ task, closeModal, isRunning, trackedSeconds, taskActions, className, focusMode }) {
-   const { id, label, notes, time, trackedTime = 0 } = task
-   const { handleFieldChange, toggleDone, toggleActive, startTracking, stopTracking } = taskActions
+export default function TaskEditModalBody({ task, closeModal, isRunning, trackedSeconds, taskActions, className, focusMode, notesOutOfSync }) {
+   const { id, label, notes, noteSynch, time, trackedTime = 0 } = task
+   const { handleFieldChange, toggleDone, toggleActive, toggleNoteSynch, startTracking, stopTracking } = taskActions
    const done = task.list === DONE
    const isBacklog = task.list === BACKLOG
    const isActive = task.list === ACTIVE
@@ -105,8 +106,8 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                {/* Progress Bar, tracked Time  */}
                {(thisTrackedTime > 0 || isRunning) &&
                   <div className='my-2'>
-                     <Bar percent={thisTrackedTime / minutesToSeconds(time) * 100} overflowEffect={true} 
-                     height={focusMode ? 'h-6' : 'h-2'}/>
+                     <Bar percent={thisTrackedTime / minutesToSeconds(time) * 100} overflowEffect={true}
+                        height={focusMode ? 'h-6' : 'h-2'} />
                   </div>
                }
             </div>
@@ -123,7 +124,16 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                      onKeyDown={handleKeyDown}
                   />
                   <label className='text-[14px] ml-2 -mb-2'>Notes</label>
-                  {notes && notes?.length > 0 && <CheckboxCount text={notes} />}
+                  <div className='flex gap-2 items-center justify-between -mb-2'>
+                     {notes && notes?.length > 0 && <CheckboxCount text={notes} />}
+                     <div className='flex items-center gap-2'>
+                        {notesOutOfSync &&
+                           <span className='text-[12px] text-gold' title="Other copies of this task are still synching notes — this one isn't">
+                              ⚠ out of sync
+                           </span>}
+                        <CheckboxWithLabel onChange={() => toggleNoteSynch(id)} checked={noteSynch} label="Sync Notes" />
+                     </div>
+                  </div>
                   <Textarea
                      placeholder="Add SubTasks with []"
                      value={notes}

@@ -20,7 +20,7 @@
 
 - [ ] copy button in task modal 
 
-- [ ] auto copy new 🟦 subtasks into copied task of the same name family (checkbox directly below notes) 
+- [ ] 📌auto copy new 🟦 subtasks into copied task of the same name family (checkbox directly below notes) 
 	- [ ] mvp: one directional, better: check state etc, but maybe this is only possible for real subtasks?
 - [ ] alt: if a task is checked that has open 🟦 maybe copy the open 🟦 into an automated copy, this should be something to check/uncheck in the modal 
 

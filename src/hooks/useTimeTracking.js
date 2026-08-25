@@ -5,6 +5,11 @@ import useTracker from './useTracker'
 // on top" reorder. It takes setTaskList because trackedTime lives on the task, but
 // it never touches `list` — list changes belong to useTasks/taskTransitions.
 function useTimeTracking(setTaskList) {
+  // TODO 4 (Phase 1 — unified-activity-model.md): once useTracker exposes session
+  // timestamps (TODO 1-3), also append { started, stopped } to task.sessions[] here,
+  // alongside the existing trackedTime accumulation — don't replace trackedTime yet,
+  // this phase is purely additive. Existing tasks won't have a `sessions` field yet
+  // (`task.sessions || []` style guard, same pattern as normalizeTask in useTasks.js).
   const handleFlush = (taskId, secondsToFlush) => {
     setTaskList(currentTaskList => currentTaskList.map(task => {
       if (task.id !== taskId) return task

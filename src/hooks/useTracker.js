@@ -36,10 +36,20 @@ function useTracker(onFlush) {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [runningId])
 
+  // TODO 2 (Phase 1): decide before implementing — does the 5min failsafe interval
+  // below count as its own session boundary (one continuous run = several short
+  // sessions, one per flush), or should a session span from real start() to real
+  // stop() regardless of how many failsafe flushes happened in between (one
+  // continuous run = one session, just flushed piecemeal)? Open question, also
+  // flagged in design/unified-activity-model.md — this changes what `onFlush` needs
+  // to receive (just seconds, like now, or a started/stopped pair per call).
   const flush = () => {
     if (!runningId || !trackingStartTime.current) return
     const elapsedMs = Date.now() - trackingStartTime.current
     const secondsToFlush = Math.floor(elapsedMs / 1000)
+    // TODO 3 (Phase 1): once TODO 2 is decided, this call likely needs to also pass
+    // along the session's started/stopped timestamps (not just secondsToFlush) so
+    // useTimeTracking/useBreakTracking can append to sessions[] here.
     onFlush(runningId, secondsToFlush)
     // Session-Reset: neue Baseline, um die angefangene Sekunde zurückversetzt —
     // sonst verfällt der Rest bei jedem Flush und die Uhr geht pro 5min bis zu 1s nach
@@ -55,6 +65,10 @@ function useTracker(onFlush) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runningId])
 
+  // TODO 1 (Phase 1 — unified-activity-model.md): capture this session's start
+  // timestamp (`new Date()`) somewhere callers can read it back — trackingStartTime
+  // is currently just an internal ref for tick math, not exposed. Needed so a
+  // { started, stopped } pair can be built once the session ends.
   const start = (id) => setRunningId(id)
 
   const stop = () => {

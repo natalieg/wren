@@ -1,3 +1,5 @@
+import { DONE } from '../utils/constants'
+
 export function getNextCopyTitle(label, allTasks) {
    // match "name 1", "name 2", etc. and extract the base name and number
    const m = label.match(/^(.*?)\s+(\d+)$/);
@@ -28,3 +30,19 @@ export function getPrevCopyIndex(label, allTasks) {
 
    return lastIdx;
 }
+
+export function getAllCopies(label, allTasks) {
+   const m = label.match(/^(.*?)\s+(\d+)$/);
+   const baseName = m ? m[1] : label;
+   return allTasks.filter(t => {
+      const match = t.label.match(/^(.*?)\s+(\d+)$/);
+      const tBase = match ? match[1] : t.label;
+      return tBase === baseName && t.label !== label;
+   });
+}
+
+// get all open copies of a task
+export function getOpenCopies(label, allTasks) {
+   return getAllCopies(label, allTasks).filter(t => t.list !== DONE)
+}
+

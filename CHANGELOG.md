@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.7 — 2026-08-25
+- Notes can be synched through a family of tasks (eg Task 1, Task 2,...)
+- Finished tasks that are set unfinished again will be asynchronos by design 
+- ⚠️ Attention: This is no advenced synch feature, if multiple tasks in a family exist, the last task that is set to 'synch tasks' will win - other notes will be overwritten.
+
 ## 0.8.6 — 2026-08-18
 - Export/import: back up history, tasks, settings and Trello credentials to a JSON file from Settings, and restore from one — a stopgap against losing months of browser-only data before there's a real database.
 

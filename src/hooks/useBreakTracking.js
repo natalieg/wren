@@ -34,6 +34,11 @@ function useBreakTracking({ onBreakFinished }) {
       localStorage.setItem(DURATIONS_STORAGE_KEY, JSON.stringify({ day: today, durations: breakDurations }))
    }, [breakDurations])
 
+   // TODO 5 (Phase 1 — unified-activity-model.md): once useTracker exposes session
+   // timestamps (TODO 1-3), also collect { started, stopped } here alongside
+   // breakDurations — same additive pattern as TODO 4 on the task side. Note this
+   // accumulator is per breakType.id, not per Activity — sessions need to end up
+   // wherever the break-type's own Activity record lives once Phase 3 merges storage.
    const handleFlush = (typeId, secondsToFlush) => {
       sessionSecondsRef.current += secondsToFlush
       setSessionSeconds(sessionSecondsRef.current)
@@ -59,6 +64,12 @@ function useBreakTracking({ onBreakFinished }) {
       if (!runningBreakId) return
       const breakType = runningBreakType.current
       stop()
+      // TODO 6 (Phase 1): this is the one place a finished break session currently
+      // gets logged (one object per completed break, pushed to history's breaks[]
+      // by BreaksProvider). Once sessions[] exists, decide whether this payload
+      // also carries the session list for that break, or whether history reads
+      // sessions straight off the break-type's own Activity instead (this ties into
+      // Phase 4's "history becomes a derived filter" — don't build both).
       if (sessionSecondsRef.current > 0) {
          onBreakFinished({
             id: newTaskId(),

@@ -10,9 +10,9 @@ function countCompletion(task, delta) {
 
 export const listRules = {
    [DONE]: {
-      // entering done increments completion count
+      // entering done increments completion count, and drops out of note-sync (can't be synced into anymore)
       enter: (t, from) => countCompletion(
-         { ...t, previousList: from, finishedTimestamp: new Date() }, 1),
+         { ...t, previousList: from, finishedTimestamp: new Date(), noteSynch: false }, 1),
       // leaving done decrements completion count
       leave: (t) => countCompletion(
          { ...t, previousList: undefined, finishedTimestamp: null }, -1),

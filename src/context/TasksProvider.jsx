@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import TasksContext from './TasksContext'
 import TrackingContext from './TrackingContext'
 import useTasks from '../hooks/useTasks'
+import { getOpenCopies } from '../hooks/useTaskCopy'
 import useBreaksContext from '../hooks/useBreaksContext'
 import useTaskKeyboardShortcuts from '../hooks/useTaskKeyboardShortcuts'
 import useTabTitle from '../hooks/useTabTitle'
@@ -42,6 +43,9 @@ function TasksProvider({ children }) {
 
    // Find editing task by ID from full taskList
    const editingTask = taskList.find(t => t.id === editingTaskId)
+   // true when this task opted out of synching but a sibling in its family is still synching
+   const notesOutOfSync = editingTask && !editingTask.noteSynch &&
+      getOpenCopies(editingTask.label, taskList).some(t => t.noteSynch)
 
    return <TasksContext.Provider value={TasksContextValue}>
       <TrackingContext.Provider value={{ startTracking, stopTracking, startBreak, stopBreak }}>
@@ -57,6 +61,7 @@ function TasksProvider({ children }) {
                   task={editingTask}
                   taskActions={taskActions}
                   focusMode={modalBig}
+                  notesOutOfSync={notesOutOfSync}
                   closeModal={() => taskActions.setEditingTaskId(null)} />
             </Modal>}
       </TrackingContext.Provider>
