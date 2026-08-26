@@ -52,8 +52,8 @@ function TasksProvider({ children }) {
          {children}
          {editingTask &&
             <Modal title={editingTask.label} width={modalBig ? 'w-[90%] h-[80%]' : 'w-120'}
-               onMaximize={() => setModalBig(true)}
-               onMinimize={() => setModalBig(false)}
+               onMaximize={modalBig ? undefined : () => setModalBig(true)}
+               onMinimize={!modalBig ? undefined :() => setModalBig(false)}
                onClose={() => taskActions.setEditingTaskId(null)}>
                <TaskEditModalBody
                   isRunning={editingTask.id === runningTaskId}

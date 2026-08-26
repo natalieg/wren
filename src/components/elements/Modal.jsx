@@ -28,7 +28,7 @@ export default function Modal({ title = 'wren.exe', width = 'w-80', onClose, chi
                   <ModalClose onClose={onClose} />
                </span>
             </div>
-            <div className='p-4 font-body text-text-primary'>
+            <div className='p-2 font-body text-text-primary'>
                {children}
             </div>
          </div>
