@@ -31,6 +31,7 @@ export default function Sidebar({ className }) {
          </div>
          <SidebarButton to="/">Home</SidebarButton>
          {/* //TODO */}
+         <SidebarButton to="/areas">Areas</SidebarButton>
          <SidebarButton to="/backlog">Backlog</SidebarButton>
          <SidebarButton to="/history">History</SidebarButton>
          <br />
