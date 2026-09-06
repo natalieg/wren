@@ -19,10 +19,12 @@
 	- [ ] 🤖 drop `trackedTime`/`finishedTimestamp`/`breakDurations` key
 
 - [ ] copy button in task modal 
+	- [ ] also 'copy for tomorrow' - automatically in 'next up' (if i want to keep the synch active there, i need to tackle those that are parked as well)
 
-- [ ] 📌auto copy new 🟦 subtasks into copied task of the same name family (checkbox directly below notes) 
-	- [ ] mvp: one directional, better: check state etc, but maybe this is only possible for real subtasks?
-- [ ] alt: if a task is checked that has open 🟦 maybe copy the open 🟦 into an automated copy, this should be something to check/uncheck in the modal 
+- [x] 📌auto copy new 🟦 subtasks into copied task of the same name family (checkbox directly below notes) 
+	- [x] mvp: one directional, better: check state etc, but maybe this is only possible for real subtasks?
+
+
 
 - [ ] in settings: security 'track for max x hours of inactivity' for when the user forgets to close the app 
 	- [ ] this should also gett a flag 'auto stopped' so its easily seen as something that was kept running
@@ -214,3 +216,8 @@ some thoughts: this could also be done in the main project page, that i pin the 
 tasks with a deadline for this week sort themselves automatically into the block
 
 i think if i think of tasks as a bigger picture than just 'task' as to-do, timeblocks themselves are a valid 'task' that dont hold a certain todo themselves but are rather connected to a project or an area and are populated by the tasks that are related to that area. this could also solve the 'how to introduce pomodoro' to the project, as timeblocks themselves can behave like pomodoro workblocks
+
+### Desi Testing
+- active/deactive als toggle
+- notes area mit enter nicht verlassen
+- tooltips xD (vor allem im edit window)
