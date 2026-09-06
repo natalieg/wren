@@ -34,23 +34,6 @@ export default function Character() {
 
   const [userExp, setUserExp] = useState(0)
 
-  const changeFinishedStatus = (taskId) => {
-    const taskNowFinished = dummyData.find(task => task.id === taskId)?.finished;
-    setDummyData(prevData => {
-      const updatedData = prevData.map(task => {
-        if (task.id === taskId) {
-          return { ...task, finished: !task.finished };
-        }
-        return task;
-      });
-      return updatedData;
-    });
-    setUserExp(prevExp => prevExp + (taskNowFinished ? -1 : 1));
-    if (!taskNowFinished) {
-      areaObject.stats.forEach(statName => addStatExp(statName, task.effort))
-    }
-  }
-
   // task is marked finished > 
   // which area?
   // howmuch effort?
@@ -150,25 +133,6 @@ export default function Character() {
       </div>
 
       <br />
-      <p>Dummy Data</p>
-
-      <div>
-        {dummyData.map(task => (
-          <div key={task.id}>
-            <p>Label: {task.label}</p>
-            <p>Finished: {task.finished ? 'Yes' : 'No'}</p>
-            <p>Time: {task.time}</p>
-            <p>List: {task.list}</p>
-            <p>Area: {task.area}</p>
-            <p>Effort: {task.effort}</p>
-            <button className='bg-blue-500 text-white px-4 py-2 rounded'
-              onClick={() => changeFinishedStatus(task.id)}>
-              {task.finished ? 'Mark as Unfinished' : 'Mark as Finished'}
-            </button>
-          </div>
-        ))}
-        <p>User Experience: {userExp}</p>
-      </div>
 
     </DocWrapper>
   )
