@@ -92,7 +92,8 @@ export default function Character() {
           </button>
         </div>
 
-        <p>Class: {character.class.id}, Level: {character.class.level}, Exp: {character.class.exp}</p>
+        <p>Class: {character.class.id}, Level: {character.class.level}, Exp: {character.class.exp} (Gesamt: {character.class.totalExp})</p>
+
         <div className="flex items-center gap-2">
           <p>Activated: {character.activated ? 'Ja' : 'Nein'}</p>
           <button className={`softButton mt-0 min-w-40 mx-auto block`} onClick={() => updateCharacter('activated', !character.activated)}>

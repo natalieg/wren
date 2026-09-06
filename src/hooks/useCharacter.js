@@ -14,6 +14,7 @@ function useCharacter() {
         setCharacter(current => ({ ...current, [key]: value }))
     }
 
+
     function addStatExp(statKey, expToAdd) {
         setCharacter(current => {
             if (current.activated === false) {
@@ -21,12 +22,27 @@ function useCharacter() {
                 return current
             }
             const stat = current.stats[statKey]
-            const newStatExp = stat.exp + expToAdd
-            const newStatLevel = newStatExp >= getExpForNextLevel(stat.level) ? stat.level + 1 : stat.level
+            //const newStatExp = stat.exp + expToAdd
+            //const newStatLevel = newStatExp >= getExpForNextLevel(stat.level) ? stat.level + 1 : stat.level
+            let newStatExp = stat.exp + expToAdd
+            let newStatLevel = stat.level
 
-            const newClassExp = current.class.exp + expToAdd
-            const newClassLevel = newClassExp >= getExpForNextClassLevel(current.class.level) ? current.class.level + 1 : current.class.level
+            while (newStatExp >= getExpForNextLevel(newStatLevel)) {
+            newStatExp -= getExpForNextLevel(newStatLevel)
+            newStatLevel += 1
+            }
 
+            //const newClassExp = current.class.exp + expToAdd
+            //const newClassLevel = newClassExp >= getExpForNextClassLevel(current.class.level) ? current.class.level + 1 : current.class.level
+
+            let newClassExp = current.class.exp + expToAdd
+            let newClassLevel = current.class.level
+
+            while (newClassExp >= getExpForNextClassLevel(newClassLevel)) {
+                newClassExp -= getExpForNextClassLevel(newClassLevel)
+                newClassLevel += 1
+            }
+            
             return {
                 ...current,
                 stats: {
@@ -36,7 +52,8 @@ function useCharacter() {
                 class: {
                     ...current.class,
                     level: newClassLevel,
-                    exp: newClassExp
+                    exp: newClassExp,
+                    totalExp: current.class.totalExp + expToAdd
                 }
             }
         })

@@ -3,7 +3,7 @@ export const CHARACTER_STORAGE_KEY = 'character'
 export const DEFAULT_CHARACTER = {
     name: 'Unnamed',
     activated: false, 
-    class: { id: 'Novice', level: 1, exp: 0 },
+    class: { id: 'Novice', level: 1, exp: 0, totalExp: 0 },
     hp: { current: 100, max: 100 },
     stats: {
         str: { level: 1, exp: 0 },
