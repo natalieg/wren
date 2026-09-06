@@ -2,7 +2,7 @@ import './App.css'
 import { Routes, Route } from 'react-router-dom'
 import Sidebar from './pages/Sidebar'
 import Main from './pages/Main'
-import Areas from './pages/areas'
+import Character from './pages/character'
 import IndexProject from './pages/projectView/indexProject'
 import Backlog from './pages/Backlog'
 import History from './pages/history/History'
@@ -28,7 +28,7 @@ function App() {
                      <div className='flex-1 overflow-auto' style={{ background: 'var(--color-bg-base)' }}>
                         <Routes>
                            <Route path='/' element={<Main />} />
-                           <Route path='/areas' element={<Areas />} />
+                           <Route path='/character' element={<Character />} />
                            <Route path='/backlog' element={<Backlog />} />
                            <Route path='/history' element={<History />} />
                            <Route path='/trello' element={<Trello />} />
