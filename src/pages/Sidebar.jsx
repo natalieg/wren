@@ -30,13 +30,15 @@ export default function Sidebar({ className }) {
             </div>
          </div>
          <SidebarButton to="/">Home</SidebarButton>
+         <br />
+         {/* WIP */}
+         <SidebarButton to="/project">Projects</SidebarButton>
          {/* //TODO */}
          <SidebarButton to="/backlog">Backlog</SidebarButton>
          <SidebarButton to="/history">History</SidebarButton>
          <br />
          <SidebarButton to="/trello">Trello</SidebarButton>
          <br />
-         {/* <SidebarButton to="/project">[OLD] Projects</SidebarButton> */}
          <div className="mt-auto flex flex-col">
             <NavLink to="/settings" className={footerLink}>Settings</NavLink>
             <NavLink to="/changelog" className={footerLink}>Changelog</NavLink>

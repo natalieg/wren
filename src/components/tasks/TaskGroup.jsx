@@ -14,7 +14,7 @@ function DropPlaceholder({ label }) {
 }
 
 // SortableContext for drag-and-drop positioning (DndContext is in TaskDndArea)
-export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId }) {
+export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, showProjectName }) {
    // Drop target and frame live in TaskDropZone
    const { active, over } = useDndContext()
    const holdsDragged = !!active && tasks.some(t => t.id === active.id)
@@ -52,6 +52,7 @@ export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTa
                   setEditingTaskId={setEditingTaskId}
                   // from Tasklist
                   showEstimate={showEstimate}
+                  showProjectName={showProjectName}
                />
                </Fragment>
                )

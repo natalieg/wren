@@ -10,6 +10,7 @@ import PlayBtn from '../elements/PlayBtn'
 import TimeFlag from '../elements/TimeFlag'
 import { BACKLOG, DONE, NEXTUP } from '../../utils/constants'
 import { CompactCheckboxCount } from '../CheckboxCount'
+import useProjectsContext from '../../hooks/useProjectsContext'
 
 // wraps a row in dnd-kit's sortable. Only rows that are actually sortable render through
 // this — the pinned running task renders TaskItem directly, so it never receives a transform
@@ -31,11 +32,13 @@ export function SortableTaskItem({ task, ...props }) {
 
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
-export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, dragProps, isDragging }) {
+export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, showProjectName = true, setEditingTaskId, dragProps, isDragging }) {
    const { id, label, notes, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
    const done = task.list === DONE
    const isTracking = id === runningTaskId
    const isActive = estimate
+   const { projects } = useProjectsContext()
+   const project = task.project && projects.find(p => p.id === task.project)
 
    const handleTimeTracking = () => {
       const nowTracking = !isTracking
@@ -70,10 +73,16 @@ export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskTo
             {/* Recurring */}
             {task.recurring?.active && <SimpleTag value="↻" />}
             {/* label */}
-            <span className={(done ? 'line-through text-text-muted' : 'text-text-primary')
-               + ' select-none w-full'}>
-               {label}
-            </span>
+            <div className='select-none w-full'>
+               <span className={done ? 'line-through text-text-muted' : 'text-text-primary'}>
+                  {label}
+               </span>
+               {/* project name */}
+               {showProjectName && project &&
+                  <div className='text-[10px] text-text-muted/90 leading-none'>
+                     {project.name}
+                  </div>}
+            </div>
             <div className='flex gap-2 items-center'>
                {/* Time */}
                {!finishedTimestamp &&

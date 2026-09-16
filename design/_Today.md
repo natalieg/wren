@@ -1,4 +1,11 @@
 
+### Projects (slim v1) — follow-ups
+- [ ] 🤖 polish base design for projects
+- [ ] 🤖 show time for all tasks in a project
+- [ ] 🤖 write 'fast import' function to transform brain dump into real tasks
+- [ ] 🤖 think about more clean design inside the project area
+- [ ] 🤖 consider displaying a 'single project view' for better clarity
+
 ## 🤖 Unified Activity Refactor (`design/unified-activity-model.md`)
 
 - [ ] 🤖 Phase 1 — add `sessions[]` alongside existing fields (tasks + breaks), don't remove `trackedTime`/`finishedTimestamp` yet

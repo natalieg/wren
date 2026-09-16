@@ -130,12 +130,13 @@ function useTasks() {
    }
 
    // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
-   const handleAddTask = (label, time, { list = ACTIVE, bucket } = {}) => {
+   const handleAddTask = (label, time, { list = ACTIVE, bucket, project } = {}) => {
       if (!label?.trim()) return
       const newTask = { id: newTaskId(), label, time, list }
       if (list === BACKLOG) {
          newTask.backlog = { bucket: bucket || NEXTUP, activationDate: null }
       }
+      if (project) newTask.project = project
       setTaskList([...taskList, newTask])
       updateActionTime()
    }
@@ -191,6 +192,22 @@ function useTasks() {
          const removed = currentTaskList.filter(t => t.list === DONE)
          return [...kept, ...reviveOrphanedHabits(kept, removed, { list: BACKLOG, bucket: NEXTUP })]
       })
+   }
+
+   // project deleted, user chose "delete tasks too" — habits still get revived, same rule as any other delete
+   const deleteProjectTasks = (projectId) => {
+      setTaskList(currentTaskList => {
+         const kept = currentTaskList.filter(t => t.project !== projectId)
+         const removed = currentTaskList.filter(t => t.project === projectId)
+         return [...kept, ...reviveOrphanedHabits(kept, removed, { list: BACKLOG, bucket: NEXTUP })]
+      })
+   }
+
+   // project deleted, user chose "keep tasks without project" — tasks stay exactly where they are, just unlinked
+   const unassignProjectTasks = (projectId) => {
+      setTaskList(currentTaskList =>
+         currentTaskList.map(t => t.project === projectId ? { ...t, project: undefined } : t)
+      )
    }
 
    const moveAllTasksToNextUp = () => {
@@ -254,6 +271,8 @@ function useTasks() {
       handleFieldChange,
       moveAllTasksToNextUp,
       deleteAllFinishedTasks,
+      deleteProjectTasks,
+      unassignProjectTasks,
       pushToBottom,
       reorderTaskList,
       moveTaskAcrossLists,

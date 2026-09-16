@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.8 — 2026-09-16
+- New **Projects** tab: create simple projects with a notes area, then sort tasks into Today/Next Up/Next Week/Someday per project — same drag-and-drop as the day list and Backlog
+- Tasks tagged to a project show a small project label on their row
+- **Clear Day**: right-click the active task list to reset it back to Next Up without deleting anything (context menu)
+- Fix: planned break time now factors into the estimated finish time
+- Modal styling fixes
+
 ## 0.8.7 — 2026-08-25
 - Notes can be synched through a family of tasks (eg Task 1, Task 2,...)
 - Finished tasks that are set unfinished again will be asynchronos by design 

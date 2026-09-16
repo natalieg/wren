@@ -2,7 +2,7 @@ import './App.css'
 import { Routes, Route } from 'react-router-dom'
 import Sidebar from './pages/Sidebar'
 import Main from './pages/Main'
-import IndexProject from './pages/projectView/indexProject'
+import Project from './pages/projectView/Project'
 import Backlog from './pages/Backlog'
 import History from './pages/history/History'
 import Trello from './pages/trello/Trello'
@@ -12,6 +12,7 @@ import TasksProvider from './context/TasksProvider'
 import SettingsProvider from './context/SettingsProvider'
 import HistoryProvider from './context/HistoryProvider'
 import BreaksProvider from './context/BreaksProvider'
+import ProjectsProvider from './context/ProjectsProvider'
 import FloatingTaskPanel from './components/FloatingTaskPanel'
 import PausePanel from './components/PausePanel'
 
@@ -21,24 +22,26 @@ function App() {
       <SettingsProvider>
          <HistoryProvider>
             <BreaksProvider>
-               <TasksProvider>
-                  <div id='app' className='flex h-screen'>
-                     <Sidebar className={'w-(--sidebar-w) shrink-0'} />
-                     <div className='flex-1 overflow-auto' style={{ background: 'var(--color-bg-base)' }}>
-                        <Routes>
-                           <Route path='/' element={<Main />} />
-                           <Route path='/backlog' element={<Backlog />} />
-                           <Route path='/history' element={<History />} />
-                           <Route path='/trello' element={<Trello />} />
-                           <Route path='/project' element={<IndexProject />} />
-                           <Route path='/settings' element={<Settings />} />
-                           <Route path='/changelog' element={<Changelog />} />
-                        </Routes>
+               <ProjectsProvider>
+                  <TasksProvider>
+                     <div id='app' className='flex h-screen'>
+                        <Sidebar className={'w-(--sidebar-w) shrink-0'} />
+                        <div className='flex-1 overflow-auto' style={{ background: 'var(--color-bg-base)' }}>
+                           <Routes>
+                              <Route path='/' element={<Main />} />
+                              <Route path='/backlog' element={<Backlog />} />
+                              <Route path='/history' element={<History />} />
+                              <Route path='/trello' element={<Trello />} />
+                              <Route path='/project' element={<Project />} />
+                              <Route path='/settings' element={<Settings />} />
+                              <Route path='/changelog' element={<Changelog />} />
+                           </Routes>
+                        </div>
+                        <FloatingTaskPanel />
+                        <PausePanel />
                      </div>
-                     <FloatingTaskPanel />
-                     <PausePanel />
-                  </div>
-               </TasksProvider>
+                  </TasksProvider>
+               </ProjectsProvider>
             </BreaksProvider>
          </HistoryProvider>
       </SettingsProvider>
