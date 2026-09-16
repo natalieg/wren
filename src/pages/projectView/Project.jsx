@@ -10,7 +10,8 @@ export default function Project() {
       <DocWrapper header='Projects' className='w-full'>
          {/* max-w caps auto-fit at two 420px columns — three+ projects wrap to a new row
              instead of squeezing a third column in */}
-         <div className='grid gap-4 w-full max-w-420' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))' }}>
+         <div className='grid gap-4 w-full max-w-420' 
+         style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(600px, 2fr))' }}>
             {projects.map(project => (
                <ProjectCard key={project.id} project={project}
                   onNameChange={(name) => updateProjectName(project.id, name)}
