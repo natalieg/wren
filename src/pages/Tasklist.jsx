@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import TaskGroup from '../components/tasks/TaskGroup'
 import TaskItem from '../components/tasks/TaskItem'
 import TaskDndArea from '../components/tasks/TaskDndArea'
@@ -8,6 +8,7 @@ import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
 import TaskInput from '../components/tasks/TaskInput'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
+import ContextMenu from '../components/elements/ContextMenu'
 
 export default function Tasklist() {
    const {
@@ -21,8 +22,8 @@ export default function Tasklist() {
       trackedSeconds,
       resetStartedAt,
    } = useContext(TasksContext)
-
-   const { handleAddTask, deleteAllFinishedTasks, reorderTaskList, moveTaskAcrossLists } = taskActions
+   const [menu, setMenu] = useState(null)
+   const { handleAddTask, moveAllTasksToNextUp, deleteAllFinishedTasks, reorderTaskList, } = taskActions
 
    const taskActionBundle = {
       ...taskActions,
@@ -39,10 +40,25 @@ export default function Tasklist() {
       const task = [...openTasks, ...nextUpTasks, ...finishedTasks].find((t) => t.id === id)
       return task ? <TaskItem task={task} {...taskActionBundle} showEstimate={true} /> : null
    }
+   const clearDay = () => {
+      // pull all active tasks into backlog
+      moveAllTasksToNextUp()
+      deleteAllFinishedTasks()
+      setMenu(null)
+   }
 
+   const contextItems = {
+      clearDay: { label: 'Clear day', onClick: clearDay }
+   }
 
    return (
-      <div id='taskList' className='w-full lg:w-1/2 xl:w-[40%] min-w-150'>
+      <div id='taskList' className='w-full lg:w-1/2 xl:w-[50%] xl:px-20 min-w-150 bg-accent-primary/2 rounded-md'
+         onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}
+      >
+         {menu && <ContextMenu x={menu.x} y={menu.y}
+            items={[contextItems.clearDay]}
+            onClose={() => setMenu(null)} />}
+
          <p className='headerDark'>Tasks</p>
          <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
             <TaskInput
@@ -59,7 +75,7 @@ export default function Tasklist() {
             {/* every group on the page shares one DndContext — a drag can only cross
             lists inside the same context, which is what buckets/habits will need */}
             {/* TEST  onMoveAcrossLists={moveTaskAcrossLists} comment out to test visual preference*/}
-            <TaskDndArea onReorder={reorderTaskList} 
+            <TaskDndArea onReorder={reorderTaskList}
                renderDragOverlay={renderDragOverlay}
                className='flex flex-col gap-6'>
                {/* 💤 Next up (backlog, 'nextUp' bucket) */}

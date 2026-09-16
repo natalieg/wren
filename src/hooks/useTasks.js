@@ -193,6 +193,16 @@ function useTasks() {
       })
    }
 
+   const moveAllTasksToNextUp = () => {
+      //move all active tasks except if a task is currently running
+      setTaskList(currentTaskList =>
+         currentTaskList.map(t => t.list === ACTIVE && t.id !== runningTaskId ? applyListChange(t, BACKLOG, { bucket: NEXTUP }) : t)
+      )
+      updateActionTime()
+   }
+
+
+
    // manual reorder ahead of real drag & drop — moves one task to the end of the list
    const pushToBottom = (id) => {
       setTaskList(currentTaskList => {
@@ -242,6 +252,7 @@ function useTasks() {
       handleCopyTask,
       onDelete: handleDeleteTask,
       handleFieldChange,
+      moveAllTasksToNextUp,
       deleteAllFinishedTasks,
       pushToBottom,
       reorderTaskList,
