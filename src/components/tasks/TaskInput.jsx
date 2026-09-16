@@ -2,9 +2,7 @@ import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import Input from '../elements/Input'
 
 const TaskInput = forwardRef(function TaskInput({
-    id,
-    onSubmit,
-}, ref) {
+    id, width, onSubmit,}, ref) {
     const [taskTime, setTaskTime] = useState(20)
     const [taskName, setTaskName] = useState('')
     const taskNameInputRef = useRef(null)
@@ -33,10 +31,11 @@ const TaskInput = forwardRef(function TaskInput({
     }
 
     return (
-        <div id={`inputArea_${id}`} className='flex gap-2'>
+        <div id={`inputArea_${id}`} className='flex gap-2 w-full'>
             <Input
                 ref={taskNameInputRef}
                 placeholder="Add a new task..."
+                width={width}
                 value={taskName}
                 onChange={(e) => setTaskName(e.target.value)}
                 onKeyDown={handleKeyDown}

@@ -52,7 +52,7 @@ export default function Tasklist() {
    }
 
    return (
-      <div id='taskList' className='w-full lg:w-1/2 xl:w-[50%] xl:px-20 min-w-150 bg-accent-primary/2 rounded-md'
+      <div id='taskList' className='w-full lg:w-1/2 xl:w-[60%] xl:px-10 min-w-150 bg-accent-primary/2 rounded-md'
          onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}
       >
          {menu && <ContextMenu x={menu.x} y={menu.y}
@@ -61,10 +61,12 @@ export default function Tasklist() {
 
          <p className='headerDark'>Tasks</p>
          <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
-            <TaskInput
-               id='main'
-               onSubmit={handleAddTask}
-            />
+            <div className='w-[80%] mx-auto'>
+               <TaskInput
+                  id='main'
+                  onSubmit={handleAddTask}
+               />
+            </div>
             {/* Time display + Bar */}
             <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} resetStartedAt={resetStartedAt} />
             {/* Running Task Only */}

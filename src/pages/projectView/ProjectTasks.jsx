@@ -47,10 +47,10 @@ export default function ProjectTasks({ project }) {
 
    return (
       <div className='flex flex-col gap-3'>
-         <div className='flex gap-2'>
+         <div className='flex gap-2 w-full'>
             <MultiSwitchFlag options={placementOptions} value={placement} onChange={setPlacement}
                onSubmit={() => taskInputRef.current?.submit()} rounded='rounded-md' width='w-26' />
-            <TaskInput id={`project-${project.id}`} ref={taskInputRef} onSubmit={handleSubmit} />
+            <TaskInput id={`project-${project.id}`} ref={taskInputRef} onSubmit={handleSubmit} width='w-full' />
          </div>
          <TaskDndArea onReorder={reorderTaskList} onMoveAcrossLists={moveTaskAcrossLists}
             renderDragOverlay={renderDragOverlay} className='flex flex-col gap-3'>

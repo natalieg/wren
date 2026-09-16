@@ -13,6 +13,19 @@ export default function TaskDndArea({ onReorder, onMoveAcrossLists, renderDragOv
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
     )
 
+    // a collapsed TaskSection keeps its rows mounted at zero height (for the collapse
+    // animation) rather than unmounting them, so dnd-kit still measures and can target
+    // them — closestCenter has no notion of "hidden". Drop any zero-size candidate before
+    // ranking by distance, which leaves the section's own header (always real height) as
+    // the only valid target while it's collapsed.
+    const collisionDetection = (args) => {
+        const measurable = args.droppableContainers.filter((c) => {
+            const rect = args.droppableRects.get(c.id)
+            return rect && rect.width > 0 && rect.height > 0
+        })
+        return closestCenter({ ...args, droppableContainers: measurable })
+    }
+
     // fires while dragging, whenever the hovered target changes. Handing a list change
     // over here rather than waiting for the drop is what makes the target open a gap
     // under the cursor — otherwise the task only appears there once you let go
@@ -31,7 +44,7 @@ export default function TaskDndArea({ onReorder, onMoveAcrossLists, renderDragOv
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
+            collisionDetection={collisionDetection}
             onDragStart={({ active }) => setDraggedId(active.id)}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
