@@ -2,11 +2,9 @@ import { useContext, useState, useRef } from 'react'
 import TasksContext from '../../context/TasksContext'
 import TaskInput from '../../components/tasks/TaskInput'
 import MultiSwitchFlag from '../../components/elements/MultiSwitchFlag'
-import TaskGroup from '../../components/tasks/TaskGroup'
+import TaskSection from '../../components/tasks/TaskSection'
 import TaskItem from '../../components/tasks/TaskItem'
 import TaskDndArea from '../../components/tasks/TaskDndArea'
-import TaskDropZone from '../../components/tasks/TaskDropZone'
-import { Divider } from '../../components/elements/Divider'
 import { bucketOptions } from '../../utils/buckets'
 import { ACTIVE, BACKLOG, NEXTUP } from '../../utils/constants'
 
@@ -42,12 +40,8 @@ export default function ProjectTasks({ project }) {
    const renderBucketSection = ({ value, label }) => {
       const tasks = projectTasks.filter(t => t.list === BACKLOG && (t.backlog?.bucket ?? NEXTUP) === value)
       return (
-         <div key={value} className='flex flex-col gap-2'>
-            <Divider label={label} />
-            <TaskDropZone groupId={`${BACKLOG}:${value}`} tasks={tasks}>
-               <TaskGroup tasks={tasks} groupId={`${BACKLOG}:${value}`} {...taskActionBundle} showEstimate={false} showProjectName={false} />
-            </TaskDropZone>
-         </div>
+         <TaskSection key={value} label={label} tasks={tasks} groupId={`${BACKLOG}:${value}`}
+            taskActions={taskActionBundle} showEstimate={false} showProjectName={false} />
       )
    }
 
@@ -60,16 +54,8 @@ export default function ProjectTasks({ project }) {
          </div>
          <TaskDndArea onReorder={reorderTaskList} onMoveAcrossLists={moveTaskAcrossLists}
             renderDragOverlay={renderDragOverlay} className='flex flex-col gap-3'>
-            <div className='flex flex-col gap-2'>
-               <Divider label='Today' />
-               <TaskDropZone groupId={ACTIVE} tasks={activeTasks}>
-                  <TaskGroup
-                     tasks={activeTasks}
-                     groupId={ACTIVE} {...taskActionBundle}
-                     showEstimate={false} 
-                     showProjectName={false} />
-               </TaskDropZone>
-            </div>
+            <TaskSection label='Today' tasks={activeTasks} groupId={ACTIVE}
+               taskActions={taskActionBundle} showEstimate={false} showProjectName={false} defaultOpen />
             {bucketOptions.map(renderBucketSection)}
          </TaskDndArea>
       </div>

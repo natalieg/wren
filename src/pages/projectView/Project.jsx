@@ -4,13 +4,16 @@ import ProjectCard from './ProjectCard'
 import NewProjectTile from './NewProjectTile'
 
 export default function Project() {
-   const { projects, addProject, updateProjectNotes } = useProjectsContext()
+   const { projects, addProject, updateProjectName, updateProjectNotes } = useProjectsContext()
 
    return (
       <DocWrapper header='Projects' className='w-full'>
-         <div className='grid gap-4 w-full' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))' }}>
+         {/* max-w caps auto-fit at two 420px columns — three+ projects wrap to a new row
+             instead of squeezing a third column in */}
+         <div className='grid gap-4 w-full max-w-420' style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))' }}>
             {projects.map(project => (
                <ProjectCard key={project.id} project={project}
+                  onNameChange={(name) => updateProjectName(project.id, name)}
                   onNotesChange={(notes) => updateProjectNotes(project.id, notes)} />
             ))}
             <NewProjectTile onCreate={addProject} />

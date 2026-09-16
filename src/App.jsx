@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom'
 import Sidebar from './pages/Sidebar'
 import Main from './pages/Main'
 import Project from './pages/projectView/Project'
+import SingleProject from './pages/projectView/SingleProject'
 import Backlog from './pages/Backlog'
 import History from './pages/history/History'
 import Trello from './pages/trello/Trello'
@@ -33,6 +34,7 @@ function App() {
                               <Route path='/history' element={<History />} />
                               <Route path='/trello' element={<Trello />} />
                               <Route path='/project' element={<Project />} />
+                              <Route path='/project/:id' element={<SingleProject />} />
                               <Route path='/settings' element={<Settings />} />
                               <Route path='/changelog' element={<Changelog />} />
                            </Routes>

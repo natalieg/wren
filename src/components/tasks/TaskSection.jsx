@@ -8,11 +8,11 @@ import TaskGroup from './TaskGroup'
 // or appear only when it has tasks. Anything that changes the layout at drag start
 // invalidates the position dnd-kit measured, and the preview sits offset from the
 // cursor for the rest of the drag — so an empty section renders its header anyway.
-export default function TaskSection({ label, tasks, groupId, collapseAction, showEstimate, taskActions, children }) {
+export default function TaskSection({ label, tasks, groupId, collapseAction, showEstimate, showProjectName, defaultOpen, taskActions, children }) {
     return (
         <TaskDropZone groupId={groupId} tasks={tasks}>
-            <CollapsableDiv label={`${label} (${tasks.length})`} collapseAction={collapseAction}>
-                <TaskGroup tasks={tasks} groupId={groupId} {...taskActions} showEstimate={showEstimate} />
+            <CollapsableDiv label={`${label} (${tasks.length})`} collapseAction={collapseAction} defaultOpen={defaultOpen}>
+                <TaskGroup tasks={tasks} groupId={groupId} {...taskActions} showEstimate={showEstimate} showProjectName={showProjectName} />
                 {children}
             </CollapsableDiv>
         </TaskDropZone>

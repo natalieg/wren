@@ -27,11 +27,15 @@ function useProjects() {
       setProjects(current => current.map(p => p.id === id ? { ...p, notes } : p))
    }
 
+   const updateProjectName = (id, name) => {
+      setProjects(current => current.map(p => p.id === id ? { ...p, name } : p))
+   }
+
    const deleteProject = (id) => {
       setProjects(current => current.filter(p => p.id !== id))
    }
 
-   return { projects, addProject, updateProjectNotes, deleteProject }
+   return { projects, addProject, updateProjectName, updateProjectNotes, deleteProject }
 }
 
 export default useProjects
