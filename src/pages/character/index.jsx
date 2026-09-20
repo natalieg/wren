@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import useCharacter from '../../hooks/useCharacter'
 import DocWrapper from '../../components/DocWrapper'
-import StatRow from '../../components/elements/StatRow'
-
+import StatsPanel from '../../components/elements/StatsPanel'
+import HealthBar from '../../components/elements/HealthBar'
 
 
 export default function Character() {
@@ -102,11 +102,10 @@ export default function Character() {
 
         </div>
         
-        <p>HP: {character.hp.current} / {character.hp.max}</p>
-        
-        {Object.entries(character.stats).map(([statName, stat]) => (
-          <StatRow key={statName} label={statName.toUpperCase()} stat={stat} />
-        ))}
+        <HealthBar current={character.hp.current} max={character.hp.max} />
+        <br />
+        <StatsPanel stats={character.stats} />
+
         <br />
 <p>Add Experience to Stats</p>  
         <div className="flex flex-wrap gap-2 mt-0">
