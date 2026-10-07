@@ -76,7 +76,7 @@ export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskTo
             {task.pinned &&
                <span className={`text-sm whitespace-nowrap select-none mr-2 ${task.pinConflict ? 'text-failure' : 'text-text-secondary'}`}
                   title={task.pinConflict ? 'Previous task runs into this one' : 'Fixed start time'}>
-                  📌 {formatClockTime(task.fixedStart)}
+                  📌 {formatClockTime(task.pinnedAt)}
                </span>}
             {/* label */}
             <div className='select-none w-full'>

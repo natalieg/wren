@@ -49,6 +49,16 @@ describe('nextOccurrence', () => {
       const next = nextOccurrence(habitTask(), { list: BACKLOG, bucket: NEXTUP })
       expect(next).toMatchObject({ list: BACKLOG, backlog: { bucket: NEXTUP, activationDate: null } })
    })
+
+   it('keeps the daily pinned time, but not the dated pin of the round that ended', () => {
+      const next = nextOccurrence(habitTask({
+         fixedStart: '2026-08-09T12:00:00.000Z',
+         recurring: { active: true, id: 'habit-1', fixedTime: '14:00' },
+      }))
+
+      expect(next.recurring.fixedTime).toBe('14:00')
+      expect(next.fixedStart).toBeUndefined()
+   })
 })
 
 describe('occurrence lookups', () => {

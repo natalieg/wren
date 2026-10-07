@@ -8,6 +8,8 @@
 - Pinned tasks can't be dragged, change the time in the modal instead
 - The 📌 time turns pink when the task before runs into the appointment
 - Pins only count for today, a pin from a past day turns back into a normal task
+- Recurring tasks keep their pinned time every day
+- Unpin with the ✕ next to the time field
 
 ## 0.8.8 — 2026-09-16
 - New **Projects** tab: create simple projects with a notes area, then sort tasks into Today/Next Up/Next Week/Someday per project — same drag-and-drop as the day list and Backlog

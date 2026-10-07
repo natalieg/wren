@@ -3,6 +3,7 @@ import Checkbox from '../elements/Checkbox'
 import SwitchTag from '../elements/SwitchTag'
 import MultiSwitchFlag from '../elements/MultiSwitchFlag'
 import { bucketOptions } from '../../utils/buckets'
+import { isRecurring } from '../../utils/recurring'
 import { DONE, ACTIVE, BACKLOG } from '../../utils/constants'
 import PlayBtn from '../elements/PlayBtn'
 import { secondsToMinutes, minutesToSeconds, formatTimeWithSeconds, formatClockTime, timeValueToToday } from '../../utils/formatTime'
@@ -37,10 +38,20 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
 
    // TODO check if this method should be put in taskActions, since it is a field change
    const handleToggleRecurring = () => {
+      // a pin set before turning recurring on becomes the habit's daily time
+      const fixedTime = task.recurring?.fixedTime ?? (task.fixedStart ? formatClockTime(task.fixedStart) : undefined)
       const newRecurring = task.recurring?.active
          ? { ...task.recurring, active: false }
-         : { active: true, interval: 1, unit: 'day', id: task.recurring?.id || crypto.randomUUID() }
+         : { active: true, interval: 1, unit: 'day', id: task.recurring?.id || crypto.randomUUID(), fixedTime }
       handleFieldChange(id, 'recurring', newRecurring)
+   }
+
+   // '' unpins. A habit keeps the time daily, fixedStart covers today either way
+   const pinValue = (isRecurring(task) ? task.recurring.fixedTime : null)
+      ?? (task.fixedStart ? formatClockTime(task.fixedStart) : '')
+   const setPin = (value) => {
+      handleFieldChange(id, 'fixedStart', value ? timeValueToToday(value) : undefined)
+      if (isRecurring(task)) handleFieldChange(id, 'recurring', { ...task.recurring, fixedTime: value || undefined })
    }
 
    return (
@@ -77,16 +88,22 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                            onChange={(bucket) => handleFieldChange(id, BACKLOG, { ...task.backlog, bucket })} />}
                   </div>
                   <div id={`timeBox_${id}`} className='flex space-x-1 w-64'>
-                     {/* Fixed start — pins the task to a time today, cleared input unpins */}
-                     <LabeledField
-                        id={`fixedStart_${id}`}
-                        label="📌 Starts"
-                        type="time"
-                        width='w-24'
-                        value={task.fixedStart ? formatClockTime(task.fixedStart) : ''}
-                        onChange={(e) => handleFieldChange(id, 'fixedStart', e.target.value ? timeValueToToday(e.target.value) : undefined)}
-                        onKeyDown={handleKeyDown}
-                     />
+                     {/* Fixed start — pins the task to a time, ✕ or a cleared input unpins */}
+                     <div className='relative'>
+                        <LabeledField
+                           id={`fixedStart_${id}`}
+                           label="📌 Starts"
+                           type="time"
+                           width='w-24'
+                           value={pinValue}
+                           onChange={(e) => setPin(e.target.value)}
+                           onKeyDown={handleKeyDown}
+                        />
+                        {pinValue &&
+                           <button type='button' title='Unpin'
+                              className='absolute top-0 right-0 text-xs text-text-muted hover:text-text-primary'
+                              onClick={() => setPin('')}>✕</button>}
+                     </div>
                      {/* Tracked Time — read-only while the timer runs, so a typed
                          value can't collide with the next failsafe flush */}
                      <LabeledField

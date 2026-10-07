@@ -28,10 +28,10 @@ export const effectiveMinutes = (trackedSeconds, estimateMinutes) =>
 export const formatClockTime = (date) =>
    new Date(date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })
 
-// 'HH:mm' from an <input type='time'> -> ISO timestamp for today at that time
-export const timeValueToToday = (value) => {
+// 'HH:mm' from an <input type='time'> -> ISO timestamp for today (or `now`'s day) at that time
+export const timeValueToToday = (value, now = Date.now()) => {
    const [hours, minutes] = value.split(':').map(Number)
-   const date = new Date()
+   const date = new Date(now)
    date.setHours(hours, minutes, 0, 0)
    return date.toISOString()
 }

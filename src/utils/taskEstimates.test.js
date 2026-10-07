@@ -163,6 +163,26 @@ describe('calculateEstimates', () => {
          expect(openTasks[0].estimate.getTime()).toBe(NOW + 30 * MINUTE)
       })
 
+      it('pins a habit to its daily time, even when fixedStart is from another day', () => {
+         const habitTime = new Date(NOW).toTimeString().slice(0, 5) // NOW as local 'HH:mm'
+         const { openTasks } = run([
+            { id: 1, label: 'Standup', time: 15, list: ACTIVE, fixedStart: pinAt(-24 * 60),
+               recurring: { active: true, id: 'h1', fixedTime: habitTime } },
+         ])
+
+         expect(openTasks[0].pinned).toBe(true)
+         expect(openTasks[0].pinnedAt.getTime()).toBe(NOW)
+      })
+
+      it('ignores the daily time of a paused habit', () => {
+         const { openTasks } = run([
+            { id: 1, label: 'Standup', time: 15, list: ACTIVE,
+               recurring: { active: false, id: 'h1', fixedTime: '14:00' } },
+         ])
+
+         expect(openTasks[0].pinned).toBeFalsy()
+      })
+
       it('ignores a pin from another day', () => {
          const { openTasks } = run([
             { id: 1, label: 'Stale', time: 10, list: ACTIVE, fixedStart: pinAt(-24 * 60) },

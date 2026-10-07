@@ -1,5 +1,6 @@
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from './constants'
-import { minutesToSeconds } from './formatTime'
+import { minutesToSeconds, timeValueToToday } from './formatTime'
+import { isRecurring } from './recurring'
 
 // baseTime is either [startedAt], [last finished task], or [new task created time]
 // if no tasks are active.
@@ -31,20 +32,28 @@ function sortActiveTasks(activeTasks, runningTaskId) {
    return [runningTask, ...activeTasks.filter(t => t.id !== runningTaskId)]
 }
 
-// a pin only counts on its own day; a stale one schedules like a normal task
-export const isPinnedToday = (task, now) =>
-   !!task.fixedStart && new Date(task.fixedStart).toDateString() === new Date(now).toDateString()
-
 const MINUTE = 60 * 1000
-const startOf = (task) => new Date(task.fixedStart).getTime()
+
+// pinned start for today, or null. A habit's daily time wins; a dated pin only counts on its own day
+export function pinStartToday(task, now) {
+   if (isRecurring(task) && task.recurring.fixedTime) {
+      return new Date(timeValueToToday(task.recurring.fixedTime, now)).getTime()
+   }
+   if (task.fixedStart && new Date(task.fixedStart).toDateString() === new Date(now).toDateString()) {
+      return new Date(task.fixedStart).getTime()
+   }
+   return null
+}
 
 /** Flexible tasks keep their order and cascade; pinned tasks sit at their fixed time.
  * A flexible task that would run past the next pin goes behind it. The running task
  * is never bumped, so a pin it overruns gets flagged as a conflict instead. */
 function scheduleActiveTasks(activeTasks, baseTime, ctx) {
    const sorted = sortActiveTasks(activeTasks, ctx.runningTaskId)
+   const starts = new Map(sorted.map(t => [t.id, pinStartToday(t, ctx.now)]))
+   const startOf = (task) => starts.get(task.id)
    // a running pin is already happening, it schedules like any running task
-   const isPin = (t) => t.id !== ctx.runningTaskId && isPinnedToday(t, ctx.now)
+   const isPin = (t) => t.id !== ctx.runningTaskId && startOf(t) !== null
    const pins = sorted.filter(isPin).sort((a, b) => startOf(a) - startOf(b))
    const flexible = sorted.filter(t => !isPin(t))
 
@@ -54,7 +63,7 @@ function scheduleActiveTasks(activeTasks, baseTime, ctx) {
       const start = startOf(pin)
       const estimate = estimateFinishTime(pin, Math.max(cursor, start), ctx)
       list.push({
-         ...pin, pinned: true, estimate: new Date(estimate),
+         ...pin, pinned: true, pinnedAt: new Date(start), estimate: new Date(estimate),
          freeMinutesBefore: Math.max(Math.floor((start - cursor) / MINUTE), 0),
          pinConflict: cursor > start,
       })
