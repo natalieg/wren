@@ -92,6 +92,87 @@ describe('calculateEstimates', () => {
       expect(openTasks[0].estimate.getTime()).toBe(defaults.startedAt.getTime())
    })
 
+   describe('pinned tasks (fixedStart)', () => {
+      // baseTime is NOW - 60, so pin offsets are relative to NOW
+      const pinAt = (minutes) => new Date(NOW + minutes * MINUTE).toISOString()
+      const start = defaults.startedAt.getTime()
+
+      it('starts at its fixed time and reports the free gap before it', () => {
+         const { openTasks } = run([
+            { id: 1, label: 'A', time: 10, list: ACTIVE },
+            { id: 2, label: 'Meeting', time: 30, list: ACTIVE, fixedStart: pinAt(0) },
+         ])
+
+         expect(openTasks.map(t => t.id)).toEqual([1, 2])
+         expect(openTasks[1].pinned).toBe(true)
+         expect(openTasks[1].freeMinutesBefore).toBe(50)
+         expect(openTasks[1].estimate.getTime()).toBe(NOW + 30 * MINUTE)
+      })
+
+      it('moves a flexible task that would run into the pin behind it', () => {
+         const { openTasks } = run([
+            { id: 1, label: 'A', time: 30, list: ACTIVE },
+            { id: 2, label: 'Meeting', time: 20, list: ACTIVE, fixedStart: pinAt(-40) },
+         ])
+
+         expect(openTasks.map(t => t.id)).toEqual([2, 1])
+         expect(openTasks[0].freeMinutesBefore).toBe(20)
+         expect(openTasks[1].estimate.getTime()).toBe(start + 70 * MINUTE)
+      })
+
+      it('keeps the flexible order — a short task does not jump ahead to fill the gap', () => {
+         const { openTasks } = run([
+            { id: 1, label: 'Long', time: 30, list: ACTIVE },
+            { id: 2, label: 'Short', time: 5, list: ACTIVE },
+            { id: 3, label: 'Meeting', time: 20, list: ACTIVE, fixedStart: pinAt(-40) },
+         ])
+
+         expect(openTasks.map(t => t.id)).toEqual([3, 1, 2])
+      })
+
+      it('orders pins by time, not by stored position', () => {
+         const { openTasks } = run([
+            { id: 1, label: 'Late', time: 10, list: ACTIVE, fixedStart: pinAt(60) },
+            { id: 2, label: 'Early', time: 10, list: ACTIVE, fixedStart: pinAt(0) },
+         ])
+
+         expect(openTasks.map(t => t.id)).toEqual([2, 1])
+      })
+
+      it('never bumps the running task — the pin is flagged as a conflict instead', () => {
+         const { openTasks } = run(
+            [
+               { id: 1, label: 'Running', time: 30, list: ACTIVE },
+               { id: 2, label: 'Meeting', time: 10, list: ACTIVE, fixedStart: pinAt(10) },
+            ],
+            { runningTaskId: 1 },
+         )
+
+         expect(openTasks.map(t => t.id)).toEqual([1, 2])
+         expect(openTasks[1].pinConflict).toBe(true)
+         expect(openTasks[1].estimate.getTime()).toBe(NOW + 40 * MINUTE)
+      })
+
+      it('treats a running pin like any running task', () => {
+         const { openTasks } = run(
+            [{ id: 1, label: 'Meeting', time: 30, list: ACTIVE, fixedStart: pinAt(-10) }],
+            { runningTaskId: 1 },
+         )
+
+         expect(openTasks[0].pinned).toBeFalsy()
+         expect(openTasks[0].estimate.getTime()).toBe(NOW + 30 * MINUTE)
+      })
+
+      it('ignores a pin from another day', () => {
+         const { openTasks } = run([
+            { id: 1, label: 'Stale', time: 10, list: ACTIVE, fixedStart: pinAt(-24 * 60) },
+         ])
+
+         expect(openTasks[0].pinned).toBeFalsy()
+         expect(openTasks[0].estimate.getTime()).toBe(start + 10 * MINUTE)
+      })
+   })
+
    describe('nextUp tasks', () => {
       it('anchors after the last active estimate and skips other buckets', () => {
          const { nextUpTasks } = run([

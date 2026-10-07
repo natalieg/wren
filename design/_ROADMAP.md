@@ -59,6 +59,9 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 - ✅ 2026-08-10: drop zones — `TaskDropZone` registers a whole section as one target and frames it, wrapping the header so a *collapsed* list stays droppable without opening. Empty lists render anyway: anything that changes size at drag start invalidates the position dnd-kit measured and leaves the preview hanging off the cursor. Auto-expanding collapsed sections was tried and rejected ("its super confusing and disorienting" — losing your scroll position mid-drag).
 - ✅ 2026-08-10: Backlog page drags — one `TaskGroup` per bucket in its own drop zone, replacing one `TaskGroup` per task and the ▲/▼ shift arrows. Needed no new logic, only page wiring; the cross-bucket rewrite was already there and tested.
 
+### 🔷 Next big step — Unified Activity Refactor (tasks + breaks)
+Plan in `design/unified-activity-model.md`, phases tracked in `_Today.md`. Needs a block of 3h+ to get immersed, not something to start in a short session. Pinned tasks (`fixedStart`) should become the `appointment` type here.
+
 ### 🟡 Phase 4 - Break Tracking
 - ✅ 2026-08-13: floating Pause Panel (`PausePanel.jsx`, mirrors `FloatingTaskPanel`) — start/stop a break by type (🍵 break, 🎮 gaming, 🫂 social by default), each with its own running total for the day; break time rolls into History alongside task time.
 - ✅ 2026-08-13/14: break and task tracking split into dedicated contexts (`BreaksProvider`, `HistoryProvider`), with start/stop for both routed through one coordinated layer (`useTrackingContext`) that keeps "only one thing runs at a time" true across tasks *and* breaks.
@@ -162,6 +165,7 @@ The smallest possible slice of `design/wren-idle-konzept.md`, deliberately scope
 ### Phase 10 — Day Planning extendet
 Check if there are more features in  [[day-planning]]
 - ✅ Now vs. remaining tasks → a projected finish time per task, computed sequentially — built as part of Phase 2's time tracking MVP (`openTasksResult` cascade in `useTasks.js`), not separately.
+- ✅ 2026-10-07 (v0.8.9, ⚠️ untested): pinned tasks — optional `fixedStart` gives a task a fixed time today; flexible tasks keep their order and move behind a pin they'd run into, free gaps show above it. Stand-in for a future `appointment` task type, the timestamp carries over as its start.
 - 🟥 buffer/slack time concept (loose reference: `design/day-planning.md` sketch 1j's buffer rows) — revisit if it turns out to matter once time tracking's been used for a while.
 - Different ways to start the day:
 	-	start with template for eg 'wednesday' -> all recurring tasks for a wednesday are pulled, rest of the day is filled by the rules of energy/time 
@@ -182,6 +186,7 @@ Check if there are more features in  [[day-planning]]
 		- of course, this would just be something the user can reflect on themselves, having a good mood is not always connected to art, maybe you did art because you had good mood etc 
 
 ### Phase 11 — View different Days, pre planning
+- 🔷 Week overview — needed soon ("i need some kind of 'week overview' feature soon").
 - Plan tomorrow
 - view yesterday etc
 - Weekview
@@ -209,6 +214,7 @@ A first, deliberately simpler version of "projects" than the original fuller des
 - ✅ 2026-09-16: `deleteProjectTasks`/`unassignProjectTasks` exist for the planned delete-project confirm ("keep tasks without project" vs. "delete tasks too") — not wired to a UI yet, no delete button exists.
 - 🔷 Open: project picker on the general task/edit-modal view, so a task can be (re)tagged from outside the project page.
 - 🔷 Open: delete-project confirm modal, once there's a delete button to hang it on.
+- 🔷 Rework how projects are handled — look at the current version first ("i need to look and rework how projects are handled right now").
 
 ### Phase 14 — Shell layout alignment
 Restyle `Sidebar.jsx` / project view shell to match the `ui_kits/app` mockups (nav treatment, logo lockup). Dark theming itself is Phase 4 now — this phase just needs the toggle control once that lands.

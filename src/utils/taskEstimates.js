@@ -31,6 +31,50 @@ function sortActiveTasks(activeTasks, runningTaskId) {
    return [runningTask, ...activeTasks.filter(t => t.id !== runningTaskId)]
 }
 
+// a pin only counts on its own day; a stale one schedules like a normal task
+export const isPinnedToday = (task, now) =>
+   !!task.fixedStart && new Date(task.fixedStart).toDateString() === new Date(now).toDateString()
+
+const MINUTE = 60 * 1000
+const startOf = (task) => new Date(task.fixedStart).getTime()
+
+/** Flexible tasks keep their order and cascade; pinned tasks sit at their fixed time.
+ * A flexible task that would run past the next pin goes behind it. The running task
+ * is never bumped, so a pin it overruns gets flagged as a conflict instead. */
+function scheduleActiveTasks(activeTasks, baseTime, ctx) {
+   const sorted = sortActiveTasks(activeTasks, ctx.runningTaskId)
+   // a running pin is already happening, it schedules like any running task
+   const isPin = (t) => t.id !== ctx.runningTaskId && isPinnedToday(t, ctx.now)
+   const pins = sorted.filter(isPin).sort((a, b) => startOf(a) - startOf(b))
+   const flexible = sorted.filter(t => !isPin(t))
+
+   let cursor = baseTime
+   const list = []
+   const placePin = (pin) => {
+      const start = startOf(pin)
+      const estimate = estimateFinishTime(pin, Math.max(cursor, start), ctx)
+      list.push({
+         ...pin, pinned: true, estimate: new Date(estimate),
+         freeMinutesBefore: Math.max(Math.floor((start - cursor) / MINUTE), 0),
+         pinConflict: cursor > start,
+      })
+      cursor = estimate
+   }
+
+   for (const task of flexible) {
+      const isRunning = task.id === ctx.runningTaskId
+      while (pins.length && !isRunning && estimateFinishTime(task, cursor, ctx) > startOf(pins[0])) {
+         placePin(pins.shift())
+      }
+      const estimate = estimateFinishTime(task, cursor, ctx)
+      list.push({ ...task, estimate: new Date(estimate) })
+      cursor = estimate
+   }
+   pins.forEach(placePin)
+
+   return { runningTime: cursor, list }
+}
+
 /** The cascading finish times: each active task starts where the one above it ends.
  * Pure — `now` is passed in rather than read, so this is testable without fake timers
  * and the render-purity lint only has to be answered once, at the call site. */
@@ -39,10 +83,7 @@ export default function calculateEstimates({ taskList, startedAt, newActionTime,
    const baseTime = baseTimeOf(taskList, startedAt, newActionTime)
    const activeTasks = taskList.filter(t => t.list === ACTIVE)
 
-   const openTasksResult = sortActiveTasks(activeTasks, runningTaskId).reduce((acc, task) => {
-      const estimateTime = estimateFinishTime(task, acc.runningTime, { runningTaskId, trackedSeconds, now })
-      return { runningTime: estimateTime, list: [...acc.list, { ...task, estimate: new Date(estimateTime) }] }
-   }, { runningTime: baseTime, list: [] })
+   const openTasksResult = scheduleActiveTasks(activeTasks, baseTime, { runningTaskId, trackedSeconds, now })
 
    // 'possibleEstimate' anchors after the last active task's estimate, or after now if
    // that already passed. 'nextUp' bucket only — mirrors the old parked-tasks list

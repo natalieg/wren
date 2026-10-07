@@ -72,6 +72,12 @@ export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskTo
             {notes && notes?.length > 0 && <CompactCheckboxCount text={notes} />}
             {/* Recurring */}
             {task.recurring?.active && <SimpleTag value="↻" />}
+            {/* Pinned start time, pink when the task before overruns into it */}
+            {task.pinned &&
+               <span className={`text-sm whitespace-nowrap select-none mr-2 ${task.pinConflict ? 'text-failure' : 'text-text-secondary'}`}
+                  title={task.pinConflict ? 'Previous task runs into this one' : 'Fixed start time'}>
+                  📌 {formatClockTime(task.fixedStart)}
+               </span>}
             {/* label */}
             <div className='select-none w-full'>
                <span className={done ? 'line-through text-text-muted' : 'text-text-primary'}>

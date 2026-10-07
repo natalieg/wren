@@ -1,4 +1,9 @@
 
+### Pinned tasks (v0.8.9) — review
+- [ ] 🤖 check the code: scheduler in `utils/taskEstimates.js` (`scheduleActiveTasks`), pinned rows in `TaskGroup.jsx`, 📌 tag in `TaskItem.jsx`, input in `TaskEditModalBody.jsx`
+- [ ] 🤖 evaluate styling: 📌 tag, `┈ free ┈` gap line, conflict pink, wider time box in the modal
+- [ ] 🤖 known gap: with no timer running, estimates count from a past base time, so "free" minutes can show too big
+
 ### Projects (slim v1) — follow-ups
 - [ ] 🤖 polish base design for projects
 - [ ] 🤖 show time for all tasks in a project

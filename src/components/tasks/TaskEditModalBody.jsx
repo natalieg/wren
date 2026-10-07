@@ -5,7 +5,7 @@ import MultiSwitchFlag from '../elements/MultiSwitchFlag'
 import { bucketOptions } from '../../utils/buckets'
 import { DONE, ACTIVE, BACKLOG } from '../../utils/constants'
 import PlayBtn from '../elements/PlayBtn'
-import { secondsToMinutes, minutesToSeconds, formatTimeWithSeconds } from '../../utils/formatTime'
+import { secondsToMinutes, minutesToSeconds, formatTimeWithSeconds, formatClockTime, timeValueToToday } from '../../utils/formatTime'
 import Bar from '../elements/Bar'
 import LabeledField from '../elements/LabeledField'
 import CheckboxCount from '../CheckboxCount'
@@ -76,7 +76,17 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                         <MultiSwitchFlag options={bucketOptions} value={task.backlog?.bucket} width='w-28'
                            onChange={(bucket) => handleFieldChange(id, BACKLOG, { ...task.backlog, bucket })} />}
                   </div>
-                  <div id={`timeBox_${id}`} className='flex space-x-1 w-40'>
+                  <div id={`timeBox_${id}`} className='flex space-x-1 w-64'>
+                     {/* Fixed start — pins the task to a time today, cleared input unpins */}
+                     <LabeledField
+                        id={`fixedStart_${id}`}
+                        label="📌 Starts"
+                        type="time"
+                        width='w-24'
+                        value={task.fixedStart ? formatClockTime(task.fixedStart) : ''}
+                        onChange={(e) => handleFieldChange(id, 'fixedStart', e.target.value ? timeValueToToday(e.target.value) : undefined)}
+                        onKeyDown={handleKeyDown}
+                     />
                      {/* Tracked Time — read-only while the timer runs, so a typed
                          value can't collide with the next failsafe flush */}
                      <LabeledField

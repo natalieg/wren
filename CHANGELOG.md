@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.9 — 2026-10-07
+- ⚠️ **Untested in daily use** — needs a proper code + styling review soon
+- **Pinned tasks**: give a task a fixed start time (📌 Starts in the task modal) for meetings and appointments
+- Tasks plan themselves around pinned ones: a task that wouldn't finish before the appointment moves behind it
+- Free time before an appointment shows as `┈ 20m free ┈`
+- Pinned tasks can't be dragged, change the time in the modal instead
+- The 📌 time turns pink when the task before runs into the appointment
+- Pins only count for today, a pin from a past day turns back into a normal task
+
 ## 0.8.8 — 2026-09-16
 - New **Projects** tab: create simple projects with a notes area, then sort tasks into Today/Next Up/Next Week/Someday per project — same drag-and-drop as the day list and Backlog
 - Tasks tagged to a project show a small project label on their row

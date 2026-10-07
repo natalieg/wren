@@ -28,6 +28,14 @@ export const effectiveMinutes = (trackedSeconds, estimateMinutes) =>
 export const formatClockTime = (date) =>
    new Date(date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false })
 
+// 'HH:mm' from an <input type='time'> -> ISO timestamp for today at that time
+export const timeValueToToday = (value) => {
+   const [hours, minutes] = value.split(':').map(Number)
+   const date = new Date()
+   date.setHours(hours, minutes, 0, 0)
+   return date.toISOString()
+}
+
 export const formatDate = (date) =>
    new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
 
