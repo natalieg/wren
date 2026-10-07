@@ -216,6 +216,7 @@ A first, deliberately simpler version of "projects" than the original fuller des
 - 🔷 Open: project picker on the general task/edit-modal view, so a task can be (re)tagged from outside the project page.
 - 🔷 Open: delete-project confirm modal, once there's a delete button to hang it on.
 - 🔷 Rework how projects are handled — look at the current version first ("i need to look and rework how projects are handled right now").
+- 🔷 Project time blocks (near future): a project setting auto-blocks x hours every day / every x days in the daily view ("i know that i want to work x hours on a project every day... but i dont always know 'what'"). Per project, the block is either empty (click it, grab tasks from the project's backlog) or auto-filled with the next tasks. Related: the timeblock thoughts in `_Today.md` ("Wandering Subtasks"), and pinned tasks as a possible fixed slot for the block.
 
 ### Phase 14 — Shell layout alignment
 Restyle `Sidebar.jsx` / project view shell to match the `ui_kits/app` mockups (nav treatment, logo lockup). Dark theming itself is Phase 4 now — this phase just needs the toggle control once that lands.

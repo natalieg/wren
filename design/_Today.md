@@ -4,6 +4,7 @@
 - [ ] 🤖 evaluate styling: 📌 tag, `┈ free ┈` gap line, conflict pink, wider time box in the modal
 - [ ] 🤖 known gap: with no timer running, estimates count from a past base time, so "free" minutes can show too big
 - [ ] 🤖 known gap: list/modal treat a pin as expired at midnight, data cleanup runs at the rollover hour (4am)
+- [ ] 🤖 missed pins: a pin whose time passed (unticked) only turns pink while a timer runs. Idea: own "missed" look whenever pin time < now, ~3 lines in the scheduler + a test
 
 ### Pinned tasks — auto-start (open, not built)
 Two kinds of pins, which probably need different behavior:
