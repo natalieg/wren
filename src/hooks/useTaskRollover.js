@@ -3,6 +3,7 @@ import { loadSettings } from '../utils/settings'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
 import { applyListChange } from '../utils/taskTransitions'
 import { isRecurring, nextOccurrence, hasOpenOccurrence, reviveOrphanedHabits } from '../utils/recurring'
+import { clearStalePins } from '../utils/pins'
 
 // Applies day rollover effects to tasks, gated by their own settings
 function useTaskRollover(setTaskList) {
@@ -47,9 +48,14 @@ function useTaskRollover(setTaskList) {
     })
   }
 
+  // Expired pins are removed, the old time moves into the notes
+  const clearExpiredPins = () => {
+    setTaskList(currentTaskList => clearStalePins(currentTaskList, Date.now()))
+  }
+
   return useDayActions({
     // Order matters: copy before delete so source tasks exist for copying
-    onRollover: () => { promoteNextUpTasks(); copyRecurringTasks(); deleteFinishedTasksOnRollover(); }
+    onRollover: () => { promoteNextUpTasks(); copyRecurringTasks(); deleteFinishedTasksOnRollover(); clearExpiredPins(); }
   })
 }
 

@@ -1,6 +1,6 @@
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from './constants'
-import { minutesToSeconds, timeValueToToday } from './formatTime'
-import { isRecurring } from './recurring'
+import { minutesToSeconds } from './formatTime'
+import { pinStartToday } from './pins'
 
 // baseTime is either [startedAt], [last finished task], or [new task created time]
 // if no tasks are active.
@@ -33,17 +33,6 @@ function sortActiveTasks(activeTasks, runningTaskId) {
 }
 
 const MINUTE = 60 * 1000
-
-// pinned start for today, or null. A habit's daily time wins; a dated pin only counts on its own day
-export function pinStartToday(task, now) {
-   if (isRecurring(task) && task.recurring.fixedTime) {
-      return new Date(timeValueToToday(task.recurring.fixedTime, now)).getTime()
-   }
-   if (task.fixedStart && new Date(task.fixedStart).toDateString() === new Date(now).toDateString()) {
-      return new Date(task.fixedStart).getTime()
-   }
-   return null
-}
 
 /** Flexible tasks keep their order and cascade; pinned tasks sit at their fixed time.
  * A flexible task that would run past the next pin goes behind it. The running task

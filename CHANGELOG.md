@@ -7,9 +7,10 @@
 - Free time before an appointment shows as `┈ 20m free ┈`
 - Pinned tasks can't be dragged, change the time in the modal instead
 - The 📌 time turns pink when the task before runs into the appointment
-- Pins only count for today, a pin from a past day turns back into a normal task
+- Pins only count for the day they're set. On the next day the pin is removed and the old time is added to the task's notes (`📌 was pinned to 14:00 on 06.10.2026`)
 - Recurring tasks keep their pinned time every day
 - Unpin with the ✕ next to the time field
+- ↑/↓ arrow left of the task input: add new tasks to the top or bottom of the list
 
 ## 0.8.8 — 2026-09-16
 - New **Projects** tab: create simple projects with a notes area, then sort tasks into Today/Next Up/Next Week/Someday per project — same drag-and-drop as the day list and Backlog

@@ -3,6 +3,20 @@
 - [ ] 🤖 check the code: scheduler in `utils/taskEstimates.js` (`scheduleActiveTasks`), pinned rows in `TaskGroup.jsx`, 📌 tag in `TaskItem.jsx`, input in `TaskEditModalBody.jsx`
 - [ ] 🤖 evaluate styling: 📌 tag, `┈ free ┈` gap line, conflict pink, wider time box in the modal
 - [ ] 🤖 known gap: with no timer running, estimates count from a past base time, so "free" minutes can show too big
+- [ ] 🤖 known gap: list/modal treat a pin as expired at midnight, data cleanup runs at the rollover hour (4am)
+
+### Pinned tasks — auto-start (open, not built)
+Two kinds of pins, which probably need different behavior:
+- **Planned time** (lunch at 12): soft, can happen later, no auto-start
+- **Appointment** (meetings): hard, should auto-start, ideally with a ping ~5min ahead
+
+Open questions:
+- [ ] 🤖 how does a task say which kind it is? (task setting, later the `appointment` type)
+- [ ] 🤖 something is running at pin time: switch to the appointment, or only ping?
+- [ ] 🤖 Wren was closed at pin time: start late on open, or skip?
+- [ ] 🤖 on a break at pin time: end the break, or wait?
+- [ ] 🤖 the ping: sound, browser notification, or both? how far ahead, fixed or a setting?
+- [ ] 🤖 background tabs throttle timers, so the check has to compare against timestamps, not count ticks
 
 ### Projects (slim v1) — follow-ups
 - [ ] 🤖 polish base design for projects

@@ -129,15 +129,15 @@ function useTasks() {
       setNewActionTime(new Date())
    }
 
-   // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket
-   const handleAddTask = (label, time, { list = ACTIVE, bucket, project } = {}) => {
+   // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket; atTop puts it first
+   const handleAddTask = (label, time, { list = ACTIVE, bucket, project, atTop = false } = {}) => {
       if (!label?.trim()) return
       const newTask = { id: newTaskId(), label, time, list }
       if (list === BACKLOG) {
          newTask.backlog = { bucket: bucket || NEXTUP, activationDate: null }
       }
       if (project) newTask.project = project
-      setTaskList([...taskList, newTask])
+      setTaskList(atTop ? [newTask, ...taskList] : [...taskList, newTask])
       updateActionTime()
    }
 

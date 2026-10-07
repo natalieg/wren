@@ -4,6 +4,7 @@ import SwitchTag from '../elements/SwitchTag'
 import MultiSwitchFlag from '../elements/MultiSwitchFlag'
 import { bucketOptions } from '../../utils/buckets'
 import { isRecurring } from '../../utils/recurring'
+import { pinStartToday } from '../../utils/pins'
 import { DONE, ACTIVE, BACKLOG } from '../../utils/constants'
 import PlayBtn from '../elements/PlayBtn'
 import { secondsToMinutes, minutesToSeconds, formatTimeWithSeconds, formatClockTime, timeValueToToday } from '../../utils/formatTime'
@@ -46,9 +47,10 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
       handleFieldChange(id, 'recurring', newRecurring)
    }
 
-   // '' unpins. A habit keeps the time daily, fixedStart covers today either way
-   const pinValue = (isRecurring(task) ? task.recurring.fixedTime : null)
-      ?? (task.fixedStart ? formatClockTime(task.fixedStart) : '')
+   // '' unpins. Shows the pin only while it counts, same rule as the scheduler
+   // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
+   const pinStart = pinStartToday(task, Date.now())
+   const pinValue = pinStart !== null ? formatClockTime(pinStart) : ''
    const setPin = (value) => {
       handleFieldChange(id, 'fixedStart', value ? timeValueToToday(value) : undefined)
       if (isRecurring(task)) handleFieldChange(id, 'recurring', { ...task.recurring, fixedTime: value || undefined })

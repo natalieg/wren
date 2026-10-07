@@ -2,13 +2,15 @@ import { useState, useRef, useImperativeHandle, forwardRef } from 'react'
 import Input from '../elements/Input'
 
 const TaskInput = forwardRef(function TaskInput({
-    id, width, onSubmit,}, ref) {
+    id, width, onSubmit, showPlacement = false }, ref) {
     const [taskTime, setTaskTime] = useState(20)
     const [taskName, setTaskName] = useState('')
+    // ↑ adds the new task to the top of the list, ↓ to the bottom
+    const [atTop, setAtTop] = useState(false)
     const taskNameInputRef = useRef(null)
 
     const submit = () => {
-        onSubmit(taskName, taskTime)
+        onSubmit(taskName, taskTime, { atTop })
         setTaskName('')
         setTaskTime(20)
         taskNameInputRef.current?.focus()
@@ -31,7 +33,14 @@ const TaskInput = forwardRef(function TaskInput({
     }
 
     return (
-        <div id={`inputArea_${id}`} className='flex gap-2 w-full'>
+        <div id={`inputArea_${id}`} className='flex gap-2 w-full items-center'>
+            {showPlacement &&
+                <button type='button'
+                    className='text-text-muted hover:text-text-primary w-6 shrink-0 select-none'
+                    title={atTop ? 'Adding to top' : 'Adding to bottom'}
+                    onClick={() => { setAtTop(!atTop); taskNameInputRef.current?.focus() }}>
+                    {atTop ? '↑' : '↓'}
+                </button>}
             <Input
                 ref={taskNameInputRef}
                 placeholder="Add a new task..."

@@ -24,6 +24,15 @@ describe('useTasks', () => {
     })
   })
 
+  it('adds a task to the top of the list when asked to', () => {
+    const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
+
+    act(() => { result.current.taskActions.handleAddTask('Later', 15) })
+    act(() => { result.current.taskActions.handleAddTask('Now', 5, { atTop: true }) })
+
+    expect(result.current.openTasks.map(t => t.label)).toEqual(['Now', 'Later'])
+  })
+
   it('marks a task done', () => {
     const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
 

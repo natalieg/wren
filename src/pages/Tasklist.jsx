@@ -64,6 +64,7 @@ export default function Tasklist() {
             <div className='w-[80%] mx-auto'>
                <TaskInput
                   id='main'
+                  showPlacement
                   onSubmit={handleAddTask}
                />
             </div>

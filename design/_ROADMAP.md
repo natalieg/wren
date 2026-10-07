@@ -166,6 +166,7 @@ The smallest possible slice of `design/wren-idle-konzept.md`, deliberately scope
 Check if there are more features in  [[day-planning]]
 - ✅ Now vs. remaining tasks → a projected finish time per task, computed sequentially — built as part of Phase 2's time tracking MVP (`openTasksResult` cascade in `useTasks.js`), not separately.
 - ✅ 2026-10-07 (v0.8.9, ⚠️ untested): pinned tasks — optional `fixedStart` gives a task a fixed time today; flexible tasks keep their order and move behind a pin they'd run into, free gaps show above it. Stand-in for a future `appointment` task type, the timestamp carries over as its start.
+- 🟥 Open: soft "planned time" (lunch at 12) vs. hard appointments that auto-start with a ping ahead. Needs per-task settings, open questions in `_Today.md`.
 - 🟥 buffer/slack time concept (loose reference: `design/day-planning.md` sketch 1j's buffer rows) — revisit if it turns out to matter once time tracking's been used for a while.
 - Different ways to start the day:
 	-	start with template for eg 'wednesday' -> all recurring tasks for a wednesday are pulled, rest of the day is filled by the rules of energy/time 
