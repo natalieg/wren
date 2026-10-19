@@ -9,7 +9,8 @@
 - **⫸ general** in the header: track time on the block that belongs to no task. Editable afterwards in minutes, in case you forgot to track
 - Project blocks only take their own project's tasks (the frame turns red otherwise). Tasks without a project are welcome and join the project. Topic blocks take anything
 - Finishing or deleting a block keeps its tasks on the day list. Blocks stay through rollover and "Clear day"
-- **Projects**: each project card shows the time tracked on it this week. Rough for now, a task left open over the weekend counts all its time in the new week
+- **Projects**: each project card shows the time tracked on it this week. Click it for a log of which tasks add up to that number
+- Tracked time is now also stored per day, so the weekly number only counts what happened this week, even for parked or long-running tasks. Time tracked before this update has no date and isn't counted, also not when the task is finished (the log shows it as "undated"). To count it anyway, set the task's tracked time to 0 and type it in again, it then lands on today
 - Task modal is wider and wraps instead of overflowing on backlog tasks
 
 ## 0.8.9 — 2026-10-07

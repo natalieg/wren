@@ -1,4 +1,6 @@
 import useTracker from './useTracker'
+import { loadSettings } from '../utils/settings'
+import { addTrackedToday } from '../utils/trackedByDay'
 
 // Owns everything about the running task timer on top of the generic useTracker:
 // where flushed seconds land (trackedTime on the task) and the "running task stays
@@ -11,9 +13,12 @@ function useTimeTracking(setTaskList) {
   // this phase is purely additive. Existing tasks won't have a `sessions` field yet
   // (`task.sessions || []` style guard, same pattern as normalizeTask in useTasks.js).
   const handleFlush = (taskId, secondsToFlush) => {
+    const { rolloverHour } = loadSettings()
     setTaskList(currentTaskList => currentTaskList.map(task => {
       if (task.id !== taskId) return task
-      return { ...task, trackedTime: (task.trackedTime || 0) + secondsToFlush }
+      // the per-day split rides along, so weekly numbers know when the time happened
+      const next = { ...task, trackedTime: (task.trackedTime || 0) + secondsToFlush }
+      return addTrackedToday(next, secondsToFlush, Date.now(), rolloverHour)
     }))
   }
 

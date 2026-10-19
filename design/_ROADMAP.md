@@ -219,6 +219,7 @@ A first, deliberately simpler version of "projects" than the original fuller des
 - 🔷 Open: delete-project confirm modal, once there's a delete button to hang it on.
 - 🔷 Rework how projects are handled — look at the current version first ("i need to look and rework how projects are handled right now").
 - 🔷 Time blocks, next steps: split a block, "rest → block 2" chip, project colors, weekday templates, today's project bar under the date (mockup sections 3–5).
+- 🔷 Time blocks: closing a block offers [close and keep] / [close and move leftovers to backlog] / [delete and keep], for ending the work day with underestimated tasks ("dann will ich mich auf meine privaten sachen konzentrieren und nicht noch alte sachen rumfliegen haben"). "Delete and move" left out on purpose, to keep the options few.
 - 🔷 Project time blocks (near future): a project setting auto-blocks x hours every day / every x days in the daily view ("i know that i want to work x hours on a project every day... but i dont always know 'what'"). Per project, the block is either empty (click it, grab tasks from the project's backlog) or auto-filled with the next tasks. Related: the timeblock thoughts in `_Today.md` ("Wandering Subtasks"), and pinned tasks as a possible fixed slot for the block.
 
 ### Phase 14 — Shell layout alignment

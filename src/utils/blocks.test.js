@@ -20,6 +20,11 @@ describe('blockStats', () => {
       expect(stats.generalSeconds).toBe(15 * 60)
    })
 
+   it('counts a member finished without tracking by its estimate', () => {
+      const list = [block('b', 60), task(1, 20, { blockId: 'b', list: DONE }), task(2, 20, { blockId: 'b', list: DONE, trackedTime: 30 })]
+      expect(blockStats(list[0], list, idle).trackedSeconds).toBe(40 * 60)
+   })
+
    it('counts the running timer of a member and marks the block busy', () => {
       const list = [block('b', 60), task(1, 30, { blockId: 'b' })]
       const stats = blockStats(list[0], list, { runningTaskId: 1, trackedSeconds: 120 })

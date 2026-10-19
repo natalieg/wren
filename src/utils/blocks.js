@@ -1,5 +1,5 @@
-import { ACTIVE, BACKLOG, NEXTUP } from './constants'
-import { secondsToMinutes, effectiveMinutes } from './formatTime'
+import { ACTIVE, BACKLOG, NEXTUP, DONE } from './constants'
+import { secondsToMinutes, minutesToSeconds, effectiveMinutes } from './formatTime'
 
 export const BLOCK = 'block'
 export const BLOCK_PREFIX = `${BLOCK}:`
@@ -24,13 +24,18 @@ export const membersOf = (blockId, taskList) => taskList.filter(t => !isBlock(t)
 const liveSeconds = (task, { runningTaskId, trackedSeconds }) =>
    (task.trackedTime || 0) + (task.id === runningTaskId ? trackedSeconds : 0)
 
+// a finished task counts like in History: tracked time, or its estimate when under a minute was tracked
+const doneOrLiveSeconds = (task, ctx) => task.list === DONE
+   ? minutesToSeconds(effectiveMinutes(task.trackedTime, parseInt(task.time) || 0)) || (task.trackedTime || 0)
+   : liveSeconds(task, ctx)
+
 // header numbers for a block; members include its finished tasks
 export function blockStats(block, taskList, ctx) {
    const members = membersOf(block.id, taskList)
    const durationMinutes = parseInt(block.time) || 0
    const plannedMinutes = members.reduce((sum, t) => sum + (parseInt(t.time) || 0), 0)
    const generalSeconds = liveSeconds(block, ctx)
-   const trackedSeconds = members.reduce((sum, t) => sum + liveSeconds(t, ctx), generalSeconds)
+   const trackedSeconds = members.reduce((sum, t) => sum + doneOrLiveSeconds(t, ctx), generalSeconds)
    const diffMinutes = plannedMinutes - durationMinutes
    const state = diffMinutes > GRACE_MINUTES ? 'over' : diffMinutes >= -GRACE_MINUTES ? 'full' : 'buffer'
    const isBusy = block.id === ctx.runningTaskId || members.some(t => t.id === ctx.runningTaskId)

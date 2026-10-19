@@ -11,6 +11,8 @@ import { reviveOrphanedHabits } from '../utils/recurring'
 import { getNextCopyTitle, getPrevCopyIndex, getOpenCopies } from './useTaskCopy'
 import useTimeAlert from './useTimeAlert'
 import { playFinishedSound } from '../utils/playSound'
+import { loadSettings } from '../utils/settings'
+import { addTrackedToday } from '../utils/trackedByDay'
 import { BLOCK, isBlock, activeBlockIds, releaseOpenMembers, adoptIntoBlock } from '../utils/blocks'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
@@ -186,6 +188,7 @@ function useTasks() {
          label: getNextCopyTitle(sourceTask.label, taskList),
          id: newTaskId(),
          trackedTime: 0,
+         trackedByDay: undefined,
          finishedTimestamp: undefined,
          runningTaskId: undefined,
       }
@@ -199,8 +202,13 @@ function useTasks() {
    }, [taskList, updateActionTime])
 
    const handleFieldChange = (id, field, value) => {
+      const { rolloverHour } = loadSettings()
+      // a hand-edited trackedTime books the difference on today, so weekly numbers stay in sync
+      const change = (t) => field === 'trackedTime'
+         ? addTrackedToday({ ...t, trackedTime: value }, value - (t.trackedTime || 0), Date.now(), rolloverHour)
+         : { ...t, [field]: value }
       setTaskList(prev => {
-         const next = prev.map(t => t.id === id ? { ...t, [field]: value } : t)
+         const next = prev.map(t => t.id === id ? change(t) : t)
          if (field !== 'notes' || value.length === 0) return next
          // handle note synch
          const task = next.find(t => t.id === id)
