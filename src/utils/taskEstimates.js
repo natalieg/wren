@@ -1,6 +1,7 @@
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from './constants'
 import { minutesToSeconds } from './formatTime'
 import { pinStartToday } from './pins'
+import { isBlock, activeBlockIds, blockIdOf, blockStats } from './blocks'
 
 // baseTime is either [startedAt], [last finished task], or [new task created time]
 // if no tasks are active.
@@ -34,17 +35,43 @@ function sortActiveTasks(activeTasks, runningTaskId) {
 
 const MINUTE = 60 * 1000
 
+// a block reserves its remaining duration, or longer when its tasks need more; its tasks
+// cascade inside it, starting now while anything in it is running
+function scheduleBlock(block, members, cursor, ctx) {
+   const { trackedSeconds, isBusy } = blockStats(block, ctx.taskList, ctx)
+   const start = isBusy ? ctx.now : cursor
+   let inner = start
+   const list = sortActiveTasks(members, ctx.runningTaskId).map(task => {
+      inner = estimateFinishTime(task, inner, ctx)
+      return { ...task, estimate: new Date(inner) }
+   })
+   const budgetLeft = Math.max(minutesToSeconds(parseInt(block.time) || 0) - trackedSeconds, 0) * 1000
+   const end = Math.max(inner, start + budgetLeft)
+   return { end, list: [{ ...block, estimate: new Date(end) }, ...list] }
+}
+
 /** Flexible tasks keep their order and cascade; pinned tasks sit at their fixed time.
  * A flexible task that would run past the next pin goes behind it. The running task
- * is never bumped, so a pin it overruns gets flagged as a conflict instead. */
+ * is never bumped, so a pin it overruns gets flagged as a conflict instead.
+ * A block schedules as one unit with its tasks inside; pins inside a block are ignored. */
 function scheduleActiveTasks(activeTasks, baseTime, ctx) {
-   const sorted = sortActiveTasks(activeTasks, ctx.runningTaskId)
-   const starts = new Map(sorted.map(t => [t.id, pinStartToday(t, ctx.now)]))
+   const blockIds = activeBlockIds(activeTasks)
+   const members = (blockId) => activeTasks.filter(t => blockIdOf(t, blockIds) === blockId)
+   const topLevel = activeTasks.filter(t => !blockIdOf(t, blockIds))
+   // something running inside a block pulls the whole block to the front
+   const running = activeTasks.find(t => t.id === ctx.runningTaskId)
+   const runningTopId = (running && blockIdOf(running, blockIds)) || ctx.runningTaskId
+
+   const sorted = sortActiveTasks(topLevel, runningTopId)
+   const starts = new Map(sorted.map(t => [t.id, isBlock(t) ? null : pinStartToday(t, ctx.now)]))
    const startOf = (task) => starts.get(task.id)
    // a running pin is already happening, it schedules like any running task
-   const isPin = (t) => t.id !== ctx.runningTaskId && startOf(t) !== null
+   const isPin = (t) => t.id !== runningTopId && startOf(t) !== null
    const pins = sorted.filter(isPin).sort((a, b) => startOf(a) - startOf(b))
    const flexible = sorted.filter(t => !isPin(t))
+   const finishOf = (task, at) => isBlock(task)
+      ? scheduleBlock(task, members(task.id), at, ctx).end
+      : estimateFinishTime(task, at, ctx)
 
    let cursor = baseTime
    const list = []
@@ -60,9 +87,15 @@ function scheduleActiveTasks(activeTasks, baseTime, ctx) {
    }
 
    for (const task of flexible) {
-      const isRunning = task.id === ctx.runningTaskId
-      while (pins.length && !isRunning && estimateFinishTime(task, cursor, ctx) > startOf(pins[0])) {
+      const isRunning = task.id === runningTopId
+      while (pins.length && !isRunning && finishOf(task, cursor) > startOf(pins[0])) {
          placePin(pins.shift())
+      }
+      if (isBlock(task)) {
+         const block = scheduleBlock(task, members(task.id), cursor, ctx)
+         list.push(...block.list)
+         cursor = block.end
+         continue
       }
       const estimate = estimateFinishTime(task, cursor, ctx)
       list.push({ ...task, estimate: new Date(estimate) })
@@ -81,7 +114,7 @@ export default function calculateEstimates({ taskList, startedAt, newActionTime,
    const baseTime = baseTimeOf(taskList, startedAt, newActionTime)
    const activeTasks = taskList.filter(t => t.list === ACTIVE)
 
-   const openTasksResult = scheduleActiveTasks(activeTasks, baseTime, { runningTaskId, trackedSeconds, now })
+   const openTasksResult = scheduleActiveTasks(activeTasks, baseTime, { runningTaskId, trackedSeconds, now, taskList })
 
    // 'possibleEstimate' anchors after the last active task's estimate, or after now if
    // that already passed. 'nextUp' bucket only — mirrors the old parked-tasks list

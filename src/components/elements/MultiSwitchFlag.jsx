@@ -1,4 +1,4 @@
-// options: [{ value, label }, ...] — value is what gets stored/compared, label is what's shown
+// options: [{ value, label, emoji?, title? }, ...] — value is what gets stored/compared, label is what's shown, title is the hover text
 export default function MultiSwitchFlag({ options, value, onChange, onSubmit, width = 'w-30', rounded = 'rounded-pill' }) {
   const index = options.findIndex(o => o.value === value)
   const current = options[index] ?? options[0]
@@ -39,6 +39,7 @@ export default function MultiSwitchFlag({ options, value, onChange, onSubmit, wi
         focus-visible:outline-accent-soft focus-visible:shadow-glow-accent
         `}
       role='button'
+      title={current.title}
       tabIndex={0}
       onClick={() => step(1)}
       onContextMenu={(e) => { e.preventDefault(); step(-1) }}

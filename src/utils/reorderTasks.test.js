@@ -9,6 +9,55 @@ const backlog = (id, bucket = NEXTUP) => ({
 })
 const ids = (list) => list.map(t => t.id)
 
+describe('reorderTasks — time blocks', () => {
+    const block = (id) => ({ id, kind: 'block', label: `block ${id}`, time: 60, list: ACTIVE })
+    const member = (id, blockId) => ({ ...active(id), blockId })
+
+    it('drops a task into a block through the block zone', () => {
+        const result = reorderTasks([block('b'), active(1)], 1, 'block:b')
+        expect(result.find(t => t.id === 1)).toMatchObject({ list: ACTIVE, blockId: 'b' })
+    })
+
+    it('pulls a next-up task into a block by dropping it on a member', () => {
+        const result = reorderTasks([block('b'), member(1, 'b'), backlog(2)], 2, 1)
+        expect(result.find(t => t.id === 2)).toMatchObject({ list: ACTIVE, blockId: 'b', backlog: undefined })
+    })
+
+    it('takes a task out of its block when dropped on a loose task', () => {
+        const result = reorderTasks([block('b'), member(1, 'b'), active(2)], 1, 2)
+        expect(result.find(t => t.id === 1).blockId).toBeUndefined()
+    })
+
+    it('reorders members among themselves only', () => {
+        const taskList = [member(1, 'b'), active(2), member(3, 'b'), block('b')]
+        expect(ids(reorderTasks(taskList, 1, 3))).toEqual([3, 2, 1, 'b'])
+    })
+
+    it('moves a block among loose tasks, hitting its members counts as itself', () => {
+        const taskList = [active(1), block('b'), member(2, 'b'), active(3)]
+        expect(ids(reorderTasks(taskList, 'b', 1))).toEqual(['b', 1, 2, 3])
+        expect(reorderTasks(taskList, 'b', 2)).toBe(taskList)
+    })
+
+    it('lets a project block refuse tasks of other projects, a topic block takes anything', () => {
+        const taskList = [{ ...block('b'), project: 'p1' }, block('t'), { ...active(1), project: 'p2' }, { ...active(2), project: 'p1' }]
+        expect(reorderTasks(taskList, 1, 'block:b')).toBe(taskList)
+        expect(reorderTasks(taskList, 2, 'block:b').find(t => t.id === 2).blockId).toBe('b')
+        expect(reorderTasks(taskList, 1, 'block:t').find(t => t.id === 1).blockId).toBe('t')
+    })
+
+    it('gives a task without project the project of the block it joins', () => {
+        const taskList = [{ ...block('b'), project: 'p1' }, active(1)]
+        expect(reorderTasks(taskList, 1, 'block:b').find(t => t.id === 1)).toMatchObject({ blockId: 'b', project: 'p1' })
+    })
+
+    it('never puts a block into another block or the backlog', () => {
+        const taskList = [block('b'), block('c'), member(1, 'c'), backlog(2)]
+        expect(reorderTasks(taskList, 'b', 'block:c').find(t => t.id === 'b').blockId).toBeUndefined()
+        expect(reorderTasks(taskList, 'b', 2)).toBe(taskList)
+    })
+})
+
 describe('reorderTasks — moving within one list', () => {
     it('moves a task down, landing it after the task it was dropped on', () => {
         const taskList = [active(1), active(2), active(3)]

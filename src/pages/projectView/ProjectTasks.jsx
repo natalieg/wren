@@ -7,6 +7,7 @@ import TaskItem from '../../components/tasks/TaskItem'
 import TaskDndArea from '../../components/tasks/TaskDndArea'
 import { bucketOptions } from '../../utils/buckets'
 import { ACTIVE, BACKLOG, NEXTUP } from '../../utils/constants'
+import { isBlock } from '../../utils/blocks'
 
 // project-only — 'Today' picks the ACTIVE list, not a backlog bucket, so it doesn't
 // belong in the shared bucketOptions (Backlog.jsx's shift-arrows depend on that array's
@@ -22,7 +23,7 @@ export default function ProjectTasks({ project }) {
    const taskInputRef = useRef(null)
 
    const taskActionBundle = { ...taskActions, runningTaskId, trackedSeconds }
-   const projectTasks = taskList.filter(t => t.project === project.id)
+   const projectTasks = taskList.filter(t => t.project === project.id && !isBlock(t))
    const activeTasks = projectTasks.filter(t => t.list === ACTIVE)
 
    const handleSubmit = (name, time) => {

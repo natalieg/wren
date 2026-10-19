@@ -1,16 +1,14 @@
 import Bar from './elements/Bar'
-import { formatTime, formatClockTime, effectiveMinutes } from '../utils/formatTime'
+import { formatTime, formatClockTime } from '../utils/formatTime'
+import { minutesLeft, minutesDone } from '../utils/blocks'
 
 export default function TimeProgress({ openTasks, finishedTasks, startedAt, resetStartedAt }) {
-  const totalTimeLeft = openTasks.reduce((sum, task) => {
-    return sum + (parseInt(task.time) || 0);
-  }, 0);
+  // blocks count once, not on top of their tasks — see utils/blocks
+  const totalTimeLeft = minutesLeft(openTasks, finishedTasks);
 
   // if tracked < 1min it falls back to the estimate — see effectiveMinutes in utils/formatTime
   // LATER evaluate if user can change this behaviour in settings
-  const totalTimeDone = finishedTasks.reduce((sum, task) => {
-    return sum + (effectiveMinutes(task.trackedTime, task.time) || 0);
-  }, 0);
+  const totalTimeDone = minutesDone(finishedTasks);
 
   const totalTimePlanned = totalTimeDone + totalTimeLeft;
   const donePercent = totalTimePlanned > 0 ? (totalTimeDone / totalTimePlanned) * 100 : 0;

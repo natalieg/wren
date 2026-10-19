@@ -65,7 +65,8 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
             ${focusMode ? 'gap-4 pt-4' : ' gap-2'}`}>
             <div className='flex flex-col pl-8 gap-1 '>
                {/* Active/Inactive Tag + bucket, only relevant once parked */}
-               <div className='pl-0 -mt-1 flex gap-2 items-center justify-between'>
+               {/* wraps instead of overflowing when a backlog bucket makes the tag row wide */}
+               <div className='pl-0 -mt-1 flex flex-wrap gap-2 items-center justify-between'>
                   <div className='flex gap-2 items-center'>
                      {/* Recurring TODO move to a different place in the modal 
                      - rework modal layout when more settings are here */}
@@ -89,7 +90,7 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                         <MultiSwitchFlag options={bucketOptions} value={task.backlog?.bucket} width='w-28'
                            onChange={(bucket) => handleFieldChange(id, BACKLOG, { ...task.backlog, bucket })} />}
                   </div>
-                  <div id={`timeBox_${id}`} className='flex space-x-1 w-64'>
+                  <div id={`timeBox_${id}`} className='flex space-x-1 shrink-0'>
                      {/* Fixed start — pins the task to a time, ✕ or a cleared input unpins */}
                      <div className='relative'>
                         <LabeledField

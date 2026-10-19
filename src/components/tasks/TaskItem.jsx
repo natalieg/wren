@@ -11,6 +11,7 @@ import TimeFlag from '../elements/TimeFlag'
 import { BACKLOG, DONE, NEXTUP } from '../../utils/constants'
 import { CompactCheckboxCount } from '../CheckboxCount'
 import useProjectsContext from '../../hooks/useProjectsContext'
+import { isBlock } from '../../utils/blocks'
 
 // wraps a row in dnd-kit's sortable. Only rows that are actually sortable render through
 // this — the pinned running task renders TaskItem directly, so it never receives a transform
@@ -33,7 +34,10 @@ export function SortableTaskItem({ task, ...props }) {
 // TODO add right click menu for actions, including keyboard shortcut information
 // TODO add context menu for backlog actions
 export default function TaskItem({ index, task, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, showProjectName = true, setEditingTaskId, dragProps, isDragging }) {
-   const { id, label, notes, trackedTime, time, estimate, finishedTimestamp, possibleEstimate } = task
+   const { id, notes, trackedTime, estimate, finishedTimestamp, possibleEstimate } = task
+   // a finished time block shows its general time only, its duration was never work done
+   const label = isBlock(task) ? `▦ ${task.label}` : task.label
+   const time = isBlock(task) ? 0 : task.time
    const done = task.list === DONE
    const isTracking = id === runningTaskId
    const isActive = estimate

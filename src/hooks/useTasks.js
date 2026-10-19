@@ -11,6 +11,7 @@ import { reviveOrphanedHabits } from '../utils/recurring'
 import { getNextCopyTitle, getPrevCopyIndex, getOpenCopies } from './useTaskCopy'
 import useTimeAlert from './useTimeAlert'
 import { playFinishedSound } from '../utils/playSound'
+import { BLOCK, isBlock, activeBlockIds, releaseOpenMembers, adoptIntoBlock } from '../utils/blocks'
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -66,16 +67,31 @@ function useTasks() {
    const moveTaskToList = (id, target, opts = {}) => {
       const task = taskList.find(t => t.id === id)
       if (!task || task.list === target) return
-      const next = applyListChange(task, target, opts)
+      // a block lives on the day list only, it never parks
+      if (isBlock(task) && target === BACKLOG) return
+      let next = applyListChange(task, target, opts)
+      // un-finishing into a block that's gone makes it a plain task again
+      if (next.blockId && !isBlock(next) && !activeBlockIds(taskList).has(next.blockId)) {
+         next = { ...next, blockId: undefined }
+      }
 
       if (task.list === DONE) removeFromHistory(id)
       // the entry misses seconds still sitting in the running timer — the flush below
       // can only land on the next render. Known, pre-dates the transition rewrite
-      if (target === DONE) { addToHistory(next); playFinishedSound() }
+      if (target === DONE) {
+         // a block's history entry is only its general time, never its planned duration
+         if (!isBlock(next)) addToHistory(next)
+         else if ((next.trackedTime || 0) >= 60) addToHistory({ ...next, time: 0 })
+         playFinishedSound()
+      }
 
-      setTaskList(currentTaskList => entersAtEnd(target)
-         ? [...currentTaskList.filter(t => t.id !== id), next]
-         : currentTaskList.map(t => t.id === id ? next : t))
+      setTaskList(currentTaskList => {
+         const moved = entersAtEnd(target)
+            ? [...currentTaskList.filter(t => t.id !== id), next]
+            : currentTaskList.map(t => t.id === id ? next : t)
+         // a finished block lets its open tasks go back onto the day list
+         return isBlock(task) && target === DONE ? releaseOpenMembers(moved, id) : moved
+      })
 
       // after setTaskList on purpose: the flush is a functional update and has to land
       // on top of the transition instead of being overwritten by it
@@ -130,15 +146,36 @@ function useTasks() {
    }
 
    // options: { list, bucket } — used by Backlog to add tasks straight into 'backlog'/a bucket; atTop puts it first
-   const handleAddTask = (label, time, { list = ACTIVE, bucket, project, atTop = false } = {}) => {
+   const handleAddTask = (label, time, { list = ACTIVE, bucket, project, blockId, atTop = false } = {}) => {
       if (!label?.trim()) return
       const newTask = { id: newTaskId(), label, time, list }
       if (list === BACKLOG) {
          newTask.backlog = { bucket: bucket || NEXTUP, activationDate: null }
       }
       if (project) newTask.project = project
+      if (blockId && list === ACTIVE) newTask.blockId = blockId
       setTaskList(atTop ? [newTask, ...taskList] : [...taskList, newTask])
       updateActionTime()
+   }
+
+   // a time block, for a project or a free topic; a project's loose day tasks move in right away
+   const handleAddBlock = (project, label, time, { atTop = false } = {}) => {
+      if (!label?.trim() || !(time > 0)) return
+      const block = { id: newTaskId(), kind: BLOCK, label, time, list: ACTIVE }
+      if (project) block.project = project
+      setTaskList(prev => {
+         const adopted = adoptIntoBlock(prev, block, { fromNextUp: false })
+         return atTop ? [block, ...adopted] : [...adopted, block]
+      })
+      updateActionTime()
+   }
+
+   // pulls the project's loose day tasks and its next-up tasks into the block
+   const fillBlock = (blockId) => {
+      setTaskList(prev => {
+         const block = prev.find(t => t.id === blockId)
+         return block ? adoptIntoBlock(prev, block, { fromNextUp: true }) : prev
+      })
    }
 
    const handleCopyTask = useCallback((id) => {
@@ -181,6 +218,8 @@ function useTasks() {
          const task = currentTaskList.find(t => t.id === id)
          const kept = currentTaskList.filter(t => t.id !== id)
          if (!task) return currentTaskList
+         // deleting a block keeps its tasks, they just lose the block
+         if (isBlock(task)) return kept.map(t => t.blockId === id ? { ...t, blockId: undefined } : t)
          return [...kept, ...reviveOrphanedHabits(kept, [task], { list: BACKLOG, bucket: NEXTUP })]
       })
       updateActionTime()
@@ -211,9 +250,9 @@ function useTasks() {
    }
 
    const moveAllTasksToNextUp = () => {
-      //move all active tasks except if a task is currently running
+      //move all active tasks except if a task is currently running; blocks stay on the day
       setTaskList(currentTaskList =>
-         currentTaskList.map(t => t.list === ACTIVE && t.id !== runningTaskId ? applyListChange(t, BACKLOG, { bucket: NEXTUP }) : t)
+         currentTaskList.map(t => t.list === ACTIVE && t.id !== runningTaskId && !isBlock(t) ? applyListChange(t, BACKLOG, { bucket: NEXTUP }) : t)
       )
       updateActionTime()
    }
@@ -266,6 +305,8 @@ function useTasks() {
       toggleNoteSynch,
       moveTaskToList,
       handleAddTask,
+      handleAddBlock,
+      fillBlock,
       handleCopyTask,
       onDelete: handleDeleteTask,
       handleFieldChange,

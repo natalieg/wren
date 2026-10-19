@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.8.10 — 2026-10-19
+- ⚠️ **Largely untested** — built in one go, only clicked through briefly. Expect rough edges, especially with drag and drop
+- **Time blocks**: switch the input next to the task field to ▦ and add a block, e.g. "Solverint · 4h". Type a project name (suggestions appear) or any free topic like "Programming"
+- A block groups tasks in the day list: drag tasks in and out, add one with **+ add**, or **✦ fill** it with the project's loose today and next-up tasks (the number shows how many are waiting)
+- A block always takes its full time in the planned day, or more if its tasks need more. Its end time sits at the bottom of the block
+- The header shows tracked vs. planned time and whether there's buffer, the plan fits (±10m), or you're over. Going over is only a hint, never a penalty
+- **⫸ general** in the header: track time on the block that belongs to no task. Editable afterwards in minutes, in case you forgot to track
+- Project blocks only take their own project's tasks (the frame turns red otherwise). Tasks without a project are welcome and join the project. Topic blocks take anything
+- Finishing or deleting a block keeps its tasks on the day list. Blocks stay through rollover and "Clear day"
+- **Projects**: each project card shows the time tracked on it this week. Rough for now, a task left open over the weekend counts all its time in the new week
+- Task modal is wider and wraps instead of overflowing on backlog tasks
+
 ## 0.8.9 — 2026-10-07
 - ⚠️ **Untested in daily use** — needs a proper code + styling review soon
 - **Pinned tasks**: give a task a fixed start time (📌 Starts in the task modal) for meetings and appointments

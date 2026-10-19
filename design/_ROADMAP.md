@@ -213,9 +213,12 @@ A first, deliberately simpler version of "projects" than the original fuller des
 - ✅ 2026-09-16: each project sorts its own tasks through Today/Next Up/Next Week/Someday — reuses the exact `TaskDndArea`/`TaskDropZone`/`TaskGroup`/`groupKey` machinery the day list and Backlog already use, so drag-and-drop needed zero new logic. New tasks can go straight to Today via a project-only placement option layered on top of `bucketOptions` (kept separate since `ACTIVE` isn't a backlog bucket and Backlog's shift-arrows depend on that array's exact shape).
 - ✅ 2026-09-16: tasks carry an optional `project` field (legacy-safe) and show a small muted project-name label on their row when tagged.
 - ✅ 2026-09-16: `deleteProjectTasks`/`unassignProjectTasks` exist for the planned delete-project confirm ("keep tasks without project" vs. "delete tasks too") — not wired to a UI yet, no delete button exists.
+- ✅ 2026-10-19 (v0.8.10, ⚠️ largely untested): time blocks in the day list — a `kind: 'block'` entry in `taskList`, tasks join via `blockId`; the block reserves max(duration, its tasks) in the cascade and tracks its own "general" time. Project blocks or free topic blocks; logic in `utils/blocks.js`, UI in `pages/tasklist/timeblock/`. Mockup: `design/timeblock/Wren Time Block.html`.
+- ✅ 2026-10-19 (v0.8.10): project cards show this week's tracked time (`utils/projectTime.js`) — history since Monday plus open tasks, a stand-in until the session log exists.
 - 🔷 Open: project picker on the general task/edit-modal view, so a task can be (re)tagged from outside the project page.
 - 🔷 Open: delete-project confirm modal, once there's a delete button to hang it on.
 - 🔷 Rework how projects are handled — look at the current version first ("i need to look and rework how projects are handled right now").
+- 🔷 Time blocks, next steps: split a block, "rest → block 2" chip, project colors, weekday templates, today's project bar under the date (mockup sections 3–5).
 - 🔷 Project time blocks (near future): a project setting auto-blocks x hours every day / every x days in the daily view ("i know that i want to work x hours on a project every day... but i dont always know 'what'"). Per project, the block is either empty (click it, grab tasks from the project's backlog) or auto-filled with the next tasks. Related: the timeblock thoughts in `_Today.md` ("Wandering Subtasks"), and pinned tasks as a possible fixed slot for the block.
 
 ### Phase 14 — Shell layout alignment

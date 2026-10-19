@@ -3,6 +3,7 @@ import TaskItem, { SortableTaskItem } from './TaskItem'
 import { useDndContext } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { formatTime } from '../../utils/formatTime'
+import { isBlock } from '../../utils/blocks'
 
 // Placeholder for tasks being dragged to lists that can't accept live moves
 function DropPlaceholder({ label }) {
@@ -24,14 +25,18 @@ function FreeGap({ minutes }) {
 }
 
 // SortableContext for drag-and-drop positioning (DndContext is in TaskDndArea)
-export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, showProjectName }) {
+// renderBlock draws a time block in place of a row — the day list passes it, other lists don't hold blocks.
+// accepts(task) lets a list refuse a dragged task, it then gets no placeholder
+export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, showProjectName, renderBlock, accepts }) {
    // Drop target and frame live in TaskDropZone
    const { active, over } = useDndContext()
+   const draggedTask = active?.data?.current?.task
    const holdsDragged = !!active && tasks.some(t => t.id === active.id)
+   const refused = !!accepts && !!draggedTask && !accepts(draggedTask)
    const overIndex = over ? tasks.findIndex(t => t.id === over.id) : -1
    const overList = !!over && over.id === groupId
-   // Show placeholder only if dragged task isn't already in this list
-   const placeholderAt = holdsDragged ? -1
+   // Show placeholder only if dragged task isn't already in this list and may land here
+   const placeholderAt = holdsDragged || refused ? -1
       : overIndex !== -1 ? overIndex
          : overList ? tasks.length : -1
 
@@ -48,7 +53,7 @@ export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTa
                {placeholderAt === index &&
                   <DropPlaceholder label={active?.data?.current?.task?.label} />}
                {t.freeMinutesBefore > 0 && <FreeGap minutes={t.freeMinutesBefore} />}
-               <Row
+               {isBlock(t) && renderBlock ? renderBlock(t) : <Row
                   index={index}
                   task={t}
                   // task actions
@@ -64,7 +69,7 @@ export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTa
                   // from Tasklist
                   showEstimate={showEstimate}
                   showProjectName={showProjectName}
-               />
+               />}
                </Fragment>
                )
             })}

@@ -17,6 +17,61 @@ const defaults = {
 const run = (taskList, overrides = {}) =>
    calculateEstimates({ ...defaults, taskList, ...overrides })
 
+describe('calculateEstimates — time blocks', () => {
+   const block = (id, time, extra = {}) => ({ id, kind: 'block', label: 'B', project: 'p', time, list: ACTIVE, ...extra })
+   const start = defaults.startedAt.getTime()
+   const endOf = (openTasks, id) => openTasks.find(t => t.id === id).estimate.getTime()
+
+   it('reserves the full duration when its tasks need less', () => {
+      const { openTasks } = run([
+         block('b', 60),
+         { id: 1, label: 'in', time: 20, list: ACTIVE, blockId: 'b' },
+         { id: 2, label: 'after', time: 10, list: ACTIVE },
+      ])
+      expect(endOf(openTasks, 1)).toBe(start + 20 * MINUTE)
+      expect(endOf(openTasks, 'b')).toBe(start + 60 * MINUTE)
+      expect(endOf(openTasks, 2)).toBe(start + 70 * MINUTE)
+   })
+
+   it('grows when its tasks need more than the duration', () => {
+      const { openTasks } = run([
+         block('b', 30),
+         { id: 1, label: 'in', time: 25, list: ACTIVE, blockId: 'b' },
+         { id: 2, label: 'in', time: 20, list: ACTIVE, blockId: 'b' },
+      ])
+      expect(endOf(openTasks, 'b')).toBe(start + 45 * MINUTE)
+   })
+
+   it('keeps its members right behind it, wherever they sit in the task list', () => {
+      const { openTasks } = run([
+         { id: 1, label: 'in', time: 20, list: ACTIVE, blockId: 'b' },
+         { id: 2, label: 'loose', time: 10, list: ACTIVE },
+         block('b', 60),
+      ])
+      expect(openTasks.map(t => t.id)).toEqual([2, 'b', 1])
+      expect(endOf(openTasks, 1)).toBe(start + 30 * MINUTE)
+   })
+
+   it('pulls the block to the front and starts it now when a member is running', () => {
+      const { openTasks } = run([
+         { id: 2, label: 'loose', time: 10, list: ACTIVE },
+         block('b', 60),
+         { id: 1, label: 'in', time: 20, list: ACTIVE, blockId: 'b' },
+      ], { runningTaskId: 1, trackedSeconds: 5 * 60 })
+      expect(openTasks[0].id).toBe('b')
+      expect(endOf(openTasks, 1)).toBe(NOW + 15 * MINUTE)
+      expect(endOf(openTasks, 'b')).toBe(NOW + 55 * MINUTE)
+   })
+
+   it('counts finished members against the remaining duration', () => {
+      const { openTasks } = run([
+         block('b', 60),
+         { id: 1, label: 'done', time: 20, list: DONE, blockId: 'b', trackedTime: 40 * 60, finishedTimestamp: new Date(NOW).toISOString() },
+      ])
+      expect(endOf(openTasks, 'b')).toBe(NOW + 20 * MINUTE)
+   })
+})
+
 describe('calculateEstimates', () => {
    it('cascades: each active task starts where the one above it ends', () => {
       const { openTasks } = run([

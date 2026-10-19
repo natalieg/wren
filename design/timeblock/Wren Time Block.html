@@ -1,0 +1,338 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Wren Time Block</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600;700&family=Quicksand:wght@400;500;600;700&family=VT323&display=swap">
+<style>
+/* Layout: eine Mockup-Seite, Abschnitte untereinander; je Abschnitt eine Frage (Block, Zustände, Hinzufügen, Splitten, Projekt-Leiste). Tokens = Wren Design System. */
+:root{
+--violet-100:#f3e9ff;--violet-200:#e3ccff;--violet-300:#cba3ff;--violet-400:#a56bff;--violet-500:#863bff;--violet-600:#6d1fe0;--violet-700:#4f159f;
+--mint-100:#e4faf1;--mint-300:#8fe6c4;--mint-400:#5fd2ac;--mint-500:#3ab890;--mint-600:#289270;
+--pink-100:#ffe9f2;--pink-300:#ff9ec4;--pink-400:#f7719e;--pink-500:#e8497e;
+--sky-100:#e6f7ff;--sky-300:#8fd6ff;--sky-400:#5fbdf5;--sky-500:#47bfff;
+--gold-100:#fff6dd;--gold-300:#ffd76f;--gold-400:#ffc858;--gold-500:#e6a72f;
+--plum-100:#f6f0fb;--plum-200:#e6d9f0;--plum-300:#c9b8db;--plum-400:#8e7aa3;--plum-500:#5c4a70;--plum-600:#3d2a4d;--plum-700:#2b1a3d;--plum-800:#1f1230;--plum-900:#140c22;
+--bg-base:#faf4ff;--bg-sunken:#f1e6fb;--surface:#ffffff;--surface-hover:#f6ecff;
+--border-soft:var(--plum-200);--border-strong:var(--violet-300);
+--text-primary:var(--plum-700);--text-secondary:var(--plum-500);--text-muted:var(--plum-400);--text-on-accent:#ffffff;
+--accent:var(--violet-500);--accent-soft:var(--violet-100);--over:var(--violet-500);--over-soft:var(--violet-100);
+--p-solv:var(--sky-400);--p-wren:var(--pink-400);--p-priv:var(--mint-400);--p-sport:var(--gold-400);
+--shadow-color:220 40% 30%;
+--font-display:'Cinzel Decorative',serif;--font-heading:'Cinzel',serif;--font-body:'Quicksand',system-ui,sans-serif;--font-retro:'VT323',ui-monospace,monospace;
+--r-sm:6px;--r-md:10px;--r-lg:16px;--r-pill:999px;
+--ease:cubic-bezier(.34,1.56,.64,1);
+color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+--bg-base:var(--plum-800);--bg-sunken:var(--plum-900);--surface:var(--plum-700);--surface-hover:#432f54;
+--border-soft:#4a3760;--border-strong:var(--violet-400);
+--text-primary:var(--violet-100);--text-secondary:var(--plum-300);--text-muted:#8d79a4;--text-on-accent:#1f1230;
+--accent:var(--violet-400);--accent-soft:#3b2658;--over:var(--violet-300);--over-soft:#3b2658;
+--shadow-color:270 60% 4%;color-scheme:dark}}
+:root[data-theme="dark"]{
+--bg-base:var(--plum-800);--bg-sunken:var(--plum-900);--surface:var(--plum-700);--surface-hover:#432f54;
+--border-soft:#4a3760;--border-strong:var(--violet-400);
+--text-primary:var(--violet-100);--text-secondary:var(--plum-300);--text-muted:#8d79a4;--text-on-accent:#1f1230;
+--accent:var(--violet-400);--accent-soft:#3b2658;--over:var(--violet-300);--over-soft:#3b2658;
+--shadow-color:270 60% 4%;color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg-base);color:var(--text-primary);font-family:var(--font-body);font-size:15px;line-height:1.5;
+padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:48px}
+h1,h2{font-family:var(--font-heading);font-weight:600;margin:0;text-wrap:balance;letter-spacing:.04em}
+h1{font-size:1.75rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2{font-size:1.15rem;display:flex;gap:10px;align-items:baseline}
+h2 .g{color:var(--accent);font-size:.9em}
+.lead{color:var(--text-secondary);margin:8px 0 0;max-width:62ch}
+.sec{display:flex;flex-direction:column;gap:14px}
+.sec>p{margin:0;color:var(--text-secondary);max-width:64ch}
+.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.theme{border:1.5px solid var(--border-soft);background:var(--surface);color:var(--text-secondary);border-radius:var(--r-pill);padding:6px 14px;font:600 .8rem var(--font-body);cursor:pointer}
+.theme:hover{background:var(--surface-hover)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Stage = Fläche wie die Daylist */
+.stage{background:var(--bg-sunken);border:1.5px solid var(--border-soft);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.seg{display:inline-flex;background:var(--surface);border:1.5px solid var(--border-soft);border-radius:var(--r-pill);padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:var(--text-secondary);font:600 .82rem var(--font-body);padding:6px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all 200ms var(--ease)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--text-on-accent)}
+.seg button:not([aria-pressed="true"]):hover{background:var(--surface-hover)}
+.ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.82rem;color:var(--text-muted)}
+
+/* Task-Zeile */
+.row{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border-soft);border-radius:var(--r-lg);padding:9px 12px;min-width:0}
+.cb{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-strong);flex:none;display:grid;place-items:center;font-size:.7rem;color:var(--text-on-accent)}
+.row.done .cb{background:var(--mint-500);border-color:var(--mint-500)}
+.row.done .lbl{text-decoration:line-through;color:var(--text-muted)}
+.lbl{flex:1;min-width:0;overflow-wrap:anywhere}
+.lbl small{display:block;color:var(--text-muted);font-size:.7rem}
+.pill{background:var(--accent-soft);color:var(--text-primary);border-radius:var(--r-md);padding:2px 12px;font:600 .85rem var(--font-body);min-width:52px;text-align:center;font-variant-numeric:tabular-nums}
+.clock{font:600 .85rem var(--font-body);color:var(--text-secondary);min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.play{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border-strong);background:var(--surface);color:var(--accent);font-size:.65rem;cursor:pointer;flex:none;display:grid;place-items:center}
+.play.on{background:var(--accent);color:var(--text-on-accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 50%,transparent)}
+.row.running{border-color:var(--accent)}
+.chip{font:700 .72rem var(--font-body);border-radius:var(--r-pill);padding:3px 10px;background:var(--over-soft);color:var(--over);border:1.5px solid color-mix(in srgb,var(--over) 40%,transparent);cursor:pointer;white-space:nowrap}
+.chip:hover{background:color-mix(in srgb,var(--over) 22%,var(--surface))}
+.row.general{border-style:dashed;background:transparent}
+.row.general .lbl{color:var(--text-secondary)}
+
+/* Block */
+.block{--pc:var(--p-solv);background:var(--surface);border:1.5px solid color-mix(in srgb,var(--pc) 55%,var(--border-soft));border-radius:var(--r-lg);overflow:hidden;box-shadow:0 4px 14px hsl(var(--shadow-color)/.10)}
+.block.wren{--pc:var(--p-wren)}.block.priv{--pc:var(--p-priv)}
+.bh{background:color-mix(in srgb,var(--pc) 22%,var(--surface));padding:10px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:6px 12px;align-items:center}
+.grip{color:var(--text-muted);cursor:grab;letter-spacing:-2px;font-size:1rem;user-select:none}
+.bname{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+.bname b{font:700 .95rem var(--font-heading);letter-spacing:.05em}
+.bname span{color:var(--text-secondary);font-size:.82rem}
+.bmeta{font:400 1.25rem var(--font-retro);letter-spacing:.03em;white-space:nowrap}
+.bmeta em{font-style:normal;color:var(--text-muted)}
+.bar{grid-column:2/4;height:10px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--pc) 18%,var(--bg-sunken));position:relative;overflow:hidden;display:flex}
+.bar i{display:block;height:100%;transition:width 360ms var(--ease-o,ease)}
+.bar .in{background:var(--pc)}.bar .out{background:var(--over)}
+.bar .mark{position:absolute;top:0;bottom:0;width:2px;background:var(--text-primary);opacity:.55}
+.bar .plan{position:absolute;top:0;bottom:0;width:0;border-right:2px dotted var(--text-primary);opacity:.45}
+.bst{grid-column:2/4;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:.78rem;color:var(--text-secondary);min-height:22px}
+.state{font-weight:700;padding:2px 10px;border-radius:var(--r-pill);background:var(--bg-sunken)}
+.state.ok{background:var(--mint-100);color:var(--mint-600)}
+:root[data-theme="dark"] .state.ok{background:#1f3a35;color:var(--mint-300)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .state.ok{background:#1f3a35;color:var(--mint-300)}}
+.state.full{background:var(--gold-100);color:#8a5d00}
+:root[data-theme="dark"] .state.full{background:#4a3a14;color:var(--gold-300)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .state.full{background:#4a3a14;color:var(--gold-300)}}
+.state.over{background:var(--over-soft);color:var(--over)}
+.tools{display:flex;gap:4px}
+.tb{border:0;background:transparent;color:var(--text-secondary);font-size:1rem;width:30px;height:30px;border-radius:50%;cursor:pointer}
+.tb:hover{background:color-mix(in srgb,var(--pc) 30%,var(--surface))}
+.bb{padding:10px;display:flex;flex-direction:column;gap:8px}
+.bfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:0 4px 2px}
+.ghost{border:1.5px dashed var(--border-strong);background:transparent;color:var(--accent);font:700 .8rem var(--font-body);border-radius:var(--r-pill);padding:5px 14px;cursor:pointer}
+.ghost:hover{background:var(--accent-soft)}
+.note{font-size:.78rem;color:var(--text-muted)}
+.free{text-align:center;color:var(--text-muted);font-size:.75rem;letter-spacing:.06em}
+
+/* Karten */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px}
+.cols>*{min-width:0}
+.card{background:var(--surface);border:1.5px solid var(--border-soft);border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h3{margin:0;font:700 .78rem var(--font-body);letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted)}
+.inp{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.inp .field{flex:1;min-width:140px;border:1.5px solid var(--border-soft);background:var(--bg-base);border-radius:var(--r-md);padding:8px 12px;color:var(--text-muted)}
+.inp .field.num{flex:none;min-width:0;width:56px;text-align:center;color:var(--text-primary)}
+.sw{border:1.5px solid var(--border-soft);background:var(--accent-soft);color:var(--accent);border-radius:var(--r-pill);padding:6px 12px;font:700 .8rem var(--font-body);cursor:pointer;white-space:nowrap}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--border-soft);background:var(--surface);border-radius:var(--r-pill);padding:5px 12px;font:600 .82rem var(--font-body);color:var(--text-primary);cursor:pointer}
+.pchip::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c)}
+.pchip[aria-pressed="true"]{border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+.dchip{border:1.5px solid var(--border-soft);background:var(--surface);border-radius:var(--r-md);padding:5px 12px;font:600 .82rem var(--font-body);color:var(--text-primary);cursor:pointer;font-variant-numeric:tabular-nums}
+.dchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--text-on-accent)}
+.lab{font-size:.75rem;color:var(--text-muted);letter-spacing:.06em}
+.add{border:0;background:var(--accent);color:var(--text-on-accent);font:700 .85rem var(--font-body);border-radius:var(--r-pill);padding:8px 18px;cursor:pointer}
+.pop{border:1.5px solid var(--border-strong);border-radius:var(--r-md);background:var(--surface);box-shadow:0 6px 0 var(--border-strong),0 8px 20px hsl(var(--shadow-color)/.25);padding:12px;display:flex;flex-direction:column;gap:8px;max-width:300px}
+.pop b{font:700 .85rem var(--font-heading);letter-spacing:.05em}
+.opt{display:flex;justify-content:space-between;gap:10px;border:1.5px solid var(--border-soft);border-radius:var(--r-md);padding:7px 10px;background:var(--bg-base);font-size:.85rem}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.cut{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:.72rem;font-weight:700;letter-spacing:.08em}
+.cut::before,.cut::after{content:"";flex:1;border-top:1.5px dashed var(--accent)}
+
+/* Projekt-Leisten */
+.date{text-align:center;font:600 1.3rem var(--font-heading);letter-spacing:.06em;padding:4px 0 2px}
+.stack{display:flex;height:14px;border-radius:var(--r-pill);overflow:hidden;gap:2px}
+.stack i{display:block;min-width:4px}
+.legend{display:flex;gap:10px 16px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.lg{display:inline-flex;align-items:center;gap:7px;font-size:.88rem}
+.lg::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--c)}
+.lg .t{font:400 1.05rem var(--font-retro);background:var(--accent-soft);padding:0 8px;border-radius:6px;letter-spacing:.03em}
+.lg .p{font:400 1.05rem var(--font-retro);background:var(--accent-soft);padding:0 7px;border-radius:6px;color:var(--text-secondary)}
+.bdg{display:inline-flex;flex-direction:column;gap:5px;background:var(--surface);border:1.5px solid var(--border-soft);border-radius:var(--r-md);padding:6px 12px 7px;min-width:104px}
+.bdg span{font-size:.78rem;color:var(--text-secondary)}
+.bdg b{font:400 1.35rem/1 var(--font-retro);letter-spacing:.03em}
+.bdg u{display:block;height:4px;border-radius:4px;background:var(--c);text-decoration:none}
+.brow{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
+.total{display:flex;flex-direction:column;justify-content:center;padding:0 10px;color:var(--text-muted);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.total b{font:400 1.5rem/1 var(--font-retro);color:var(--text-primary);letter-spacing:.03em}
+.inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:.85rem;color:var(--text-secondary);margin-top:8px;justify-content:center}
+.inline .stack{height:6px;flex:1 1 100%;max-width:520px;margin:0 auto}
+.inline b{font-weight:700;color:var(--text-primary)}
+.inline .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;background:var(--c)}
+.verdict{display:flex;gap:8px;flex-wrap:wrap;font-size:.82rem;color:var(--text-secondary)}
+.verdict span{background:var(--surface);border:1.5px solid var(--border-soft);border-radius:var(--r-pill);padding:3px 12px}
+.verdict b{color:var(--accent)}
+.col2{display:flex;flex-direction:column;gap:8px}
+@media (max-width:480px){.bh{grid-template-columns:auto 1fr}.bh .bmeta{grid-column:1/3}.bar,.bst{grid-column:1/3}.tools{grid-column:2;justify-self:end;grid-row:1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+<div>
+<h1><span style="color:var(--accent)">✦</span> Time Block <span style="color:var(--accent)">✦</span></h1>
+<p class="lead">Mockups für den Plan: Block als Gruppe in der Daylist, Überlauf ohne Strafe, Hinzufügen, Splitten und die Projekt-Leiste für heute. Die Beispiele sind klickbar.</p>
+</div>
+<button class="theme" id="themeBtn" type="button">Dark / Light</button>
+</header>
+
+<!-- 1 + 2 -->
+<section class="sec">
+<h2><span class="g">✧</span> Block in der Daylist</h2>
+<p>Der Block ist eine Gruppe mit Kopfzeile. Er hat keine Startzeit und sortiert sich wie ein normaler Task in die Liste ein. Die Uhrzeiten rechts laufen durch die Kaskade wie bisher. Der gestrichelte Eintrag "Allgemein" trackt Zeit ohne eigenen Task.</p>
+<div class="ctrl"><span>Szenario:</span>
+<div class="seg" id="scen" role="group" aria-label="Szenario">
+<button type="button" data-s="0" aria-pressed="true">3h 50m geplant (Grace)</button>
+<button type="button" data-s="1" aria-pressed="false">genau 4h</button>
+<button type="button" data-s="2" aria-pressed="false">4h 25m, Block gesprengt</button>
+</div></div>
+<div class="stage" id="stage1"></div>
+</section>
+
+<!-- 3 -->
+<section class="sec">
+<h2><span class="g">✧</span> Hinzufügen</h2>
+<p>Das Eingabefeld bleibt wie es ist. Das SwitchFlag links wechselt zwischen Task und Block. Im Block-Modus erscheinen deine Projekte als Chips, dazu die Dauer. Mehr Platz braucht es nicht.</p>
+<div class="cols">
+<div class="card">
+<h3>Task-Modus (heute schon so)</h3>
+<div class="inp"><button class="sw" type="button" tabindex="-1">↓ Task</button><div class="field">Add a new task…</div><div class="field num">20</div></div>
+</div>
+<div class="card" id="addcard">
+<h3>Block-Modus</h3>
+<div class="inp"><button class="sw" id="swBtn" type="button">▦ Block</button><div class="field" id="addField">Projekt wählen …</div><div class="field num" id="addDur">2h</div></div>
+<div class="lab">DEINE PROJEKTE</div>
+<div class="chips" id="projChips"></div>
+<div class="lab">DAUER</div>
+<div class="chips" id="durChips"></div>
+<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="add" type="button" id="addBtn">Block hinzufügen</button><span class="note" id="addNote">Enter fügt hinzu. Danach fließen passende Tasks automatisch hinein.</span></div>
+</div>
+</div>
+<div class="card">
+<h3>Später: Vorlage pro Wochentag</h3>
+<div class="verdict"><span><b>Mo</b> Solverint 4h · Wren 2h</span><span><b>Di</b> Solverint 4h · Privat 2h</span><span><b>Mi</b> Wren 3h</span><span class="note" style="border:0;background:none">Beim Tagesstart wären die Blöcke schon da.</span></div>
+</div>
+</section>
+
+<!-- 4 -->
+<section class="sec">
+<h2><span class="g">✧</span> Splitten und Verschieben</h2>
+<p>Die Schere im Header öffnet ein kleines Fenster. Du wählst die Schnittstelle zwischen zwei Tasks oder teilst gleichmäßig. Am Griff links wird der ganze Block verschoben, eingeklappt ist er eine einzige Zeile.</p>
+<div class="cols">
+<div class="stage">
+<div class="pop">
+<b>Block teilen</b>
+<div class="opt sel"><span>2 × 2h gleichmäßig</span><span>✓</span></div>
+<div class="opt"><span>Nach „CLI-1208“</span><span>1h 55m | 2h 05m</span></div>
+<div class="opt"><span>Eigene Dauer …</span><span>›</span></div>
+<div class="cut">SCHNITT</div>
+<span class="note">Beide Blöcke behalten das Projekt. Du kannst Wren dazwischen schieben.</span>
+</div>
+</div>
+<div class="stage">
+<div class="block" style="--pc:var(--p-solv)">
+<div class="bh" style="grid-template-columns:auto 1fr auto">
+<span class="grip" title="Block verschieben">⠿⠿</span>
+<div class="bname"><b>Solverint</b><span>2h · 5 Tasks</span></div>
+<div class="bmeta">1h 10m <em>/ 2h</em></div>
+</div></div>
+<div class="block wren">
+<div class="bh" style="grid-template-columns:auto 1fr auto">
+<span class="grip" title="Block verschieben">⠿⠿</span>
+<div class="bname"><b>Wren</b><span>2h · 2 Tasks</span></div>
+<div class="bmeta">0m <em>/ 2h</em></div>
+</div></div>
+<div class="block" style="--pc:var(--p-solv)">
+<div class="bh" style="grid-template-columns:auto 1fr auto">
+<span class="grip" title="Block verschieben">⠿⠿</span>
+<div class="bname"><b>Solverint</b><span>2h · Block 2</span></div>
+<div class="bmeta">0m <em>/ 2h</em></div>
+</div></div>
+<span class="note">Eingeklappte Ansicht: Solverint ist in zwei Blöcke geteilt, Wren liegt dazwischen.</span>
+</div>
+</div>
+</section>
+
+<!-- 5 -->
+<section class="sec">
+<h2><span class="g">✧</span> Projekt-Leiste für heute</h2>
+<p>Ein Badge erscheint erst ab 1 Minute. Drei Varianten unter dem Datum. Rechnerisch ist alles dasselbe, die Daten kommen aus dem Zeit-Log.</p>
+<div class="ctrl"><div class="seg" id="vsel" role="group" aria-label="Variante">
+<button type="button" data-v="a" aria-pressed="true">A · Leiste + Legende</button>
+<button type="button" data-v="b" aria-pressed="false">B · Badges mit Anteil</button>
+<button type="button" data-v="c" aria-pressed="false">C · Eine Zeile</button>
+</div></div>
+<div class="stage"><div class="date">Monday 19 October</div><div id="vout"></div></div>
+<div class="verdict" id="vnote"></div>
+</section>
+
+</div>
+
+<script>
+function fmt(m){var h=Math.floor(m/60),r=m%60;return h?(r?h+'h '+r+'m':h+'h'):r+'m'}
+var P={solv:{n:'Solverint',c:'var(--p-solv)'},wren:{n:'Wren',c:'var(--p-wren)'},priv:{n:'Privat',c:'var(--p-priv)'},sport:{n:'Sport',c:'var(--p-sport)'}};
+
+/* 1: Block-Szenarien */
+var tasks=[['CLI-1221, CLI-1215 Agent design / fix broken text behaviour',90],['CLI-1047 Add Issue Filter to Overview/Listview',30],['CLI-1208 Hypothese bei Step 4 anzeigen',45],['CLI Farbe bei Prozentbox angleichen',20],['CLI-1222 Tests: delete/save permission handling',45]];
+var SC=[{last:45,tracked:135,done:1,gen:15},{last:55,tracked:200,done:3,gen:15},{last:80,tracked:250,done:4,gen:20}];
+var s=0;
+function renderBlock(){
+var sc=SC[s],t=tasks.map(function(x,i){return[x[0],i===4?sc.last:x[1]]});
+var plan=t.reduce(function(a,x){return a+x[1]},0),dur=240,tr=sc.tracked;
+var scale=Math.max(dur,plan,tr),inw=Math.min(tr,dur)/scale*100,outw=Math.max(0,tr-dur)/scale*100;
+var diff=plan-dur,st,cls;
+if(diff>0){st='+'+fmt(diff)+' über Plan';cls='over'}else if(diff>-5){st='Plan passt genau';cls='full'}else{st=fmt(-diff)+' Puffer';cls='ok'}
+var clock=['11:19','11:49','12:34','12:54','13:39'],rows='';
+t.forEach(function(x,i){
+var d=i<sc.done,run=i===sc.done;
+rows+='<div class="row'+(d?' done':'')+(run?' running':'')+'"><span class="cb">'+(d?'✓':'')+'</span><span class="lbl">'+x[0]+'<small>Solverint</small></span>'+
+(i===4&&diff>0?'<button class="chip" type="button">Rest '+fmt(diff)+' → Block 2</button>':'')+
+(d?'':'<button class="play'+(run?' on':'')+'" type="button" aria-label="Tracking">'+(run?'❚❚':'▶')+'</button>')+
+'<span class="pill">'+x[1]+'</span><span class="clock">'+clock[i]+'</span></div>'});
+rows+='<div class="row general"><span class="cb"></span><span class="lbl">Allgemein, ohne Task<small>Zeit im Block, die zu keinem Task gehört</small></span><button class="play" type="button" aria-label="Allgemein tracken">▶</button><span class="pill">'+sc.gen+'</span><span class="clock"></span></div>';
+document.getElementById('stage1').innerHTML=
+'<div class="block"><div class="bh"><span class="grip" title="Block verschieben">⠿⠿</span>'+
+'<div class="bname"><b>Solverint</b><span>4h Block</span></div>'+
+'<div class="tools"><span class="bmeta">'+fmt(tr)+' <em>/ '+fmt(dur)+'</em></span><button class="tb" type="button" title="Block teilen">✂</button><button class="tb" type="button" title="Mehr">⋯</button></div>'+
+'<div class="bar" role="img" aria-label="Getrackt '+fmt(tr)+' von '+fmt(dur)+'"><i class="in" style="width:'+inw+'%"></i><i class="out" style="width:'+outw+'%"></i><span class="plan" style="left:0;width:'+(plan/scale*100)+'%"></span>'+(scale>dur?'<span class="mark" style="left:'+(dur/scale*100)+'%"></span>':'')+'</div>'+
+'<div class="bst"><span class="state '+cls+'">'+st+'</span><span>geplant '+fmt(plan)+', getrackt '+fmt(tr)+(tr>dur?' (kein Abzug, nur Hinweis)':'')+'</span></div></div>'+
+'<div class="bb">'+rows+'<div class="bfoot"><button class="ghost" type="button">✦ Aus Solverint auffüllen</button><span class="note">'+(diff>0?'Block 2 liegt unter Wren, der Rest ist ein Klick.':'Grace: bis ±10m gilt der Block als voll.')+'</span></div></div></div>'+
+'<div class="free">— 1m free —</div>';
+}
+document.getElementById('scen').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;s=+b.dataset.s;
+this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});renderBlock()});
+renderBlock();
+
+/* 3: Add-Flow */
+var selP='solv',selD=120,modeBlock=true;
+function renderAdd(){
+document.getElementById('projChips').innerHTML=Object.keys(P).map(function(k){return'<button type="button" class="pchip" data-p="'+k+'" style="--c:'+P[k].c+'" aria-pressed="'+(k===selP)+'">'+P[k].n+'</button>'}).join('');
+document.getElementById('durChips').innerHTML=[60,120,180,240].map(function(d){return'<button type="button" class="dchip" data-d="'+d+'" aria-pressed="'+(d===selD)+'">'+fmt(d)+'</button>'}).join('');
+document.getElementById('addField').textContent=P[selP].n;document.getElementById('addField').style.color='var(--text-primary)';
+document.getElementById('addDur').textContent=fmt(selD);}
+document.getElementById('addcard').addEventListener('click',function(e){
+var p=e.target.closest('[data-p]'),d=e.target.closest('[data-d]');
+if(p){selP=p.dataset.p;renderAdd()}if(d){selD=+d.dataset.d;renderAdd()}
+if(e.target.id==='addBtn'){document.getElementById('addNote').textContent='Block „'+P[selP].n+' · '+fmt(selD)+'“ wäre jetzt in der Liste (nur Mockup).'}
+if(e.target.id==='swBtn'){modeBlock=!modeBlock;e.target.textContent=modeBlock?'▦ Block':'↓ Task';document.getElementById('addField').textContent=modeBlock?P[selP].n:'Add a new task…'}
+});
+renderAdd();
+
+/* 5: Projekt-Leiste */
+var D=[['solv',130],['wren',66],['priv',38]],tot=234;
+function pct(m){return Math.round(m/tot*100)}
+var V={
+a:function(){return'<div class="stack">'+D.map(function(x){return'<i style="width:'+x[1]/tot*100+'%;background:'+P[x[0]].c+'"></i>'}).join('')+'</div><div class="legend">'+D.map(function(x){return'<span class="lg" style="--c:'+P[x[0]].c+'">'+P[x[0]].n+' <span class="t">'+fmt(x[1])+'</span><span class="p">'+pct(x[1])+'%</span></span>'}).join('')+'</div>'},
+b:function(){return'<div class="brow"><div class="total">Heute<b>'+fmt(tot)+'</b></div>'+D.map(function(x){return'<div class="bdg" style="--c:'+P[x[0]].c+'"><span>'+P[x[0]].n+'</span><b>'+fmt(x[1])+'</b><u style="width:'+Math.max(8,x[1]/130*100)+'%"></u></div>'}).join('')+'</div>'},
+c:function(){return'<div class="inline"><div class="stack">'+D.map(function(x){return'<i style="width:'+x[1]/tot*100+'%;background:'+P[x[0]].c+'"></i>'}).join('')+'</div>'+D.map(function(x){return'<span><span class="dot" style="--c:'+P[x[0]].c+'"></span>'+P[x[0]].n+' <b>'+fmt(x[1])+'</b></span>'}).join('')+'</div>'}
+};
+var N={a:['Nah am History-Screenshot, zeigt Anteile auf einen Blick.','Braucht am meisten Platz.'],b:['Eher Zahlen als Anteile, jedes Projekt ist ein eigener Chip.','Gut bei vielen Projekten, wirkt etwas schwerer.'],c:['Dünnste Variante, passt ohne Layout-Umbau unter das Datum.','Wenig Platz für die Zeiten bei 5+ Projekten.']};
+function renderV(v){document.getElementById('vout').innerHTML=V[v]();
+document.getElementById('vnote').innerHTML=N[v].map(function(t){return'<span>'+t+'</span>'}).join('')+'<span>Sport 0m erscheint noch nicht.</span>'}
+document.getElementById('vsel').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+this.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});renderV(b.dataset.v)});
+renderV('a');
+
+document.getElementById('themeBtn').addEventListener('click',function(){
+var r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+r.dataset.theme=dark?'light':'dark'});
+</script>
+
+</body></html>

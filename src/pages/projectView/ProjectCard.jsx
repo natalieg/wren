@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom'
 import Input from '../../components/elements/Input'
 import Textarea from '../../components/elements/Textarea'
 import ProjectTasks from './ProjectTasks'
+import ProjectWeekTime from './ProjectWeekTime'
 
 export default function ProjectCard({ project, onNameChange, onNotesChange }) {
    return (
       <div className='flex flex-col gap-3 p-4 rounded-sm border-(length:--border-w-thick) border-text-primary bg-surface'>
          <div className='flex items-center gap-2'>
             <Input value={project.name} onChange={(e) => onNameChange(e.target.value)} className='font-bold' />
+            <ProjectWeekTime projectId={project.id} />
             <Link to={`/project/${project.id}`} title='Focus on this project'
                className='shrink-0 text-lg text-text-muted hover:text-text-primary'>⤢</Link>
          </div>

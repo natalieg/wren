@@ -4,7 +4,7 @@ const DAY_LABELS = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU']
 
 // Monday 00:00 of the week containing `date` — getDay() is 0=Sun..6=Sat,
 // so this maps it to 0=Mon..6=Sun before subtracting back to Monday.
-function weekStart(date) {
+export function weekStart(date) {
    const offset = (date.getDay() + 6) % 7
    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate() - offset)
    return start

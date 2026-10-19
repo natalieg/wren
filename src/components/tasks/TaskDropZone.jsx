@@ -9,13 +9,14 @@ import { useDndContext, useDroppable } from '@dnd-kit/core'
 // The empty-list min-height is unconditional rather than drag-only for the same reason
 // the sections always render: growing at drag start shifts the row dnd-kit just measured,
 // and the preview then hangs that far off the cursor for the whole drag.
-export default function TaskDropZone({ groupId, tasks = [], className = '', children }) {
+// frame={false} leaves the highlight to the parent, e.g. a time block that draws its own frame
+export default function TaskDropZone({ groupId, tasks = [], className = '', frame = true, children }) {
     const { setNodeRef } = useDroppable({ id: groupId })
     const { active, over } = useDndContext()
 
     const holdsDragged = !!active && tasks.some(t => t.id === active.id)
     const isOver = !!over && (over.id === groupId || tasks.some(t => t.id === over.id))
-    const highlight = holdsDragged || isOver
+    const highlight = frame && (holdsDragged || isOver)
 
     return (
         <div ref={setNodeRef}

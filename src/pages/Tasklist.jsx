@@ -6,8 +6,10 @@ import TaskSection from '../components/tasks/TaskSection'
 import TaskDropZone from '../components/tasks/TaskDropZone'
 import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
-import TaskInput from '../components/tasks/TaskInput'
+import DayInput from './tasklist/DayInput'
+import TimeBlock from './tasklist/timeblock/TimeBlock'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
+import { isBlock, activeBlockIds, blockIdOf } from '../utils/blocks'
 import ContextMenu from '../components/elements/ContextMenu'
 
 export default function Tasklist() {
@@ -23,7 +25,7 @@ export default function Tasklist() {
       resetStartedAt,
    } = useContext(TasksContext)
    const [menu, setMenu] = useState(null)
-   const { handleAddTask, moveAllTasksToNextUp, deleteAllFinishedTasks, reorderTaskList, } = taskActions
+   const { handleAddTask, handleAddBlock, moveAllTasksToNextUp, deleteAllFinishedTasks, reorderTaskList, } = taskActions
 
    const taskActionBundle = {
       ...taskActions,
@@ -31,13 +33,21 @@ export default function Tasklist() {
       trackedSeconds,
    }
 
-   const runningTask = openTasks.find((t) => t.id === runningTaskId)
-   const openTasksWithoutRunning = openTasks.filter((t) => t.id !== runningTaskId)
+   // tasks inside a block render in the block, everything else is the plain day list
+   const blockIds = activeBlockIds(openTasks)
+   const membersOf = (blockId) => openTasks.filter((t) => blockIdOf(t, blockIds) === blockId)
+   const looseTasks = openTasks.filter((t) => !blockIdOf(t, blockIds))
+   const runningTask = looseTasks.find((t) => t.id === runningTaskId && !isBlock(t))
+   const openTasksWithoutRunning = looseTasks.filter((t) => t !== runningTask)
+
+   const renderBlock = (block) =>
+      <TimeBlock block={block} members={membersOf(block.id)} taskActionBundle={taskActionBundle} />
 
    // the floating copy under the cursor while dragging — same row component, so it can't
    // drift from how a task actually looks
    const renderDragOverlay = (id) => {
       const task = [...openTasks, ...nextUpTasks, ...finishedTasks].find((t) => t.id === id)
+      if (isBlock(task)) return <div className='rounded-lg border-2 border-accent-muted bg-accent-soft px-3 py-2 font-title'>▦ {task.label}</div>
       return task ? <TaskItem task={task} {...taskActionBundle} showEstimate={true} /> : null
    }
    const clearDay = () => {
@@ -62,11 +72,7 @@ export default function Tasklist() {
          <p className='headerDark'>Tasks</p>
          <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
             <div className='w-[80%] mx-auto'>
-               <TaskInput
-                  id='main'
-                  showPlacement
-                  onSubmit={handleAddTask}
-               />
+               <DayInput onAddTask={handleAddTask} onAddBlock={handleAddBlock} />
             </div>
             {/* Time display + Bar */}
             <TimeProgress openTasks={openTasks} finishedTasks={finishedTasks} startedAt={startedAt} resetStartedAt={resetStartedAt} />
@@ -91,7 +97,7 @@ export default function Tasklist() {
                   showEstimate={true} />
                {/* ⚡ Active Tasks */}
                <TaskDropZone groupId={ACTIVE} tasks={openTasksWithoutRunning}>
-                  <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} />
+                  <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} renderBlock={renderBlock} />
                </TaskDropZone>
                {/* ✅ Finished Tasks */}
                <TaskSection label='Finished tasks'

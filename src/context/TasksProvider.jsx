@@ -51,7 +51,7 @@ function TasksProvider({ children }) {
       <TrackingContext.Provider value={{ startTracking, stopTracking, startBreak, stopBreak }}>
          {children}
          {editingTask &&
-            <Modal title={editingTask.label} width={modalBig ? 'w-[90%] h-[80%]' : 'w-120'}
+            <Modal title={editingTask.label} width={modalBig ? 'w-[90%] h-[80%]' : 'w-144'}
                onMaximize={modalBig ? undefined : () => setModalBig(true)}
                onMinimize={!modalBig ? undefined :() => setModalBig(false)}
                onClose={() => taskActions.setEditingTaskId(null)}>

@@ -23,8 +23,10 @@ export const listRules = {
       position: 'end',
    },
    [BACKLOG]: {
+      // parking takes a task out of its time block
       enter: (t, from, opts = {}) => ({
          ...t,
+         blockId: undefined,
          backlog: {
             bucket: opts.bucket ?? t.backlog?.bucket ?? NEXTUP,
             activationDate: t.backlog?.activationDate ?? null,
