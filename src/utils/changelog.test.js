@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest'
-import { parseChangelog, splitInlineCode } from './changelog'
+import { parseChangelog, splitInlineCode, splitInline } from './changelog'
+
+describe('splitInline', () => {
+   it('marks **bold** chunks and leaves code alone', () => {
+      expect(splitInline('**Time blocks**: add `**not bold**` here')).toEqual([
+         { text: 'Time blocks', code: false, bold: true },
+         { text: ': add ', code: false, bold: false },
+         { text: '**not bold**', code: true, bold: false },
+         { text: ' here', code: false, bold: false },
+      ])
+   })
+})
 
 const sample = `# Changelog
 

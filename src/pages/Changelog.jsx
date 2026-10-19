@@ -1,7 +1,7 @@
 import DocWrapper from '../components/DocWrapper'
 import Header from '../components/elements/Header'
 import { GlyphBorder } from '../components/elements/GlyphBorder'
-import { parseChangelog, splitInlineCode } from '../utils/changelog'
+import { parseChangelog, splitInline } from '../utils/changelog'
 import { version as currentVersion } from '../../package.json'
 import changelogRaw from '../../CHANGELOG.md?raw'
 
@@ -33,12 +33,14 @@ export default function Changelog() {
                            <li key={i} className='flex gap-2 text-sm text-text-secondary'>
                               <span aria-hidden='true' className='text-text-muted'>✦</span>
                               <span>
-                                 {splitInlineCode(item).map((chunk, j) => chunk.code
+                                 {splitInline(item).map((chunk, j) => chunk.code
                                     ? <code key={j}
                                        className='px-1 rounded bg-text-primary/8 text-text-primary text-[0.85em]'>
                                        {chunk.text}
                                     </code>
-                                    : <span key={j}>{chunk.text}</span>
+                                    : chunk.bold
+                                       ? <strong key={j} className='font-semibold text-text-primary'>{chunk.text}</strong>
+                                       : <span key={j}>{chunk.text}</span>
                                  )}
                               </span>
                            </li>

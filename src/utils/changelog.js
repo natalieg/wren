@@ -1,6 +1,6 @@
 // Minimal markdown reader for CHANGELOG.md — it only understands the shape that file
-// actually uses: an intro paragraph, `## version — date` headings, `- ` bullets and
-// `backtick` code spans. Anything fancier (bold, links, nested lists) passes through as
+// actually uses: an intro paragraph, `## version — date` headings, `- ` bullets,
+// `backtick` code spans and **bold**. Anything fancier (links, nested lists) passes through as
 // plain text rather than breaking, so the page never blanks out on an unexpected line.
 // Parses CHANGELOG.md's headings/bullets; unknown markdown falls through as plain text.
 
@@ -56,5 +56,16 @@ export function splitInlineCode(line) {
    return String(line ?? '')
       .split('`')
       .map((text, i) => ({ text, code: i % 2 === 1 }))
+      .filter(chunk => chunk.text !== '')
+}
+
+/**
+ * Like splitInlineCode, plus **bold** in the plain chunks (never inside code).
+ * @returns {{ text: string, code: boolean, bold: boolean }[]}
+ */
+export function splitInline(line) {
+   return splitInlineCode(line).flatMap(chunk => chunk.code
+      ? [{ ...chunk, bold: false }]
+      : chunk.text.split('**').map((text, i) => ({ text, code: false, bold: i % 2 === 1 })))
       .filter(chunk => chunk.text !== '')
 }

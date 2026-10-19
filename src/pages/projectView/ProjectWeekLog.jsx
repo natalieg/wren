@@ -3,7 +3,7 @@ import { formatTime } from '../../utils/formatTime'
 const sourceLabel = (e) => {
    if (!e.finished) return e.isBlock ? 'open block · general time' : 'open · tracked this week'
    const day = new Date(e.day).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })
-   return `${e.isBlock ? 'finished block' : 'done'} · ${day}${e.estimated ? ' · estimate, nothing tracked' : ''}`
+   return `${e.isBlock ? 'finished block' : 'done'} · ${day}${e.estimated ? ' · est.' : ''}`
 }
 
 // one line per task that adds to the week's time, so the total can be checked by eye
