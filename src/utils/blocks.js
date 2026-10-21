@@ -19,7 +19,11 @@ export function blockIdOf(task, blockIds) {
    return !isBlock(task) && task.blockId && blockIds.has(task.blockId) ? task.blockId : null
 }
 
-export const membersOf = (blockId, taskList) => taskList.filter(t => !isBlock(t) && t.blockId === blockId)
+// a blocks-only project's day task outside any block stays off the day list until a block takes it
+export const waitsForBlock = (task, blockIds, blocksOnlyProjects) =>
+   !isBlock(task) && task.list === ACTIVE && blocksOnlyProjects.has(task.project) && !blockIdOf(task, blockIds)
+
+export const membersOf =(blockId, taskList) => taskList.filter(t => !isBlock(t) && t.blockId === blockId)
 
 const liveSeconds = (task, { runningTaskId, trackedSeconds }) =>
    (task.trackedTime || 0) + (task.id === runningTaskId ? trackedSeconds : 0)
@@ -36,10 +40,13 @@ export function blockStats(block, taskList, ctx) {
    const plannedMinutes = members.reduce((sum, t) => sum + (parseInt(t.time) || 0), 0)
    const generalSeconds = liveSeconds(block, ctx)
    const trackedSeconds = members.reduce((sum, t) => sum + doneOrLiveSeconds(t, ctx), generalSeconds)
-   const diffMinutes = plannedMinutes - durationMinutes
+   // the badge counts what's used up: each task at its estimate or longer if tracked longer, plus general time
+   const usedMinutes = members.reduce((sum, t) =>
+      sum + Math.max(parseInt(t.time) || 0, secondsToMinutes(doneOrLiveSeconds(t, ctx))), secondsToMinutes(generalSeconds))
+   const diffMinutes = usedMinutes - durationMinutes
    const state = diffMinutes > GRACE_MINUTES ? 'over' : diffMinutes >= -GRACE_MINUTES ? 'full' : 'buffer'
    const isBusy = block.id === ctx.runningTaskId || members.some(t => t.id === ctx.runningTaskId)
-   return { durationMinutes, plannedMinutes, generalSeconds, trackedSeconds, diffMinutes, state, isBusy }
+   return { durationMinutes, plannedMinutes, usedMinutes, generalSeconds, trackedSeconds, diffMinutes, state, isBusy }
 }
 
 // a finished block hands its open tasks back to the plain day list

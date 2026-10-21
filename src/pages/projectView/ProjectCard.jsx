@@ -2,12 +2,13 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Input from '../../components/elements/Input'
 import Textarea from '../../components/elements/Textarea'
+import CheckboxWithLabel from '../../components/elements/CheckboxWithLabel'
 import ProjectTasks from './ProjectTasks'
 import ProjectWeekTime from './ProjectWeekTime'
 import ProjectWeekLog from './ProjectWeekLog'
 import useProjectWeekLog from '../../hooks/useProjectWeekLog'
 
-export default function ProjectCard({ project, onNameChange, onNotesChange }) {
+export default function ProjectCard({ project, onNameChange, onNotesChange, onBlocksOnlyChange }) {
    const { log, minutes } = useProjectWeekLog(project.id)
    const [logOpen, setLogOpen] = useState(false)
 
@@ -21,7 +22,12 @@ export default function ProjectCard({ project, onNameChange, onNotesChange }) {
          </div>
          {logOpen && <ProjectWeekLog log={log} minutes={minutes} />}
          <ProjectTasks project={project} />
-         <Textarea placeholder='Brain dump...' value={project.notes} onChange={(e) => onNotesChange(e.target.value)} rows={4} />
+         <div className='mt-auto'>
+            <Textarea placeholder='Brain dump...' value={project.notes} onChange={(e) => onNotesChange(e.target.value)} rows={4} />
+            <CheckboxWithLabel checked={!!project.blocksOnly}
+               label='⌛ Time Block Only'
+               onChange={(e) => onBlocksOnlyChange(e.target.checked)} />
+         </div>
       </div>
    )
 }

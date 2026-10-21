@@ -13,7 +13,9 @@ import useTimeAlert from './useTimeAlert'
 import { playFinishedSound } from '../utils/playSound'
 import { loadSettings } from '../utils/settings'
 import { addTrackedToday } from '../utils/trackedByDay'
-import { BLOCK, isBlock, activeBlockIds, releaseOpenMembers, adoptIntoBlock } from '../utils/blocks'
+import { BLOCK, isBlock, activeBlockIds, releaseOpenMembers, adoptIntoBlock, waitsForBlock } from '../utils/blocks'
+
+const NO_PROJECTS = new Set()
 
 // migrates legacy active/done booleans to the single 'list' enum, once, on load
 // later remove at some point when all legacy tasks are gone
@@ -35,7 +37,8 @@ function normalizeTask(t) {
  * or effects are their own hooks (tracking, rollover); the parts that are just
  * "tasks in, something out" are pure utils (transitions, estimates, reordering).
  * What stays here is the task list itself, CRUD, and the wiring between them. */
-function useTasks() {
+// blocksOnlyProjects: ids of projects whose day tasks only show inside a block
+function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
    const { addToHistory, removeFromHistory } = useHistoryContext()
    const [editingTaskId, setEditingTaskId] = useState(null)
    const [taskList, setTaskList] = useState(() => {
@@ -334,14 +337,19 @@ function useTasks() {
    // full backlog, ungrouped and without time estimates — Backlog page groups by .backlog.bucket itself
    const backlogTasks = taskList.filter(t => t.list === BACKLOG)
 
+   // waiting tasks leave the cascade too, so they don't push the day's estimates; a running one stays
+   const blockIds = activeBlockIds(taskList)
+   const isWaiting = (t) => t.id !== runningTaskId && waitsForBlock(t, blockIds, blocksOnlyProjects)
+   const waitingTasks = taskList.filter(isWaiting)
+
    const { openTasks, nextUpTasks } = calculateEstimates({
-      taskList, startedAt, newActionTime, runningTaskId, trackedSeconds,
+      taskList: taskList.filter(t => !isWaiting(t)), startedAt, newActionTime, runningTaskId, trackedSeconds,
       // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
       now: Date.now(),
    })
 
    return {
-      taskList, openTasks, nextUpTasks, backlogTasks, finishedTasks, taskActions,
+      taskList, openTasks, nextUpTasks, waitingTasks, backlogTasks, finishedTasks, taskActions,
       startedAt, resetStartedAt, updateActionTime, setNewActionTime, runningTaskId, trackedSeconds, editingTaskId,
    }
 }

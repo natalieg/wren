@@ -4,7 +4,7 @@ import ProjectCard from './ProjectCard'
 import NewProjectTile from './NewProjectTile'
 
 export default function Project() {
-   const { projects, addProject, updateProjectName, updateProjectNotes } = useProjectsContext()
+   const { projects, addProject, updateProjectName, updateProjectNotes, updateProjectBlocksOnly } = useProjectsContext()
 
    return (
       <DocWrapper header='Projects' className='w-full'>
@@ -15,7 +15,8 @@ export default function Project() {
             {projects.map(project => (
                <ProjectCard key={project.id} project={project}
                   onNameChange={(name) => updateProjectName(project.id, name)}
-                  onNotesChange={(notes) => updateProjectNotes(project.id, notes)} />
+                  onNotesChange={(notes) => updateProjectNotes(project.id, notes)}
+                  onBlocksOnlyChange={(on) => updateProjectBlocksOnly(project.id, on)} />
             ))}
             <NewProjectTile onCreate={addProject} />
          </div>

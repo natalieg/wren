@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.8.12 — 2026-10-21
+- **Projects**: new setting **⌛ Time Block Only** on the project card. When it's on, the project's today tasks only show in the day list inside a time block. Tasks outside a block wait in the project's Today and don't count in the day's planned time. A line under the day list shows how many are waiting ("3 Solverint tasks wait for a block")
+- A new block for the project picks the waiting tasks up right away, and **✦ fill** pulls them in too. A running task always stays visible
+- Fix: a block's buffer now counts general time and tasks that took longer than estimated. Before, a block could say "buffer" when its time was already used up
+
 ## 0.8.11 — 2026-10-19
 - **Projects**: click the weekly time on a project card for a log of which tasks add up to that number
 - Tracked time is now also stored per day, so the weekly number only counts what happened this week, even for parked or long-running tasks. Time tracked before this update has no date and isn't counted, also not when the task is finished (the log shows it as "undated"). To count it anyway, set the task's tracked time to 0 and type it in again, it then lands on today

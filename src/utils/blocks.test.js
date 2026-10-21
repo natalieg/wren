@@ -1,10 +1,27 @@
 import { describe, it, expect } from 'vitest'
-import { blockStats, minutesLeft, minutesDone, adoptIntoBlock, releaseOpenMembers, fillCandidates, blockIdOf, activeBlockIds, BLOCK } from './blocks'
+import { blockStats, minutesLeft, minutesDone, adoptIntoBlock, releaseOpenMembers, fillCandidates, blockIdOf, activeBlockIds, waitsForBlock, BLOCK } from './blocks'
 import { ACTIVE, BACKLOG, DONE, NEXTUP, SOMEDAY } from './constants'
 
 const block = (id, time, extra = {}) => ({ id, kind: BLOCK, label: 'Solverint', project: 'p1', time, list: ACTIVE, ...extra })
 const task = (id, time, extra = {}) => ({ id, label: `task ${id}`, time, list: ACTIVE, ...extra })
 const idle = { runningTaskId: null, trackedSeconds: 0 }
+
+describe('waitsForBlock', () => {
+   const blocksOnly = new Set(['p1'])
+   const list = [
+      block('b', 60),
+      task(1, 20, { project: 'p1' }),
+      task(2, 20, { project: 'p1', blockId: 'b' }),
+      task(3, 20, { project: 'p2' }),
+      task(4, 20, { project: 'p1', list: BACKLOG }),
+      task(5, 20, { project: 'p1', blockId: 'gone' }),
+   ]
+   const waiting = () => list.filter(t => waitsForBlock(t, activeBlockIds(list), blocksOnly)).map(t => t.id)
+
+   it('only a loose day task of a blocks-only project waits, a stale blockId counts as loose', () => {
+      expect(waiting()).toEqual([1, 5])
+   })
+})
 
 describe('blockStats', () => {
    it('sums planned and tracked time over all members, finished ones too', () => {
@@ -40,6 +57,25 @@ describe('blockStats', () => {
    ])('planned %i of 240 is %s', (planned, state) => {
       const list = [block('b', 240), task(1, planned, { blockId: 'b' })]
       expect(blockStats(list[0], list, idle).state).toBe(state)
+   })
+
+   it('general time fills the buffer', () => {
+      const list = [block('b', 180, { trackedTime: 60 * 60 }), task(1, 120, { blockId: 'b', list: DONE, trackedTime: 120 * 60 })]
+      expect(blockStats(list[0], list, idle)).toMatchObject({ usedMinutes: 180, state: 'full' })
+   })
+
+   it('a task tracked past its estimate counts with its tracked time, done or still open', () => {
+      const list = [
+         block('b', 120),
+         task(1, 30, { blockId: 'b', list: DONE, trackedTime: 60 * 60 }),
+         task(2, 30, { blockId: 'b', trackedTime: 50 * 60 }),
+      ]
+      expect(blockStats(list[0], list, idle)).toMatchObject({ plannedMinutes: 60, usedMinutes: 110, state: 'full' })
+   })
+
+   it('a task tracked under its estimate still holds its full estimate', () => {
+      const list = [block('b', 120), task(1, 60, { blockId: 'b', trackedTime: 10 * 60 })]
+      expect(blockStats(list[0], list, idle)).toMatchObject({ usedMinutes: 60, state: 'buffer' })
    })
 })
 

@@ -5,6 +5,7 @@ import TrackingContext from './TrackingContext'
 import useTasks from '../hooks/useTasks'
 import { getOpenCopies } from '../hooks/useTaskCopy'
 import useBreaksContext from '../hooks/useBreaksContext'
+import useProjectsContext from '../hooks/useProjectsContext'
 import useTaskKeyboardShortcuts from '../hooks/useTaskKeyboardShortcuts'
 import useTabTitle from '../hooks/useTabTitle'
 import { buildActivityActions } from '../utils/activityTracking'
@@ -12,7 +13,9 @@ import Modal from '../components/elements/Modal'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
 
 function TasksProvider({ children }) {
-   const tasks = useTasks()
+   const { projects } = useProjectsContext()
+   const blocksOnlyProjects = new Set(projects.filter(p => p.blocksOnly).map(p => p.id))
+   const tasks = useTasks({ blocksOnlyProjects })
    const breaks = useBreaksContext()
    const { taskList, editingTaskId, runningTaskId, trackedSeconds, setNewActionTime } = tasks
    const { startTracking, stopTracking, startBreak, stopBreak } = buildActivityActions({

@@ -263,6 +263,36 @@ describe('useTasks', () => {
     })
   })
 
+  describe('blocks-only projects', () => {
+    const blocksOnlyProjects = new Set(['p1'])
+
+    it('keeps their loose day tasks off the day list until a block adopts them', () => {
+      const { result } = renderHook(() => useTasks({ blocksOnlyProjects }), { wrapper: HistoryProvider })
+      act(() => { result.current.taskActions.handleAddTask('Solverint', 30, { project: 'p1' }) })
+      act(() => { result.current.taskActions.handleAddTask('Plain', 10) })
+      const [idS, idP] = result.current.taskList.map(t => t.id)
+
+      expect(result.current.openTasks.map(t => t.id)).toEqual([idP])
+      expect(result.current.waitingTasks.map(t => t.id)).toEqual([idS])
+
+      act(() => { result.current.taskActions.handleAddBlock('p1', 'Solverint', 60) })
+
+      expect(result.current.waitingTasks).toHaveLength(0)
+      expect(result.current.openTasks.map(t => t.id)).toContain(idS)
+    })
+
+    it('a running waiting task stays visible', () => {
+      const { result } = renderHook(() => useTasks({ blocksOnlyProjects }), { wrapper: HistoryProvider })
+      act(() => { result.current.taskActions.handleAddTask('Solverint', 30, { project: 'p1' }) })
+      const id = result.current.taskList[0].id
+
+      act(() => { result.current.taskActions.startTracking(id) })
+
+      expect(result.current.openTasks.map(t => t.id)).toEqual([id])
+      expect(result.current.waitingTasks).toHaveLength(0)
+    })
+  })
+
   describe('rollover', () => {
     beforeEach(() => {
       vi.useFakeTimers()

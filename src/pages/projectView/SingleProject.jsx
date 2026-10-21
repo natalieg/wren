@@ -5,7 +5,7 @@ import ProjectCard from './ProjectCard'
 
 export default function SingleProject() {
    const { id } = useParams()
-   const { projects, updateProjectName, updateProjectNotes } = useProjectsContext()
+   const { projects, updateProjectName, updateProjectNotes, updateProjectBlocksOnly } = useProjectsContext()
    const project = projects.find(p => p.id === id)
 
    if (!project) {
@@ -22,7 +22,8 @@ export default function SingleProject() {
             <Link to='/project' className='text-sm text-text-muted hover:text-text-primary w-fit'>← back to Projects</Link>
             <ProjectCard project={project}
                onNameChange={(name) => updateProjectName(project.id, name)}
-               onNotesChange={(notes) => updateProjectNotes(project.id, notes)} />
+               onNotesChange={(notes) => updateProjectNotes(project.id, notes)}
+               onBlocksOnlyChange={(on) => updateProjectBlocksOnly(project.id, on)} />
          </div>
       </DocWrapper>
    )

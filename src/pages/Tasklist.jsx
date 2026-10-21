@@ -8,6 +8,7 @@ import TimeProgress from '../components/TimeProgress'
 import TasksContext from '../context/TasksContext'
 import DayInput from './tasklist/DayInput'
 import TimeBlock from './tasklist/timeblock/TimeBlock'
+import WaitingHint from './tasklist/WaitingHint'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
 import { isBlock, activeBlockIds, blockIdOf } from '../utils/blocks'
 import ContextMenu from '../components/elements/ContextMenu'
@@ -16,6 +17,7 @@ export default function Tasklist() {
    const {
       openTasks,
       nextUpTasks,
+      waitingTasks,
       finishedTasks,
       taskActions,
       startedAt,
@@ -99,6 +101,7 @@ export default function Tasklist() {
                <TaskDropZone groupId={ACTIVE} tasks={openTasksWithoutRunning}>
                   <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} renderBlock={renderBlock} />
                </TaskDropZone>
+               <WaitingHint tasks={waitingTasks} />
                {/* ✅ Finished Tasks */}
                <TaskSection label='Finished tasks'
                   tasks={finishedTasks}
