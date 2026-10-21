@@ -58,6 +58,8 @@
   /* typography */
   --font-body: 'Quicksand', sans-serif;
   --font-retro: 'VT323', monospace;
+  /* lovely list only — the handwritten journal voice */
+  --font-hand: 'Caveat', cursive;
   /* live numbers only — Quicksand has no tabular figures, so a ticking clock
      jitters in it. Nunito is its closest sibling and does bring them.
      If digits still dance, swap to Inter (also loaded): --font-num: 'Inter', sans-serif */
@@ -355,6 +357,23 @@
     brightness(1.2)
     drop-shadow(0 0 3px rgba(0, 0, 0, 0.5))
     drop-shadow(0 0 14px rgba(153, 119, 9, 0.8));
+}
+
+/* lovely list — dotted journal paper and marker highlights */
+.paper-dots {
+  background-color: #fffdf9;
+  background-image: radial-gradient(circle, #e6d9f0 1px, transparent 1.3px);
+  background-size: 24px 24px;
+}
+.marker-gold { box-shadow: inset 0 -0.45em 0 #fff1c4; }
+.marker-pink { box-shadow: inset 0 -0.45em 0 #ffdcea; }
+/* wobbly corners read as drawn by hand */
+.hand-box { border-radius: 255px 18px 225px 18px / 18px 225px 18px 255px; }
+.pastel { filter: saturate(.55) brightness(1.3) contrast(.85); }
+.pastel-soft { filter: saturate(.8) brightness(1.08); }
+/* torn tape ends */
+.washi-edge {
+  clip-path: polygon(0 0, 100% 0, 97% 20%, 100% 40%, 97% 60%, 100% 80%, 97% 100%, 0 100%, 3% 80%, 0 60%, 3% 40%, 0 20%);
 }
 
 /* transitions, animation */

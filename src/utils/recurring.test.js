@@ -45,6 +45,11 @@ describe('nextOccurrence', () => {
       expect(next.recurring.id).toBe('habit-1')
    })
 
+   it('stays lovely, and a plain habit doesn’t gain the flag', () => {
+      expect(nextOccurrence(habitTask({ lovely: true })).lovely).toBe(true)
+      expect(nextOccurrence(habitTask())).not.toHaveProperty('lovely')
+   })
+
    it('can be parked in a bucket instead of going straight to the day list', () => {
       const next = nextOccurrence(habitTask(), { list: BACKLOG, bucket: NEXTUP })
       expect(next).toMatchObject({ list: BACKLOG, backlog: { bucket: NEXTUP, activationDate: null } })

@@ -1,4 +1,35 @@
 
+### 🤖 Lovely List (`feat/lovely-list`) — review before merge
+Built by Claude on 2026-10-21/22 and not walked through yet. It's a second view over the same tasks, plus one optional `lovely` flag. Designs: https://claude.ai/artifact/ToJfqw4Zo6ynhh82sbCgHS (board 4)
+
+Code walkthrough:
+- [ ] 🤖 `utils/lovely.js` + tests: `isLovely`, `finishedToday`, `bloomCount`, `otherSecondsToday` (moths), `weaveLovely`/`canWeave`, `dayEndOf`/`splitAtDayEnd`
+- [ ] 🤖 `pages/lovely/`: `LovelyList.jsx` (the page), `LovelyRow.jsx`, `LovelyBlock.jsx`, `Vase.jsx`, `Washi.jsx`, wrapper `Lovely.jsx`
+- [ ] 🤖 wiring: `weaveLovelyTasks` in `useTasks.js`, ✿ toggle in `TaskEditModalBody.jsx`, `/lovely` route in `App.jsx`, `tasklist/LovelyLink.jsx`
+- [ ] 🤖 `recurring.js` `nextOccurrence` now carries `lovely` to the next copy
+- [ ] 🤖 styles: Caveat font (`index.html`, `--font-hand`), `.paper-dots` `.marker-*` `.hand-box` `.pastel` `.washi-edge` in `index.css`
+- [ ] 🤖 assets: small webp copies in `src/assets/img/lovely/`; the big originals from `img/more` are in the Recycle Bin
+
+To-dos before merge:
+- [ ] 🤖 use it for a few days, then decide what stays
+- [ ] 🤖 tune colors/pastel filter by eye (washi, moths), and the flower angles in the vase (`SLOTS` in `Vase.jsx`)
+- [ ] 🤖 roadmap entry, changelog + version bump on merge
+- [ ] 🤖 after merging, the deploy needs the `nextOccurrence` fix too, or lovely habits lose their ✿ at rollover
+
+Open questions:
+- [ ] 🤖 day end is a constant (`DAY_END_HOUR = 23`): make it a lovely list setting? per weekday?
+- [ ] 🤖 hidden "after 23:00" tasks still count in the daylist's estimates. Should the daylist know the day end too? (Phase 10 "real deadline")
+- [ ] 🤖 weave rule (after each block / ~90 min of loose work): right rhythm? Make it a setting, or weave automatically on rollover?
+- [ ] 🤖 marking only works in the modal: also a hover shortcut (`l`) or a ✿ on daylist rows?
+- [ ] 🤖 moths: one per 30 min, max 8. Right pace?
+- [ ] 🤖 from the canvas, not built: energy picker (tiny/cozy/full sizes, needs per-task size data), "three lines" journal field, pressed-flower week as a weekly look-back
+- [ ] 🤖 recurring tasks don't carry `project` either (not lovely-specific, a micro task)
+
+Known gaps:
+- [ ] 🤖 no drag & drop on the lovely page, reordering happens on the daylist
+- [ ] 🤖 a running block's general time isn't shown on the lovely page
+- [ ] 🤖 finished loose tasks gather under "done today" instead of keeping their place
+
 ### Pinned tasks (v0.8.9) — review
 - [ ] 🤖 check the code: scheduler in `utils/taskEstimates.js` (`scheduleActiveTasks`), pinned rows in `TaskGroup.jsx`, 📌 tag in `TaskItem.jsx`, input in `TaskEditModalBody.jsx`
 - [ ] 🤖 evaluate styling: 📌 tag, `┈ free ┈` gap line, conflict pink, wider time box in the modal

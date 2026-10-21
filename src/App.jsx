@@ -9,6 +9,7 @@ import History from './pages/history/History'
 import Trello from './pages/trello/Trello'
 import Settings from './pages/settings/Settings'
 import Changelog from './pages/Changelog'
+import Lovely from './pages/lovely/Lovely'
 import TasksProvider from './context/TasksProvider'
 import SettingsProvider from './context/SettingsProvider'
 import HistoryProvider from './context/HistoryProvider'
@@ -30,6 +31,7 @@ function App() {
                         <div className='flex-1 overflow-auto' style={{ background: 'var(--color-bg-base)' }}>
                            <Routes>
                               <Route path='/' element={<Main />} />
+                              <Route path='/lovely' element={<Lovely />} />
                               <Route path='/backlog' element={<Backlog />} />
                               <Route path='/history' element={<History />} />
                               <Route path='/trello' element={<Trello />} />

@@ -9,6 +9,7 @@ import TasksContext from '../context/TasksContext'
 import DayInput from './tasklist/DayInput'
 import TimeBlock from './tasklist/timeblock/TimeBlock'
 import WaitingHint from './tasklist/WaitingHint'
+import LovelyLink from './tasklist/LovelyLink'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
 import { isBlock, activeBlockIds, blockIdOf } from '../utils/blocks'
 import ContextMenu from '../components/elements/ContextMenu'
@@ -64,13 +65,14 @@ export default function Tasklist() {
    }
 
    return (
-      <div id='taskList' className='w-full lg:w-1/2 xl:w-[60%] xl:px-10 min-w-150 bg-accent-primary/2 rounded-md'
+      <div id='taskList' className='relative w-full lg:w-1/2 xl:w-[60%] xl:px-10 min-w-150 bg-accent-primary/2 rounded-md'
          onContextMenu={(e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY }) }}
       >
          {menu && <ContextMenu x={menu.x} y={menu.y}
             items={[contextItems.clearDay]}
             onClose={() => setMenu(null)} />}
 
+         <LovelyLink />
          <p className='headerDark'>Tasks</p>
          <div className='flex flex-col gap-2 max-w-[95%] mx-auto'>
             <div className='w-[80%] mx-auto'>

@@ -74,6 +74,11 @@ export default function TaskEditModalBody({ task, closeModal, isRunning, tracked
                         onClick={handleToggleRecurring}
                         active={task.recurring?.active}
                         title="Toggle Recurring" />
+                     {/* lovely — shows up as a kindness task on the lovely list */}
+                     <SwitchTag label1='✿ lovely' label2='✿'
+                        onClick={() => handleFieldChange(id, 'lovely', !task.lovely)}
+                        active={!!task.lovely}
+                        title="Toggle Lovely" />
                      {/* active/inactive */}
                      <SwitchTag label1='active' label2='inactive'
                         onClick={() => toggleActive(id)}

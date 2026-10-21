@@ -17,6 +17,8 @@ export function nextOccurrence(task, { list = ACTIVE, bucket = NEXTUP } = {}) {
       recurring: { ...task.recurring },
    }
    if (list === BACKLOG) next.backlog = { bucket, activationDate: null }
+   // a lovely habit stays lovely every day
+   if (task.lovely) next.lovely = true
    return next
 }
 

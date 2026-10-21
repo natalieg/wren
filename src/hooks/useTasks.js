@@ -14,6 +14,7 @@ import { playFinishedSound } from '../utils/playSound'
 import { loadSettings } from '../utils/settings'
 import { addTrackedToday } from '../utils/trackedByDay'
 import { BLOCK, isBlock, activeBlockIds, releaseOpenMembers, adoptIntoBlock, waitsForBlock } from '../utils/blocks'
+import { weaveLovely } from '../utils/lovely'
 
 const NO_PROJECTS = new Set()
 
@@ -270,6 +271,12 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
 
 
 
+   // spreads lovely tasks into the gaps of the day instead of the end
+   const weaveLovelyTasks = () => {
+      setTaskList(currentTaskList => weaveLovely(currentTaskList, { runningTaskId, now: Date.now() }))
+      updateActionTime()
+   }
+
    // manual reorder ahead of real drag & drop — moves one task to the end of the list
    const pushToBottom = (id) => {
       setTaskList(currentTaskList => {
@@ -322,6 +329,7 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
       onDelete: handleDeleteTask,
       handleFieldChange,
       moveAllTasksToNextUp,
+      weaveLovelyTasks,
       deleteAllFinishedTasks,
       deleteProjectTasks,
       unassignProjectTasks,
