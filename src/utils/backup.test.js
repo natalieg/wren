@@ -31,6 +31,22 @@ describe('importData', () => {
       expect(window.location.reload).toHaveBeenCalled()
    })
 
+   it('restores projects, so imported tasks still find their project', async () => {
+      const projects = [{ id: 'p1', name: 'Wren', blocksOnly: true }]
+      importData(backupFile(validBackup({ tasks: [{ id: 't1', label: 'x', project: 'p1' }], projects })))
+
+      await waitFor(() => expect(localStorage.getItem('projects')).not.toBeNull())
+      expect(JSON.parse(localStorage.getItem('projects'))).toEqual(projects)
+   })
+
+   it('leaves projects alone when an older backup has none', async () => {
+      localStorage.setItem('projects', JSON.stringify([{ id: 'p1', name: 'kept' }]))
+      importData(backupFile(validBackup()))
+
+      await waitFor(() => expect(localStorage.getItem('tasks')).not.toBeNull())
+      expect(JSON.parse(localStorage.getItem('projects'))).toEqual([{ id: 'p1', name: 'kept' }])
+   })
+
    it('ignores keys in the file that are not part of BACKUP_KEYS', async () => {
       importData(backupFile(validBackup({ notARealKey: 'sneaky' })))
 
