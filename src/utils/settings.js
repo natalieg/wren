@@ -19,7 +19,9 @@ export const DEFAULT_SETTINGS = {
       { id: 'gaming', name: 'gaming', emoji: '🎮', color: 'red', enabled: false },
       { id: 'social', name: 'social', emoji: '🫂', color: 'yellow', enabled: false },
    ],
-   breakTimes: [5, 10, 15, 20]
+   breakTimes: [5, 10, 15, 20],
+   // lovely list: done tasks stay in the day (struck through) instead of gathering at the bottom
+   lovelyDoneInPlace: false,
 }
 
 // merges over defaults so a new setting added later still gets a sane value

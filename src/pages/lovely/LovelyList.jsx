@@ -6,20 +6,27 @@ import LovelyRow from './LovelyRow'
 import LovelyBlock from './LovelyBlock'
 import Vase from './Vase'
 import Washi from './Washi'
+import Shortlist from './Shortlist'
+import AddToToday from './AddToToday'
+import useShortlist from '../../hooks/useShortlist'
 import birdSticker from '../../assets/img/lovely/sticker-bird.webp'
 import heartSticker from '../../assets/img/lovely/sticker-heart.webp'
 import mothKey from '../../assets/img/lovely/moth-pink.webp'
 import { isBlock, activeBlockIds, blockIdOf } from '../../utils/blocks'
-import { isLovely, finishedToday, otherSecondsToday, sprinkleCount, canWeave, dayEndOf, splitAtDayEnd, MAX_FLOWERS, DAY_END_HOUR } from '../../utils/lovely'
+import { isLovely, finishedToday, otherSecondsToday, sprinkleCount, canWeave, dayEndOf, splitAtDayEnd, doneInPlace, MAX_FLOWERS, DAY_END_HOUR } from '../../utils/lovely'
 import { formatClockTime } from '../../utils/formatTime'
 
 const BLOCK_TAPES = ['moths', 'gold', 'blue']
+// a little thing pulled from the shortlist lands on the day with this estimate
+const SHORTLIST_MINUTES = 10
 
 // the day list as a bullet journal: same tasks, same tracking, kinder voice
 export default function LovelyList() {
    const { taskList, openTasks, finishedTasks, taskActions, runningTaskId, trackedSeconds } = useContext(TasksContext)
-   const { settings } = useSettingsContext()
+   const { settings, updateSetting } = useSettingsContext()
    const { rolloverHour } = settings
+   const inPlace = !!settings.lovelyDoneInPlace
+   const { shortlist, addToShortlist, removeFromShortlist } = useShortlist()
    const [showLater, setShowLater] = useState(false)
    const now = Date.now()
 
@@ -38,11 +45,18 @@ export default function LovelyList() {
    const weavable = canWeave(taskList, { runningTaskId, now })
    const hasLovely = taskList.some(isLovely)
    const dayEnds = visible.at(-1)?.estimate
+   const dayItems = inPlace ? doneInPlace(doneToday, visible, blockIds) : visible
+
+   const pickFromShortlist = (item) => {
+      taskActions.handleAddTask(item.label, SHORTLIST_MINUTES)
+      removeFromShortlist(item.id)
+   }
 
    const rowProps = (t) => ({
       isRunning: t.id === runningTaskId,
       liveSeconds: t.id === runningTaskId ? trackedSeconds : 0,
       taskActions,
+      struck: inPlace,
    })
    let blockCount = 0
    const renderItem = (t) => isBlock(t)
@@ -91,10 +105,30 @@ export default function LovelyList() {
                   → mark tasks as ✿ lovely in their edit window, and they&apos;ll bloom here
                </p>}
 
+            <div className='flex flex-wrap items-start justify-between gap-2 mt-1'>
+               <AddToToday onAddTask={taskActions.handleAddTask} onAddBlock={taskActions.handleAddBlock} />
+               <button type='button' onClick={() => updateSetting('lovelyDoneInPlace', !inPlace)}
+                  title='where finished tasks go'
+                  className='font-hand text-xl text-text-muted cursor-pointer hover:text-text-secondary'>
+                  {inPlace ? '✓ done stays in the day' : '✓ done gathers below'}
+               </button>
+            </div>
+
             <div className='flex flex-col mt-2'>
-               {visible.length === 0 && later.length === 0 &&
+               {visible.length === 0 && later.length === 0 && shortlist.length === 0 &&
                   <p className='font-hand text-2xl text-text-muted py-4'>a blank page. nothing planned, nothing owed.</p>}
-               {visible.map(renderItem)}
+               {visible.length === 0 && shortlist.length > 0 && !dayIsOver &&
+                  <div className='hand-box border-2 border-dashed border-[#d9c9ea] bg-white/60 px-4 py-3 my-2'>
+                     <p className='font-hand text-2xl text-text-secondary'>nothing left on today&apos;s page. one little thing?</p>
+                     <div className='flex flex-wrap gap-2 mt-2'>
+                        {shortlist.slice(0, 3).map(item =>
+                           <button key={item.id} type='button' onClick={() => pickFromShortlist(item)}
+                              className='rounded-pill bg-[#f3e9ff] px-3 py-1 min-h-10 font-hand text-xl text-[#6b5486] cursor-pointer softTransition hover:-translate-y-0.5'>
+                              ◦ {item.label}
+                           </button>)}
+                     </div>
+                  </div>}
+               {dayItems.map(renderItem)}
             </div>
 
             {later.length > 0 &&
@@ -107,7 +141,7 @@ export default function LovelyList() {
                   {showLater && <div className='flex flex-col opacity-60'>{later.map(renderItem)}</div>}
                </section>}
 
-            {looseDone.length > 0 &&
+            {!inPlace && looseDone.length > 0 &&
                <section className='mt-4'>
                   <h2 className='font-hand text-2xl font-bold text-text-muted'>done today</h2>
                   {looseDone.map(t => <LovelyRow key={t.id} task={t} {...rowProps(t)} />)}
@@ -117,6 +151,7 @@ export default function LovelyList() {
          <aside className='paper-dots relative flex-[1_1_320px] min-w-0 rounded-r-2xl rounded-l-sm px-8 pt-12 pb-9 flex flex-col gap-8'>
             <Washi tape='gold' className='-top-3 right-10 h-7 w-36 rotate-4' />
             <Vase flowers={flowers} sprinkles={sprinkles} />
+            <Shortlist shortlist={shortlist} onAdd={addToShortlist} onRemove={removeFromShortlist} onPick={pickFromShortlist} />
             <section className='relative mt-auto hand-box border-2 border-dashed border-[#d9c9ea] px-4 py-3 -rotate-1'>
                <img src={birdSticker} alt='' className='absolute -top-14 right-2 h-16 rotate-6' />
                <h2 className='font-hand text-2xl font-bold text-[#6b5486]'>key</h2>

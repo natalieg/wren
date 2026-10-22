@@ -9,7 +9,8 @@ function bulletOf(done, lovely) {
    return done ? '✓' : '•'
 }
 
-export default function LovelyRow({ task, isRunning, liveSeconds, taskActions }) {
+// struck: "done in place" mode, a finished row stays in the day, crossed out and greyed
+export default function LovelyRow({ task, isRunning, liveSeconds, taskActions, struck = false }) {
    const { toggleDone, startTracking, stopTracking, setEditingTaskId } = taskActions
    const done = task.list === DONE
    const lovely = isLovely(task)
@@ -25,7 +26,7 @@ export default function LovelyRow({ task, isRunning, liveSeconds, taskActions })
             {bulletOf(done, lovely)}
          </button>
          <button type='button' onClick={() => setEditingTaskId(task.id)}
-            className={`text-left font-hand text-2xl leading-tight cursor-pointer truncate ${done ? 'text-[#a898bb]' : 'text-text-secondary'}`}>
+            className={`text-left font-hand text-2xl leading-tight cursor-pointer truncate ${done ? 'text-[#a898bb]' : 'text-text-secondary'} ${done && struck ? 'line-through decoration-[#c9b8db]' : ''}`}>
             <span className={lovely && !done ? 'marker-pink' : ''}>{task.label}</span>
          </button>
          <div className='flex items-center gap-1'>

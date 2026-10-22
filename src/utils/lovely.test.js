@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isLovely, finishedToday, bloomCount, otherSecondsToday, sprinkleCount, weaveLovely, canWeave, dayEndOf, splitAtDayEnd, MAX_FLOWERS } from './lovely'
+import { isLovely, finishedToday, bloomCount, otherSecondsToday, sprinkleCount, weaveLovely, canWeave, dayEndOf, splitAtDayEnd, doneInPlace, MAX_FLOWERS } from './lovely'
 import { BLOCK } from './blocks'
 import { ACTIVE, DONE } from './constants'
 import { logicalDayString } from './rollover'
@@ -81,19 +81,29 @@ describe('sprinkleCount', () => {
 })
 
 describe('weaveLovely', () => {
-   it('puts one lovely task after each block', () => {
-      const list = [block('b1', 120), block('b2', 90), task('t', 30), lovely('l1'), lovely('l2')]
-      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['b1', 'l1', 'b2', 'l2', 't'])
+   it('opens the day with one lovely task', () => {
+      const list = [task('a', 30), task('b', 30), lovely('l1')]
+      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['l1', 'a', 'b'])
    })
 
-   it('puts one after ~90 minutes of loose work', () => {
-      const list = [task('a', 60), task('b', 45), task('c', 20), lovely('l1')]
-      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['a', 'b', 'l1', 'c'])
+   it('then puts one after each block', () => {
+      const list = [block('b1', 120), block('b2', 90), task('t', 30), lovely('l1'), lovely('l2'), lovely('l3')]
+      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['l1', 'b1', 'l2', 'b2', 'l3', 't'])
+   })
+
+   it('and one after ~90 minutes of loose work', () => {
+      const list = [task('a', 60), task('b', 45), task('c', 20), lovely('l1'), lovely('l2')]
+      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['l1', 'a', 'b', 'l2', 'c'])
    })
 
    it('keeps leftovers at the end when the day has no more gaps', () => {
-      const list = [block('b', 60), lovely('l1'), lovely('l2')]
-      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['b', 'l1', 'l2'])
+      const list = [block('b', 60), lovely('l1'), lovely('l2'), lovely('l3')]
+      expect(ids(weaveLovely(list, { now: NOW }))).toEqual(['l1', 'b', 'l2', 'l3'])
+   })
+
+   it('doesn’t add a second opener when a lovely task is already running', () => {
+      const list = [task('a', 30), lovely('running'), lovely('l')]
+      expect(ids(weaveLovely(list, { runningTaskId: 'running', now: NOW }))).toEqual(['a', 'running', 'l'])
    })
 
    it('leaves running, pinned, in-block and finished lovely tasks alone', () => {
@@ -157,10 +167,26 @@ describe('splitAtDayEnd', () => {
    })
 })
 
+describe('doneInPlace', () => {
+   const at = (h) => new Date(2026, 9, 22, h).toISOString()
+
+   it('lists done things by finish time before the open ones, block members stay in their block', () => {
+      const done = [
+         task('late', 10, { list: DONE, finishedTimestamp: at(12) }),
+         block('doneBlock', 60, { list: DONE, finishedTimestamp: at(11) }),
+         task('inDoneBlock', 10, { list: DONE, finishedTimestamp: at(10), blockId: 'doneBlock' }),
+         task('inOpenBlock', 10, { list: DONE, finishedTimestamp: at(9), blockId: 'openBlock' }),
+         task('early', 10, { list: DONE, finishedTimestamp: at(8) }),
+      ]
+      const open = [block('openBlock', 60), task('next', 20)]
+      expect(ids(doneInPlace(done, open, new Set(['openBlock'])))).toEqual(['early', 'doneBlock', 'late', 'openBlock', 'next'])
+   })
+})
+
 describe('canWeave', () => {
    it('is false once everything already sits in a gap', () => {
-      const list = [block('b', 60), lovely('l'), task('t', 30)]
+      const list = [lovely('l1'), block('b', 60), lovely('l2'), task('t', 30)]
       expect(canWeave(list, { now: NOW })).toBe(false)
-      expect(canWeave([lovely('l'), block('b', 60)], { now: NOW })).toBe(true)
+      expect(canWeave([block('b', 60), lovely('l')], { now: NOW })).toBe(true)
    })
 })

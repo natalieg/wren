@@ -62,8 +62,8 @@ export function otherSecondsToday(taskList, { runningTaskId, trackedSeconds = 0,
 export const sprinkleCount = (seconds) => Math.floor(seconds / (SPRINKLE_MINUTES * 60))
 
 /** Spreads open lovely tasks through the day instead of leaving them as leftovers at the end:
- * one goes after each block, or after ~90 min of loose work. Running, pinned and in-block
- * lovely tasks stay where they are; whatever doesn't find a gap keeps its place at the end. */
+ * one opens the day, then one after each block or ~90 min of loose work. Running, pinned and
+ * in-block lovely tasks stay where they are; whatever doesn't find a gap stays at the end. */
 export function weaveLovely(taskList, { runningTaskId = null, now = Date.now() } = {}) {
    const blockIds = activeBlockIds(taskList)
    const movable = taskList.filter(t => isLovely(t) && t.list === ACTIVE && t.id !== runningTaskId
@@ -74,10 +74,17 @@ export function weaveLovely(taskList, { runningTaskId = null, now = Date.now() }
    const queue = [...movable]
    const woven = []
    let workMinutes = 0
+   // a running lovely task already opens the day
+   let dayOpened = isLovely(taskList.find(t => t.id === runningTaskId))
    for (const t of taskList) {
       if (movableIds.has(t.id)) continue
+      const isTopLevel = t.list === ACTIVE && !blockIdOf(t, blockIds)
+      const isDayWork = isTopLevel && !isLovely(t)
+      if (isTopLevel && !dayOpened) {
+         dayOpened = true
+         if (isDayWork) woven.push(queue.shift())
+      }
       woven.push(t)
-      const isDayWork = t.list === ACTIVE && !blockIdOf(t, blockIds) && !isLovely(t)
       if (!isDayWork || queue.length === 0) continue
       workMinutes += parseInt(t.time) || 0
       if (isBlock(t) || workMinutes >= WEAVE_EVERY_MINUTES) {
@@ -86,6 +93,16 @@ export function weaveLovely(taskList, { runningTaskId = null, now = Date.now() }
       }
    }
    return [...woven, ...queue]
+}
+
+/** "Done in place": today's done things in the order they were finished, then what's still open.
+ * Tasks inside a block show in their block, so only loose tasks and finished blocks get a line. */
+export function doneInPlace(doneToday, openItems, blockIds) {
+   const doneBlockIds = new Set(doneToday.filter(isBlock).map(t => t.id))
+   const done = doneToday
+      .filter(t => isBlock(t) || (!blockIds.has(t.blockId) && !doneBlockIds.has(t.blockId)))
+      .sort((a, b) => new Date(a.finishedTimestamp) - new Date(b.finishedTimestamp))
+   return [...done, ...openItems]
 }
 
 // true when weaving would actually move something

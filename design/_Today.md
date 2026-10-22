@@ -9,12 +9,14 @@ Code walkthrough:
 - [ ] 🤖 `recurring.js` `nextOccurrence` now carries `lovely` to the next copy
 - [ ] 🤖 styles: Caveat font (`index.html`, `--font-hand`), `.paper-dots` `.marker-*` `.hand-box` `.pastel` `.washi-edge` in `index.css`
 - [ ] 🤖 assets: small webp copies in `src/assets/img/lovely/`; the big originals from `img/more` are in the Recycle Bin
+- [ ] 🤖 round 2: weave opens the day with one lovely task; `doneInPlace` (setting `lovelyDoneInPlace`, toggle on the page); "little things" shortlist (`hooks/useShortlist.js`, `Shortlist.jsx`, key `shortlist` in the backup); `AddToToday.jsx` reuses the daylist's `DayInput`
 
 To-dos before merge:
 - [ ] 🤖 use it for a few days, then decide what stays
 - [ ] 🤖 tune colors/pastel filter by eye (washi, moths), and the flower angles in the vase (`SLOTS` in `Vase.jsx`)
 - [ ] 🤖 roadmap entry, changelog + version bump on merge
 - [ ] 🤖 after merging, the deploy needs the `nextOccurrence` fix too, or lovely habits lose their ✿ at rollover
+- [ ] 🤖 same for `shortlist` in `BACKUP_KEYS`: until merged, the deploy's export drops the shortlist
 
 Open questions:
 - [ ] 🤖 day end is a constant (`DAY_END_HOUR = 23`): make it a lovely list setting? per weekday?
@@ -22,6 +24,8 @@ Open questions:
 - [ ] 🤖 weave rule (after each block / ~90 min of loose work): right rhythm? Make it a setting, or weave automatically on rollover?
 - [ ] 🤖 marking only works in the modal: also a hover shortcut (`l`) or a ✿ on daylist rows?
 - [ ] 🤖 moths: one per 30 min, max 8. Right pace?
+- [ ] 🤖 shortlist: a picked item leaves the list and lands as a 10 min task. Keep repeatable items instead? Own estimate per item? Should it suggest on its own when a block runs empty, not only the whole day?
+- [ ] 🤖 "done in place" is chronological (finish order), since finished tasks lose their stored position. Good enough, or remember the spot?
 - [ ] 🤖 from the canvas, not built: energy picker (tiny/cozy/full sizes, needs per-task size data), "three lines" journal field, pressed-flower week as a weekly look-back
 - [ ] 🤖 recurring tasks don't carry `project` either (not lovely-specific, a micro task)
 
