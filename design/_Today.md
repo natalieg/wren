@@ -1,4 +1,13 @@
 
+### 🤖 Live estimates (idea, not built)
+While nothing runs, estimates count from a fixed anchor (`baseTimeOf` in `utils/taskEstimates.js`: day start, last finished task, last action), so after an hour away they sit an hour in the past. Good for plan mode, bad for real days.
+- [ ] 🤖 setting `liveEstimates` (on/off) + checkbox row in Settings; off = today's plan mode
+- [ ] 🤖 when on and nothing runs: every 5 min `setNewActionTime(new Date())`, small effect in `useTasks`
+- [ ] 🤖 also refresh on `visibilitychange` (tab comes back), background tabs throttle timers
+- [ ] 🤖 test with fake timers
+- being ahead needs nothing extra: finishing a task already moves the anchor to its finish time
+- effort: small, ~1h; estimate logic itself stays untouched
+
 ### 🤖 Lovely List (`feat/lovely-list`) — review before merge
 Built by Claude on 2026-10-21/22 and not walked through yet. It's a second view over the same tasks, plus one optional `lovely` flag. Designs: https://claude.ai/artifact/ToJfqw4Zo6ynhh82sbCgHS (board 4)
 
