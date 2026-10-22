@@ -1,6 +1,6 @@
 // Keys that make up a full backup. Deliberately excludes 'breakDurations'
 // (resets daily, not worth restoring) and 'gridView' (throwaway UI toggle).
-export const BACKUP_KEYS = ['history', 'tasks', 'settings', 'startedAt', 'trelloCredentials']
+export const BACKUP_KEYS = ['history', 'tasks', 'projects', 'settings', 'startedAt', 'trelloCredentials']
 
 export function exportData() {
 
