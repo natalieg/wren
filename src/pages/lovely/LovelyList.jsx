@@ -42,7 +42,7 @@ export default function LovelyList() {
    const looseDone = doneToday.filter(t => !isBlock(t) && !blockIdOf(t, blockIds))
    const flowers = doneToday.filter(isLovely).slice(0, MAX_FLOWERS)
    const sprinkles = sprinkleCount(otherSecondsToday(taskList, { runningTaskId, trackedSeconds, now, rolloverHour }))
-   const weavable = canWeave(taskList, { runningTaskId, now })
+   const weavable = canWeave(taskList, { runningTaskId, now, rolloverHour })
    const hasLovely = taskList.some(isLovely)
    const dayEnds = visible.at(-1)?.estimate
    const dayItems = inPlace ? doneInPlace(doneToday, visible, blockIds) : visible

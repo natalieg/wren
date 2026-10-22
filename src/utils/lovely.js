@@ -64,7 +64,7 @@ export const sprinkleCount = (seconds) => Math.floor(seconds / (SPRINKLE_MINUTES
 /** Spreads open lovely tasks through the day instead of leaving them as leftovers at the end:
  * one opens the day, then one after each block or ~90 min of loose work. Running, pinned and
  * in-block lovely tasks stay where they are; whatever doesn't find a gap stays at the end. */
-export function weaveLovely(taskList, { runningTaskId = null, now = Date.now() } = {}) {
+export function weaveLovely(taskList, { runningTaskId = null, now = Date.now(), rolloverHour = 0 } = {}) {
    const blockIds = activeBlockIds(taskList)
    const movable = taskList.filter(t => isLovely(t) && t.list === ACTIVE && t.id !== runningTaskId
       && !blockIdOf(t, blockIds) && pinStartToday(t, now) === null)
@@ -74,8 +74,9 @@ export function weaveLovely(taskList, { runningTaskId = null, now = Date.now() }
    const queue = [...movable]
    const woven = []
    let workMinutes = 0
-   // a running lovely task already opens the day
+   // a running lovely task, or one already done today, has opened the day
    let dayOpened = isLovely(taskList.find(t => t.id === runningTaskId))
+      || finishedToday(taskList.filter(t => t.list === DONE), { now, rolloverHour }).some(isLovely)
    for (const t of taskList) {
       if (movableIds.has(t.id)) continue
       const isTopLevel = t.list === ACTIVE && !blockIdOf(t, blockIds)

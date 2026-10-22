@@ -106,6 +106,18 @@ describe('weaveLovely', () => {
       expect(ids(weaveLovely(list, { runningTaskId: 'running', now: NOW }))).toEqual(['a', 'running', 'l'])
    })
 
+   it('doesn’t add an opener when a lovely task was already done today', () => {
+      const doneToday = lovely('done', 5, { list: DONE, finishedTimestamp: new Date(2026, 9, 22, 9).toISOString() })
+      const list = [doneToday, task('a', 30), lovely('l')]
+      expect(ids(weaveLovely(list, { now: NOW, rolloverHour: 4 }))).toEqual(['done', 'a', 'l'])
+   })
+
+   it('still opens with one when the only done lovely task was yesterday', () => {
+      const doneYesterday = lovely('old', 5, { list: DONE, finishedTimestamp: new Date(2026, 9, 21, 9).toISOString() })
+      const list = [doneYesterday, task('a', 30), lovely('l')]
+      expect(ids(weaveLovely(list, { now: NOW, rolloverHour: 4 }))).toEqual(['old', 'l', 'a'])
+   })
+
    it('leaves running, pinned, in-block and finished lovely tasks alone', () => {
       const pinAt = new Date(2026, 9, 22, 21, 30).getTime()
       const list = [

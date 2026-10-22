@@ -273,7 +273,7 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
 
    // spreads lovely tasks into the gaps of the day instead of the end
    const weaveLovelyTasks = () => {
-      setTaskList(currentTaskList => weaveLovely(currentTaskList, { runningTaskId, now: Date.now() }))
+      setTaskList(currentTaskList => weaveLovely(currentTaskList, { runningTaskId, now: Date.now(), rolloverHour: loadSettings().rolloverHour }))
       updateActionTime()
    }
 
