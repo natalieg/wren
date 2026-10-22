@@ -11,7 +11,7 @@ export default function LovelyBlock({ block, openMembers, doneMembers, rowProps,
 
    return (
       <section className='relative mt-6 mb-2 hand-box border-2 border-[#d9c9ea] bg-white/60 px-4 pt-4 pb-2 rotate-[-0.4deg]'>
-         <Washi tape={tape} className='-top-3 left-6 h-6 w-28 -rotate-6' />
+         <Washi tape={tape} className='-top-2 -left-4 h-6 w-14 -rotate-40' />
          <div className='flex items-baseline gap-3 border-b-2 border-dashed border-[#e3d5f0] pb-1'>
             <span className='font-hand text-3xl font-bold text-[#6b5486] marker-gold'>✦ {block.label}</span>
             <span className='font-hand text-xl text-text-muted'>{formatTime(parseInt(block.time) || 0)} block</span>
@@ -29,6 +29,7 @@ export default function LovelyBlock({ block, openMembers, doneMembers, rowProps,
                   <p className='font-hand text-xl text-text-muted py-1'>an empty block, fill it on the task list</p>}
                {[...openMembers, ...doneMembers].map(t => <LovelyRow key={t.id} task={t} {...rowProps(t)} />)}
             </div>}
+         <Washi tape={tape} className='-bottom-2 -right-4 h-6 w-12 -rotate-40' />
       </section>
    )
 }

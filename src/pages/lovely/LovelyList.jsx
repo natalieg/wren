@@ -75,18 +75,19 @@ export default function LovelyList() {
             </Link>
 
             <header className='relative'>
-               <p className='font-hand text-2xl text-text-muted'>
+               <p className='font-hand text-2xl text-text-muted -mt-3'>
                   {new Date(now).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
                </p>
-               <h1 className='font-hand text-7xl font-bold leading-[0.95] text-[#8a63c9]'>
-                  dear today,
+               <h1 className='font-hand text-6xl font-bold leading-[0.95] text-[#8a63c9]'>
+                  {/* day of the week */}
+                  happy {new Date(now).toLocaleDateString('en-GB', { weekday: 'long' })},
                   <img src={heartSticker} alt='' className='inline-block h-10 ml-2 -mt-6 rotate-12' />
                </h1>
-               <p className='mt-2 text-text-secondary'>
+               <p className='mt-2 text-sm text-text-secondary/50 font-hand'>
                   {dayIsOver
                      ? <>it&apos;s past {DAY_END_HOUR}:00. rest now, everything else can wait ☾</>
                      : <>nothing to catch up on, small steps still bloom.
-                        {dayEnds && <> your day ends around <span className='tnum'>{formatClockTime(dayEnds)}</span>.</>}</>}
+                        {dayEnds && <> your day ends around <span className='tnum marker-pink'>{formatClockTime(dayEnds)}</span>.</>}</>}
                </p>
             </header>
 
@@ -105,7 +106,7 @@ export default function LovelyList() {
                   → mark tasks as ✿ lovely in their edit window, and they&apos;ll bloom here
                </p>}
 
-            <div className='flex flex-wrap items-start justify-between gap-2 mt-1'>
+            <div className='flex flex-wrap items-start justify-between gap-2 mt-1 opacity-50 hover:opacity-80 transition-opacity duration-300'>
                <AddToToday onAddTask={taskActions.handleAddTask} onAddBlock={taskActions.handleAddBlock} />
                <button type='button' onClick={() => updateSetting('lovelyDoneInPlace', !inPlace)}
                   title='where finished tasks go'
@@ -152,7 +153,7 @@ export default function LovelyList() {
             <Washi tape='gold' className='-top-3 right-10 h-7 w-36 rotate-4' />
             <Vase flowers={flowers} sprinkles={sprinkles} />
             <Shortlist shortlist={shortlist} onAdd={addToShortlist} onRemove={removeFromShortlist} onPick={pickFromShortlist} />
-            <section className='relative mt-auto hand-box border-2 border-dashed border-[#d9c9ea] px-4 py-3 -rotate-1'>
+            {/* <section className='relative mt-auto hand-box border-2 border-dashed border-[#d9c9ea] px-4 py-3 -rotate-1'>
                <img src={birdSticker} alt='' className='absolute -top-14 right-2 h-16 rotate-6' />
                <h2 className='font-hand text-2xl font-bold text-[#6b5486]'>key</h2>
                <div className='font-hand text-xl grid grid-cols-2 gap-x-4 text-text-secondary'>
@@ -161,7 +162,7 @@ export default function LovelyList() {
                   <span>✦ block</span>
                   <span className='flex items-center gap-1'><img src={mothKey} alt='' className='h-5 pastel-soft' /> 30 min work</span>
                </div>
-            </section>
+            </section> */}
          </aside>
       </div>
    )

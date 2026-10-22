@@ -54,14 +54,14 @@ export default function Vase({ flowers, sprinkles }) {
                   style={{ left: `${left}%`, top: `${top}%`, width, transform: `rotate(${deg}deg)` }} />)}
             {SLOTS.slice(0, count).map((slot, i) =>
                <img key={i} src={slot.img} alt={flowers[i].label}
-                  className='absolute left-1/2 bottom-[70px] w-auto max-w-none'
+                  className='absolute left-1/2 bottom-17.5 w-auto max-w-none'
                   style={{ height: slot.height, transform: `translateX(-50%) rotate(${slot.deg}deg)`, transformOrigin: 'bottom center' }} />)}
             <div aria-hidden='true'
                className='absolute bottom-0 left-1/2 -translate-x-1/2 w-32 h-24 border-[2.5px] border-t-0 border-border-strong rounded-b-[44px] rounded-t-[10px] bg-[#e3ccff]/40' />
          </div>
          <p className='font-hand text-2xl leading-tight text-[#7a52b3] text-center mt-3'>{MESSAGES[count]}</p>
          {sprinkles > 0 &&
-            <p className='text-xs text-text-secondary text-center mt-1'>
+            <p className='text-xs text-text-secondary/50 text-center mt-1'>
                {sprinkles} {sprinkles === 1 ? 'moth' : 'moths'} for {sprinkles * SPRINKLE_MINUTES} min of other work
             </p>}
       </section>

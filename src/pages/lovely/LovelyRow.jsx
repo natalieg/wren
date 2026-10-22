@@ -18,15 +18,19 @@ export default function LovelyRow({ task, isRunning, liveSeconds, taskActions, s
    const bulletColor = done ? 'text-[#5fd2ac]' : lovely ? 'text-[#f7719e]' : 'text-[#a898bb]'
 
    return (
-      <div className={`group grid grid-cols-[2.25rem_minmax(0,1fr)_auto_3.5rem] items-center gap-2 rounded-md pr-2 min-h-11
+      <div className={`group grid grid-cols-[2.25rem_minmax(0,1fr)_auto_3.5rem] items-center gap-2 rounded-md pr-2 ${done ? 'min-h-8': 'min-h-11'} 
          transition-colors duration-(--dur-fast) hover:bg-[#f6ecff]/70 ${isRunning ? 'bg-[#fff0f6]' : ''}`}>
+         {/* check button */}
          <button type='button' onClick={() => toggleDone(task.id)}
             title={done ? 'not done yet' : 'done'}
-            className={`font-hand text-3xl font-bold leading-none cursor-pointer softTransition hover:scale-125 ${bulletColor}`}>
+            className={`${done ? 'text-base' : 'text-3xl'} font-hand font-bold leading-none cursor-pointer softTransition hover:scale-125 ${bulletColor}`}>
             {bulletOf(done, lovely)}
          </button>
+         {/* Task */}
          <button type='button' onClick={() => setEditingTaskId(task.id)}
-            className={`text-left font-hand text-2xl leading-tight cursor-pointer truncate ${done ? 'text-[#a898bb]' : 'text-text-secondary'} ${done && struck ? 'line-through decoration-[#c9b8db]' : ''}`}>
+            className={`text-left font-hand leading-tight cursor-pointer truncate ${done ? 'text-[#a898bb]' : 'text-text-secondary'} 
+            ${done ? 'text-base' : 'text-2xl'}
+            ${done && struck ? 'line-through decoration-[#c9b8db]' : ''}`}>
             <span className={lovely && !done ? 'marker-pink' : ''}>{task.label}</span>
          </button>
          <div className='flex items-center gap-1'>
