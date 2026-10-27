@@ -9,7 +9,7 @@ import TaskInput from '../../../components/tasks/TaskInput'
 import BlockHeader from './BlockHeader'
 import BlockGeneralRow from './BlockGeneralRow'
 import { blockLane } from './blockLayout'
-import { blockStats, blockGroupKey, fillCandidates, canJoinBlock } from '../../../utils/blocks'
+import { blockStats, blockGroupKey, fittingCandidates, canJoinBlock } from '../../../utils/blocks'
 import { formatClockTime } from '../../../utils/formatTime'
 import useProjectsContext from '../../../hooks/useProjectsContext'
 
@@ -30,7 +30,7 @@ export default function TimeBlock({ block, members, taskActionBundle }) {
    const generalRunning = runningTaskId === block.id
    const open = !block.collapsed || stats.isBusy
    const generalOpen = !!block.showGeneral || generalRunning
-   const fillCount = fillCandidates(taskList, block, { fromNextUp: true }).length
+   const fillCount = fittingCandidates(taskList, block, { fromNextUp: true }).length
    const groupId = blockGroupKey(block.id)
    const projectName = projects.find(p => p.id === block.project)?.name ?? block.label
 

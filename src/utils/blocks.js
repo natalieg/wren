@@ -71,8 +71,22 @@ export function fillCandidates(taskList, block, { fromNextUp }) {
    })
 }
 
+// the candidates that still fit the block's duration (plus grace), in day order, stopping at the first that doesn't
+export function fittingCandidates(taskList, block, opts) {
+   const room = (parseInt(block.time) || 0) + GRACE_MINUTES
+   let planned = membersOf(block.id, taskList).reduce((sum, t) => sum + (parseInt(t.time) || 0), 0)
+   const fitting = []
+   for (const t of fillCandidates(taskList, block, opts)) {
+      const minutes = parseInt(t.time) || 0
+      if (planned + minutes > room) break
+      planned += minutes
+      fitting.push(t)
+   }
+   return fitting
+}
+
 export function adoptIntoBlock(taskList, block, opts) {
-   const adopted = new Set(fillCandidates(taskList, block, opts))
+   const adopted = new Set(fittingCandidates(taskList, block, opts))
    return taskList.map(t => adopted.has(t) ? { ...t, list: ACTIVE, backlog: undefined, blockId: block.id } : t)
 }
 

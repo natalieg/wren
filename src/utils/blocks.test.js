@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { blockStats, minutesLeft, minutesDone, adoptIntoBlock, releaseOpenMembers, fillCandidates, blockIdOf, activeBlockIds, waitsForBlock, BLOCK } from './blocks'
+import { blockStats, minutesLeft, minutesDone, adoptIntoBlock, releaseOpenMembers, fillCandidates, fittingCandidates, blockIdOf, activeBlockIds, waitsForBlock, BLOCK } from './blocks'
 import { ACTIVE, BACKLOG, DONE, NEXTUP, SOMEDAY } from './constants'
 
 const block = (id, time, extra = {}) => ({ id, kind: BLOCK, label: 'Solverint', project: 'p1', time, list: ACTIVE, ...extra })
@@ -128,6 +128,29 @@ describe('adoptIntoBlock / releaseOpenMembers', () => {
       const result = adoptIntoBlock([b, nextUp(4, 'p1'), someday], b, { fromNextUp: true })
       expect(result[1]).toMatchObject({ list: ACTIVE, blockId: 'b', backlog: undefined })
       expect(result[2]).toBe(someday)
+   })
+
+   it('only takes as many tasks as fit the duration plus grace, in day order', () => {
+      const b = block('b', 120)
+      const list = [b, task(1, 60, { project: 'p1' }), task(2, 70, { project: 'p1' }), task(3, 10, { project: 'p1' })]
+      const result = adoptIntoBlock(list, b, { fromNextUp: false })
+      expect(result.map(t => t.blockId)).toEqual([undefined, 'b', 'b', undefined])
+   })
+
+   it('leaves the rest for a second block', () => {
+      const b = block('b', 60)
+      const c = block('c', 60)
+      const first = adoptIntoBlock([b, task(1, 60, { project: 'p1' }), task(2, 60, { project: 'p1' })], b, { fromNextUp: false })
+      const second = adoptIntoBlock([...first, c], c, { fromNextUp: false })
+      expect(second.map(t => t.blockId)).toEqual([undefined, 'b', 'c', undefined])
+   })
+
+   it('fill counts what is already in the block, finished tasks too', () => {
+      const b = block('b', 60)
+      const list = [b, task(1, 30, { project: 'p1', blockId: 'b', list: DONE }), task(2, 20, { project: 'p1', blockId: 'b' }),
+         task(3, 30, { project: 'p1' }), nextUp(4, 'p1')]
+      expect(fittingCandidates(list, b, { fromNextUp: true }).map(t => t.id)).toEqual([])
+      expect(fittingCandidates(list.filter(t => t.id !== 3), b, { fromNextUp: true }).map(t => t.id)).toEqual([4])
    })
 
    it('has nothing to fill for a topic block without project', () => {
