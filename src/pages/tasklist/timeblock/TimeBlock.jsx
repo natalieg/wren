@@ -34,6 +34,12 @@ export default function TimeBlock({ block, members, taskActionBundle }) {
    const groupId = blockGroupKey(block.id)
    const projectName = projects.find(p => p.id === block.project)?.name ?? block.label
 
+   // opening general starts its timer right away — it's mostly used for live tracking
+   const toggleGeneral = () => {
+      if (!block.showGeneral && !generalRunning) startTracking(block.id)
+      handleFieldChange(block.id, 'showGeneral', !block.showGeneral)
+   }
+
    // a task dragged over the inside: the frame itself says whether it may land here
    const { active, over } = useDndContext()
    const dragged = active?.data?.current?.task
@@ -57,7 +63,7 @@ export default function TimeBlock({ block, members, taskActionBundle }) {
             <BlockHeader block={block} stats={stats}
                nodeRef={setNodeRef} handleProps={{ ...attributes, ...listeners, style: { touchAction: 'none' } }}
                open={open} onToggleOpen={() => handleFieldChange(block.id, 'collapsed', open)}
-               generalOpen={generalOpen} onToggleGeneral={() => handleFieldChange(block.id, 'showGeneral', !block.showGeneral)}
+               generalOpen={generalOpen} onToggleGeneral={toggleGeneral}
                onFinish={() => toggleDone(block.id)} onDelete={() => onDelete(block.id)} />
             {open && <>
                <TaskDropZone groupId={groupId} tasks={members} frame={false}>

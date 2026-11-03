@@ -17,6 +17,9 @@ export const formatTimeWithSeconds = (seconds) => {
 export const secondsToMinutes = (seconds) => Math.floor(seconds / 60)
 export const minutesToSeconds = (minutes) => minutes * 60
 
+// "1.5" and "1,5" both mean 1.5 — NaN when it isn't a number
+export const parseHours = (value) => Number(String(value).trim().replace(',', '.') || NaN)
+
 // What a task actually cost, in minutes: real tracked time once there's at least
 // a full minute of it, otherwise the estimate. 
 // LATER this could be changed in user settings - maybe user wants to track short tasks

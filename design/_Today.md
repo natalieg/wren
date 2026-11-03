@@ -1,4 +1,15 @@
 
+### 🤖 Tracking belongs to the day it happened (HIGH, look at Wed/Thu)
+"its something that really really messing with my head right now". Tracked time should count for the day/week it happened, not the day a task gets ticked done. Tasks were reset to 0 by hand on 2026-11-03 as a stopgap.
+- Symptoms: a block adopting a task with old tracked time starts "over plan" (`blockStats` counts all of it); History files the *whole* `trackedTime` under the finish day; a recurring left unfinished starts the next day with yesterday's minutes
+- Already there: `trackedByDay` on tasks (`utils/trackedByDay.js`), only used by `projectTime.js` for the week card. History and blocks ignore it
+- Direction: work with copies. A task worked on but not finished gets closed for that day, a copy continues. Fits how tasks get extended already: small block per task, duplicate when it needs more
+- [ ] 🤖 action "duplicate and close": closes the original (counts on its day), copy gets either the same planned minutes or the leftover (estimate − tracked)
+- [ ] 🤖 settings: copy time = same as original / leftover / default x min
+- [ ] 🤖 rollover (setting): worked-on unfinished tasks auto-close for their day, copy lands in today. Recurrings the same
+- [ ] 🤖 blocks: with copies, earlier time stays on the closed original, so the block issue mostly disappears. Fallback idea: `blockBaseline` = trackedTime at join, earlier time shown separately, not editable
+- Touches rollover, recurring, history, blocks → split into small steps first, start with the manual "duplicate and close"
+
 ### 🤖 Live estimates (idea, not built)
 While nothing runs, estimates count from a fixed anchor (`baseTimeOf` in `utils/taskEstimates.js`: day start, last finished task, last action), so after an hour away they sit an hour in the past. Good for plan mode, bad for real days.
 - [ ] 🤖 setting `liveEstimates` (on/off) + checkbox row in Settings; off = today's plan mode

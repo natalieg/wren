@@ -1,5 +1,24 @@
 import { describe, it, expect } from 'vitest'
-import { formatTime, formatClockTime, formatTimeWithSeconds, effectiveMinutes } from './formatTime'
+import { formatTime, formatClockTime, formatTimeWithSeconds, effectiveMinutes, parseHours } from './formatTime'
+
+describe('parseHours', () => {
+    it('reads a dot and a comma the same', () => {
+        expect(parseHours('1.5')).toBe(1.5)
+        expect(parseHours('1,5')).toBe(1.5)
+    })
+
+    it('takes whole numbers, numbers and padded text', () => {
+        expect(parseHours('2')).toBe(2)
+        expect(parseHours(0.5)).toBe(0.5)
+        expect(parseHours(' 3 ')).toBe(3)
+    })
+
+    it('is NaN for empty or non-numeric input', () => {
+        expect(parseHours('')).toBeNaN()
+        expect(parseHours('  ')).toBeNaN()
+        expect(parseHours('abc')).toBeNaN()
+    })
+})
 
 describe('formatTime', () => {
     it('formats minutes under an hour as "Xm"', () => {
