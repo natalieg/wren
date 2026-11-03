@@ -61,6 +61,7 @@ Split out from Phase 2 (2026-08-06) so it stops being a perpetually-deferred "st
 
 ### 🔷 Next big step — Unified Activity Refactor (tasks + breaks)
 Plan in `design/unified-activity-model.md`, phases tracked in `_Today.md`. Needs a block of 3h+ to get immersed, not something to start in a short session. Pinned tasks (`fixedStart`) should become the `appointment` type here.
+- 🔷 After this: move from localStorage to a real database, ideally still in 2026 (v2). Clean data shape first, then migrate. Also unlocks Claude reading/pushing day plans.
 
 ### 🟡 Phase 4 - Break Tracking
 - ✅ 2026-08-13: floating Pause Panel (`PausePanel.jsx`, mirrors `FloatingTaskPanel`) — start/stop a break by type (🍵 break, 🎮 gaming, 🫂 social by default), each with its own running total for the day; break time rolls into History alongside task time.
@@ -130,6 +131,7 @@ Inbetween Broswerstorage and real Database, there is a need to save the json and
 - ✅ 2026-08-10: task ids are `crypto.randomUUID()`. `Math.max + 1` reused the ids of deleted tasks while history keeps them forever, so a new task could inherit an old one's archive — which daily habit copies would have made routine.
 - 🟥 Open: two ways to pause a habit now exist (`recurring.active: false`, or parking it in a bucket). Both are correct; the recurring page needs to show both or a stalled habit is unexplainable.
 - Only `frame: 'day'` is handled — `week`/`month` drop into the same field when this phase proper gets built.
+- 🔷 MVP 2 of the day-planning trio (2026-11-03): recurrence patterns (weekdays, every x days/weeks) plus an optional fixed time via `fixedStart`, so appointments are just recurrings marked as such, no new data type. Test set: Bootcamp Mon/Sat/Sun 23:00, Tue 12:30, Roland Wed 16:00, Benni bi-weekly 20:00 (flexible), client Fri 11:00.
 - Set Tasks to Recurring [maybe stikc to the name 'habits' for clarity]
 - Tab to view all recurring tasks 
 - Set to day/week/month etc
@@ -168,6 +170,7 @@ Check if there are more features in  [[day-planning]]
 - ✅ 2026-10-07 (v0.8.9, ⚠️ untested): pinned tasks — optional `fixedStart` gives a task a fixed time today; flexible tasks keep their order and move behind a pin they'd run into, free gaps show above it. Stand-in for a future `appointment` task type, the timestamp carries over as its start.
 - 🟥 Open: soft "planned time" (lunch at 12) vs. hard appointments that auto-start with a ping ahead. Needs per-task settings, open questions in `_Today.md`.
 - 🟥 buffer/slack time concept (loose reference: `design/day-planning.md` sketch 1j's buffer rows) — revisit if it turns out to matter once time tracking's been used for a while.
+- 🔷 MVP 3 of the day-planning trio (2026-11-03): start-of-day page showing week targets with hours left, yesterday's leftovers, today's recurrings/appointments and a brain dump, then pick what goes into time blocks. Needs MVP 1 + 2 first ("a more conscious start of the day with wren would help" against pushing recurrings back).
 - Different ways to start the day:
 	-	start with template for eg 'wednesday' -> all recurring tasks for a wednesday are pulled, rest of the day is filled by the rules of energy/time 
 	- day starts empty: user pulls relevant tasks into the day, switches in the sidebar between templates, recurring etc to put the day together themselves 
@@ -222,6 +225,7 @@ A first, deliberately simpler version of "projects" than the original fuller des
 - 🔷 Time blocks: closing a block offers [close and keep] / [close and move leftovers to backlog] / [delete and keep], for ending the work day with underestimated tasks ("dann will ich mich auf meine privaten sachen konzentrieren und nicht noch alte sachen rumfliegen haben"). "Delete and move" left out on purpose, to keep the options few.
 - 🔷 This / next week: projects page as a matrix (rows = projects, columns = Today / Next Up / Next Week / Someday), compact tasks, drag & drop across cells. Draft: `design/Meta-Wochenplan.html`, tab "Wren · Projects (Entwurf)". Where Today has no block, a "block tasks for x h" button instead of "kein Block heute".
 - 🔷 Soon after the matrix: the meta week plan from the same artifact, either as a subtab of projects or its own page (still open).
+- 🔷 MVP 1 of the day-planning trio (2026-11-03): weekly hour target per project (Solverint 13h, PlayLife 8h, Bootcamp project 2.5h, Sport…) next to the tracked time on the card, plus "x h left over y days → z h/day" so a lost day redistributes instead of failing ("most planners are too rigid. i need something that can adapt at any moment"). Keep the hours easy to export for the Obsidian week file (Plan → Ist).
 - 🔷 Project time blocks (near future): a project setting auto-blocks x hours every day / every x days in the daily view ("i know that i want to work x hours on a project every day... but i dont always know 'what'"). Per project, the block is either empty (click it, grab tasks from the project's backlog) or auto-filled with the next tasks. Related: the timeblock thoughts in `_Today.md` ("Wandering Subtasks"), and pinned tasks as a possible fixed slot for the block.
 
 ### Phase 14 — Shell layout alignment
