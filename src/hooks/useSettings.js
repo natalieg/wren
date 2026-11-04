@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { SETTINGS_STORAGE_KEY, loadSettings } from '../utils/settings'
+import { SETTINGS_STORAGE_KEY, DEFAULT_SETTINGS, loadSettings } from '../utils/settings'
+import useStorageSync from './useStorageSync'
+
+const parseSettings = (raw) => ({ ...DEFAULT_SETTINGS, ...JSON.parse(raw) })
 
 function useSettings() {
     const [settings, setSettings] = useState(loadSettings)
@@ -7,6 +10,7 @@ function useSettings() {
     useEffect(() => {
         localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
     }, [settings])
+    useStorageSync(SETTINGS_STORAGE_KEY, setSettings, parseSettings)
 
     const updateSetting = (key, value) => {
         setSettings(current => ({ ...current, [key]: value }))

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { logicalDayString } from '../utils/rollover'
 import { loadSettings } from '../utils/settings'
+import useStorageSync from './useStorageSync'
 
 // Grouped by day, newest day first:
 // [
@@ -15,11 +16,13 @@ function normalizeBreakTime(entry) {
    return entry.breakTime === breakTime ? entry : { ...entry, breakTime }
 }
 
+const parseHistory = (raw) => JSON.parse(raw).map(normalizeBreakTime)
+
 function useHistory() {
   const [history, setHistory] = useState(() => {
     try {
       const savedHistory = localStorage.getItem('history')
-      return savedHistory ? JSON.parse(savedHistory).map(normalizeBreakTime) : []
+      return savedHistory ? parseHistory(savedHistory) : []
     } catch (e) {
       console.error('Failed to load history from localStorage:', e)
       return []
@@ -29,6 +32,7 @@ function useHistory() {
   useEffect(() => {
     localStorage.setItem('history', JSON.stringify(history))
   }, [history])
+  useStorageSync('history', setHistory, parseHistory)
 
   const addToHistory = (task) => {
     const settings = loadSettings()

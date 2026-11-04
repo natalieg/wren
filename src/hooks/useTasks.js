@@ -10,6 +10,7 @@ import { newTaskId } from '../utils/taskId'
 import { reviveOrphanedHabits } from '../utils/recurring'
 import { getNextCopyTitle, getPrevCopyIndex, getOpenCopies } from './useTaskCopy'
 import useTimeAlert from './useTimeAlert'
+import useStorageSync from './useStorageSync'
 import { playFinishedSound } from '../utils/playSound'
 import { loadSettings } from '../utils/settings'
 import { addTrackedToday } from '../utils/trackedByDay'
@@ -33,6 +34,8 @@ function normalizeTask(t) {
    }
 }
 
+const parseTasks = (raw) => JSON.parse(raw).map(normalizeTask)
+
 /** Composition root for everything task-shaped. The pieces that own their own state
  * or effects are their own hooks (tracking, rollover); the parts that are just
  * "tasks in, something out" are pure utils (transitions, estimates, reordering).
@@ -44,7 +47,7 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
    const [taskList, setTaskList] = useState(() => {
       try {
          const savedTasks = localStorage.getItem('tasks')
-         return savedTasks ? JSON.parse(savedTasks).map(normalizeTask) : []
+         return savedTasks ? parseTasks(savedTasks) : []
       } catch (e) {
          console.error('Failed to load tasks from localStorage:', e)
          return []
@@ -67,6 +70,7 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
    useEffect(() => {
       localStorage.setItem('tasks', JSON.stringify(taskList))
    }, [taskList])
+   useStorageSync('tasks', setTaskList, parseTasks)
 
    // moves a task to a different list, applying the transition and cleaning up
    const moveTaskToList = (id, target, opts = {}) => {
