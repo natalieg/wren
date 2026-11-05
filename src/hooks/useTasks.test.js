@@ -263,6 +263,20 @@ describe('useTasks', () => {
     })
   })
 
+  describe('pushToTop', () => {
+    it('moves an active task to the start of the active list', () => {
+      const { result } = renderHook(() => useTasks(), { wrapper: HistoryProvider })
+      act(() => { result.current.taskActions.handleAddTask('Task A', 10) })
+      act(() => { result.current.taskActions.handleAddTask('Task B', 10) })
+      act(() => { result.current.taskActions.handleAddTask('Task C', 10) })
+      const [idA, idB, idC] = result.current.taskList.map(t => t.id)
+
+      act(() => { result.current.taskActions.pushToTop(idC) })
+
+      expect(result.current.openTasks.map(t => t.id)).toEqual([idC, idA, idB])
+    })
+  })
+
   describe('blocks-only projects', () => {
     const blocksOnlyProjects = new Set(['p1'])
 

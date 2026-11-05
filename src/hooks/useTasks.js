@@ -279,6 +279,15 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
       })
    }
 
+   // counterpart to pushToBottom — moves one task to the start of the list
+   const pushToTop = (id) => {
+      setTaskList(currentTaskList => {
+         const task = currentTaskList.find(t => t.id === id)
+         if (!task) return currentTaskList
+         return [task, ...currentTaskList.filter(t => t.id !== id)]
+      })
+   }
+
    // dropping on finished list finishes it; reorderTasks refuses the transition
    const reorderTaskList = (activeId, overId) => {
       const activeTask = taskList.find(t => t.id === activeId)
@@ -326,6 +335,7 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
       deleteProjectTasks,
       unassignProjectTasks,
       pushToBottom,
+      pushToTop,
       reorderTaskList,
       moveTaskAcrossLists,
       startTracking,

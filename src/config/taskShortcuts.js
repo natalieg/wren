@@ -69,6 +69,13 @@ const taskShortcuts = [
     },
     {
         context: 'tasks',
+        key: 'ArrowUp',
+        label: 'Push task to top of the active list',
+        condition: (task) => task.list === ACTIVE,
+        action: (task, actions) => actions.pushToTop(task.id),
+    },
+    {
+        context: 'tasks',
         key: ' ',
         label: 'Start/stop time tracking',
         // works from the backlog too — starting tracking pulls the task into 'active' (see useTasks.startTracking)
