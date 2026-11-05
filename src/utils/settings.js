@@ -7,6 +7,8 @@ export const DEFAULT_SETTINGS = {
    defaultStartTime: '09:00',
    rolloverActive: true,
    autoDeleteFinished: false,
+   // off = plan mode: estimates count from the last action, not from now
+   liveEstimates: false,
    timerSound: 'shortBell',
    breakSound: 'shortBell',
    timerSoundEnabled: true,

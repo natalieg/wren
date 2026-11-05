@@ -8,6 +8,8 @@ import useBreaksContext from '../hooks/useBreaksContext'
 import useProjectsContext from '../hooks/useProjectsContext'
 import useTaskKeyboardShortcuts from '../hooks/useTaskKeyboardShortcuts'
 import useTabTitle from '../hooks/useTabTitle'
+import useLiveEstimates from '../hooks/useLiveEstimates'
+import useSettingsContext from '../hooks/useSettingsContext'
 import { buildActivityActions } from '../utils/activityTracking'
 import Modal from '../components/elements/Modal'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
@@ -28,6 +30,10 @@ function TasksProvider({ children }) {
    const taskActions = { ...tasks.taskActions, startTracking, stopTracking }
    const TasksContextValue = { ...tasks, taskActions }
    const [modalBig, setModalBig] = useState(false)
+
+   // a running task already drives its own estimates
+   const { settings } = useSettingsContext()
+   useLiveEstimates(settings.liveEstimates && !runningTaskId, setNewActionTime)
 
    useTaskKeyboardShortcuts(taskList, {
       ...taskActions,
