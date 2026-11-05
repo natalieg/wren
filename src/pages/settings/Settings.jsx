@@ -74,6 +74,10 @@ export default function Settings() {
             <CheckboxRow id='autoDeleteFinished' checked={settings.autoDeleteFinished}
                onToggle={() => updateSetting('autoDeleteFinished', !settings.autoDeleteFinished)}
                label="Auto-delete finished tasks at rollover" />
+            {/* Check: Live estimates */}
+            <CheckboxRow id='liveEstimates' checked={settings.liveEstimates}
+               onToggle={() => updateSetting('liveEstimates', !settings.liveEstimates)}
+               label="Live estimates (refresh every 5 min while nothing runs)" />
 
             <Divider label='Breaks' />
 
