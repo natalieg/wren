@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { newTaskId } from '../utils/taskId'
+import useStorageSync from './useStorageSync'
 
 // [{ id, name, notes, createdAt, blocksOnly? }, ...]
 function useProjects() {
@@ -16,6 +17,7 @@ function useProjects() {
    useEffect(() => {
       localStorage.setItem('projects', JSON.stringify(projects))
    }, [projects])
+   useStorageSync('projects', setProjects)
 
    const addProject = (name) => {
       const project = { id: newTaskId(), name, notes: '', createdAt: new Date().toISOString() }
