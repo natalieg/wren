@@ -1,4 +1,30 @@
 
+-  we need to fix wren so i can open it in two tabs and it doesn't overwrite itself
+	- ✅ 🤖 merged (`useStorageSync`)
+- ✅ 🤖 shortcut `↑` pushes an active task to the top (counterpart to `↓`), merged
+- timeblocks for projects should be duplicatable too; later maybe finetuning like "3x 1h timeblock"
+-  'real' update every 5min or something so i can see a real representation of todays plan, right now i do that through starting/ending a break or a task so it 'resets' the current timeframe, but this cannot be the only solution xD
+	- 🤖 built: Settings → "Live estimates" (`feat/live-estimates`, PR via link)
+
+### 2026-11-06 notes
+- 🟦 take subnotes to recurring tasks (wrote this before, but it keeps being important)
+- 🟦 marker for "uncheck checked" per recurring: some recurrings carry a todolist that can just be finished, others have subtasks that are recurrings themselves
+	- e.g. recurring "day planning": I take Wren notes in it, they must not get lost if I forget to copy them out → "carry over, don't reset"
+	- e.g. "lesen" with subgoals 5 pages, 10 pages → reset every day
+	- could be a toggle at the top next to "synch notes", doesn't sound that complex
+	- long term: context menu for subtasks (or finally real subtasks) to forward a note into a project. Needs my own design thinking first, not now
+- 🟦 "fix" the hangover: now that time synchs, there's no clear sign the day is still stuck on yesterday
+	- today I didn't notice I hadn't refreshed. Idea: when Wren is open at rollover time, do a real refresh, with a banner "refresh in x minutes, refresh now?"
+	- what matters: it's obvious "oh, this is still yesterday's stuff" (things already ticked, recurrings hidden because done yesterday)
+- 🟦 maybe show somewhere at the top when the day would be finished if planned like this
+- 🟦 (Obsidian meta weekplan: marking meetings finished with real tracked time, e.g. 30 instead of 60 min. Torn on it: the real goal is a weekplan in Wren)
+- is it possible to get an early integration of clickup into wren? eg project related, connecting the 'solverint' project to the one sitting in clickup - evaluate, plan after
+	- 🤖 2026-11-06: agreed to look at it, after vacation is fine. Bridge only, Wren stays the goal
+	- 🤖 start small: one-way import ClickUp → one Wren project, "sync" button, read-only. Pattern exists already: Trello credentials in `utils/trello.js`
+	- 🤖 check first: ClickUp API token in localStorage ok? Does the API allow browser calls (CORS), or do we need a small Vercel function as proxy?
+- only in projects:
+	- maybe there can be a limit to how many tasks wander from 'next up' into 'today' by themselves? eg its very unlikely that i manage more than 5h of tasks in one day
+
 ### 🤖 Tracking belongs to the day it happened (HIGH, look at Wed/Thu)
 "its something that really really messing with my head right now". Tracked time should count for the day/week it happened, not the day a task gets ticked done. Tasks were reset to 0 by hand on 2026-11-03 as a stopgap.
 - Symptoms: a block adopting a task with old tracked time starts "over plan" (`blockStats` counts all of it); History files the *whole* `trackedTime` under the finish day; a recurring left unfinished starts the next day with yesterday's minutes
@@ -9,8 +35,10 @@
 - [ ] 🤖 rollover (setting): worked-on unfinished tasks auto-close for their day, copy lands in today. Recurrings the same
 - [ ] 🤖 blocks: with copies, earlier time stays on the closed original, so the block issue mostly disappears. Fallback idea: `blockBaseline` = trackedTime at join, earlier time shown separately, not editable
 - Touches rollover, recurring, history, blocks → split into small steps first, start with the manual "duplicate and close"
+- [ ] 🤖 mid-term: mark a task as "done yesterday" (2026-11-05: the 90 min study session from Wed was still on the list, deleting it was the only way to keep it out of today's history)
 
-### 🤖 Live estimates (idea, not built)
+### 🤖 Live estimates (built on `feat/live-estimates`, test in browser)
+- [ ] 🤖 test: Settings → "Live estimates" on, leave the tab for a while without a running task, come back → estimates start from now
 While nothing runs, estimates count from a fixed anchor (`baseTimeOf` in `utils/taskEstimates.js`: day start, last finished task, last action), so after an hour away they sit an hour in the past. Good for plan mode, bad for real days.
 - [ ] 🤖 setting `liveEstimates` (on/off) + checkbox row in Settings; off = today's plan mode
 - [ ] 🤖 when on and nothing runs: every 5 min `setNewActionTime(new Date())`, small effect in `useTasks`
@@ -18,6 +46,18 @@ While nothing runs, estimates count from a fixed anchor (`baseTimeOf` in `utils/
 - [ ] 🤖 test with fake timers
 - being ahead needs nothing extra: finishing a task already moves the anchor to its finish time
 - effort: small, ~1h; estimate logic itself stays untouched
+
+### 🤖 Buffer between tasks (built 2026-11-11 on `feat/live-estimates`, uncommitted)
+Settings → "Buffer between tasks" (off by default). Shows a ☕ chip in the add row (–/+ in 5 min steps, 0–30). Estimates put the buffer after every task. After you finish a task, a breather card with a countdown appears, and "Start now" starts the next task.
+- [ ] 🤖 test in browser: toggle on, finish a task → breather card + next estimate shifted by the buffer
+- [ ] 🤖 check: chip size/height next to the time input, colors (gold) in the card
+- [ ] 🤖 check: "☕ 10m breather" gap rows between day-list tasks (`BufferGap` in `components/tasks/TaskGroup.jsx`), not inside blocks
+- [ ] 🤖 decide: sound when the breather ends? (not built, card just disappears)
+- [ ] 🤖 decide: hide the card while a break (🍵) runs? (right now only a running task hides it)
+- [ ] 🤖 decide: buffer inside time blocks? (right now a block counts as one unit, buffer only after it)
+- [ ] 🤖 decide: show buffer in TimeProgress "left"? (right now "left" is task time only)
+- [ ] 🤖 maybe: "skip" without starting a task (right now "Start now" = start tracking the next task)
+- code: `utils/buffer.js` (pure helpers), `pages/tasklist/BufferChip.jsx` + `Breather.jsx`, `bufferMs` in `utils/taskEstimates.js` (`cursor = estimate + bufferMs`, `baseTimeOf` adds it to finish times)
 
 ### 🤖 Lovely List (`feat/lovely-list`) — review before merge
 Built by Claude on 2026-10-21/22 and not walked through yet. It's a second view over the same tasks, plus one optional `lovely` flag. Designs: https://claude.ai/artifact/ToJfqw4Zo6ynhh82sbCgHS (board 4)

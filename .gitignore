@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# obsidian window layout, changes on every open
+design/.obsidian/workspace*.json
