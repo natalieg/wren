@@ -24,10 +24,20 @@ function FreeGap({ minutes }) {
    )
 }
 
+// planned breather between two tasks, see utils/buffer
+function BufferGap({ minutes }) {
+   return (
+      <div className='flex items-center gap-2 text-xs text-text-muted select-none pb-1 pl-4' aria-label={`${minutes} minute buffer`}>
+         ☕ {formatTime(minutes)} breather
+         <span className='flex-1 border-t-2 border-dotted border-gold/60' />
+      </div>
+   )
+}
+
 // SortableContext for drag-and-drop positioning (DndContext is in TaskDndArea)
 // renderBlock draws a time block in place of a row — the day list passes it, other lists don't hold blocks.
 // accepts(task) lets a list refuse a dragged task, it then gets no placeholder
-export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, showProjectName, renderBlock, accepts }) {
+export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTaskToList, startTracking, stopTracking, runningTaskId, trackedSeconds, showEstimate, setEditingTaskId, showProjectName, renderBlock, accepts, bufferMinutes = 0, bufferBeforeFirst = false }) {
    // Drop target and frame live in TaskDropZone
    const { active, over } = useDndContext()
    const draggedTask = active?.data?.current?.task
@@ -52,6 +62,7 @@ export default function TaskGroup({ tasks, groupId, toggleDone, onDelete, moveTa
                <Fragment key={t.id}>
                {placeholderAt === index &&
                   <DropPlaceholder label={active?.data?.current?.task?.label} />}
+               {bufferMinutes > 0 && (index > 0 || bufferBeforeFirst) && <BufferGap minutes={bufferMinutes} />}
                {t.freeMinutesBefore > 0 && <FreeGap minutes={t.freeMinutesBefore} />}
                {isBlock(t) && renderBlock ? renderBlock(t) : <Row
                   index={index}

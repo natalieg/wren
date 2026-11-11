@@ -11,13 +11,15 @@ import useTabTitle from '../hooks/useTabTitle'
 import useLiveEstimates from '../hooks/useLiveEstimates'
 import useSettingsContext from '../hooks/useSettingsContext'
 import { buildActivityActions } from '../utils/activityTracking'
+import { activeBufferMinutes } from '../utils/buffer'
 import Modal from '../components/elements/Modal'
 import TaskEditModalBody from '../components/tasks/TaskEditModalBody'
 
 function TasksProvider({ children }) {
    const { projects } = useProjectsContext()
    const blocksOnlyProjects = new Set(projects.filter(p => p.blocksOnly).map(p => p.id))
-   const tasks = useTasks({ blocksOnlyProjects })
+   const { settings } = useSettingsContext()
+   const tasks = useTasks({ blocksOnlyProjects, bufferMinutes: activeBufferMinutes(settings) })
    const breaks = useBreaksContext()
    const { taskList, editingTaskId, runningTaskId, trackedSeconds, setNewActionTime } = tasks
    const { startTracking, stopTracking, startBreak, stopBreak } = buildActivityActions({
@@ -32,7 +34,6 @@ function TasksProvider({ children }) {
    const [modalBig, setModalBig] = useState(false)
 
    // a running task already drives its own estimates
-   const { settings } = useSettingsContext()
    useLiveEstimates(settings.liveEstimates && !runningTaskId, setNewActionTime)
 
    useTaskKeyboardShortcuts(taskList, {

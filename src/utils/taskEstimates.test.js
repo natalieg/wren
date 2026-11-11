@@ -270,3 +270,51 @@ describe('calculateEstimates', () => {
       })
    })
 })
+
+describe('calculateEstimates — buffer between tasks', () => {
+   const start = defaults.startedAt.getTime()
+   const endOf = (openTasks, id) => openTasks.find(t => t.id === id).estimate.getTime()
+
+   it('changes nothing without a buffer', () => {
+      const { openTasks } = run([
+         { id: 1, label: 'a', time: 20, list: ACTIVE },
+         { id: 2, label: 'b', time: 10, list: ACTIVE },
+      ])
+      expect(endOf(openTasks, 2)).toBe(start + 30 * MINUTE)
+   })
+
+   it('puts the buffer between active tasks', () => {
+      const { openTasks } = run([
+         { id: 1, label: 'a', time: 20, list: ACTIVE },
+         { id: 2, label: 'b', time: 10, list: ACTIVE },
+      ], { bufferMinutes: 5 })
+      expect(endOf(openTasks, 1)).toBe(start + 20 * MINUTE)
+      expect(endOf(openTasks, 2)).toBe(start + 35 * MINUTE)
+   })
+
+   it('starts the next task one buffer after the last finish', () => {
+      const finishedAt = NOW - 10 * MINUTE
+      const { openTasks } = run([
+         { id: 0, label: 'done', time: 20, list: DONE, finishedTimestamp: new Date(finishedAt) },
+         { id: 1, label: 'a', time: 20, list: ACTIVE },
+      ], { bufferMinutes: 5 })
+      expect(endOf(openTasks, 1)).toBe(finishedAt + 25 * MINUTE)
+   })
+
+   it('lets a running task end from now, buffer only after it', () => {
+      const { openTasks } = run([
+         { id: 1, label: 'a', time: 20, list: ACTIVE },
+         { id: 2, label: 'b', time: 10, list: ACTIVE },
+      ], { bufferMinutes: 5, runningTaskId: 1, trackedSeconds: 5 * 60 })
+      expect(endOf(openTasks, 1)).toBe(NOW + 15 * MINUTE)
+      expect(endOf(openTasks, 2)).toBe(NOW + 30 * MINUTE)
+   })
+
+   it('adds the buffer before next-up tasks too', () => {
+      const { nextUpTasks } = run([
+         { id: 1, label: 'a', time: 20, list: ACTIVE },
+         { id: 2, label: 'later', time: 10, list: BACKLOG, backlog: { bucket: NEXTUP } },
+      ], { bufferMinutes: 5, startedAt: new Date(NOW) })
+      expect(nextUpTasks[0].possibleEstimate.getTime()).toBe(NOW + 35 * MINUTE)
+   })
+})

@@ -7,11 +7,12 @@ import { isBlock, activeBlockIds, blockIdOf, blockStats } from './blocks'
 // if no tasks are active.
 // guard against legacy finished tasks with no/invalid finishedTimestamp — one NaN
 // here would poison the whole Math.max, breaking every estimate
-function baseTimeOf(taskList, startedAt, newActionTime) {
+function baseTimeOf(taskList, startedAt, newActionTime, bufferMs) {
    const validFinishedTimestamps = taskList
       .filter(t => t.list === DONE)
       .map(t => new Date(t.finishedTimestamp).getTime())
       .filter(time => !isNaN(time))
+      .map(time => time + bufferMs)
    return Math.max(startedAt.getTime(), ...validFinishedTimestamps, newActionTime)
 }
 
@@ -83,7 +84,7 @@ function scheduleActiveTasks(activeTasks, baseTime, ctx) {
          freeMinutesBefore: Math.max(Math.floor((start - cursor) / MINUTE), 0),
          pinConflict: cursor > start,
       })
-      cursor = estimate
+      cursor = estimate + ctx.bufferMs
    }
 
    for (const task of flexible) {
@@ -94,12 +95,12 @@ function scheduleActiveTasks(activeTasks, baseTime, ctx) {
       if (isBlock(task)) {
          const block = scheduleBlock(task, members(task.id), cursor, ctx)
          list.push(...block.list)
-         cursor = block.end
+         cursor = block.end + ctx.bufferMs
          continue
       }
       const estimate = estimateFinishTime(task, cursor, ctx)
       list.push({ ...task, estimate: new Date(estimate) })
-      cursor = estimate
+      cursor = estimate + ctx.bufferMs
    }
    pins.forEach(placePin)
 
@@ -110,11 +111,13 @@ function scheduleActiveTasks(activeTasks, baseTime, ctx) {
  * Pure — `now` is passed in rather than read, so this is testable without fake timers
  * and the render-purity lint only has to be answered once, at the call site. */
 // active + nextUp tasks with their estimate timestamps attached
-export default function calculateEstimates({ taskList, startedAt, newActionTime, runningTaskId, trackedSeconds, now }) {
-   const baseTime = baseTimeOf(taskList, startedAt, newActionTime)
+// bufferMinutes: breather after every top-level task and after the last finished one (not inside blocks)
+export default function calculateEstimates({ taskList, startedAt, newActionTime, runningTaskId, trackedSeconds, now, bufferMinutes = 0 }) {
+   const bufferMs = bufferMinutes * MINUTE
+   const baseTime = baseTimeOf(taskList, startedAt, newActionTime, bufferMs)
    const activeTasks = taskList.filter(t => t.list === ACTIVE)
 
-   const openTasksResult = scheduleActiveTasks(activeTasks, baseTime, { runningTaskId, trackedSeconds, now, taskList })
+   const openTasksResult = scheduleActiveTasks(activeTasks, baseTime, { runningTaskId, trackedSeconds, now, taskList, bufferMs })
 
    // 'possibleEstimate' anchors after the last active task's estimate, or after now if
    // that already passed. 'nextUp' bucket only — mirrors the old parked-tasks list
