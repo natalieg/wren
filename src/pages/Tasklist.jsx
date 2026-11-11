@@ -12,6 +12,9 @@ import WaitingHint from './tasklist/WaitingHint'
 import { ACTIVE, BACKLOG, DONE, NEXTUP } from '../utils/constants'
 import { isBlock, activeBlockIds, blockIdOf } from '../utils/blocks'
 import ContextMenu from '../components/elements/ContextMenu'
+import Breather from './tasklist/Breather'
+import useSettingsContext from '../hooks/useSettingsContext'
+import { activeBufferMinutes, breatherEndsAt } from '../utils/buffer'
 
 export default function Tasklist() {
    const {
@@ -26,6 +29,7 @@ export default function Tasklist() {
       trackedSeconds,
       resetStartedAt,
    } = useContext(TasksContext)
+   const { settings } = useSettingsContext()
    const [menu, setMenu] = useState(null)
    const { handleAddTask, handleAddBlock, moveAllTasksToNextUp, deleteAllFinishedTasks, reorderTaskList, } = taskActions
 
@@ -41,6 +45,10 @@ export default function Tasklist() {
    const looseTasks = openTasks.filter((t) => !blockIdOf(t, blockIds))
    const runningTask = looseTasks.find((t) => t.id === runningTaskId && !isBlock(t))
    const openTasksWithoutRunning = looseTasks.filter((t) => t !== runningTask)
+
+   const bufferMinutes = activeBufferMinutes(settings)
+   const breatherEnd = breatherEndsAt(finishedTasks, bufferMinutes)
+   const nextTask = openTasks.find((t) => !isBlock(t))
 
    const renderBlock = (block) =>
       <TimeBlock block={block} members={membersOf(block.id)} taskActionBundle={taskActionBundle} />
@@ -82,6 +90,10 @@ export default function Tasklist() {
             {runningTask && (
                <TaskGroup tasks={[runningTask]} {...taskActionBundle} showEstimate={true} />
             )}
+            {!runningTaskId && breatherEnd && nextTask && (
+               <Breather key={breatherEnd} endsAt={breatherEnd} nextTask={nextTask}
+                  onStart={() => taskActions.startTracking(nextTask.id)} />
+            )}
 
             {/* every group on the page shares one DndContext — a drag can only cross
             lists inside the same context, which is what buckets/habits will need */}
@@ -99,7 +111,8 @@ export default function Tasklist() {
                   showEstimate={true} />
                {/* ⚡ Active Tasks */}
                <TaskDropZone groupId={ACTIVE} tasks={openTasksWithoutRunning}>
-                  <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} renderBlock={renderBlock} />
+                  <TaskGroup tasks={openTasksWithoutRunning} groupId={ACTIVE} {...taskActionBundle} showEstimate={true} renderBlock={renderBlock}
+                     bufferMinutes={bufferMinutes} bufferBeforeFirst={!!runningTask} />
                </TaskDropZone>
                <WaitingHint tasks={waitingTasks} />
                {/* ✅ Finished Tasks */}

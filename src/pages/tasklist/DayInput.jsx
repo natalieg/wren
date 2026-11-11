@@ -2,6 +2,7 @@ import { useState } from 'react'
 import MultiSwitchFlag from '../../components/elements/MultiSwitchFlag'
 import TaskInput from '../../components/tasks/TaskInput'
 import BlockInput from './timeblock/BlockInput'
+import BufferChip from './BufferChip'
 
 const modes = [
    { value: 'task', label: '', emoji: '☰', title: 'Adding a task — click for block' },
@@ -17,6 +18,7 @@ export default function DayInput({ onAddTask, onAddBlock }) {
          {mode === 'task'
             ? <TaskInput id='main' showPlacement onSubmit={onAddTask} />
             : <BlockInput onSubmit={onAddBlock} />}
+         <BufferChip />
       </div>
    )
 }

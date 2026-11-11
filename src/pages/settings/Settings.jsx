@@ -78,6 +78,10 @@ export default function Settings() {
             <CheckboxRow id='liveEstimates' checked={settings.liveEstimates}
                onToggle={() => updateSetting('liveEstimates', !settings.liveEstimates)}
                label="Live estimates (refresh every 5 min while nothing runs)" />
+            {/* Check: Buffer between tasks */}
+            <CheckboxRow id='bufferEnabled' checked={settings.bufferEnabled}
+               onToggle={() => updateSetting('bufferEnabled', !settings.bufferEnabled)}
+               label="Buffer between tasks (breather after each finished task)" />
 
             <Divider label='Breaks' />
 

@@ -9,6 +9,9 @@ export const DEFAULT_SETTINGS = {
    autoDeleteFinished: false,
    // off = plan mode: estimates count from the last action, not from now
    liveEstimates: false,
+   // breather between tasks, minutes are changed in the add-task row
+   bufferEnabled: false,
+   bufferMinutes: 5,
    timerSound: 'shortBell',
    breakSound: 'shortBell',
    timerSoundEnabled: true,

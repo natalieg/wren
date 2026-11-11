@@ -41,7 +41,7 @@ const parseTasks = (raw) => JSON.parse(raw).map(normalizeTask)
  * "tasks in, something out" are pure utils (transitions, estimates, reordering).
  * What stays here is the task list itself, CRUD, and the wiring between them. */
 // blocksOnlyProjects: ids of projects whose day tasks only show inside a block
-function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
+function useTasks({ blocksOnlyProjects = NO_PROJECTS, bufferMinutes = 0 } = {}) {
    const { addToHistory, removeFromHistory } = useHistoryContext()
    const [editingTaskId, setEditingTaskId] = useState(null)
    const [taskList, setTaskList] = useState(() => {
@@ -357,7 +357,7 @@ function useTasks({ blocksOnlyProjects = NO_PROJECTS } = {}) {
    const waitingTasks = taskList.filter(isWaiting)
 
    const { openTasks, nextUpTasks } = calculateEstimates({
-      taskList: taskList.filter(t => !isWaiting(t)), startedAt, newActionTime, runningTaskId, trackedSeconds,
+      taskList: taskList.filter(t => !isWaiting(t)), startedAt, newActionTime, runningTaskId, trackedSeconds, bufferMinutes,
       // eslint-disable-next-line react-hooks/purity -- display-only, never written to state
       now: Date.now(),
    })
