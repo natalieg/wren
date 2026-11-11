@@ -6,7 +6,7 @@ import { playBreakSound } from '../../utils/playSound'
 // green while running, gold with +overflow once over (sound plays once, never for an already-expired breather)
 export default function Breather({ endsAt, nextTask, onStart }) {
    const [now, setNow] = useState(() => Date.now())
-   const armedRef = useRef(endsAt > Date.now())
+   const armedRef = useRef(endsAt > now)
 
    useEffect(() => {
       const id = setInterval(() => setNow(Date.now()), 1000)
